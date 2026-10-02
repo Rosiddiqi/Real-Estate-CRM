@@ -7,6 +7,24 @@ estate: the car **Garage** becomes a property **Portfolio**, dealer **Inventory*
 
 Native iPhone app (Capacitor, TestFlight-ready) + mobile-first PWA that also works on desktop.
 
+## What's inside
+
+| Area | What it does |
+|---|---|
+| **Home · Battle Plan** | A time-ordered plan for the day built from your book: showings, calls to make, follow-ups and protected blocks. It has a live NOW line, a To-Do list with Serena's suggestions, and an AI coach on each tile. |
+| **Home · Stats** | Closings ring against your goal, volume, GCI, projected end of month, MTD and YTD pace, pipeline funnel and at-risk deals. |
+| **Inbox** | An iMessage-style inbox with a "needs you first" triage card, pinned threads, buckets, swipe actions, AI reply chips, scheduled sends, quick text and a split view on desktop. |
+| **Clients** | Clients, partners and vendors. The client card has a relationship ring, lifetime stats, a timeline that interleaves texts and activity, notes, appointments, and a **Portfolio** (owned, rented, sold, watching), which replaces RevMatch's Garage. |
+| **Pipeline** | Buyer, listing, lease and new-development lanes with drag and one-tap advance. Closing shows a celebration screen and asks for the net. Also commissions (pay plan, cap and tiers, ICA parsing) and the Book of Business ledger. |
+| **Listings · Matchmaker** | Your listings, MLS, pocket, whisper and new-development lanes. Add a listing by pasting text or a link, share a private showcase page (address can be hidden), and see every buyer at 80%+ fit. Matchmaker has Whisper, Listings, Off-Market and Price Drops views. |
+| **Phone** | A "call now" list, recents, voicemail, and a live-call screen with briefing, transcript and co-pilot (in the demo), plus a post-call recap with one-tap follow-ups. |
+| **Serena (AI)** | Floating assistant with chat, 31 tools, action cards with undo, and drafts that never send without your OK. It also reads your To-Do and match digest. |
+| **Campaigns** | Text campaign builder (audience, message, event invite, reply lanes), Sender Guard pacing and automations such as home anniversaries. |
+| **Calendar** | Showings, consults and closings, plus work schedule and routine, conflict checks and pre-meeting briefings. |
+
+Every AI feature has a fallback that works without an API key. Fair Housing guardrails keep
+protected-class details out of AI prompts, out of matching and out of campaigns.
+
 ## Stack
 
 | Layer | Tech |

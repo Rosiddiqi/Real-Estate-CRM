@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Integration QA tour — visits every surface in one session and screenshots it.
 //   node scripts/tour.mjs --url http://localhost:5173 --out /tmp/tour [--width 390 --height 844] [--theme light]
+//   node scripts/tour.mjs --url http://127.0.0.1:4180 --api http://localhost:3200 --out /tmp/tour-native   (VITE_API_URL build, native-like)
 // Writes <out>/NN-name.png and <out>/report.txt (console errors + failed API calls per stop).
 import { chromium } from '../web/node_modules/playwright-core/index.mjs';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -13,6 +14,7 @@ const url = args.url || 'http://localhost:5173';
 const out = args.out || '/tmp/tour';
 const width = Number(args.width || 390);
 const height = Number(args.height || 844);
+const apiBase = (args.api && args.api !== true ? args.api : '').replace(/\/$/, ''); // cross-origin builds (native-like)
 mkdirSync(out, { recursive: true });
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
@@ -28,16 +30,16 @@ try { const d = page.getByText('Explore the demo book'); await d.waitFor({ timeo
 await page.waitForSelector('.km-tabbar', { timeout: 20000 });
 
 // Look up ids for deep links.
-const ids = await page.evaluate(async () => {
+const ids = await page.evaluate(async (base) => {
   const tok = localStorage.getItem('km_at');
   const h = { Authorization: `Bearer ${tok}` };
-  const j = async (p) => { try { const r = await fetch(`/api${p}`, { headers: h }); return r.ok ? r.json() : {}; } catch { return {}; } };
+  const j = async (p) => { try { const r = await fetch(`${base}/api${p}`, { headers: h }); return r.ok ? r.json() : {}; } catch { return {}; } };
   const [c, cv, d, l, ca] = await Promise.all([j('/clients?limit=5&sort=recent'), j('/conversations?limit=5'), j('/deals?limit=5&open=1'), j('/listings?limit=5'), j('/campaigns')]);
   return {
     client: (c.clients || [])[0]?.id, conversation: (cv.conversations || [])[0]?.id,
     deal: (d.deals || [])[0]?.id, listing: (l.listings || [])[0]?.id, campaign: (ca.campaigns || [])[0]?.id,
   };
-});
+}, apiBase);
 
 const stops = [
   ['home', '#/home'],
