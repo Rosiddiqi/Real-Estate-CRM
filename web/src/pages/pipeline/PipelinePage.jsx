@@ -3,7 +3,7 @@
 // navigator → six snap columns → New Development lane. `focus` (deal id)
 // scrolls to + flashes that deal. Every path into Closed runs the won flow.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import PushPanel from '../../components/ui/PushPanel';
+import PushPanel, { usePanel } from '../../components/ui/PushPanel';
 import PageHeader from '../../components/ui/PageHeader';
 import GlassButton from '../../components/ui/GlassButton';
 import Icon from '../../components/ui/Icon';
@@ -16,7 +16,7 @@ import KanbanBoard from '../../components/pipeline/KanbanBoard';
 import NewDevLane from '../../components/pipeline/NewDevLane';
 import LostReasonSheet from '../../components/pipeline/LostReasonSheet';
 import { runWonFlow } from '../../components/pipeline/WonFlow';
-import { labelFor, stageForPhase, usePipelineConfig } from '../../components/pipeline/config';
+import { stageForPhase, usePipelineConfig } from '../../components/pipeline/config';
 import {
   bookClose, flushDeal, getDealSync, loadBoard, moveDeal, removeDeal, reopenDeal, updateDeal,
   useBoardDeals, useDealRealtime,
@@ -183,26 +183,12 @@ export default function PipelinePage({ focus, onClose }) {
     }));
   };
 
-  const header = (
-    <PageHeader
-      title="Pipeline"
-      onBack={undefined}
-      left={<GlassButton icon="chevronLeft" label="Back" onClick={() => document.dispatchEvent(new CustomEvent('km-pl-close'))} />}
-      right={(
-        <>
-          <GlassButton icon="percent" label="Pay plan" onClick={() => nav.openPayPlan()} />
-          <GlassButton icon="plus" label="Add deal" accent onClick={() => nav.newDeal({})} />
-        </>
-      )}
-    />
-  );
-
   const loading = (!cfg || status === 'loading') && !deals.length;
   const failed = (error && !loadedAt) || (cfgError && !cfg);
   const delivered = lane.filter((d) => d.stage === 'building_delivered').length;
 
   return (
-    <PushPanel onClose={onClose} header={<PanelHeader header={header} />} scroll={false}>
+    <PushPanel onClose={onClose} header={<BoardHeader />} scroll={false}>
       <div ref={pageRef} className="km-pl-scroll">
         <div className="km-pl-stats" role="group" aria-label="Pipeline totals">
           <div className="km-pl-stat">
@@ -307,28 +293,23 @@ export default function PipelinePage({ focus, onClose }) {
       </div>
 
       <LostReasonSheet deal={lostDeal} open={!!lostDeal} onClose={() => setLostDeal(null)} onConfirm={onConfirmLost} />
-      {/* label lookup kept warm for toasts */}
-      {cfg && expandedId && getDealSync(expandedId) ? <span hidden>{labelFor(cfg, getDealSync(expandedId).stage, getDealSync(expandedId).side).label}</span> : null}
     </PushPanel>
   );
 }
 
-// The PushPanel owns the back animation; this wrapper lets the header's back
-// button call the panel's requestClose (usePanel) without prop drilling.
-function PanelHeader({ header }) {
-  return <PanelBack>{header}</PanelBack>;
+// Header inside the panel's context so Back runs the push-panel exit.
+function BoardHeader() {
+  const { requestClose } = usePanel();
+  return (
+    <PageHeader
+      title="Pipeline"
+      onBack={requestClose}
+      right={(
+        <>
+          <GlassButton icon="percent" label="Pay plan" onClick={() => nav.openPayPlan()} />
+          <GlassButton icon="plus" label="Add deal" accent onClick={() => nav.newDeal({})} />
+        </>
+      )}
+    />
+  );
 }
-
-function PanelBack({ children }) {
-  const { requestClose } = usePanelSafe();
-  useEffect(() => {
-    const fn = () => requestClose();
-    document.addEventListener('km-pl-close', fn);
-    return () => document.removeEventListener('km-pl-close', fn);
-  }, [requestClose]);
-  return children;
-}
-
-// eslint-disable-next-line import/first
-import { usePanel } from '../../components/ui/PushPanel';
-function usePanelSafe() { return usePanel(); }
