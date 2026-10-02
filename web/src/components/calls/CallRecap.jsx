@@ -119,7 +119,7 @@ export default function CallRecap({ call, lines, onDone, onHandoff }) {
     <>
       <div className="km-call-top">
         <button type="button" className="km-call-round km-lg km-lg--light" onClick={onDone} aria-label="Close"><Icon name="x" size={18} stroke={2.2} /></button>
-        <div className="km-call-timer km-lg km-lg--light"><Icon name="checkCircle" size={14} stroke={2.4} color="var(--green)" />Call ended · {fmtShort(call.durationSec)}</div>
+        <div className="km-call-timer km-lg km-lg--light"><Icon name="checkCircle" size={14} stroke={2.4} color="var(--green)" />{call.mode === 'device' ? 'Call logged' : 'Call ended'}{call.mode === 'device' && call.outcome === 'no_answer' ? '' : ` · ${fmtShort(call.durationSec)}`}</div>
         <span style={{ width: 40 }} />
       </div>
       <div className="km-recap-body">
@@ -127,7 +127,7 @@ export default function CallRecap({ call, lines, onDone, onHandoff }) {
           <div className="km-call-hero" style={{ paddingTop: 16, paddingBottom: 14 }}>
             <Avatar name={call.client || saved ? name : null} seed={call.clientId || saved?.id || call.otherNumber} src={call.client?.avatarUrl} size={60} />
             <div className="km-call-name" style={{ fontSize: 23 }}>{name}</div>
-            <div className="km-call-meta">{call.direction === 'inbound' ? 'Incoming' : 'Outgoing'} call · {fmtShort(call.durationSec)}{call.mode === 'simulated' ? ' · demo line' : ''}</div>
+            <div className="km-call-meta">{call.direction === 'inbound' ? 'Incoming' : 'Outgoing'} call · {call.mode === 'device' && call.outcome === 'no_answer' ? 'no answer' : call.mode === 'device' && call.outcome === 'voicemail' ? `voicemail ${fmtShort(call.durationSec)}` : fmtShort(call.durationSec)}{call.mode === 'simulated' ? ' · demo line' : call.mode === 'device' ? ' · from your phone' : ''}</div>
             {!call.clientId && !saved && call.otherNumber ? (
               <button type="button" className="km-srn-ghost km-srn-ghost--blue" style={{ marginTop: 10 }} onClick={() => setSaveOpen(true)}><Icon name="userPlus" size={14} stroke={2} />Save contact</button>
             ) : saved ? <div style={{ marginTop: 8, fontSize: 12.5, color: 'var(--green)', fontWeight: 600 }}>✓ Saved to clients</div> : null}
@@ -159,7 +159,7 @@ export default function CallRecap({ call, lines, onDone, onHandoff }) {
                   <span className="km-sg-count">{doneCount + 1} of {sorted.length}</span>
                 </div>
                 <div className="km-sg-title">{current.title}</div>
-                {current.heard ? <div className="km-sg-heard km-selectable"><b>From the call</b>“{current.heard}”</div> : null}
+                {current.heard ? <div className="km-sg-heard km-selectable"><b>{call.mode === 'device' ? 'From your notes' : 'From the call'}</b>“{current.heard}”</div> : null}
                 <div className="km-sg-fields">
                   {fieldRows(current, editing === current.id).map(([label, key, value]) => (
                     <div className="km-sg-field" key={key}>

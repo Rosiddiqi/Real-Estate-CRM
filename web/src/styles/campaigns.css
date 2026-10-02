@@ -275,3 +275,6 @@
 /* The builder owns the bottom of the screen (its CTA bar): the floating
    Serena bubble steps aside while it is open, like it does for sheets. */
 body.kc-builder-open [data-serena-bubble] { opacity: 0 !important; pointer-events: none !important; }
+
+/* Secondary labels that step aside on the narrowest phones (≤380px). */
+@media (max-width: 380px) { .kc-hide-narrow { display: none; } }

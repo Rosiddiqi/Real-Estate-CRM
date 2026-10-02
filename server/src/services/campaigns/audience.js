@@ -228,17 +228,22 @@ async function audienceOptions(workspaceId) {
   };
 }
 
+const TYPE_PLURAL = { buyer: 'Buyers', seller: 'Sellers', buyer_seller: 'Buyer-sellers', investor: 'Investors', renter: 'Renters', landlord: 'Landlords', developer: 'Developers', sphere: 'Sphere' };
+
 function describeAudience(raw) {
   const a = normalizeAudience(raw);
   const parts = [];
   if (a.groups.length) parts.push(a.groups.map((g) => GROUPS[g]).join(' or '));
-  if (a.types.length) parts.push(a.types.map((t) => t.replace('_', '/')).join(', '));
+  if (a.types.length) parts.push(a.types.map((t) => TYPE_PLURAL[t] || t.replace('_', '/')).join(', '));
   if (a.buyersIn) {
     const band = a.buyersIn.priceMin || a.buyersIn.priceMax ? ` ${a.buyersIn.priceMin ? priceShort(a.buyersIn.priceMin) : ''}–${a.buyersIn.priceMax ? priceShort(a.buyersIn.priceMax) : ''}` : '';
     parts.push(`Searching${a.buyersIn.neighborhoods.length ? ` ${a.buyersIn.neighborhoods.join(', ')}` : ''}${band}`);
   }
   if (a.ownersIn) parts.push(`Owners${a.ownersIn.neighborhoods.length ? ` in ${a.ownersIn.neighborhoods.join(', ')}` : ''}`);
   if (a.neighborhoods.length) parts.push(a.neighborhoods.join(', '));
+  // Seeded audiences may carry a plain price band.
+  const band = raw && Array.isArray(raw.priceBand) ? raw.priceBand : null;
+  if (!a.buyersIn && band && (band[0] || band[1])) parts.push(`${band[0] ? priceShort(band[0]) : ''}–${band[1] ? priceShort(band[1]) : ''}`);
   if (a.whales) parts.push('Whales');
   if (a.pastClients) parts.push('Past clients');
   if (a.sphere) parts.push('Sphere');

@@ -489,6 +489,13 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
             ) : samples.length ? (
               <div style={{ marginTop: 6 }}>
                 <div style={{ fontSize: 12.5, color: 'var(--faint)', margin: '4px 0 2px' }}>{samples.length} of your {count}, each written individually at send time.</div>
+                {samples.every((x) => x.via !== 'ai') ? (
+                  <InfoNote kind="warn" style={{ marginTop: 10 }}>
+                    {trigger === 'custom'
+                      ? 'AI writing is off right now, so each text follows your words closely. Write the message the way you would text one person.'
+                      : 'AI writing is off right now, so texts use a personalized template with your listing, event and any lines you wrote as copy.'}
+                  </InfoNote>
+                ) : null}
                 {samples.map((s, i) => (
                   <div key={s.clientId} className="kc-step-in" style={{ marginTop: 14, animationDelay: `${i * 90}ms`, opacity: writing ? 0.5 : 1, transition: 'opacity 0.2s' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

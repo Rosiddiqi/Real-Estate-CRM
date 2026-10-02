@@ -29,7 +29,12 @@ const CAPTION = 'Written per person, in your voice';
 export function normalizeLanes(value) {
   const v = value && typeof value === 'object' ? value : {};
   const out = {};
-  for (const k of LANE_KEYS) out[k] = { ...DEFAULTS[k], ...(v[k] || {}) };
+  for (const k of LANE_KEYS) {
+    const lane = v[k] && typeof v[k] === 'object' ? v[k] : {};
+    out[k] = { ...DEFAULTS[k], ...lane };
+    // Seeded / older lanes carry { label, action } instead of the agent's words.
+    if (!String(out[k].text || '').trim() && typeof lane.action === 'string' && !/^no follow-?up$/i.test(lane.action.trim())) out[k].text = lane.action;
+  }
   for (const k of Object.keys(v)) if (!LANE_KEYS.includes(k) && v[k] !== undefined) out[k] = v[k];
   return out;
 }

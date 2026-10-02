@@ -132,10 +132,12 @@ const BLAST_VARIANTS = {
     'Hi {first}, I just closed {addr}{inHood}{forPrice}. Curious what yours would sell for today? Happy to run the numbers for you.',
     '{first}, quick note: we just sold {addr}{forPrice}. If you’ve ever wondered what your home is worth right now, I’d be glad to put together a private valuation.',
   ],
+  // Details beyond the facts (food, "bring a friend") come only from the
+  // agent's own brief, via briefExtras().
   open_house_invite: [
-    'Hi {first}, I’m hosting an open house at {addr}{whenComma}. Light bites and a private walkthrough, bring a friend. Will you come by?{rsvp}',
+    'Hi {first}, I’m hosting an open house at {addr}{whenComma}. Will you come by?{rsvp}',
     '{first}, you’re invited: open house at {addr}{whenComma}. I’d love to show you around.{rsvp}',
-    'Hi {first}! Open house at {addr}{whenComma}. Come see it in person, bring a friend.{rsvp}',
+    'Hi {first}! Open house at {addr}{whenComma}. Come see it in person.{rsvp}',
   ],
   price_improvement: [
     'Hi {first}, heads up: {addr} just had a price improvement to {price}. {specsCap}. Want to take a private tour this week?',
@@ -238,6 +240,31 @@ function fallbackText(opts) {
   return text;
 }
 
+// Sentences of the agent's brief that read as copy, not as instructions to
+// the AI ("Light bites and a private walkthrough." yes; "Mention the price",
+// "Keep it short", "No exclamation points" no). The no-AI fallback adds them so
+// a template text never drops the agent's own words or invents its own.
+const IMPERATIVE_RE = /^(please\s+)?(invite|mention|ask|tell|let|offer|keep|lead|include|send|text|remind|announce|share|say|make|use|add|thank|give|follow|check|call|note|highlight|focus|emphasi[sz]e|avoid|don['’]?t|do not|never|always|be|write|sign|end|start|open|close|attach|link|reply|confirm|wish|congratulate|personali[sz]e|explain|describe|stress|point out|frame|position|pitch|tease|hint|promise|push|nudge|encourage|get|see if|find out|try)\b/i;
+const STYLE_START_RE = /^(no|not|nothing|short|shorter|brief|warm|warmly|friendly|casual|casually|professional|polished|upbeat|formal|informal|personal|tone|style|under|max(imum)?|only|just|plain|simple|concise|one|two|three|\d+)\b/i;
+const STYLE_ANY_RE = /\b(tone|voice|style|emoji|exclamation|sentences?|words|characters|business talk|sales-?y|pushy|the ai|ai should|brief)\b/i;
+const RECIPIENT_RE = /\b(they|them|their|theirs|themselves|buyers?|sellers?|clients?|everyone|people|recipients?|my list|the list)\b/i;
+function briefExtras(brief, { max = 2 } = {}) {
+  const sents = String(brief || '').replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
+  const keep = sents.filter((x) => x.length >= 8 && x.length <= 180 && !IMPERATIVE_RE.test(x) && !STYLE_START_RE.test(x) && !STYLE_ANY_RE.test(x) && !RECIPIENT_RE.test(x) && !/[{}]/.test(x));
+  return keep.slice(0, max).map((x) => (/[.!?]$/.test(x) ? x : `${x}.`)).join(' ');
+}
+
+// Put extra sentences right after the opening sentence of a filled text.
+function insertAfterLead(text, extras) {
+  if (!extras) return text;
+  const re = /[.!?](\s+)/g;
+  let m;
+  while ((m = re.exec(text))) {
+    if (m.index >= 20) return `${text.slice(0, m.index + 1)} ${extras}${text.slice(m.index + 1)}`;
+  }
+  return `${text} ${extras}`;
+}
+
 function fallbackCore({ campaign, client, kind, lane, stepIndex = 0, listing, event, agent, seed, attempt = 0, extra = {} }) {
   const v = templateVars({ client, listing, event, agent, extra });
   const pick = (arr) => arr[(hashPick(seed || client.id, arr.length) + attempt) % arr.length];
@@ -259,6 +286,9 @@ function fallbackCore({ campaign, client, kind, lane, stepIndex = 0, listing, ev
     out = campaign.trigger === 'post_closing' ? list[Math.min(stepIndex, list.length - 1)] : pick(list);
   } else if (campaign && BLAST_VARIANTS[campaign.trigger]) {
     out = pick(BLAST_VARIANTS[campaign.trigger]);
+    const filled = fill(out, v);
+    const extras = briefExtras(campaign.brief);
+    return sanitizeOutbound(extras && !filled.includes(extras) ? insertAfterLead(filled, extras) : filled);
   } else {
     return sanitizeOutbound(briefToText(campaign && campaign.brief, v.first));
   }
@@ -351,4 +381,4 @@ async function draft({ workspaceId, campaign, client, kind = 'initial_send', lan
   return { text, citations, via: 'template' };
 }
 
-module.exports = { draft, fallbackText, sanitizeOutbound, briefToText, listingFacts, fmtEventWhen, agentInfo, money, clientContext, SYSTEM };
+module.exports = { draft, fallbackText, sanitizeOutbound, briefToText, briefExtras, listingFacts, fmtEventWhen, agentInfo, money, clientContext, SYSTEM };

@@ -10,7 +10,11 @@ export default function CallRow({ call, onCall, onInfo, onSave, index = 0 }) {
   const kind = classify(call);
   const name = callName(call);
   const missed = kind === 'missed';
-  const detail = call.summary && kind !== 'missed' ? call.summary : (fmtDur(call.durationSec) || (call.status === 'cancelled' ? 'Cancelled' : call.status === 'no_answer' && call.direction === 'outbound' ? 'No answer' : null));
+  const fromPhone = call.mode === 'device';
+  const detail = fromPhone && call.outcome === 'voicemail' ? `Left voicemail${call.durationSec ? ` · ${fmtDur(call.durationSec)}` : ''}`
+    : fromPhone && call.status === 'dialed' ? 'From your phone'
+      : call.summary && kind !== 'missed' ? call.summary
+        : (fmtDur(call.durationSec) || (call.status === 'cancelled' ? 'Cancelled' : call.status === 'no_answer' && call.direction === 'outbound' ? 'No answer' : null));
   return (
     <div className="km-ph-row km-row-in" data-row-id={call.id} style={{ animationDelay: `${Math.min(index, 12) * 22}ms` }}>
       <button type="button" className="km-ph-row-main km-press" onClick={() => onCall(call)} aria-label={`Call ${name}`}>

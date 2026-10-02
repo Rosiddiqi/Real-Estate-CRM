@@ -202,9 +202,14 @@ function notesHeuristic(notes, client, tz, outcome, durationSec) {
   }
   for (const sn of sentences) {
     if (used.has(sn) || !PROMISE_RE.test(sn) || suggestions.filter((x) => x.kind === 'task').length >= 2) continue;
-    const what = sn.replace(LEAD_RE, '').replace(/[.!]+$/, '').trim();
+    const what = sn.replace(LEAD_RE, '').replace(/[.!]+$/, '')
+      // "…the HOA docs tomorrow" → "…the HOA docs" (the due date carries the day)
+      .replace(/\s+(?:by |on |this |next )?(?:today|tonight|tomorrow|(?:mon|tues|wednes|thurs|fri|satur|sun)day|week|morning|afternoon|evening)(?:\s+(?:morning|afternoon|evening|night))?$/i, '')
+      .trim();
     if (what.length < 5) continue;
-    const title = what.charAt(0).toUpperCase() + what.slice(1);
+    // "Send her the HOA docs" → "Send Olivia the HOA docs"
+    const named = client ? what.replace(/^(\w+)\s+(her|him|them)\b/i, (m, verb) => `${verb} ${first}`) : what;
+    const title = named.charAt(0).toUpperCase() + named.slice(1);
     suggestions.push({ kind: 'task', title: U.clip(title, 70), heard: sn, fields: { title: U.clip(title, 120), date: T.parseDay(sn, tz) ? sn : 'tomorrow' } });
     used.add(sn);
   }

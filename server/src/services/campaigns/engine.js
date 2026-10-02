@@ -24,7 +24,7 @@ const ics = require('./ics');
 const store = require('./settingsStore');
 const { resolveAudience } = require('./audience');
 const { refreshCached } = require('./stats');
-const { CLAIMABLE, NOT_SENT, SEQUENCE_KINDS, AUTOMATION_DEFS } = require('./constants');
+const { CLAIMABLE, NOT_SENT, SEQUENCE_KINDS, AUTOMATION_DEFS, listingIdOf } = require('./constants');
 
 const TAKE = 8;
 const DRAFTING_STALE_MS = 5 * 60000;
@@ -365,7 +365,7 @@ async function processRow(row, from, ctx) {
   // Automation in draft-approval mode: draft for the agent, send nothing.
   const def = isAuto ? AUTOMATION_DEFS[campaign.trigger] : null;
   const approval = isAuto ? ((campaign.audience && campaign.audience.approval) || (def && def.approval) || 'auto') : 'auto';
-  const listing = await loadListing(workspaceId, (item.payload && item.payload.listingId) || (Array.isArray(campaign.steps) && campaign.steps[0] && campaign.steps[0].listingId));
+  const listing = await loadListing(workspaceId, (item.payload && item.payload.listingId) || listingIdOf(campaign));
   const agent = await ctx.agent(workspaceId);
 
   if (item.kind === 'auto_step' && approval === 'draft') {
@@ -461,6 +461,14 @@ async function processRow(row, from, ctx) {
     sent = await transport.deliver({ workspaceId, client, body: text, attachments, campaignId: campaign.id, recipientId: row.id, aiGenerated: true });
   } catch (err) {
     const msg = String(err.message || '');
+    // No business texting line ('device' mode): hold this text exactly as it
+    // was and pause the blast. Never a failure, never an opt-out.
+    const lineCode = (err.details && err.details.code) || err.code;
+    if ([mode.NEEDS_LINE, 'device_mode'].includes(lineCode) || /texting line|device mode|messages app/i.test(msg)) {
+      await finish(row, (l) => releaseData(l, from));
+      if (!isAuto && campaign.status === 'running') await pauseCampaign({ workspaceId, campaignId: campaign.id, reason: mode.NEEDS_LINE }).catch(() => {});
+      return;
+    }
     const offline = err.status === 503 || err.status === 429 || /offline|kill ?switch|disabled|not connected|unavailable|paused|held by send safety|too many/i.test(msg);
     if (err.status === 409 && /opted out/i.test(msg)) {
       await finish(row, (l) => ({ ...Q.withQueue(Q.metaOf(l), []), status: 'opted_out', error: 'This person asked not to be texted' }));

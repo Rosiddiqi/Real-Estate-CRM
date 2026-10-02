@@ -48,6 +48,8 @@ const ROUTES = [
   ['/api/serena', 'serena'],
   ['/api/import', 'importer'],
   ['/api/bridge', 'bridge'],
+  // Twilio voice callbacks (signature-verified) — mounted before /api/webhooks.
+  ['/api/webhooks/twilio/voice', 'callWebhooks', { public: true }],
   ['/api/webhooks', 'webhooks', { public: true }],
   ['/api/public', 'publicPages', { public: true }],
 ];

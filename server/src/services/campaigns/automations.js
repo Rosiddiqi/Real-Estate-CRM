@@ -153,7 +153,7 @@ async function updateAutomation({ workspaceId, id, patch }) {
       // Off means off: pending trigger texts are dropped, not held.
       const rows = await prisma.campaignRecipient.findMany({ where: { campaignId: a.id, nextSendAt: { not: null } }, select: { id: true, meta: true, lastSentAt: true, status: true } });
       for (const r of rows) {
-        const q = Q.queueOf(r).filter((i) => !['auto_step', 'approved_send'].includes(i.kind));
+        const q = Q.queueOf(r, { automation: true }).filter((i) => !['auto_step', 'approved_send'].includes(i.kind));
         await prisma.campaignRecipient.update({ where: { id: r.id }, data: { ...Q.withQueue(Q.metaOf(r), q), ...(!r.lastSentAt && ['pending', 'rate_deferred', 'scheduled'].includes(r.status) ? { status: 'canceled', error: 'Automation turned off' } : {}) } }).catch(() => {});
       }
     }
@@ -180,9 +180,18 @@ async function enroll({ workspaceId, automation, clientId, triggerKey, items }) 
   const meta = Q.metaOf(existing);
   if ((meta.triggerKeys || []).includes(triggerKey)) return false;
   if (['opted_out', 'muted'].includes(existing.status)) return false;
-  const q = [...Q.queueOf(existing), ...queueItems];
-  const data = { ...Q.withQueue({ ...meta, triggerKey, triggerKeys: [...(meta.triggerKeys || []), triggerKey].slice(-60) }, q) };
-  if (existing.status !== 'drafting' && !Q.queueOf(existing).length) {
+  const have = Q.queueOf(existing, { automation: true });
+  const keys = [...(meta.triggerKeys || []), triggerKey].slice(-60);
+  // Already queued for the same moment another way (seeded rows, an earlier
+  // run before trigger keys): record the key, never double up.
+  const near = (a, b) => Math.abs(new Date(a).getTime() - new Date(b).getTime()) < 36 * 3600000;
+  if (queueItems.every((n) => have.some((e) => e.kind === 'auto_step' && near(e.at, n.at)))) {
+    await prisma.campaignRecipient.update({ where: { id: existing.id }, data: Q.withQueue({ ...meta, triggerKeys: keys }, have) });
+    return false;
+  }
+  const q = [...have, ...queueItems];
+  const data = { ...Q.withQueue({ ...meta, triggerKey, triggerKeys: keys }, q) };
+  if (existing.status !== 'drafting' && !have.length) {
     Object.assign(data, { status: 'pending', lane: 'none', stepIndex: 0, error: null });
   }
   await prisma.campaignRecipient.update({ where: { id: existing.id }, data });

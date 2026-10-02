@@ -30,7 +30,7 @@ async function dial({ workspaceId, userId, clientId = null, phone = null }) {
   }
   const number = normalizePhone(phone || (client && client.phone) || '');
   if (!number || number.includes('@') || number.replace(/\D/g, '').length < 7) {
-    throw httpError(400, `No phone number for ${client ? U.nameOf(client) : 'that contact'}`);
+    throw Object.assign(httpError(400, `No phone number for ${client ? U.nameOf(client) : 'that contact'}`), { code: 'no_phone' });
   }
   if (!client) client = await prisma.client.findFirst({ where: { workspaceId, archivedAt: null, OR: [{ phone: number }, { phoneAlt: number }] }, select: U.CLIENT_LITE });
   const call = await prisma.phoneCall.create({

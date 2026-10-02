@@ -135,6 +135,8 @@ router.post('/dial', ah(async (req, res) => {
       const { call, tel } = await device.dial({ workspaceId: req.workspaceId, userId: req.userId, clientId, phone });
       return res.json({ call: serializeCall(call, { transcript: true }), mode: 'device', tel });
     } catch (err) {
+      // Nothing to dial is an expected, user-level outcome — the app toasts it.
+      if (err.code === 'no_phone') return res.json({ call: null, mode: 'device', tel: null, reason: 'no_phone', message: err.message });
       throw new HttpError(err.status || 400, err.message);
     }
   }

@@ -93,7 +93,9 @@ function RecipientRow({ r, onMore }) {
           </span>
           <span className="km-truncate" style={{ display: 'block', fontSize: 12.5, color: r.status === 'rate_deferred' ? 'var(--amber)' : 'var(--dim)', marginTop: 2 }}>{activityLine(r)}</span>
           {r.lastReply && r.lastReply.body ? (
-            <span className="km-clamp-2 km-selectable" style={{ marginTop: 6, fontSize: 13, lineHeight: 1.38, color: 'var(--bubble-in-text)', padding: '7px 11px', borderRadius: '15px 15px 15px 5px', background: 'var(--bubble-in)', width: 'fit-content', maxWidth: '100%' }}>{r.lastReply.body}</span>
+            <span style={{ display: 'block', marginTop: 6, padding: '7px 11px', borderRadius: '15px 15px 15px 5px', background: 'var(--bubble-in)', width: 'fit-content', maxWidth: '100%' }}>
+              <span className="km-clamp-2 km-selectable" style={{ fontSize: 13, lineHeight: 1.38, color: 'var(--bubble-in-text)' }}>{r.lastReply.body}</span>
+            </span>
           ) : null}
         </span>
       </button>
@@ -171,6 +173,7 @@ export default function CampaignDetail({ id, onClose }) {
   // 'device' messaging mode: no business texting line, nothing automated sends.
   const needsLine = useMessagingMode() === 'device';
   const lineHeld = !!(c && c.status === 'paused' && c.schedule && c.schedule.pauseReason === 'needs_texting_line');
+  const lanesEditable = !!(c && !isAuto && c.status !== 'completed');
 
   const patchCampaign = (patch) => setData((d) => (d ? { ...d, campaign: { ...d.campaign, ...patch } } : d));
 
@@ -413,15 +416,15 @@ export default function CampaignDetail({ id, onClose }) {
               </>
             ) : null}
 
-            <Eyebrow icon="reply" style={{ marginTop: 22 }} right={!isAuto ? <button type="button" onClick={openLanes} style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--bright)', letterSpacing: 0, textTransform: 'none' }}>Edit</button> : null}>After they reply</Eyebrow>
-            <button type="button" className="kc-section km-press" onClick={isAuto ? undefined : openLanes} disabled={isAuto} style={{ marginTop: 10, padding: '10px 13px', width: '100%', textAlign: 'left', display: 'block' }}>
+            <Eyebrow icon="reply" style={{ marginTop: 22 }} right={lanesEditable ? <button type="button" onClick={openLanes} style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--bright)', letterSpacing: 0, textTransform: 'none' }}>Edit</button> : null}>After they reply</Eyebrow>
+            <button type="button" className={`kc-section ${lanesEditable ? 'km-press' : ''}`} onClick={lanesEditable ? openLanes : undefined} disabled={!lanesEditable} style={{ marginTop: 10, padding: '10px 13px', width: '100%', textAlign: 'left', display: 'block', color: 'inherit' }}>
               {['green', 'yellow', 'red', 'gray'].map((k) => {
                 const l = (c.lanes || {})[k] || {};
                 const steps = Array.isArray(l.steps) ? l.steps : [];
                 const off = l.enabled === false;
                 const text = off ? 'Off'
                   : k === 'gray' ? (String(l.text || '').trim() ? `Quiet for ${String(l.timerText || '2 days').toLowerCase()}, then one nudge` : 'No nudge')
-                    : steps.length ? laneSummary(steps) : 'No follow-up';
+                    : steps.length ? laneSummary(steps) : (String(l.action || '').trim() || 'No follow-up');
                 return (
                   <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '5px 0', fontSize: 13, color: off ? 'var(--faint)' : 'var(--dim)' }}>
                     <LaneDot lane={k} size={7} glow={!off} />
@@ -449,7 +452,7 @@ export default function CampaignDetail({ id, onClose }) {
             {c.status === 'paused' && !isAuto && !needsLine ? <ActionRow icon="play" label="Resume sending" onClick={() => { close(); resume(); }} /> : null}
             {live && !isAuto ? <ActionRow icon="pause" label="Pause sending" sub="Queued texts and follow-ups wait" onClick={() => { close(); pause(); }} /> : null}
             {!isAuto ? <ActionRow icon="copy" label="Duplicate as a draft" onClick={() => { close(); duplicate(); }} /> : null}
-            {!isAuto ? <ActionRow icon="reply" label="Edit the reply plan" onClick={() => { close(); setTimeout(openLanes, 260); }} /> : null}
+            {lanesEditable ? <ActionRow icon="reply" label="Edit the reply plan" onClick={() => { close(); setTimeout(openLanes, 260); }} /> : null}
             {isAuto ? <ActionRow icon="zap" label="Open automations" onClick={() => { close(); nav.openCampaigns(); }} /> : null}
             {stoppable ? <ActionRow icon="x" label="Stop campaign" sub="Cancels unsent texts and follow-ups" danger onClick={() => { close(); stop(); }} /> : null}
             {!isAuto && c.status !== 'running' ? <ActionRow icon="trash" label="Delete campaign" danger onClick={() => { close(); setTimeout(remove, 260); }} /> : null}

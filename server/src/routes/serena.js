@@ -144,6 +144,19 @@ router.post('/proposals/:id', ah(async (req, res) => {
     const client = await prisma.client.findFirst({ where: { id: to, workspaceId: req.workspaceId } });
     if (!client) throw new HttpError(404, 'Client not found');
     if (proposal.kind === 'text' && client.textOptOut) throw new HttpError(400, `${U.nameOf(client)} opted out of texts.`);
+    // No business line (messaging 'device' mode): an email draft goes to the Mail
+    // app (never down the SMS hand-off); texts come back with an sms: URL below.
+    const modeFor = U.fnFrom(U.optionalRequire('../messaging/mode'), 'messagingModeFor');
+    const deviceMessaging = modeFor ? (await modeFor(req.workspaceId).catch(() => null)) === 'device' : false;
+    if (proposal.kind === 'email' && deviceMessaging) {
+      if (!client.email) throw new HttpError(400, `No email address for ${U.nameOf(client)}.`);
+      const subj = String(subject != null ? subject : proposal.subject || '');
+      const mailtoUrl = `mailto:${encodeURIComponent(client.email).replace(/%40/g, '@')}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(finalBody)}`;
+      Object.assign(patch, { status: 'sent', via: 'device', decidedAt: new Date().toISOString(), body: finalBody, subject: subj, clientId: client.id, clientName: U.nameOf(client) });
+      const proposals = (actions.proposals || []).map((p) => (p.id === proposal.id ? { ...p, ...patch } : p));
+      await store.saveActions(msg.id, { ...actions, proposals });
+      return res.json({ ok: true, proposal: proposals.find((p) => p.id === proposal.id), conversationId: null, handoff: 'device', mailtoUrl, smsUrl: null });
+    }
     const mod = U.optionalRequire('../messaging/send');
     const send = U.fnFrom(mod, 'sendMessage');
     if (!send) throw new HttpError(501, 'Sending from Serena isn’t available yet — open the thread to send it.');
@@ -166,10 +179,19 @@ router.post('/proposals/:id', ah(async (req, res) => {
     if (subject != null) patch.subject = subject;
     if (sent && sent.conversation) patch.conversationId = sent.conversation.id;
     if (sent && sent.message) patch.sentMessageId = sent.message.id;
+    // Device hand-off: recorded as sent; the app opens Messages with it (smsUrl).
+    if (sent && (sent.handoff === 'device' || sent.smsUrl)) patch.via = 'device';
   }
   const proposals = (actions.proposals || []).map((p) => (p.id === proposal.id ? { ...p, ...patch } : p));
   await store.saveActions(msg.id, { ...actions, proposals });
-  res.json({ ok: true, proposal: proposals.find((p) => p.id === proposal.id), conversationId: patch.conversationId || null });
+  res.json({
+    ok: true,
+    proposal: proposals.find((p) => p.id === proposal.id),
+    conversationId: patch.conversationId || null,
+    smsUrl: (sent && sent.smsUrl) || null,
+    handoff: (sent && sent.handoff) || null,
+    ...(sent && sent.notice ? { notice: sent.notice } : {}),
+  });
 }));
 
 router.post('/thread/reset', ah(async (req, res) => {

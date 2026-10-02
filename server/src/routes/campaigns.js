@@ -20,7 +20,7 @@ const store = require('../services/campaigns/settingsStore');
 const ics = require('../services/campaigns/ics');
 const Q = require('../services/campaigns/queue');
 const { statsFor, refreshCached, bucketOf } = require('../services/campaigns/stats');
-const { TEMPLATES, accentFor, LANES } = require('../services/campaigns/constants');
+const { TEMPLATES, accentFor, LANES, listingIdOf } = require('../services/campaigns/constants');
 
 const router = express.Router();
 
@@ -60,7 +60,7 @@ function shape(c, stats, extra = {}) {
     audience: audienceSvc.normalizeAudience(c.audience),
     audienceSummary: audienceSvc.describeAudience(c.audience),
     brief: c.brief || '', steps: Array.isArray(c.steps) ? c.steps : [],
-    listingId: step0.listingId || null, includePhoto: !!step0.includePhoto, attachment: step0.attachment || null,
+    listingId: listingIdOf(c), includePhoto: !!step0.includePhoto, attachment: step0.attachment || null,
     lanes: c.lanes || null, event: c.event || null, pacing: c.pacing,
     stats: stats || null,
     schedule: { startAt: run.startAt || null, endAt: run.endAt || null, pausedAt: run.pausedAt || null, pauseReason: run.pauseReason || null, canceledAt: run.canceledAt || null },
@@ -77,10 +77,10 @@ router.get('/', ah(async (req, res) => {
     orderBy: [{ updatedAt: 'desc' }], take: 200,
   });
   const stats = await statsFor(rows);
-  const listingIds = [...new Set(rows.map((c) => Array.isArray(c.steps) && c.steps[0] && c.steps[0].listingId).filter(Boolean))];
+  const listingIds = [...new Set(rows.map((c) => listingIdOf(c)).filter(Boolean))];
   const listings = listingIds.length ? await prisma.listing.findMany({ where: { workspaceId: req.workspaceId, id: { in: listingIds } } }) : [];
   const byId = new Map(listings.map((l) => [l.id, l]));
-  const campaigns = rows.map((c) => shape(c, stats.get(c.id), { listing: listingCard(byId.get(Array.isArray(c.steps) && c.steps[0] ? c.steps[0].listingId : null)) }));
+  const campaigns = rows.map((c) => shape(c, stats.get(c.id), { listing: listingCard(byId.get(listingIdOf(c))) }));
   res.json({ campaigns, total: campaigns.length });
 }));
 
@@ -271,6 +271,21 @@ router.get('/:id', ah(async (req, res) => {
   ]);
   const clients = rows.length ? await prisma.client.findMany({ where: { workspaceId: req.workspaceId, id: { in: rows.map((r) => r.clientId) } }, select: { id: true, firstName: true, lastName: true, displayName: true, avatarUrl: true, phone: true, deviceMode: true, isWhale: true, rating: true, textOptOut: true } }) : [];
   const byId = new Map(clients.map((x) => [x.id, x]));
+  // Replies recorded before the reply pipeline kept a snippet (seeded rows):
+  // read the first text they sent back after the campaign's.
+  const missing = rows.filter((r) => r.repliedAt && r.lastSentAt && !Q.metaOf(r).lastReply && Q.metaOf(r).conversationId);
+  const replyByRow = new Map();
+  if (missing.length) {
+    const since = new Date(Math.min(...missing.map((r) => new Date(r.lastSentAt).getTime())));
+    const inbound = await prisma.message.findMany({
+      where: { workspaceId: req.workspaceId, conversationId: { in: [...new Set(missing.map((r) => Q.metaOf(r).conversationId))] }, isFromMe: false, sentAt: { gte: since } },
+      orderBy: { sentAt: 'asc' }, select: { id: true, conversationId: true, body: true, sentAt: true }, take: 2000,
+    }).catch(() => []);
+    for (const r of missing) {
+      const m = inbound.find((x) => x.conversationId === Q.metaOf(r).conversationId && x.body && new Date(x.sentAt) >= new Date(r.lastSentAt));
+      if (m) replyByRow.set(r.id, { body: String(m.body).slice(0, 280), at: m.sentAt, messageId: m.id });
+    }
+  }
   const recipients = rows.map((r) => {
     const cl = byId.get(r.clientId) || {};
     const m = Q.metaOf(r);
@@ -280,13 +295,13 @@ router.get('/:id', ah(async (req, res) => {
       channel: cl.deviceMode === 'sms' ? 'sms' : 'imessage', isWhale: !!cl.isWhale, rating: cl.rating || 0,
       status: r.status, lane: r.lane, bucket: bucketOf(r), stepIndex: r.stepIndex,
       lastSentAt: r.lastSentAt, repliedAt: r.repliedAt, nextSendAt: r.nextSendAt, nextKind: next ? next.kind : null,
-      error: r.error, lastReply: m.lastReply || null, lastReplyKind: m.lastReplyKind || null, conversationId: m.conversationId || null,
+      error: r.error, lastReply: m.lastReply || replyByRow.get(r.id) || null, lastReplyKind: m.lastReplyKind || null, conversationId: m.conversationId || null,
       tier: m.tier || null, awaitingApproval: !!m.awaitingApproval, laneLockedByAgent: !!m.laneLockedByAgent,
       lastSend: (m.sends || []).slice(-1)[0] || null,
     };
   });
-  const step0 = Array.isArray(c.steps) && c.steps[0] ? c.steps[0] : {};
-  const listing = step0.listingId ? await prisma.listing.findFirst({ where: { id: step0.listingId, workspaceId: req.workspaceId } }) : null;
+  const lid = listingIdOf(c);
+  const listing = lid ? await prisma.listing.findFirst({ where: { id: lid, workspaceId: req.workspaceId } }) : null;
   const invite = ics.inviteEnabled(c) ? ics.inviteFile(c) : null;
   res.json({ campaign: shape(c, stats.get(c.id), { listing: listingCard(listing), invite }), recipients, suggestions: sugg });
 }));
@@ -420,7 +435,8 @@ router.post('/:id/samples', ah(async (req, res) => {
   const want = Math.min(Number(body.count) || 3, 5);
   while (pool.length && picks.length < want) picks.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
   const step0 = Array.isArray(c.steps) && c.steps[0] ? c.steps[0] : {};
-  const listing = step0.listingId ? await prisma.listing.findFirst({ where: { id: step0.listingId, workspaceId: req.workspaceId } }) : null;
+  const sampleListingId = listingIdOf(c);
+  const listing = sampleListingId ? await prisma.listing.findFirst({ where: { id: sampleListingId, workspaceId: req.workspaceId } }) : null;
   const agent = await drafter.agentInfo(req.workspaceId);
   const clients = await prisma.client.findMany({ where: { workspaceId: req.workspaceId, id: { in: picks.map((p) => p.id) } } });
   const byId = new Map(clients.map((x) => [x.id, x]));

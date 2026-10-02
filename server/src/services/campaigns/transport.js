@@ -98,6 +98,13 @@ async function fallbackSend({ workspaceId, client, body, attachments = [], campa
 // Throws on a hard failure; returns a message with status 'failed' when the
 // provider refused it (caller records the failure with the guard).
 async function deliver({ workspaceId, client, body, attachments = [], campaignId = null, recipientId = null, aiGenerated = true }) {
+  // Last line of defense: nothing automated leaves a workspace without a
+  // business texting line ('device' mode hands each text to the phone).
+  const mode = require('./mode');
+  if (await mode.isDeviceMode(workspaceId)) {
+    const { HttpError } = require('../../lib/http');
+    throw new HttpError(409, mode.NEEDS_LINE_MESSAGE, { code: mode.NEEDS_LINE });
+  }
   const mod = loadSendModule();
   if (!mod) return fallbackSend({ workspaceId, client, body, attachments, campaignId, recipientId, aiGenerated });
 

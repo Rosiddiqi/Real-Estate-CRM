@@ -2,6 +2,8 @@
 // of every screen while the call screen is closed: pulsing dot + name + timer
 // (tap to return), mute, and an arm-then-confirm hang-up so a stray tap never
 // drops a client. After a call ends while minimized it offers the recap.
+// Device mode: "Calling <name> on your phone…" with Log (open the log screen
+// now — e.g. on a desktop with no phone app) and × (keep it as dialed).
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Icon from '../ui/Icon';
@@ -29,6 +31,24 @@ export default function CallPill() {
   useEffect(() => () => clearTimeout(armTimer.current), []);
 
   const screenUp = st.screenOpen || overlays.some((o) => o.type === 'call');
+  const dev = st.device;
+  if (dev && dev.phase === 'calling' && !screenUp && !callStore.isLive(call)) {
+    const who = dev.name ? dev.name.split(' ')[0] : 'them';
+    return createPortal(
+      <div className="km-call-pill" role="status" aria-label={`Calling ${dev.name || 'them'} on your phone`}>
+        <button type="button" className="km-call-pill-main" onClick={() => callStore.openDeviceLog()}>
+          <span className="km-call-live is-ringing" />
+          <span style={{ minWidth: 0, flex: 1 }}>
+            <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 650 }}>Calling {who}…</span>
+            <span className="km-truncate" style={{ display: 'block', fontSize: 11.5, color: 'rgba(255,255,255,0.6)' }}>On your phone · tap Log when you hang up</span>
+          </span>
+        </button>
+        <button type="button" className="km-call-pill-log" onClick={() => callStore.openDeviceLog()}>Log</button>
+        <button type="button" className="km-call-pill-btn" onClick={() => callStore.dismissDevice()} aria-label="Dismiss"><Icon name="x" size={15} stroke={2.2} /></button>
+      </div>,
+      document.body,
+    );
+  }
   const recapWaiting = call && !live && call.answeredAt && (call.recapStatus === 'pending' || (call.suggestions || []).some((s) => !s.status || s.status === 'pending'));
   if (!call || screenUp || (!live && !recapWaiting)) return null;
 

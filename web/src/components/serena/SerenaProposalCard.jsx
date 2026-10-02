@@ -58,10 +58,19 @@ export default function SerenaProposalCard({ proposal: p, onHandoff }) {
   const send = async () => {
     if (!hasRecipient) { setPicking(true); return; }
     try {
-      await serena.decide(p.id, 'send', { body, ...(p.kind === 'email' ? { subject } : {}) });
+      const out = await serena.decide(p.id, 'send', { body, ...(p.kind === 'email' ? { subject } : {}) });
       setEditing(false);
       haptic('success');
-      toast.success(`Sent to ${p.clientName ? p.clientName.split(' ')[0] : 'them'}`);
+      const first = p.clientName ? p.clientName.split(' ')[0] : 'them';
+      // No business line: hand it to Messages / Mail on this phone (recorded as sent from your phone).
+      const handoffUrl = out && (out.smsUrl || out.mailtoUrl);
+      if (handoffUrl) {
+        if (out.notice) toast(out.notice);
+        else toast.success(`Opening ${out.mailtoUrl ? 'Mail' : 'Messages'} for ${first}…`);
+        window.location.href = handoffUrl;
+      } else {
+        toast.success(`Sent to ${first}`);
+      }
     } catch (err) {
       if (err && err.status === 501) {
         if (p.kind === 'email' && p.to) { window.location.href = `mailto:${p.to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; return; }
@@ -92,7 +101,7 @@ export default function SerenaProposalCard({ proposal: p, onHandoff }) {
       <div className="km-srn-prop-head">
         <Icon name={p.kind === 'email' ? 'mail' : 'message'} size={14} color="var(--srn-violet)" stroke={2} />
         <span className="km-srn-prop-eyebrow km-truncate">
-          {done ? (status === 'sent' ? `Sent · ${p.kind === 'email' ? 'email' : 'text'}` : 'Opened in thread') : dismissed ? 'Draft dismissed' : `Draft ${p.kind === 'email' ? 'email' : 'text'} · needs your OK`}
+          {done ? (status === 'sent' ? (p.via === 'device' ? 'Sent from your phone' : `Sent · ${p.kind === 'email' ? 'email' : 'text'}`) : 'Opened in thread') : dismissed ? 'Draft dismissed' : `Draft ${p.kind === 'email' ? 'email' : 'text'} · needs your OK`}
         </span>
         {!done && !dismissed ? (
           <button type="button" aria-label="Dismiss draft" onClick={() => serena.decide(p.id, 'dismiss').catch(() => {})} style={{ color: 'var(--faint)', padding: 2 }}>
@@ -151,7 +160,7 @@ export default function SerenaProposalCard({ proposal: p, onHandoff }) {
       {done ? (
         <div className="km-srn-prop-done">
           <Icon name="checkCircle" size={15} stroke={2.2} />
-          <span style={{ flex: 1 }}>{status === 'sent' ? `Sent${p.decidedAt ? ` · ${formatTime(p.decidedAt)}` : ''}` : 'Waiting in the thread'}</span>
+          <span style={{ flex: 1 }}>{status === 'sent' ? `${p.via === 'device' ? `Handed to ${p.kind === 'email' ? 'Mail' : 'Messages'}` : 'Sent'}${p.decidedAt ? ` · ${formatTime(p.decidedAt)}` : ''}` : 'Waiting in the thread'}</span>
           {p.kind !== 'email' && p.clientId ? (
             <button type="button" className="km-srn-ghost km-srn-ghost--blue" onClick={() => onHandoff(() => nav.openThread({ clientId: p.clientId, conversationId: p.conversationId || undefined }))}>View thread</button>
           ) : null}

@@ -110,7 +110,8 @@ async function start({ clientId, phone, name } = {}) {
   if (state.call && LIVE.includes(state.call.status)) return state.call; // one call at a time
   set({ dialing: true, error: null, pending: { clientId, phone, name }, lines: [], cues: [], muted: false, speaker: false, call: null });
   try {
-    const { call, mode, tel } = await Calls.dial({ clientId, phone });
+    const { call, mode, tel, message } = await Calls.dial({ clientId, phone });
+    if (mode === 'device' && !call) throw new Error(message || `No phone number for ${name || 'them'}`);
     if (mode === 'device') {
       set({ dialing: false, pending: null, mode });
       beginDevice(call, tel, name);

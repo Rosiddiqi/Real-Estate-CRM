@@ -186,8 +186,15 @@ const FAIR_HOUSING_RE = /\b(famil(y|ies)[- ]friendly|young (couples?|families|pr
 
 const FAIR_HOUSING_GUARDRAIL = `FAIR HOUSING (absolute): never mention, infer, or target protected characteristics (race, color, religion, national origin, sex, familial status, disability, age, sexual orientation, source of income). Never describe a neighborhood by who lives there ("family-friendly", "perfect for young couples", "safe area", schools as a proxy, places of worship). Talk only about the property, its features, its price, and explicitly named locations.`;
 
+// The campaign's listing: the builder stores it on steps[0]; seeded and older
+// campaigns may carry it on the event instead.
+function listingIdOf(campaign) {
+  const step0 = campaign && Array.isArray(campaign.steps) && campaign.steps[0] ? campaign.steps[0] : {};
+  return step0.listingId || (campaign && campaign.event && campaign.event.listingId) || null;
+}
+
 module.exports = {
   LANES, LANE_META, LISTENING, CLAIMABLE, NOT_SENT, WE_START, SEQUENCE_KINDS,
   ACCENTS, accentFor, TEMPLATES, AUTOMATION_DEFS, AUTOMATION_ORDER,
-  FAIR_HOUSING_RE, FAIR_HOUSING_GUARDRAIL,
+  FAIR_HOUSING_RE, FAIR_HOUSING_GUARDRAIL, listingIdOf,
 };
