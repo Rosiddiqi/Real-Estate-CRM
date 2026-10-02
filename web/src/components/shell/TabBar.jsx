@@ -3,6 +3,7 @@
 // active tab (it fades out on routes without a tab cell); the accent goes on
 // the selected symbol + label, never on the glass.
 import Icon from '../ui/Icon';
+import { haptic } from '../../lib/native';
 
 const TABS = [
   { id: 'home', icon: 'home', label: 'Home' },
@@ -59,7 +60,7 @@ export default function TabBar({ active, onChange, badges = {} }) {
             <button
               key={t.id}
               type="button"
-              onClick={() => onChange?.(t.id)}
+              onClick={() => { if (t.id !== active) haptic('selection'); onChange?.(t.id); }}
               aria-label={t.label}
               aria-current={isActive ? 'page' : undefined}
               data-tab={t.id}

@@ -61,6 +61,14 @@ export async function initNative() {
     Keyboard.setAccessoryBarVisible?.({ isVisible: false }).catch(() => {});
   } catch { /* plugin missing */ }
 
+  // Tap the status bar → scroll the list under the user's thumb to the top
+  // (the WebView itself doesn't scroll, so iOS can't do it for us).
+  window.addEventListener('statusTap', () => {
+    let el = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
+    while (el && !(el.classList && el.classList.contains('km-scroll'))) el = el.parentElement;
+    if (el) el.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
   try {
     const { App } = await import('@capacitor/app');
     App.addListener('appStateChange', async ({ isActive }) => {
