@@ -286,7 +286,8 @@ function keywordResolve(text, options) {
   }
   // Price band → buyers searching in that band.
   let priceMin = null; let priceMax = null;
-  const range = t.match(/\$?\s*(\d+(?:\.\d+)?)\s*(m|mm|million|k)?\s*(?:-|–|to)\s*\$?\s*(\d+(?:\.\d+)?)\s*(m|mm|million|k)?/);
+  const range = t.match(/\$?\s*(\d+(?:\.\d+)?)\s*(m|mm|million|k)?\s*(?:-|–|to|and)\s*\$?\s*(\d+(?:\.\d+)?)\s*(m|mm|million|k)\b/)
+    || t.match(/\$\s*(\d+(?:\.\d+)?)\s*(m|mm|million|k)?\s*(?:-|–|to|and)\s*\$\s*(\d+(?:\.\d+)?)\s*(m|mm|million|k)?/);
   if (range) { priceMin = parsePrice(`${range[1]}${range[2] || range[4] || ''}`); priceMax = parsePrice(`${range[3]}${range[4] || ''}`); }
   const under = t.match(/\b(under|below|up to|max(?:imum)?)\s+\$?\s*(\d+(?:\.\d+)?)\s*(m|mm|million|k)?/);
   if (under) priceMax = parsePrice(`${under[2]}${under[3] || ''}`);
