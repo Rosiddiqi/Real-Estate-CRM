@@ -119,6 +119,31 @@ function serializeReaction(r) {
   return { id: r.id, type: r.type, emoji: r.emoji, isFromMe: r.isFromMe, senderHandle: r.senderHandle, createdAt: r.createdAt };
 }
 
+// Listing messages carry their card in meta.listing. Older / imported rows
+// stored the snapshot flat on meta ({ listingId, title, price, heroPhoto… }) —
+// normalize at read time so every surface renders the same card.
+function normalizeMeta(kind, meta) {
+  if (!meta || typeof meta !== 'object') return meta || null;
+  if (kind !== 'listing' || meta.listing || !(meta.listingId || meta.title || meta.address)) return meta;
+  return {
+    ...meta,
+    listing: {
+      id: meta.listingId || meta.id || null,
+      title: meta.title || null,
+      address: meta.address || meta.title || 'Listing',
+      neighborhood: meta.neighborhood || null,
+      city: meta.city || null,
+      price: meta.price ?? meta.listPrice ?? null,
+      beds: meta.beds ?? null,
+      baths: meta.baths ?? null,
+      sqft: meta.sqft ?? null,
+      status: meta.status || null,
+      heroPhoto: meta.heroPhoto || meta.photo || null,
+      url: meta.url || meta.shareUrl || null,
+    },
+  };
+}
+
 function serializeMessage(m) {
   if (!m) return null;
   return {
@@ -141,7 +166,7 @@ function serializeMessage(m) {
     senderHandle: m.senderHandle,
     campaignId: m.campaignId,
     aiGenerated: !!m.aiGenerated,
-    meta: m.meta || null,
+    meta: normalizeMeta(m.kind, m.meta),
     attachments: (m.attachments || []).map(serializeAttachment),
     reactions: (m.reactions || []).map(serializeReaction),
     createdAt: m.createdAt,

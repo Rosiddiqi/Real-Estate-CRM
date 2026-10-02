@@ -41,8 +41,8 @@ function kindOfMime(mime = '', fileName = '') {
 // Conversation-row preview (≤100 chars, attachment-only → noun).
 function previewFor({ body, attachments = [], kind, meta } = {}) {
   const text = String(body || '').replace(/\s+/g, ' ').trim();
-  if (kind === 'listing' && meta && meta.listing) {
-    const l = meta.listing;
+  if (kind === 'listing' && meta && (meta.listing || meta.title || meta.address)) {
+    const l = meta.listing || meta;
     const label = l.title || l.address || 'a listing';
     const note = stripUrls(text);
     return truncate(note ? `${note}` : `Listing: ${label}`, 100);

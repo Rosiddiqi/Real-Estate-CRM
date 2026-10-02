@@ -38,6 +38,7 @@ function Hud() {
 function Halo({ client, strength }) {
   const pct = Math.max(0.06, Math.min(1, (strength ?? 60) / 100));
   const initials = getInitials(displayName(client));
+  const [badAvatar, setBadAvatar] = useState(null);
   return (
     <div className="kc-halo" title={strength != null ? `Relationship strength ${strength}/100` : undefined}>
       <svg width="84" height="84" viewBox="0 0 84 84" aria-hidden="true">
@@ -59,7 +60,7 @@ function Halo({ client, strength }) {
         />
       </svg>
       <span className="kc-puck">
-        {client.avatarUrl ? <img src={mediaUrl(client.avatarUrl)} alt="" /> : initials ? <span className="kc-puck-initials">{initials}</span> : <Icon name="user" size={24} color="var(--bright)" />}
+        {client.avatarUrl && badAvatar !== client.avatarUrl ? <img src={mediaUrl(client.avatarUrl)} alt="" onError={() => setBadAvatar(client.avatarUrl)} /> : initials ? <span className="kc-puck-initials">{initials}</span> : <Icon name="user" size={24} color="var(--bright)" />}
       </span>
     </div>
   );
