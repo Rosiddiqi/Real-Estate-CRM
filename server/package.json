@@ -2,7 +2,7 @@
   "name": "keymatch-server",
   "version": "0.1.0",
   "private": true,
-  "description": "KeyMatch CRM API — Express + Prisma + Postgres + WebSocket hub",
+  "description": "KeyMatch CRM API \u2014 Express + Prisma + Postgres + WebSocket hub",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -11,7 +11,7 @@
     "db:generate": "prisma generate",
     "db:reset": "prisma db push --force-reset --skip-generate && node prisma/seed/index.js",
     "seed": "node prisma/seed/index.js",
-    "test": "node --test src",
+    "test": "node --test \"src/**/*.test.js\"",
     "postinstall": "prisma generate"
   },
   "engines": {
