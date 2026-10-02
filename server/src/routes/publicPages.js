@@ -107,9 +107,11 @@ function notFound(res, msg = 'This home is no longer available.') {
 
 router.get('/p/:slug', async (req, res) => {
   try {
-    const slug = String(req.params.slug || '').toUpperCase();
-    if (!/^[A-Z2-9]{6,16}$/.test(slug)) return notFound(res);
-    const l = await prisma.listing.findFirst({ where: { publicSlug: slug, droppedAt: null } });
+    // slugs are unguessable 10-char tokens; case-insensitive so a link typed
+    // or auto-capitalized by a phone still opens (seeded slugs are lowercase)
+    const slug = String(req.params.slug || '');
+    if (!/^[A-Za-z0-9]{6,16}$/.test(slug)) return notFound(res);
+    const l = await prisma.listing.findFirst({ where: { publicSlug: { equals: slug, mode: 'insensitive' }, droppedAt: null } });
     if (!l || l.origin === 'whisper' || ['withdrawn', 'expired'].includes(l.status)) return notFound(res);
     const [ws, agent] = await Promise.all([
       prisma.workspace.findUnique({ where: { id: l.workspaceId }, select: { name: true, brokerageName: true, officeName: true } }),

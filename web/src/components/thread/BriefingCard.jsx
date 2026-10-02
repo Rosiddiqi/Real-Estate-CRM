@@ -54,7 +54,7 @@ export default function BriefingCard({ conversationId, longThread = false }) {
     <div style={{ display: 'flex', justifyContent: 'center' }}>
       <button
         type="button"
-        className={`km-brief km-lg km-press ${collapsed ? 'km-brief--collapsed' : ''}`}
+        className={`km-brief km-press ${collapsed ? 'km-brief--collapsed' : ''}`}
         onClick={toggle}
         aria-expanded={!collapsed}
         aria-label={collapsed ? 'Show relationship briefing' : 'Collapse briefing'}
@@ -63,7 +63,7 @@ export default function BriefingCard({ conversationId, longThread = false }) {
           <span className="km-brief-tile"><Icon name="sparkle" size={collapsed ? 11 : 13} color="#fff" stroke={2} /></span>
           <span className="km-brief-stage">{title}</span>
           {data.isWhale && !collapsed ? <span className="km-brief-eyebrow" style={{ flexShrink: 0 }}>Whale</span> : null}
-          <Icon name={collapsed ? 'chevronDown' : 'chevronUp'} size={14} color="var(--lg-text-idle)" stroke={2.4} />
+          <Icon name={collapsed ? 'chevronDown' : 'chevronUp'} size={14} color="var(--faint)" stroke={2.4} />
         </span>
         {!collapsed && facts.length ? <span className="km-brief-facts">{facts.join(' · ')}</span> : null}
       </button>

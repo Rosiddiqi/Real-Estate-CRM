@@ -382,30 +382,38 @@ body.km-kb-open .km-thread--kb { --km-th-bottom: calc(var(--keyboard-height) + 6
   position: absolute; top: 0; left: 0; right: 0; z-index: 25;
   pointer-events: none;
   padding-top: calc(var(--safe-top) + 4px);
-  padding-bottom: 14px;
+  padding-bottom: 22px;
 }
 .km-th-header > * { pointer-events: auto; }
-/* Scroll-edge behind the floating header controls: a progressive blur band
-   (masked) under a 5-stop fade from the thread floor. Sized to the controls,
-   not the briefing card (which carries its own frosted material). */
+/* Scroll-edge behind the floating header: a blur band under a 5-stop fade
+   from the thread floor, sized to the whole floating block (controls +
+   briefing). Strong through the controls, fading out over the last ~20px —
+   and the scroller's top padding = this block's height, so at rest nothing
+   sits under it; only content you scroll up passes beneath (blurred + dimmed). */
 .km-th-header > .km-th-blur, .km-th-header > .km-th-scrim { pointer-events: none; }
-.km-th-blur, .km-th-scrim { position: absolute; left: 0; right: 0; top: 0; z-index: -1; }
+.km-th-blur, .km-th-scrim { position: absolute; left: 0; right: 0; top: 0; height: 100%; z-index: -1; }
 .km-th-blur {
-  height: calc(var(--safe-top) + 112px);
   -webkit-backdrop-filter: blur(14px) saturate(150%);
   backdrop-filter: blur(14px) saturate(150%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 58%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 58%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 34px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 34px), transparent 100%);
 }
 .km-th-scrim {
-  height: calc(var(--safe-top) + 150px);
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.96) 0%, rgba(0, 0, 0, 0.88) 30%, rgba(0, 0, 0, 0.62) 56%, rgba(0, 0, 0, 0.24) 80%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(to bottom,
+    rgba(0, 0, 0, 0.97) 0,
+    rgba(0, 0, 0, 0.9) calc(var(--safe-top) + 96px),
+    rgba(0, 0, 0, 0.6) calc(100% - 22px),
+    rgba(0, 0, 0, 0.2) calc(100% - 8px),
+    rgba(0, 0, 0, 0) 100%);
 }
 :root[data-theme="light"] .km-th-scrim {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.97) 0%, rgba(255, 255, 255, 0.9) 30%, rgba(255, 255, 255, 0.64) 56%, rgba(255, 255, 255, 0.24) 80%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(to bottom,
+    rgba(255, 255, 255, 0.97) 0,
+    rgba(255, 255, 255, 0.9) calc(var(--safe-top) + 96px),
+    rgba(255, 255, 255, 0.62) calc(100% - 22px),
+    rgba(255, 255, 255, 0.2) calc(100% - 8px),
+    rgba(255, 255, 255, 0) 100%);
 }
-.km-thread--pane .km-th-blur { height: 104px; }
-.km-thread--pane .km-th-scrim { height: 136px; }
 /* Embedded (client card Timeline): content leaving the top fades out instead
    of hard-cutting under the card's tab row. */
 .km-thread--embedded::before {
@@ -570,16 +578,18 @@ body.km-kb-open .km-thread--kb { --km-th-bottom: calc(var(--keyboard-height) + 6
 
 /* briefing card */
 .km-brief {
+  position: relative;
   margin: 8px auto 0; width: calc(100% - 24px); max-width: 520px;
   border-radius: 18px; padding: 9px 12px 10px;
   display: flex; flex-direction: column; gap: 5px;
-  text-align: left; color: var(--lg-text);
-  background: rgba(18, 20, 26, 0.78) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
-  backdrop-filter: blur(28px) saturate(160%);
+  text-align: left; color: var(--text);
+  /* A content card, not chrome: solid material so bubbles never show through. */
+  background: #15171D;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 28px -6px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   animation: km-brief-in 0.42s cubic-bezier(0.34, 1.32, 0.4, 1) both;
 }
-:root[data-theme="light"] .km-brief { background: rgba(255, 255, 255, 0.86) !important; }
+:root[data-theme="light"] .km-brief { background: #FFFFFF; border-color: rgba(0, 0, 0, 0.08); box-shadow: 0 10px 28px -8px rgba(0, 0, 0, 0.18); }
 @keyframes km-brief-in { from { opacity: 0; transform: translateY(-10px) scale(0.97); } to { opacity: 1; transform: none; } }
 .km-brief-head { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; }
 .km-brief-tile {
@@ -591,7 +601,7 @@ body.km-kb-open .km-thread--kb { --km-th-bottom: calc(var(--keyboard-height) + 6
 .km-brief-eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #5EA6FF; }
 .km-brief-stage { flex: 1; font-size: 13.5px; font-weight: 600; letter-spacing: -0.1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .km-brief-facts {
-  font-size: 12.5px; line-height: 1.38; color: var(--lg-text-idle);
+  font-size: 12.5px; line-height: 1.38; color: var(--dim);
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   padding-left: 30px;
 }
