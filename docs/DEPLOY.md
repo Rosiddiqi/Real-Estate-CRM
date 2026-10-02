@@ -40,13 +40,15 @@ cp .env.example server/.env
 #   REFRESH_SECRET=$(openssl rand -hex 32)
 #   ANTHROPIC_API_KEY=sk-ant-...             # turns on Serena + AI drafting
 #   DEMO_LOGIN_ENABLED=1                     # keep for testers; 0 when it goes live
+#   DEMO_DAILY_RESET=1                       # re-seed the demo nightly so its dates stay current
 #   APP_TIMEZONE=America/New_York
 
 # Install, create tables, build the web app
 npm run install:all
 npm run db:push
 npm run build
-npm run seed            # optional: demo book (demo@keymatch.app / keymatch)
+npm run seed            # optional: demo book (demo@keymatch.app / keymatch).
+                        # Only touches the demo workspace; with DEMO_DAILY_RESET=1 it's redone nightly.
 
 # Run it as a service
 mkdir -p ~/.config/systemd/user
