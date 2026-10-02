@@ -4,9 +4,10 @@ import { formatDaySep, formatTime } from '../../lib/format';
 
 // ── URLs (ONE detector for linkify, cards and the iMessage split) ─────────
 const TLDS = 'com|net|org|io|co|app|dev|ai|us|uk|ca|me|tv|info|biz|cc|edu|gov|shop|realty|homes|house|properties|estate|luxury|land|miami|nyc|la';
+// (No regex lookbehind — older WKWebViews throw on it.)
 function urlRegex() {
   return new RegExp(
-    `(https?:\\/\\/[^\\s<>"']+)|(www\\.[^\\s<>"']+)|((?<![@\\w.])(?:[a-z0-9-]+\\.)+(?:${TLDS})(?:\\/[^\\s<>"']*)?)`,
+    `(https?:\\/\\/[^\\s<>"']+)|(www\\.[^\\s<>"']+)|(?:^|[^@\\w.])((?:[a-z0-9-]+\\.)+(?:${TLDS})(?:\\/[^\\s<>"']*)?)(?![\\w-])`,
     'gi',
   );
 }
@@ -18,10 +19,13 @@ export function findUrls(text) {
   const re = urlRegex();
   let m;
   while ((m = re.exec(s))) {
-    let raw = m[0].replace(TRAIL, '');
+    const hit = m[1] || m[2] || m[3];
+    if (!hit) continue;
+    const index = m.index + (m[0].length - hit.length);
+    const raw = hit.replace(TRAIL, '');
     if (raw.length < 6) continue;
     const href = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
-    out.push({ raw, href, index: m.index, end: m.index + raw.length });
+    out.push({ raw, href, index, end: index + raw.length });
   }
   return out;
 }

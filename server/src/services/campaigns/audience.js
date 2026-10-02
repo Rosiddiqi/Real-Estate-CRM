@@ -273,7 +273,9 @@ function keywordResolve(text, options) {
   if (has(/\bdevelopers?\b/)) a.groups.push('developers');
   if (has(/\b(sphere|friends|soi|people i know)\b/)) a.groups.push('sphere');
   if (has(/\b(past clients?|former clients?|closed with me|bought with me|sold with me)\b/)) a.groups.push('past_clients');
-  if (has(/\b(whales?|top clients?|biggest clients?|vips?|high[- ]net)\b/)) a.whales = true;
+  const tagWords = new Set((options.tags || []).map((x) => x.value.toLowerCase()));
+  const whaleHit = t.match(/\b(whales?|top clients?|biggest clients?|vips?|high[- ]net)\b/);
+  if (whaleHit && !tagWords.has(whaleHit[1])) a.groups.push('whales');
   if (has(/\b(leads?|prospects?)\b/)) a.groups.push('leads');
   const stars = t.match(/(\d)\s*(\+|\s*stars?|★)/);
   if (stars) a.minRating = Math.min(5, parseInt(stars[1], 10));
