@@ -82,6 +82,31 @@ compose refuses to start without the secrets. Point nginx at that port.
 
 ---
 
+### How texting and calling work
+
+- **The demo account** (`demo@keymatch.app`) is fully simulated. Texts show as delivered,
+  clients write back, and calls have a live transcript and a co-pilot.
+- **Real accounts without Twilio** use the phone's own apps. Sending a text opens Messages
+  with the text filled in, and the thread shows it as "Sent from your phone". Calling opens
+  the Phone app, and a recap appears when you come back to KeyMatch. Campaigns and
+  automations are paused, because nothing can be sent in bulk this way.
+- **With Twilio** (optional), texts and calls go out from your business number, and replies
+  land in the KeyMatch inbox. Put these in `server/.env`:
+  ```
+  MESSAGING_PROVIDER=twilio
+  TWILIO_ACCOUNT_SID=AC...
+  TWILIO_AUTH_TOKEN=...
+  TWILIO_PHONE_NUMBER=+13055550100      # the business number
+  AGENT_CELL_NUMBER=+13055550199        # your cell, rung first for click-to-call
+  PUBLIC_URL=https://keymatch.yourdomain.com
+  ```
+  In the Twilio console, set the number's messaging webhook to
+  `https://keymatch.yourdomain.com/api/webhooks/twilio/sms` (HTTP POST). Every webhook
+  checks Twilio's signature.
+
+`SIMULATE_MESSAGING` and `CALL_SIMULATOR` (`demo` | `all` | `off`) default to `demo` in
+production, so only the demo account is simulated, and to `all` in development.
+
 ## 2. Apple setup (one time)
 
 1. **Bundle ID** `com.revmatchai.keymatch`. The deploy script registers it on the first run
