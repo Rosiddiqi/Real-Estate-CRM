@@ -1,8 +1,10 @@
 // Auth state for the whole app.
 //   const { user, workspace, status, login, logout, refreshMe, updateUser } = useAuth();
-// status: 'loading' | 'authed' | 'anon'
+// status: 'loading' | 'authed' | 'anon' | 'offline'
+//   'offline' = a stored session exists but the server can't be reached yet;
+//   the shell shows a reconnect screen and calls retry() (never a sign-out).
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { api, clearTokens, getAccessToken, refreshSession, setTokens } from '../api/client';
+import { api, clearTokens, getAccessToken, hasStoredSession, isNetworkError, refreshSession, setTokens } from '../api/client';
 import { ws } from '../api/ws';
 
 const AuthContext = createContext(null);
@@ -17,20 +19,26 @@ export function AuthProvider({ children }) {
     return me;
   }, []);
 
+  // Restore the session: refresh if needed, then load the profile. Transport
+  // failures with a stored session land in 'offline' (retryable), not 'anon'.
+  const boot = useCallback(async (isCancelled = () => false) => {
+    try {
+      if (!getAccessToken()) await refreshSession();
+      if (!isCancelled()) await loadMe();
+    } catch (err) {
+      if (isCancelled()) return;
+      if (isNetworkError(err) && hasStoredSession()) setState({ status: 'offline', user: null, workspace: null });
+      else setState({ status: 'anon', user: null, workspace: null });
+    }
+  }, [loadMe]);
+
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      try {
-        if (!getAccessToken()) await refreshSession();
-        if (!cancelled) await loadMe();
-      } catch {
-        if (!cancelled) setState({ status: 'anon', user: null, workspace: null });
-      }
-    })();
+    boot(() => cancelled);
     const onLogout = () => setState({ status: 'anon', user: null, workspace: null });
     window.addEventListener('auth:logout', onLogout);
     return () => { cancelled = true; window.removeEventListener('auth:logout', onLogout); };
-  }, [loadMe]);
+  }, [boot]);
 
   const login = useCallback(async (email, password) => {
     const data = await api.post('/auth/login', { email, password });
@@ -72,9 +80,10 @@ export function AuthProvider({ children }) {
     register,
     logout,
     refreshMe: loadMe,
+    retry: boot,
     updateUser,
     updateWorkspace,
-  }), [state, login, demoLogin, register, logout, loadMe, updateUser, updateWorkspace]);
+  }), [state, login, demoLogin, register, logout, loadMe, boot, updateUser, updateWorkspace]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

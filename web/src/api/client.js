@@ -44,6 +44,29 @@ export class ApiError extends Error {
   }
 }
 
+const NETWORK_MSG = 'Can’t reach KeyMatch — check your connection.';
+
+// fetch() that turns transport failures (offline, DNS, TLS, server down) into
+// ApiError(0) so callers can tell "no network" from "not allowed".
+async function netFetch(url, init) {
+  try {
+    return await fetch(url, init);
+  } catch (err) {
+    if (err && err.name === 'AbortError') throw err;
+    throw new ApiError(0, NETWORK_MSG, { network: true });
+  }
+}
+
+// No response at all, or the server/proxy is down (502/503/504 while restarting).
+export function isNetworkError(err) {
+  return !!err && (err.status === 0 || err.status === 502 || err.status === 503 || err.status === 504);
+}
+
+// Is there any stored credential worth retrying with?
+export function hasStoredSession() {
+  return !!(safeGet(AT_KEY) || safeGet(RT_KEY));
+}
+
 export function getAccessToken() {
   return accessToken;
 }
@@ -70,7 +93,7 @@ export async function refreshSession() {
   if (refreshPromise) return refreshPromise;
   refreshPromise = (async () => {
     try {
-      const res = await fetch(`${getApiBase()}/api/auth/refresh`, {
+      const res = await netFetch(`${getApiBase()}/api/auth/refresh`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -102,7 +125,7 @@ function buildUrl(path, params) {
 
 async function request(method, path, { params, body, headers, signal, raw, retry = true } = {}) {
   const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
-  const res = await fetch(buildUrl(path, params), {
+  const res = await netFetch(buildUrl(path, params), {
     method,
     credentials: 'include',
     signal,
@@ -117,12 +140,15 @@ async function request(method, path, { params, body, headers, signal, raw, retry
   if (res.status === 401 && retry && !path.startsWith('/auth/')) {
     try {
       await refreshSession();
-      return request(method, path, { params, body, headers, signal, raw, retry: false });
-    } catch {
+    } catch (err) {
+      // Only a rejected refresh token ends the session; a dropped connection
+      // mid-refresh must not sign the user out of the app.
+      if (isNetworkError(err)) throw err;
       clearTokens();
       window.dispatchEvent(new CustomEvent('auth:logout'));
       throw new ApiError(401, 'Session expired');
     }
+    return request(method, path, { params, body, headers, signal, raw, retry: false });
   }
 
   if (raw) return res;

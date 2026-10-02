@@ -17,6 +17,9 @@ import ErrorBoundary from './ErrorBoundary';
 import { Toaster, ConfirmHost } from '../ui/toast';
 import { OverlayDepth } from '../ui/depth';
 import Login from '../../pages/auth/Login';
+import Icon from '../ui/Icon';
+import { Button } from '../ui/kit';
+import { BRAND } from '../../brand';
 import { useOnboarding } from '../../hooks/useOnboarding';
 import AssistantBuilder from '../onboarding/AssistantBuilder';
 import OnboardingChecklist from '../onboarding/OnboardingChecklist';
@@ -80,6 +83,39 @@ function Connecting() {
   );
 }
 
+// A stored session exists but the server isn't answering (no signal, server
+// restarting). Keep the session and keep trying — never bounce to sign-in.
+function Offline() {
+  const { retry, logout } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const attempt = useCallback(async () => {
+    setBusy(true);
+    try { await retry(); } finally { setBusy(false); }
+  }, [retry]);
+  useEffect(() => {
+    let delay = 4000;
+    let t;
+    const loop = () => { t = setTimeout(async () => { await attempt(); delay = Math.min(30000, delay * 1.6); loop(); }, delay); };
+    loop();
+    const now = () => { clearTimeout(t); delay = 4000; attempt().finally(loop); };
+    const onVis = () => { if (document.visibilityState === 'visible') now(); };
+    window.addEventListener('online', now);
+    document.addEventListener('visibilitychange', onVis);
+    return () => { clearTimeout(t); window.removeEventListener('online', now); document.removeEventListener('visibilitychange', onVis); };
+  }, [attempt]);
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'var(--bg)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, padding: 32, textAlign: 'center' }}>
+      <div style={{ width: 56, height: 56, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surfaceHi)', border: '1px solid var(--lineHi)' }}>
+        <Icon name="globe" size={26} color="var(--dim)" />
+      </div>
+      <div style={{ fontSize: 19, fontWeight: 600 }}>Can’t reach {BRAND.name}</div>
+      <div style={{ fontSize: 14, color: 'var(--dim)', maxWidth: 300, lineHeight: 1.45 }}>Check your connection. You’re still signed in — we’ll reconnect automatically.</div>
+      <Button onClick={attempt} loading={busy} style={{ marginTop: 6, minWidth: 160 }}>Try again</Button>
+      <button type="button" onClick={logout} style={{ color: 'var(--faint)', fontSize: 13, marginTop: 4 }}>Sign out</button>
+    </div>
+  );
+}
+
 function useBadges(authed) {
   const [badges, setBadges] = useState({});
   const timer = useRef(null);
@@ -113,6 +149,7 @@ export default function AppShell() {
   const onboarding = useOnboarding(status === 'authed');
 
   if (status === 'loading') return <Connecting />;
+  if (status === 'offline') return <Offline />;
   if (status !== 'authed') return <Login />;
   if (onboarding.state?.assistant?.required) return <AssistantBuilder onDone={onboarding.refresh} />;
 
