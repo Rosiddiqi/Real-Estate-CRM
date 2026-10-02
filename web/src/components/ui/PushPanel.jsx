@@ -12,6 +12,7 @@ import { createContext, useContext } from 'react';
 import { createPortal } from 'react-dom';
 import { usePushPanel } from '../../hooks/usePushPanel';
 import PageHeader from './PageHeader';
+import { useOverlayDepth, panelZ } from './depth';
 
 const PanelCtx = createContext({ requestClose: () => {}, closing: false });
 export const usePanel = () => useContext(PanelCtx);
@@ -24,7 +25,7 @@ export default function PushPanel({
   right,
   header,           // custom header node, or false for none
   children,
-  zIndex = 200,
+  zIndex,
   scroll = true,     // wrap children in the scroll container
   bodyStyle,
   bodyClassName = '',
@@ -34,6 +35,7 @@ export default function PushPanel({
   className = '',
 }) {
   const { panelRef, closing, requestClose } = usePushPanel(onClose, { companions, pinned });
+  const z = panelZ(useOverlayDepth(), zIndex);
 
   return createPortal(
     <PanelCtx.Provider value={{ requestClose, closing }}>
@@ -41,7 +43,7 @@ export default function PushPanel({
         ref={panelRef}
         className={`km-panel ${className}`}
         style={{
-          position: 'fixed', inset: 0, zIndex, background,
+          position: 'fixed', inset: 0, zIndex: z, background,
           display: 'flex', flexDirection: 'column',
           overflow: 'hidden',
         }}

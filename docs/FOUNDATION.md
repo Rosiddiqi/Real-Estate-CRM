@@ -166,6 +166,9 @@ fix every one. Check 390×844 (primary), 375×667 (small), and 1280×860 (deskto
   `nav.openSearch()`, `nav.openSettings(section)`, `nav.openMenu()`.
   **Overlay contract:** each overlay component receives `{...props, overlayId, onClose}`; call
   `onClose` after the exit animation (`PushPanel`/`Sheet` do this — pass `onClose` straight through).
+  **Layering is automatic:** AppShell gives each overlay a depth; `PushPanel` z = 200+20·depth and
+  `Sheet` z = 210+20·depth (any `zIndex` prop you pass is treated as a minimum). Don't hard-code
+  huge z-indexes. Before navigating away from a transient surface (a sheet, Serena's popup), close it.
   Tabs: `home | inbox | phone | clients | matchmaker`. Deep link: `#/<tab>?o=<type>:<id>,…`.
 - **Data**: `import { api } from '../../api/client'` → `api.get(path, params)`, `post`, `patch`, `put`,
   `del`, `upload`; `mediaUrl(u)`. Put endpoint wrappers in `src/api/<feature>.js`. Realtime:

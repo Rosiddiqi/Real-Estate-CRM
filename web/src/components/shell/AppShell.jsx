@@ -15,7 +15,11 @@ import TabBar from './TabBar';
 import SideMenu from './SideMenu';
 import ErrorBoundary from './ErrorBoundary';
 import { Toaster, ConfirmHost } from '../ui/toast';
+import { OverlayDepth } from '../ui/depth';
 import Login from '../../pages/auth/Login';
+import { useOnboarding } from '../../hooks/useOnboarding';
+import AssistantBuilder from '../onboarding/AssistantBuilder';
+import OnboardingChecklist from '../onboarding/OnboardingChecklist';
 
 // ── Tab roots ────────────────────────────────────────────────────────────
 const TAB_PAGES = {
@@ -106,9 +110,11 @@ export default function AppShell() {
   useKeyboardInset();
   useTheme(user?.preferences);
   const badges = useBadges(status === 'authed');
+  const onboarding = useOnboarding(status === 'authed');
 
   if (status === 'loading') return <Connecting />;
   if (status !== 'authed') return <Login />;
+  if (onboarding.state?.assistant?.required) return <AssistantBuilder onDone={onboarding.refresh} />;
 
   const TabPage = TAB_PAGES[tab] || TAB_PAGES.home;
 
@@ -124,20 +130,22 @@ export default function AppShell() {
         </ErrorBoundary>
       </main>
 
-      {overlays.map((o) => {
+      {overlays.map((o, i) => {
         const C = OVERLAYS[o.type];
         if (!C) return null;
         return (
-          <ErrorBoundary key={o.id} fallback={null} onError={() => nav.close(o.id)}>
-            <Suspense fallback={null}>
-              <C {...o.props} overlayId={o.id} onClose={() => nav.close(o.id)} />
-            </Suspense>
-          </ErrorBoundary>
+          <OverlayDepth.Provider key={o.id} value={i + 1}>
+            <ErrorBoundary fallback={null} onError={() => nav.close(o.id)}>
+              <Suspense fallback={null}>
+                <C {...o.props} overlayId={o.id} onClose={() => nav.close(o.id)} />
+              </Suspense>
+            </ErrorBoundary>
+          </OverlayDepth.Provider>
         );
       })}
 
       <TabBar
-        active={overlays.some((o) => o.type === 'pipeline') && !overlays.length ? null : tab}
+        active={tab}
         onChange={(t) => (t === tab && overlays.length ? nav.closeAll() : nav.go(t))}
         badges={{ inbox: badges.unreadMessages, phone: badges.missedCalls }}
       />
@@ -150,6 +158,7 @@ export default function AppShell() {
         </Suspense>
       </ErrorBoundary>
 
+      <OnboardingChecklist state={onboarding.state} act={onboarding.act} showBanner={tab === 'home' && !overlays.length && !!onboarding.state?.dismissedAt} />
       <Toaster />
       <ConfirmHost />
     </div>

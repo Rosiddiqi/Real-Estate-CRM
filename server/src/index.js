@@ -19,6 +19,7 @@ const { errorHandler } = require('./lib/http');
 const ROUTES = [
   ['/api/auth', 'auth', { public: true }],
   ['/api/me', 'me'],
+  ['/api/onboarding', 'onboarding'],
   ['/api/workspace', 'workspace'],
   ['/api/badges', 'badges'],
   ['/api/search', 'search'],

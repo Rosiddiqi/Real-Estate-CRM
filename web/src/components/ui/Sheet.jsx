@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSheetClose } from '../../hooks/useSheetClose';
 import Icon from './Icon';
+import { useOverlayDepth, sheetZ } from './depth';
 
 let openCount = 0;
 
@@ -29,7 +30,7 @@ export default function Sheet({
   footer,          // sticky footer node (e.g. primary button)
   maxWidth = 560,
   maxHeight = '85%',
-  zIndex = 400,
+  zIndex,
   padded = true,
   showGrabber = true,
   closeOnBackdrop = true,
@@ -47,6 +48,7 @@ export default function Sheet({
   const panelRef = useRef(null);
   const drag = useRef(null);
   const [dragY, setDragY] = useState(0);
+  const z = sheetZ(useOverlayDepth(), zIndex);
 
   useEffect(() => { if (open) setMounted(true); }, [open]);
 
@@ -76,25 +78,32 @@ export default function Sheet({
     setTimeout(() => { try { t.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch { /* noop */ } }, 300);
   };
 
-  // Drag-to-dismiss from the grabber/header zone.
+  // Drag-to-dismiss from the grabber/header zone. Pointer capture only starts
+  // after real downward movement and never from a control — capturing on
+  // pointerdown would retarget the click away from the header buttons.
   const onPointerDown = (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
-    drag.current = { y: e.clientY, t: e.timeStamp, last: e.clientY, lastT: e.timeStamp };
-    e.currentTarget.setPointerCapture?.(e.pointerId);
+    if (e.target.closest && e.target.closest('button, input, textarea, select, a')) return;
+    drag.current = { y: e.clientY, last: e.clientY, lastT: e.timeStamp, active: false, id: e.pointerId };
   };
   const onPointerMove = (e) => {
-    if (!drag.current) return;
-    const dy = Math.max(0, e.clientY - drag.current.y);
-    drag.current.v = (e.clientY - drag.current.last) / Math.max(1, e.timeStamp - drag.current.lastT);
-    drag.current.last = e.clientY; drag.current.lastT = e.timeStamp;
-    setDragY(dy);
+    const d = drag.current;
+    if (!d) return;
+    const dy = e.clientY - d.y;
+    if (!d.active) {
+      if (dy < 6) return;
+      d.active = true;
+      try { e.currentTarget.setPointerCapture?.(d.id); } catch { /* ignore */ }
+    }
+    d.v = (e.clientY - d.last) / Math.max(1, e.timeStamp - d.lastT);
+    d.last = e.clientY; d.lastT = e.timeStamp;
+    setDragY(Math.max(0, dy));
   };
   const onPointerUp = () => {
-    if (!drag.current) return;
-    const v = drag.current.v || 0;
-    const dy = dragY;
+    const d = drag.current;
     drag.current = null;
-    if (dy > 110 || v > 0.9) requestClose();
+    if (!d || !d.active) return;
+    if (dragY > 110 || (d.v || 0) > 0.9) requestClose();
     setDragY(0);
   };
 
@@ -105,7 +114,7 @@ export default function Sheet({
       className="km-sheet-backdrop"
       onMouseDown={(e) => { if (closeOnBackdrop && e.target === e.currentTarget) requestClose(); }}
       style={{
-        position: 'fixed', inset: 0, zIndex,
+        position: 'fixed', inset: 0, zIndex: z,
         background: 'var(--scrim)',
         display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
         overflow: 'hidden',
