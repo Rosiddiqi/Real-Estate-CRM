@@ -141,6 +141,7 @@ export function sepLabel(m) {
 export function statusLabel(m) {
   if (!m) return null;
   if (m._failed || m.status === 'failed') return null;
+  if (m.meta && m.meta.via === 'device' && m.status !== 'read' && m.status !== 'delivered') return { strong: '', rest: 'Sent from your phone' };
   if (m.status === 'read') return { strong: 'Read', rest: m.readAt ? formatTime(m.readAt) : '' };
   if (m.status === 'delivered') return { strong: '', rest: m.service === 'sms' ? 'Delivered' : 'Delivered' };
   if (m.status === 'sent') return { strong: '', rest: m.service === 'sms' ? 'Sent as Text Message' : 'Sent' };

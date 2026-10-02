@@ -103,6 +103,8 @@ async function approveSuggestion({ workspaceId, insightId, text }) {
   const insight = await prisma.aiInsight.findFirst({ where: { id: insightId, workspaceId, type: TYPE } });
   if (!insight) throw new HttpError(404, 'Suggestion not found');
   if (insight.status !== 'new') throw new HttpError(409, 'Already handled');
+  // No business line: the agent sends it from the thread instead.
+  await require('./mode').assertCanSend(workspaceId);
   const d = insight.data || {};
   const body = sanitizeOutbound(text != null ? text : insight.body);
   if (!body) throw new HttpError(400, 'Write the reply first');

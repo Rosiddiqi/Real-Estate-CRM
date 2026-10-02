@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useResync, useSocket } from '../../hooks/useSocket';
 import { toast } from '../ui/toast';
-import { listCampaigns, listAutomations, listSuggestions, liveThreads, getCampaign, updateAutomation } from '../../api/campaigns';
+import { listCampaigns, listAutomations, listSuggestions, liveThreads, getCampaign, updateAutomation, getMessagingStatus } from '../../api/campaigns';
 
 function useDebounced(fn, ms = 350) {
   const t = useRef(null);
@@ -84,4 +84,31 @@ export function useAutomationToggle(autos, onNeedsBrief) {
     }
   };
   return { busyId, toggle };
+}
+
+// The workspace's messaging mode from GET /api/bridge (messaging.mode:
+// 'twilio' | 'demo' | 'device'; missing → 'demo'), shared by every campaign
+// surface. In 'device' mode nothing automated can send: launch / resume /
+// approve-and-send are disabled and a calm banner explains why.
+let modeState = { mode: 'demo', at: 0, loading: false };
+const modeSubs = new Set();
+function refreshMode(force = false) {
+  if (modeState.loading || (!force && modeState.at && Date.now() - modeState.at < 60000)) return;
+  modeState = { ...modeState, loading: true };
+  getMessagingStatus()
+    .then((d) => { modeState = { mode: (d && d.messaging && d.messaging.mode) || 'demo', at: Date.now(), loading: false }; })
+    .catch(() => { modeState = { ...modeState, at: Date.now(), loading: false }; })
+    .finally(() => modeSubs.forEach((fn) => fn(modeState)));
+}
+
+export function useMessagingMode() {
+  const [st, setSt] = useState(modeState);
+  useEffect(() => {
+    modeSubs.add(setSt);
+    refreshMode(false);
+    const id = setInterval(() => refreshMode(false), 60000);
+    return () => { modeSubs.delete(setSt); clearInterval(id); };
+  }, []);
+  useResync(() => refreshMode(true));
+  return st.mode;
 }

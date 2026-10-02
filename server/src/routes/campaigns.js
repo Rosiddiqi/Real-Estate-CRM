@@ -63,7 +63,7 @@ function shape(c, stats, extra = {}) {
     listingId: step0.listingId || null, includePhoto: !!step0.includePhoto, attachment: step0.attachment || null,
     lanes: c.lanes || null, event: c.event || null, pacing: c.pacing,
     stats: stats || null,
-    schedule: { startAt: run.startAt || null, endAt: run.endAt || null, pausedAt: run.pausedAt || null, canceledAt: run.canceledAt || null },
+    schedule: { startAt: run.startAt || null, endAt: run.endAt || null, pausedAt: run.pausedAt || null, pauseReason: run.pauseReason || null, canceledAt: run.canceledAt || null },
     builder: builderOf(c),
     launchedAt: c.launchedAt, completedAt: c.completedAt, createdAt: c.createdAt, updatedAt: c.updatedAt,
     ...extra,
@@ -479,9 +479,8 @@ router.post('/:id/duplicate', ah(async (req, res) => {
 
 router.get('/:id/invite', ah(async (req, res) => {
   const c = await getCampaign(req.workspaceId, req.params.id);
-  const f = ics.inviteFile(c);
-  if (!f) throw new HttpError(400, 'Set the event date and time first');
-  res.json(f);
+  // null until the event has a date and time (the builder asks as you type).
+  res.json(ics.inviteFile(c) || null);
 }));
 
 // ── Recipient controls ─────────────────────────────────────────────────

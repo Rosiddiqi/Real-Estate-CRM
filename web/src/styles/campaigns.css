@@ -132,6 +132,7 @@
 .kc-note--ai { background: rgba(46, 139, 255, 0.07); border: 1px solid rgba(46, 139, 255, 0.2); }
 .kc-note--route { background: rgba(48, 210, 122, 0.06); border: 1px solid rgba(48, 210, 122, 0.2); }
 .kc-note--warn { background: rgba(242, 169, 59, 0.07); border: 1px solid rgba(242, 169, 59, 0.26); }
+.kc-note--calm { background: var(--surface); border: 1px solid var(--lineHi); color: var(--dim); }
 
 /* ── builder chrome ── */
 .kc-stepper { display: flex; align-items: center; padding: 6px 18px 10px; }

@@ -501,6 +501,9 @@ async function optIn({ workspaceId, clientId, now = new Date() }) {
 async function sendOptOutConfirmation({ workspaceId, clientId, campaignId }) {
   try {
     const transport = require('./transport');
+    // No business line ('device' mode): nothing automated can go out, the
+    // opt-out itself is still recorded.
+    if (await require('./mode').isDeviceMode(workspaceId)) return null;
     const client = await prisma.client.findFirst({ where: { id: clientId, workspaceId } });
     if (!client || !client.phone) return null;
     return await transport.deliver({ workspaceId, client, body: OPT_OUT_CONFIRMATION, campaignId, aiGenerated: false, kind: 'opt_out_confirmation' });

@@ -16,13 +16,13 @@ import { nav } from '../../lib/nav';
 import { relativeTime } from '../../lib/format';
 import { haptic } from '../../lib/native';
 import { getAiPause, setAiPause } from '../../api/campaigns';
-import { SectionRule, StatusPill, MonoLabel, InfoNote, LaneTally, campaignPhase, fmtIn } from './kit';
+import { SectionRule, StatusPill, MonoLabel, InfoNote, LaneTally, NeedsLineBanner, campaignPhase, fmtIn } from './kit';
 import { AutomationRow, TEMPLATE_ICON } from './CampaignCard';
 import SenderGuardCard from './SenderGuardCard';
 import SuggestionCard from './SuggestionCard';
 import AutomationEditor from './AutomationEditor';
 import { useCampaignTz } from './tz';
-import { useAutomations, useAutomationToggle, useCampaignList, useLiveThreads, useLoader, useSuggestions } from './useCampaignsData';
+import { useAutomations, useAutomationToggle, useCampaignList, useLiveThreads, useLoader, useMessagingMode, useSuggestions } from './useCampaignsData';
 
 const OFF_KEY = 'km.autos.showOff';
 const lsGet = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
@@ -138,6 +138,7 @@ export default function AutomationsTab({ showThreads, padded = true, style }) {
   const [showOff, setShowOff] = useState(() => lsGet(OFF_KEY) === '1');
   const [allSugg, setAllSugg] = useState(false);
   const { busyId, toggle } = useAutomationToggle(autos, setEditing);
+  const needsLine = useMessagingMode() === 'device';
 
   const automations = (autos.data && autos.data.automations) || [];
   const on = automations.filter((a) => a.enabled);
@@ -154,6 +155,7 @@ export default function AutomationsTab({ showThreads, padded = true, style }) {
   return (
     <div ref={rootRef} style={{ padding: padded ? '0 16px' : 0, ...style }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 6 }}>
+        {needsLine ? <NeedsLineBanner /> : null}
         <AiSwitch />
         <SenderGuardCard />
       </div>
@@ -195,7 +197,7 @@ export default function AutomationsTab({ showThreads, padded = true, style }) {
       ) : null}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {visibleAutos.map((a, i) => (
-          <AutomationRow key={a.id} automation={a} index={i} busy={busyId === a.id} onToggle={toggle} onOpen={() => setEditing(a)} />
+          <AutomationRow key={a.id} automation={a} index={i} busy={busyId === a.id} held={needsLine && a.enabled} onToggle={toggle} onOpen={() => setEditing(a)} />
         ))}
       </div>
       {on.length && off.length ? (

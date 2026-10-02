@@ -14,18 +14,25 @@
 //   });
 //
 // Finds or creates the conversation for the client's phone, writes the
-// Message (+ attachments), enqueues it on the active provider (fire-once — a
-// failure stays failed until the agent taps Retry), updates conversation /
-// client / day-activity bookkeeping and broadcasts `message_sent` +
-// `conversation_updated`. Throws HttpError for refusals (empty, opted out,
-// kill switch, rate limit, no phone).
+// Message (+ attachments), enqueues it on the workspace's transport
+// (fire-once — a failure stays failed until the agent taps Retry), updates
+// conversation / client / day-activity bookkeeping and broadcasts
+// `message_sent` + `conversation_updated`. Throws HttpError for refusals
+// (empty, opted out, kill switch, rate limit, no phone).
+//
+// Transport is per workspace (mode.js): 'demo' simulates, 'twilio' sends,
+// 'device' records the text as sent from the agent's phone and returns
+//   { message, conversation, smsUrl, handoff: 'device', notice? }
+// — the caller opens `smsUrl` (Messages with the text prefilled). In device
+// mode campaigns and Send Later refuse with 409 { details: { code: 'device_mode' } }.
 const prisma = require('../../lib/prisma');
 const hub = require('../../realtime/hub');
 const { HttpError } = require('../../lib/http');
 const { toE164 } = require('../../lib/phone');
 const { resolveConversation, afterMessage } = require('./conversations');
 const { serializeMessage, serializeConversation, MESSAGE_INCLUDE } = require('./serialize');
-const { selectProvider } = require('./providers');
+const { demo: demoProvider, twilio: twilioProvider } = require('./providers');
+const { messagingModeFor, assertCanAutoSend, DEVICE_MODE_CODE } = require('./mode');
 const { resolveSendService, applyEvidence } = require('./routing');
 const { applyStatus } = require('./status');
 const { buildListingMessage } = require('./listingCard');
@@ -34,6 +41,28 @@ const safety = require('./safety');
 const events = require('./events');
 
 const MAX_SCHEDULE_DAYS = 60;
+const DEVICE_CHANNELS = ['imessage', 'sms'];
+
+const providerForMode = (mode) => (mode === 'twilio' ? twilioProvider : demoProvider);
+
+// iOS Messages hand-off: sms:+13055550142&body=… (group: sms:/open?addresses=a,b&body=…)
+function smsHandoffUrl(conversation, body) {
+  const enc = encodeURIComponent(String(body || ''));
+  const addr = (h) => (String(h || '').includes('@') ? String(h).trim() : toE164(h));
+  if (conversation.isGroup) {
+    const parts = (Array.isArray(conversation.participants) ? conversation.participants : [])
+      .map((p) => addr(p && p.handle)).filter(Boolean);
+    if (parts.length) return `sms:/open?addresses=${parts.join(',')}&body=${enc}`;
+  }
+  const to = addr(conversation.handle);
+  return to ? `sms:${to}&body=${enc}` : `sms:&body=${enc}`;
+}
+
+function deviceModeError(message) {
+  const err = new HttpError(409, message, { code: DEVICE_MODE_CODE });
+  err.code = DEVICE_MODE_CODE;
+  return err;
+}
 
 function cleanAttachments(list) {
   return (Array.isArray(list) ? list : [])
@@ -85,7 +114,9 @@ async function sendMessage(opts = {}) {
   });
   if (conversation.isGroup && source === 'campaign') throw new HttpError(400, 'Campaigns can’t text group threads');
 
-  const provider = selectProvider(workspaceId);
+  const mode = await messagingModeFor(workspaceId);
+  if (source === 'campaign') await assertCanAutoSend(workspaceId, 'campaigns');
+  const provider = mode === 'device' ? null : providerForMode(mode);
   const requested = opts.service ? normService(opts.service) : null;
   const service = resolveSendService({
     requested,
@@ -93,12 +124,13 @@ async function sendMessage(opts = {}) {
     deviceMode: (conversation.deliveryMode || (client && client.deviceMode)) || null,
     channel: conversation.channel,
     isGroup: conversation.isGroup,
-    capabilities: provider.capabilities.channels,
+    capabilities: provider ? provider.capabilities.channels : DEVICE_CHANNELS,
   });
 
   // ── Scheduled ("Send Later") ───────────────────────────────────────────
   const when = opts.scheduledFor ? new Date(opts.scheduledFor) : null;
   if (when && !Number.isNaN(when.getTime()) && when.getTime() > Date.now() + 30_000) {
+    if (mode === 'device') throw deviceModeError('Send Later needs a business texting line — connect one in Settings, or send it now from your phone.');
     if (when.getTime() > Date.now() + MAX_SCHEDULE_DAYS * 864e5) throw new HttpError(400, `Schedule within ${MAX_SCHEDULE_DAYS} days`);
     const row = await prisma.message.create({
       data: {
@@ -116,6 +148,41 @@ async function sendMessage(opts = {}) {
   }
 
   const { delayMs } = safety.check({ workspaceId, handle: conversation.handle, source, client });
+
+  // ── Device hand-off (no business line): record it, return the sms: URL ──
+  if (mode === 'device') {
+    if (!body.trim()) throw new HttpError(400, 'Photos and files can’t be handed to Messages — add a note, or send them from your phone.');
+    const row = await prisma.message.create({
+      data: {
+        workspaceId,
+        conversationId: conversation.id,
+        clientId: conversation.clientId,
+        isFromMe: true,
+        body,
+        kind: kind === 'attachment' ? 'text' : kind,
+        service,
+        status: 'sent',
+        sentAt: new Date(),
+        clientTempId,
+        replyToId,
+        aiGenerated: !!aiGenerated,
+        meta: { ...(meta || {}), via: 'device', ...(source !== 'agent' ? { source } : {}), ...(attachments.length ? { droppedAttachments: attachments.length } : {}) },
+      },
+      include: MESSAGE_INCLUDE,
+    });
+    const updatedConv = await afterMessage({ workspaceId, conversation, client, message: row, direction: 'out', source });
+    const message = serializeMessage(row);
+    const convOut = serializeConversation(updatedConv);
+    hub.broadcast(workspaceId, 'message_sent', { message, conversationId: conversation.id, clientTempId, conversation: convOut });
+    events.emit('outbound', { workspaceId, message, conversation: convOut, client, source, campaignId, campaignRecipientId });
+    return {
+      message,
+      conversation: convOut,
+      smsUrl: smsHandoffUrl(conversation, body),
+      handoff: 'device',
+      ...(attachments.length ? { notice: 'Photos and files aren’t included — attach them in Messages.' } : {}),
+    };
+  }
 
   const row = await prisma.message.create({
     data: {
@@ -209,7 +276,20 @@ async function retryMessage({ workspaceId, messageId }) {
   if (!conversation) throw new HttpError(404, 'Conversation not found');
   const client = conversation.clientId ? await prisma.client.findFirst({ where: { id: conversation.clientId, workspaceId } }) : null;
   safety.check({ workspaceId, handle: conversation.handle, source: 'agent', client });
-  const provider = selectProvider(workspaceId);
+  const mode = await messagingModeFor(workspaceId);
+  if (mode === 'device') {
+    // No business line: retrying hands the text to the agent's phone.
+    if (!(row.body || '').trim()) throw new HttpError(400, 'Photos and files can’t be handed to Messages — send them from your phone.');
+    const fresh = await prisma.message.update({
+      where: { id: row.id },
+      data: { status: 'sent', error: null, sentAt: new Date(), meta: { ...(row.meta || {}), via: 'device' } },
+      include: MESSAGE_INCLUDE,
+    });
+    const message = serializeMessage(fresh);
+    hub.broadcast(workspaceId, 'message_updated', { message, conversationId: conversation.id });
+    return { message, smsUrl: smsHandoffUrl(conversation, row.body), handoff: 'device' };
+  }
+  const provider = providerForMode(mode);
   const fresh = await prisma.message.update({
     where: { id: row.id },
     data: { status: 'sending', error: null, sentAt: new Date() },
@@ -248,7 +328,14 @@ async function dispatchScheduled({ workspaceId, messageId }) {
     await applyStatus({ workspaceId, messageId: row.id, status: 'failed', error: err.message });
     return null;
   }
-  const provider = selectProvider(workspaceId);
+  const mode = await messagingModeFor(workspaceId);
+  if (mode === 'device') {
+    // The business line went away after this was scheduled — it can't go out
+    // on its own. Fail it so the bubble offers "Tap to retry" (→ the phone).
+    await applyStatus({ workspaceId, messageId: row.id, status: 'failed', error: 'Send Later needs a business texting line — tap to send it from your phone' });
+    return null;
+  }
+  const provider = providerForMode(mode);
   const queue = await prisma.outboundQueue.create({
     data: {
       workspaceId, messageId: row.id, conversationId: conversation.id, toHandle: conversation.handle, body: row.body,
@@ -265,4 +352,4 @@ async function dispatchScheduled({ workspaceId, messageId }) {
   return message;
 }
 
-module.exports = { sendMessage, retryMessage, dispatchScheduled, dispatch, cleanAttachments };
+module.exports = { sendMessage, retryMessage, dispatchScheduled, dispatch, cleanAttachments, smsHandoffUrl };

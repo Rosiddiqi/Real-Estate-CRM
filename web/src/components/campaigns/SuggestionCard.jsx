@@ -12,12 +12,17 @@ import { relativeTime } from '../../lib/format';
 import { haptic } from '../../lib/native';
 import { approveSuggestion, dismissSuggestion } from '../../api/campaigns';
 import { MonoLabel, fmtWhen } from './kit';
+import { useMessagingMode } from './useCampaignsData';
 
 export default function SuggestionCard({ s, onResolved, onRestore, showCampaign = true }) {
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(s.text || '');
   const [busy, setBusy] = useState(false);
   const needs = s.abstain || !s.text;
+  // No business texting line ('device' mode): the draft goes to the thread
+  // composer and the agent sends it from their phone.
+  const deviceMode = useMessagingMode() === 'device';
+  const sendFromThread = () => nav.openThread({ conversationId: s.conversationId || undefined, clientId: s.clientId, name: s.clientName, draft: text });
 
   const openThread = () => nav.openThread({ conversationId: s.conversationId || undefined, clientId: s.clientId, name: s.clientName });
 
@@ -106,7 +111,11 @@ export default function SuggestionCard({ s, onResolved, onRestore, showCampaign 
           <>
             <Button size="sm" variant="ghost" onClick={dismiss} disabled={busy}>Dismiss</Button>
             <Button size="sm" variant="ghost" onClick={() => setEditing((v) => !v)} disabled={busy} icon={editing ? 'check' : 'edit'}>{editing ? 'Done' : 'Edit'}</Button>
-            <Button size="sm" onClick={approve} loading={busy} disabled={!text.trim()} icon="send" style={{ flex: 1 }}>Approve & send</Button>
+            {deviceMode ? (
+              <Button size="sm" onClick={sendFromThread} disabled={!text.trim()} icon="reply" style={{ flex: 1 }}>Send from thread</Button>
+            ) : (
+              <Button size="sm" onClick={approve} loading={busy} disabled={!text.trim()} icon="send" style={{ flex: 1 }}>Approve & send</Button>
+            )}
           </>
         )}
       </div>

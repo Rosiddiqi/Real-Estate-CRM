@@ -30,6 +30,8 @@ import BriefingCard from './BriefingCard';
 import MediaViewer from './MediaViewer';
 import ScheduledSheet from './ScheduledSheet';
 import { isTouchDevice, channelLabel } from './threadUtils';
+import { useMessagingMode } from './messagingMode';
+import Icon from '../ui/Icon';
 import '../../styles/thread.css';
 
 // While any thread is on screen the floating Serena bubble steps aside (it
@@ -81,6 +83,7 @@ export default function ThreadView({
   const [manage, setManage] = useState(null); // { item, action }
   const [boxFull, setBoxFull] = useState(false); // composer has content → chips step aside
   const touch = useMemo(() => isTouchDevice(), []);
+  const deviceMode = useMessagingMode() === 'device';
   useThreadBodyClass();
 
   const conv = t.conversation;
@@ -116,7 +119,7 @@ export default function ThreadView({
     if (dockRef.current) ro.observe(dockRef.current);
     measure();
     return () => ro.disconnect();
-  }, [!!headerNode, briefingOn]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [!!headerNode, briefingOn, deviceMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── message actions ─────────────────────────────────────────────────────
   const onCopy = useCallback(async (m) => {
@@ -174,6 +177,24 @@ export default function ThreadView({
 
 
   const kbAware = mode === 'panel' || mode === 'embedded';
+  // No business line: every text is handed to the phone's Messages app.
+  const deviceNote = deviceMode ? (
+    <div className={`km-th-device ${headerNode ? '' : 'km-th-device--dock'}`} role="note">
+      <Icon name="info" size={13} stroke={2.2} />
+      {headerNode ? (
+        <span>
+          Texts go out from your Messages app. Replies stay on your phone —{' '}
+          <button type="button" onClick={() => nav.openSettings('messaging')}>connect a business line in Settings</button>
+          {' '}to text from KeyMatch.
+        </span>
+      ) : (
+        <span>
+          Sends from your phone’s Messages app ·{' '}
+          <button type="button" onClick={() => nav.openSettings('messaging')}>Business line</button>
+        </span>
+      )}
+    </div>
+  ) : null;
   const channel = t.defaultService === 'sms' ? 'sms' : 'imsg';
 
   const emptyNode = (
@@ -229,6 +250,7 @@ export default function ThreadView({
             </>
           ) : null}
           {headerNode}
+          {headerNode ? deviceNote : null}
           {briefingOn ? (
             <div style={{ pointerEvents: 'auto' }}>
               <BriefingCard conversationId={conv.id} longThread={longThread} />
@@ -239,6 +261,7 @@ export default function ThreadView({
 
       <div className="km-th-footer-tint" aria-hidden="true" />
       <div className="km-composer-dock" ref={dockRef}>
+        {!headerNode ? deviceNote : null}
         {chipsOn ? (
           <ReplySuggestions
             conversationId={t.conversationId}
@@ -260,6 +283,9 @@ export default function ThreadView({
           name={firstName}
           placeholder={t.defaultService === 'sms' ? channelLabel('sms') : 'iMessage'}
           onContentChange={setBoxFull}
+          allowSchedule={!deviceMode}
+          allowFiles={!deviceMode}
+          allowVoice={!deviceMode}
         />
       </div>
 

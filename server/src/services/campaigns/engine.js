@@ -19,6 +19,7 @@ const transport = require('./transport');
 const drafter = require('./drafter');
 const seq = require('./sequence');
 const Q = require('./queue');
+const mode = require('./mode');
 const ics = require('./ics');
 const store = require('./settingsStore');
 const { resolveAudience } = require('./audience');
@@ -63,6 +64,7 @@ async function launchCampaign({ workspaceId, campaignId, startAt, endAt }) {
   if (campaign.kind === 'automation') throw new HttpError(400, 'Automations turn on from their switch');
   if (campaign.status !== 'draft') throw new HttpError(409, 'This campaign already launched');
   if (!String(campaign.brief || '').trim()) throw new HttpError(400, 'Tell your AI what to say first (the Message step)');
+  await mode.assertCanSend(workspaceId);
 
   const now = Date.now();
   const start = startAt ? new Date(startAt) : null;
@@ -124,20 +126,22 @@ async function launchCampaign({ workspaceId, campaignId, startAt, endAt }) {
 }
 
 // ── Pause / resume / stop ──────────────────────────────────────────────
-async function pauseCampaign({ workspaceId, campaignId }) {
+async function pauseCampaign({ workspaceId, campaignId, reason = null }) {
   const c = await prisma.campaign.findFirst({ where: { id: campaignId, workspaceId } });
   if (!c) throw new HttpError(404, 'Campaign not found');
   if (!['running', 'scheduled'].includes(c.status)) throw new HttpError(409, 'Only a running campaign can be paused');
-  const stats = { ...(c.stats || {}), run: { ...runFrame(c), pausedAt: new Date().toISOString(), pausedFrom: c.status } };
-  await prisma.campaign.update({ where: { id: c.id }, data: { status: 'paused', stats } });
-  emit(workspaceId, { campaignId, kind: 'status', status: 'paused' });
-  return { ok: true, status: 'paused' };
+  const stats = { ...(c.stats || {}), run: { ...runFrame(c), pausedAt: new Date().toISOString(), pausedFrom: c.status, pauseReason: reason || null } };
+  // Guarded on status so two engines (or a click and the engine) can't double-pause.
+  const r = await prisma.campaign.updateMany({ where: { id: c.id, status: c.status }, data: { status: 'paused', stats } });
+  if (r.count) emit(workspaceId, { campaignId, kind: 'status', status: 'paused', reason });
+  return { ok: true, status: 'paused', reason };
 }
 
 async function resumeCampaign({ workspaceId, campaignId }) {
   const c = await prisma.campaign.findFirst({ where: { id: campaignId, workspaceId } });
   if (!c) throw new HttpError(404, 'Campaign not found');
   if (c.status !== 'paused') throw new HttpError(409, 'This campaign is not paused');
+  await mode.assertCanSend(workspaceId);
   const run = runFrame(c);
   const shift = run.pausedAt ? Date.now() - new Date(run.pausedAt).getTime() : 0;
   if (shift > 1000) {
@@ -148,7 +152,7 @@ async function resumeCampaign({ workspaceId, campaignId }) {
     }
   }
   const next = run.pausedFrom === 'scheduled' && c.launchedAt && new Date(c.launchedAt).getTime() + shift > Date.now() ? 'scheduled' : 'running';
-  const { pausedAt, pausedFrom, ...rest } = run;
+  const { pausedAt, pausedFrom, pauseReason, ...rest } = run;
   await prisma.campaign.update({
     where: { id: c.id },
     data: { status: next, ...(next === 'scheduled' && c.launchedAt ? { launchedAt: new Date(new Date(c.launchedAt).getTime() + shift) } : {}), stats: { ...(c.stats || {}), run: rest } },
@@ -303,6 +307,12 @@ async function processRow(row, from, ctx) {
 
   // Master switch: hold (never cancel) every automated text.
   if (ctx.isPaused(workspaceId)) { await finish(row, (l) => releaseData(l, from)); return; }
+  // No business texting line ('device' mode): hold the queue, pause blasts.
+  if (ctx.isDevice && ctx.isDevice(workspaceId)) {
+    await finish(row, (l) => releaseData(l, from));
+    if (!isAuto && campaign.status === 'running') await pauseCampaign({ workspaceId, campaignId: campaign.id, reason: mode.NEEDS_LINE }).catch(() => {});
+    return;
+  }
 
   // Parent running?
   const running = campaign.status === 'running' || (campaign.status === 'completed' && !isAuto && isSeq && !run.canceledAt);
@@ -541,29 +551,41 @@ async function tick() {
     await enforceSchedules(now).catch((e) => console.error('[campaigns/engine] schedules:', e.message));
     await janitor(now).catch((e) => console.error('[campaigns/engine] janitor:', e.message));
     const pausedRows = await prisma.$queryRaw`SELECT id FROM "Workspace" WHERE settings->>'aiTextingPausedAt' IS NOT NULL`.catch(() => []);
-    const pausedIds = pausedRows.map((r) => r.id);
+    // Held workspaces stay out of the due scan: AI texting paused, or known
+    // (cached) to have no business texting line.
+    const heldIds = [...new Set([...pausedRows.map((r) => r.id), ...mode.cachedDeviceWorkspaces()])];
     const due = await prisma.campaignRecipient.findMany({
-      where: { status: { in: CLAIMABLE }, nextSendAt: { not: null, lte: now }, campaign: { status: { in: ['running', 'completed'] } }, ...(pausedIds.length ? { workspaceId: { notIn: pausedIds } } : {}) },
+      where: { status: { in: CLAIMABLE }, nextSendAt: { not: null, lte: now }, campaign: { status: { in: ['running', 'completed'] } }, ...(heldIds.length ? { workspaceId: { notIn: heldIds } } : {}) },
       include: { campaign: true },
       orderBy: { nextSendAt: 'asc' },
       take: TAKE,
     });
     if (!due.length) return;
     const pausedCache = new Map();
+    const deviceCache = new Map();
     const agentCache = new Map();
     for (const ws of new Set(due.map((r) => r.workspaceId))) {
       const v = await store.getKey(ws, 'aiTextingPausedAt').catch(() => null);
       pausedCache.set(ws, !!v);
+      deviceCache.set(ws, await mode.isDeviceMode(ws).catch(() => false));
     }
+    // 'device' mode: running blasts pause (reason needs_texting_line); their
+    // recipients and every automation text stay queued, untouched.
+    const toPause = new Map();
+    for (const row of due) {
+      if (deviceCache.get(row.workspaceId) && row.campaign.kind !== 'automation' && row.campaign.status === 'running') toPause.set(row.campaign.id, row.workspaceId);
+    }
+    for (const [campaignId, ws] of toPause) await pauseCampaign({ workspaceId: ws, campaignId, reason: mode.NEEDS_LINE }).catch(() => {});
     const ctx = {
       isPaused: (ws) => !!pausedCache.get(ws),
+      isDevice: (ws) => !!deviceCache.get(ws),
       agent: async (ws) => {
         if (!agentCache.has(ws)) agentCache.set(ws, await drafter.agentInfo(ws));
         return agentCache.get(ws);
       },
     };
     for (const row of due) {
-      if (ctx.isPaused(row.workspaceId)) continue; // held, stays due
+      if (ctx.isPaused(row.workspaceId) || ctx.isDevice(row.workspaceId)) continue; // held, stays due
       const from = row.status;
       const claim = await prisma.campaignRecipient.updateMany({
         where: { id: row.id, status: from, updatedAt: row.updatedAt },

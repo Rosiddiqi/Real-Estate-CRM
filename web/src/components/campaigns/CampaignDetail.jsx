@@ -21,10 +21,10 @@ import {
   pauseCampaign, resumeCampaign, stopCampaign, duplicateCampaign, deleteCampaign, updateCampaign,
   setRecipientLane, muteRecipient,
 } from '../../api/campaigns';
-import { StatusPill, LaneDot, LANE_META, MonoLabel, Eyebrow, InfoNote, Progress, campaignPhase, fmtWhen, fmtIn } from './kit';
+import { StatusPill, LaneDot, LANE_META, MonoLabel, Eyebrow, InfoNote, NeedsLineBanner, Progress, campaignPhase, fmtWhen, fmtIn } from './kit';
 import SuggestionCard from './SuggestionCard';
 import TrafficLanes, { normalizeLanes } from './TrafficLanes';
-import { useCampaign } from './useCampaignsData';
+import { useCampaign, useMessagingMode } from './useCampaignsData';
 import { fmtTz, useCampaignTz } from './tz';
 
 const COLS = ['green', 'yellow', 'red', 'gray', 'waiting'];
@@ -168,6 +168,9 @@ export default function CampaignDetail({ id, onClose }) {
   const stoppable = !!(c && !isAuto && ['running', 'scheduled', 'paused'].includes(c.status));
   const hasEvent = !!(c && c.event && c.event.enabled !== false && c.event.startAt);
   const aiDraft = !!(c && c.lanes && c.lanes.aiReply && c.lanes.aiReply.mode === 'draft');
+  // 'device' messaging mode: no business texting line, nothing automated sends.
+  const needsLine = useMessagingMode() === 'device';
+  const lineHeld = !!(c && c.status === 'paused' && c.schedule && c.schedule.pauseReason === 'needs_texting_line');
 
   const patchCampaign = (patch) => setData((d) => (d ? { ...d, campaign: { ...d.campaign, ...patch } } : d));
 
@@ -264,6 +267,7 @@ export default function CampaignDetail({ id, onClose }) {
         {!gone && error && !c ? (
           <EmptyState icon="alert" title="Couldn’t load this campaign" sub={error.message} action={<Button size="sm" variant="ghost" icon="refresh" onClick={reload}>Try again</Button>} />
         ) : null}
+        {c && needsLine && !isAuto ? <NeedsLineBanner style={{ marginBottom: 10 }} /> : null}
         {c ? (
           <>
             {/* Scoreboard */}
@@ -301,7 +305,7 @@ export default function CampaignDetail({ id, onClose }) {
               {c.status === 'paused' && !isAuto ? (
                 <div style={{ display: 'flex', gap: 6, marginTop: 10, fontSize: 12.5, color: 'var(--amber)' }}>
                   <Icon name="pause" size={13} style={{ marginTop: 2, flexShrink: 0 }} />
-                  <span>Paused. Nothing goes out, and replies still reach you.</span>
+                  <span>{lineHeld ? 'Paused — needs a texting line. Nothing goes out until one is connected; replies still reach you.' : 'Paused. Nothing goes out, and replies still reach you.'}</span>
                 </div>
               ) : null}
               {s.deferred ? (
@@ -312,7 +316,7 @@ export default function CampaignDetail({ id, onClose }) {
               ) : null}
               {!isAuto ? (
                 <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-                  {c.status === 'paused' ? <Button size="sm" icon="play" onClick={resume} loading={busy === 'resume'} disabled={!!busy} style={{ flex: 1 }}>Resume</Button> : null}
+                  {c.status === 'paused' ? <Button size="sm" icon="play" onClick={resume} loading={busy === 'resume'} disabled={!!busy || needsLine} style={{ flex: 1 }}>Resume</Button> : null}
                   {live ? <Button size="sm" variant="ghost" icon="pause" onClick={pause} loading={busy === 'pause'} disabled={!!busy} style={{ flex: 1 }}>Pause</Button> : null}
                   {!live && c.status !== 'paused' ? <Button size="sm" variant="ghost" icon="copy" onClick={duplicate} loading={busy === 'dup'} disabled={!!busy} style={{ flex: 1 }}>Duplicate</Button> : null}
                   {stoppable ? <Button size="sm" variant="ghost" icon="x" onClick={stop} loading={busy === 'stop'} disabled={!!busy} style={{ flex: 1, color: 'var(--red)' }}>Stop</Button> : null}
@@ -442,7 +446,7 @@ export default function CampaignDetail({ id, onClose }) {
       <Sheet open={menu} onClose={() => setMenu(false)} title={c ? c.name : ''} subtitle={c ? (STATUS_LABEL[phase] || '') : ''} left={false}>
         {({ close }) => (c ? (
           <div className="kc-list">
-            {c.status === 'paused' && !isAuto ? <ActionRow icon="play" label="Resume sending" onClick={() => { close(); resume(); }} /> : null}
+            {c.status === 'paused' && !isAuto && !needsLine ? <ActionRow icon="play" label="Resume sending" onClick={() => { close(); resume(); }} /> : null}
             {live && !isAuto ? <ActionRow icon="pause" label="Pause sending" sub="Queued texts and follow-ups wait" onClick={() => { close(); pause(); }} /> : null}
             {!isAuto ? <ActionRow icon="copy" label="Duplicate as a draft" onClick={() => { close(); duplicate(); }} /> : null}
             {!isAuto ? <ActionRow icon="reply" label="Edit the reply plan" onClick={() => { close(); setTimeout(openLanes, 260); }} /> : null}

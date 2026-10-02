@@ -72,7 +72,12 @@ export function CampaignCard({ campaign: c, onOpen, index = 0 }) {
             {phase === 'sending' && s.eta ? <span className="kc-mono" style={{ marginLeft: 'auto' }}>{fmtEta(s.eta)}</span> : null}
           </span>
           <LaneBar lanes={s.lanes} style={{ marginTop: 9 }} />
-          {s.deferred ? (
+          {c.status === 'paused' && c.schedule && c.schedule.pauseReason === 'needs_texting_line' ? (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 8, fontSize: 11.5, color: 'var(--amber)' }}>
+              <Icon name="phone" size={12} />
+              Paused — needs a texting line
+            </span>
+          ) : s.deferred ? (
             <span style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 8, fontSize: 11.5, color: 'var(--amber)' }}>
               <Icon name="shield" size={12} />
               {s.deferred} waiting · {s.deferredReason || 'held for a safe slot'}
@@ -84,7 +89,8 @@ export function CampaignCard({ campaign: c, onOpen, index = 0 }) {
   );
 }
 
-export function AutomationRow({ automation: a, onToggle, onOpen, busy, index = 0 }) {
+// held: on, but nothing can send ('device' messaging mode, no texting line).
+export function AutomationRow({ automation: a, onToggle, onOpen, busy, index = 0, held = false }) {
   const last = a.lastSentAt || a.lastRunAt;
   return (
     <div className="kc-auto km-row-in" style={{ '--kc-accent': a.accent, animationDelay: `${Math.min(index, 10) * 35}ms` }}>
@@ -93,7 +99,13 @@ export function AutomationRow({ automation: a, onToggle, onOpen, busy, index = 0
         <span style={{ flex: 1, minWidth: 0 }}>
           <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 600, color: a.enabled ? 'var(--text)' : 'var(--dim)' }}>{a.name}</span>
           <span className="km-clamp-2" style={{ fontSize: 12, color: 'var(--dim)', marginTop: 1, lineHeight: 1.35 }}>{a.when}</span>
-          <span className="kc-mono" style={{ display: 'flex', flexWrap: 'wrap', gap: '2px 7px', marginTop: 5, fontSize: 8.5 }}>
+          {held ? (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 5, fontSize: 11.5, color: 'var(--amber)' }}>
+              <Icon name="phone" size={11} />
+              Paused — needs a texting line
+            </span>
+          ) : null}
+          <span className="kc-mono" style={{ display: held ? 'none' : 'flex', flexWrap: 'wrap', gap: '2px 7px', marginTop: 5, fontSize: 8.5 }}>
             <span>{a.audienceCount} qualify</span>
             <span style={{ opacity: 0.5 }}>·</span>
             <span style={{ color: a.approval === 'draft' ? 'var(--amber)' : 'var(--faint)' }}>{a.approval === 'draft' ? 'You approve' : 'Auto-send'}</span>

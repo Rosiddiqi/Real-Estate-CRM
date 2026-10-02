@@ -141,3 +141,35 @@ test('link previews: SSRF guard rejects private targets', () => {
   }
   for (const ip of ['8.8.8.8', '151.101.1.140', '2606:4700::1111']) assert.equal(isPrivateIp(ip), false, ip);
 });
+
+// ── per-workspace messaging mode + device hand-off ────────────────────────
+test('mode: SIMULATE_MESSAGING picks demo for everyone / nobody', async () => {
+  const { messagingModeFor, simulateSetting, canAutoSend, assertCanAutoSend } = require('./mode');
+  const prev = { sim: process.env.SIMULATE_MESSAGING, env: process.env.NODE_ENV };
+  try {
+    process.env.SIMULATE_MESSAGING = 'all';
+    assert.equal(await messagingModeFor('ws-any'), 'demo');
+    assert.equal(await canAutoSend('ws-any'), true);
+    process.env.SIMULATE_MESSAGING = 'none';
+    assert.equal(await messagingModeFor('ws-any'), 'device', 'no Twilio + not simulated → the agent’s phone');
+    assert.equal(await canAutoSend('ws-any'), false);
+    await assert.rejects(assertCanAutoSend('ws-any'), (err) => err.status === 409 && err.code === 'device_mode' && /Twilio/.test(err.message));
+    delete process.env.SIMULATE_MESSAGING;
+    process.env.NODE_ENV = 'production';
+    assert.equal(simulateSetting(), 'demo');
+    process.env.NODE_ENV = 'development';
+    assert.equal(simulateSetting(), 'all');
+  } finally {
+    if (prev.sim === undefined) delete process.env.SIMULATE_MESSAGING; else process.env.SIMULATE_MESSAGING = prev.sim;
+    if (prev.env === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = prev.env;
+  }
+});
+
+test('device hand-off: iOS sms: URLs for 1:1 and group threads', () => {
+  const { smsHandoffUrl } = require('./send');
+  assert.equal(smsHandoffUrl({ handle: '3055550142' }, 'Saturday at 11?'), 'sms:+13055550142&body=Saturday%20at%2011%3F');
+  assert.equal(
+    smsHandoffUrl({ isGroup: true, participants: [{ handle: '3055550142' }, { handle: '7865550101' }] }, 'Hi all'),
+    'sms:/open?addresses=+13055550142,+17865550101&body=Hi%20all',
+  );
+});

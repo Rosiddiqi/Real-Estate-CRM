@@ -23,7 +23,8 @@ import {
   createCampaign, getCampaign, updateCampaign, deleteCampaign, previewAudience, audienceOptions,
   resolveAudienceText, sampleDrafts, planLaunch, launchCampaign, getTemplates, getInvite,
 } from '../../api/campaigns';
-import { Eyebrow, InfoNote, MonoLabel, ComposerField, SparkButton, Choice, LaneDot, toLocalInput } from './kit';
+import { Eyebrow, InfoNote, MonoLabel, ComposerField, SparkButton, Choice, LaneDot, NeedsLineBanner, toLocalInput } from './kit';
+import { useMessagingMode } from './useCampaignsData';
 import { fmtTz, inputIso, useCampaignTz, zonedIso } from './tz';
 import AudienceBuilder from './AudienceBuilder';
 import TrafficLanes, { normalizeLanes } from './TrafficLanes';
@@ -84,6 +85,7 @@ function useDebouncedSave(fn, ms) {
 
 export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
   useCampaignTz();
+  const needsLine = useMessagingMode() === 'device';
   const [campaign, setCampaign] = useState(null);
   const [loadError, setLoadError] = useState(null);
   const [stage, setStage] = useState(0);
@@ -359,6 +361,9 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
   if (stage === 2 && !eventValid) { cta = 'Add the date and start time'; ctaDisabled = true; }
   if (stage === 2 && needsEvent && !event.enabled) { cta = 'Turn on the event'; ctaDisabled = true; }
   if (stage === 4) { cta = launching ? 'Launching…' : `${startMode === 'at' ? 'Schedule' : 'Launch'} · ${count}`; ctaDisabled = launching || !count; ctaAction = doLaunch; }
+  // No business texting line ('device' mode): launching is off, saving the
+  // draft is the way out of the last step.
+  const saveDraftCta = stage === 4 && needsLine;
 
   const tpl = templates.find((t) => t.key === trigger);
   const laneSummary = (k) => {
@@ -386,10 +391,14 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
         loadError={loadError}
         campaign={campaign}
         scrollRef={scrollRef}
-        footer={(
+        footer={({ requestClose }) => (
           <div className="kc-footer" style={{ bottom: 'var(--keyboard-height)' }}>
             {stage > 0 ? <button type="button" className="kc-circle km-press" onClick={back} aria-label="Back a step"><Icon name="chevronLeft" size={20} /></button> : null}
-            <Button size="lg" block onClick={ctaAction} disabled={ctaDisabled} loading={launching || (stage === 1 && writing && !samples.length)} style={{ flex: 1 }}>{cta}</Button>
+            {saveDraftCta ? (
+              <Button size="lg" block variant="ghost" icon="check" onClick={() => saveAndClose(requestClose)} style={{ flex: 1 }}>Save draft</Button>
+            ) : (
+              <Button size="lg" block onClick={ctaAction} disabled={ctaDisabled} loading={launching || (stage === 1 && writing && !samples.length)} style={{ flex: 1 }}>{cta}</Button>
+            )}
           </div>
         )}
       >
@@ -552,6 +561,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
 
         {stage === 4 ? (
           <div>
+            {needsLine ? <NeedsLineBanner style={{ marginBottom: 14 }} /> : null}
             <Eyebrow blue icon="checkCircle">Review & launch</Eyebrow>
             <SummaryCard icon="users" title={`${count} recipient${count === 1 ? '' : 's'}`} onEdit={() => hop(0)}>
               <span>{(preview && preview.summary) || 'Custom list'}{preview && preview.excluded && preview.excluded.manual ? ` · ${preview.excluded.manual} excluded` : ''}</span>
@@ -674,7 +684,7 @@ function BuilderBody({ header, children, footer, loadError, campaign, scrollRef 
           ) : children}
         </div>
       </div>
-      {campaign ? footer : null}
+      {campaign ? (typeof footer === 'function' ? footer({ requestClose }) : footer) : null}
     </>
   );
 }

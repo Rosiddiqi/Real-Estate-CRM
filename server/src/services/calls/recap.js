@@ -133,6 +133,7 @@ async function generate(callId) {
   const tz = await U.tzFor(call.workspaceId, (call.meta && call.meta.userId) || null);
   const lines = Array.isArray(call.transcript) ? call.transcript.filter((l) => l.speaker !== 'note') : [];
   const meta = (call.meta && typeof call.meta === 'object') ? call.meta : {};
+  if (meta.mode === 'device') return generateFromNotes(call, meta, tz);
   let r = null;
   let source = 'heuristic';
   const scripted = meta.script && meta.script.recap && meta.script.linesTotal;
@@ -171,6 +172,109 @@ async function generate(callId) {
   if (call.clientId && r.summary) {
     await prisma.activity.updateMany({ where: { workspaceId: call.workspaceId, clientId: call.clientId, meta: { path: ['callId'], equals: call.id } }, data: { body: r.summary } }).catch(() => {});
   }
+  return updated;
+}
+
+// ── device calls: the agent's own notes are the only source ─────────────────
+const MEET_RE = /\b(show(ing)?|tour|see (it|the|them|her|him)|walk-?through|meet(ing)?|consult(ation)?|presentation|open house|preview|visit|coffee|lunch|dinner|zoom|call (back|again|her|him|them)|talk again|works|perfect|set up|booked?|confirmed?)\b/i;
+const PROMISE_RE = /^(?:i'?ll|i will|i need to|need to|i'?m going to|going to|i have to|have to|i owe (?:her|him|them)|must|to-?do:?|follow up|send|email|pull|get|call|text|book|schedule|draft|prepare|order|confirm|remind|check)\b/i;
+const LEAD_RE = /^(?:i'?ll|i will|i need to|need to|i'?m going to|going to|i have to|have to|must|to-?do:?)\s+/i;
+
+function sentencesOf(text) {
+  return String(text || '').split(/\n+|(?<=[.!?])\s+/).map((x) => x.replace(/^[-•*\s]+/, '').trim()).filter((x) => x.length > 2);
+}
+function hhmm(t) { return `${String(t.h).padStart(2, '0')}:${String(t.m).padStart(2, '0')}`; }
+
+function notesHeuristic(notes, client, tz, outcome, durationSec) {
+  const first = client ? U.firstOf(client) : 'them';
+  const sentences = sentencesOf(notes);
+  const suggestions = [];
+  const used = new Set();
+  for (const sn of sentences) {
+    const t = T.parseTime(sn);
+    if (t && T.parseDay(sn, tz) && MEET_RE.test(sn)) {
+      const isCall = /\b(call|zoom|talk)\b/i.test(sn) && !/\b(show|tour|see|walk|visit|meet)/i.test(sn);
+      const type = isCall ? 'call' : /listing|presentation/i.test(sn) ? 'listing_presentation' : /consult/i.test(sn) ? 'buyer_consult' : /\b(meet|coffee|lunch|dinner)/i.test(sn) ? 'meeting' : /tour/i.test(sn) ? 'private_tour' : 'showing';
+      suggestions.push({ kind: 'appointment', title: isCall ? `Schedule the call with ${first}?` : `Book it with ${first}?`, heard: sn, fields: { type, date: sn, time: hhmm(t) } });
+      used.add(sn);
+      break;
+    }
+  }
+  for (const sn of sentences) {
+    if (used.has(sn) || !PROMISE_RE.test(sn) || suggestions.filter((x) => x.kind === 'task').length >= 2) continue;
+    const what = sn.replace(LEAD_RE, '').replace(/[.!]+$/, '').trim();
+    if (what.length < 5) continue;
+    const title = what.charAt(0).toUpperCase() + what.slice(1);
+    suggestions.push({ kind: 'task', title: U.clip(title, 70), heard: sn, fields: { title: U.clip(title, 120), date: T.parseDay(sn, tz) ? sn : 'tomorrow' } });
+    used.add(sn);
+  }
+  if (client) {
+    suggestions.push({ kind: 'note', title: `Save your notes to ${first}’s file`, heard: null, fields: { body: String(notes).trim() } });
+    const body = outcome === 'voicemail'
+      ? `Hi ${first}, I just left you a voicemail. Give me a call back when you have a minute.`
+      : outcome === 'no_answer'
+        ? `Hi ${first}, I tried you just now. When’s a good time to talk?`
+        : `Hi ${first}, great talking just now. I’ll follow up on everything we covered shortly.`;
+    suggestions.push({ kind: 'text', title: outcome === 'talked' ? `Text ${first} a quick follow-up` : outcome === 'voicemail' ? `Text ${first} that you left a voicemail` : `Text ${first} instead?`, heard: '', fields: { body } });
+  }
+  const lead = outcome === 'talked'
+    ? `Talked with ${client ? first : 'them'}${durationSec >= 60 ? ` for ${Math.round(durationSec / 60)} min` : ''}.`
+    : outcome === 'voicemail' ? `Left ${client ? first : 'them'} a voicemail.` : `${client ? first : 'They'} didn’t pick up.`;
+  const firstNote = sentences[0] ? ` ${U.clip(sentences.slice(0, 2).join(' '), 220)}` : '';
+  return { summary: `${lead}${firstNote}`, bullets: [], sentiment: 'neutral', suggestions };
+}
+
+async function aiNotesRecap(call, notes, client, tz, outcome) {
+  if (!ai.available() || String(notes).trim().length < 12) return null;
+  try {
+    const out = await ai.json({
+      system: `You are Serena, co-pilot to a luxury real-estate agent. The agent just made a call from their own phone (no recording) and typed notes. Using ONLY those notes, produce:
+- summary: 1–2 neutral sentences leading with the outcome.
+- bullets: up to 3 short bullets (≤ 110 chars) — outcome, commitment, objection — only if the notes support them.
+- sentiment.
+- suggestions (0–4): an appointment the notes say was agreed (kind appointment, with type showing|private_tour|listing_presentation|buyer_consult|call|meeting, date, time), to-dos the agent committed to (kind task, task_title imperative, date), one follow-up text to the client (kind text, body: first name, brief, specific, no emoji, no em dashes), or a note worth saving (kind note). Quote the note line in "heard".
+Never invent anything that isn't in the notes. ${FAIR_HOUSING}`,
+      prompt: `Client: ${client ? U.nameOf(client) : 'unknown number'}\nCall outcome: ${outcome === 'talked' ? 'they talked' : outcome === 'voicemail' ? 'agent left a voicemail' : 'no answer'}\nCall date: ${new Date(call.startedAt).toISOString().slice(0, 10)}\nDuration: ${call.durationSec}s\n\nAgent's notes:\n${notes}`,
+      schema: RECAP_SCHEMA,
+      effort: 'low',
+      maxTokens: 3000,
+      feature: 'call_recap',
+      workspaceId: call.workspaceId,
+    });
+    if (!out || !out.summary) return null;
+    const suggestions = (out.suggestions || []).map((x) => ({
+      kind: x.kind,
+      title: x.title,
+      heard: x.heard,
+      fields: x.kind === 'appointment' ? { type: x.type || 'showing', date: x.date || 'tomorrow', time: x.time || '10:00' }
+        : x.kind === 'task' ? { title: x.task_title || x.title, date: x.date || 'tomorrow', time: x.time || undefined }
+          : { body: x.body || '' },
+    }));
+    return { summary: out.summary, bullets: (out.bullets || []).slice(0, 3), sentiment: out.sentiment || 'neutral', suggestions };
+  } catch {
+    return null;
+  }
+}
+
+async function generateFromNotes(call, meta, tz) {
+  const notes = (Array.isArray(meta.notes) ? meta.notes : []).map((n) => n && n.text).filter(Boolean).join('\n').trim();
+  const outcome = meta.outcome || 'talked';
+  if (!notes) {
+    return prisma.phoneCall.update({ where: { id: call.id }, data: { summary: null, summaryBullets: [], aiSuggestions: [], meta: { ...meta, recapStatus: 'none' } }, include: { client: { select: U.CLIENT_LITE } } });
+  }
+  let r = await aiNotesRecap(call, notes, call.client, tz, outcome);
+  const source = r ? 'ai' : 'notes';
+  if (!r) r = notesHeuristic(notes, call.client, tz, outcome, call.durationSec || 0);
+  let suggestions = materialize(r.suggestions, tz);
+  if (!call.clientId) suggestions = suggestions.filter((x) => x.kind === 'task');
+  if (call.clientId && !suggestions.some((x) => x.kind === 'note')) {
+    suggestions.push({ id: `sg_note_${suggestions.length}`, kind: 'note', title: 'Save your notes to the file', heard: null, fields: { body: notes }, preview: {}, status: 'pending' });
+  }
+  const updated = await prisma.phoneCall.update({
+    where: { id: call.id },
+    data: { summary: r.summary || null, summaryBullets: r.bullets || [], sentiment: r.sentiment || null, aiSuggestions: suggestions, meta: { ...meta, recapStatus: 'ready', recapSource: source } },
+    include: { client: { select: U.CLIENT_LITE } },
+  });
   return updated;
 }
 

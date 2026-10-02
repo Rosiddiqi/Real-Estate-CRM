@@ -421,10 +421,13 @@ function PushPermissionHint() {
 function MessagingLine() {
   const [state, setState] = useState(null);
   useEffect(() => { api.get('/bridge').then(setState).catch(() => setState({ provider: 'demo' })); }, []);
-  const provider = state?.provider || 'demo';
+  // Per-workspace transport (server: services/messaging/mode.js).
+  const mode = state?.messaging?.mode || state?.provider || 'demo';
   const sub = !state ? 'Checking…'
-    : state.twilio ? 'Twilio connected — texts and calls go out from your business line'
-      : provider === 'demo' ? 'Demo mode — messages are simulated' : 'Not configured';
+    : mode === 'twilio' ? 'Twilio connected — texts and calls go out from your business line'
+      : mode === 'demo' ? 'Demo mode — messages are simulated'
+        : mode === 'device' ? 'Your phone’s Messages app — texts open Messages to send; connect a business line (Twilio) to text from KeyMatch'
+          : 'Not configured';
   return (
     <Group>
       <Row icon="message" iconColor="var(--sms)" iconBg="rgba(52,209,91,0.14)" title="SMS & calling" sub={sub} style={{ borderBottom: 0 }} />

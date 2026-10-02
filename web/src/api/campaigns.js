@@ -37,3 +37,5 @@ export const approveSuggestion = (id, text) => api.post(`/campaigns/suggestions/
 export const dismissSuggestion = (id) => api.post(`/campaigns/suggestions/${id}/dismiss`, {});
 
 export const searchListings = (params) => api.get('/listings', params);
+// Messaging transport status; messaging.mode is 'twilio' | 'demo' | 'device'.
+export const getMessagingStatus = () => api.get('/bridge');

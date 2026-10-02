@@ -4,5 +4,6 @@ module.exports = {
   ...require('./ingest'),          // ingestInbound
   ...require('./status'),          // applyStatus, nextStatus
   ...require('./conversations'),   // resolveConversation, afterMessage
+  ...require('./mode'),            // messagingModeFor, canAutoSend, assertCanAutoSend, messagingInfo
   events: require('./events'),     // in-process bus: inbound / outbound / status
 };

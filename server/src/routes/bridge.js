@@ -5,12 +5,22 @@
 const express = require('express');
 const { ah } = require('../lib/http');
 const { providerInfo } = require('../services/messaging/providers');
+const { messagingInfo } = require('../services/messaging/mode');
 
 const router = express.Router();
 
+// { bridges: [], provider, providerLabel, twilio, messaging: { mode, provider, label, canAutoSend } }
+// messaging.mode is per workspace: 'demo' | 'twilio' | 'device' (see services/messaging/mode.js).
 router.get('/', ah(async (req, res) => {
   const info = providerInfo();
-  res.json({ bridges: [], provider: info.id, providerLabel: info.label, twilio: info.twilio });
+  const messaging = await messagingInfo(req.workspaceId);
+  res.json({
+    bridges: [],
+    provider: messaging.mode === 'device' ? 'device' : messaging.mode,
+    providerLabel: messaging.label || info.label,
+    twilio: info.twilio,
+    messaging,
+  });
 }));
 
 const notAvailable = (req, res) => res.status(501).json({ error: 'iMessage bridge pairing is not available in this build' });

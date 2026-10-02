@@ -5,6 +5,7 @@ import '../../styles/campaigns.css';
 import Icon from '../ui/Icon';
 import { Spinner } from '../ui/kit';
 import { dayKeyIn, fmtTz, zonedInput } from './tz';
+import { nav } from '../../lib/nav';
 
 export const LANE_META = {
   green: { color: 'var(--kc-green)', hex: '#30D27A', title: "They're in", tag: 'WANTS TO SEE IT', sub: 'Interested, wants a showing or the details', short: 'Green' },
@@ -131,6 +132,18 @@ export function InfoNote({ kind = 'ai', children, style }) {
   );
 }
 
+// Shown in 'device' messaging mode (no business texting line): calm, not an error.
+export const NEEDS_LINE_COPY = 'Campaigns need a business texting line — connect Twilio in Settings to send. You can still build and save drafts.';
+export function NeedsLineBanner({ style }) {
+  return (
+    <div className="kc-note kc-note--calm" role="status" style={style}>
+      <Icon name="phone" size={15} color="var(--dim)" style={{ marginTop: 1 }} />
+      <div style={{ flex: 1, minWidth: 0 }}>{NEEDS_LINE_COPY}</div>
+      <button type="button" onClick={() => nav.openSettings()} style={{ alignSelf: 'center', fontSize: 12.5, fontWeight: 600, color: 'var(--bright)', flexShrink: 0 }}>Settings</button>
+    </div>
+  );
+}
+
 export function SparkButton({ label, onClick, disabled, busy, icon = 'sparkle', style }) {
   return (
     <button type="button" className="kc-spark km-press" onClick={onClick} disabled={disabled || busy} style={style}>
@@ -197,10 +210,12 @@ export function fmtEta(iso) {
   if (!iso) return null;
   const ms = new Date(iso).getTime() - Date.now();
   if (ms <= 45000) return 'any moment';
-  const h = Math.floor(ms / 3600000);
-  const m = Math.round((ms % 3600000) / 60000);
+  const mins = Math.max(1, Math.round(ms / 60000));
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
   if (h >= 24) return `~${Math.round(h / 24)}d left`;
-  return h > 0 ? `~${h}h ${m}m left` : `~${m}m left`;
+  if (h > 0) return m ? `~${h}h ${m}m left` : `~${h}h left`;
+  return `~${m}m left`;
 }
 
 export function fmtIn(iso) {

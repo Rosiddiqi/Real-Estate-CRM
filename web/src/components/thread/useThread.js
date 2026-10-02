@@ -15,6 +15,7 @@ import {
 } from '../../api/messages';
 import { attachmentKind, tempId } from './threadUtils';
 import { isThreadOpen, setThreadOpen } from './activeThread';
+import { openSmsHandoff } from './messagingMode';
 import { bumpBadges } from '../../api/system';
 
 const PAGE = 60;
@@ -316,7 +317,13 @@ export function useThread({ conversationId: convProp, clientId, handle, timeline
       scheduledFor: scheduledFor ? new Date(scheduledFor).toISOString() : undefined,
     };
     if (scheduledFor) {
-      const res = await apiSend(payload);
+      let res;
+      try {
+        res = await apiSend(payload);
+      } catch (err) {
+        toast.error(err.message || 'Couldn’t schedule that');
+        return null;
+      }
       if (res.conversation && !id) { setConversation(res.conversation); setConvId(res.conversation.id); }
       setScheduled((s) => [...s.filter((x) => x.id !== res.message.id), res.message].sort((a, b) => new Date(a.scheduledFor) - new Date(b.scheduledFor)));
       setDidSend((n) => n + 1);
@@ -353,6 +360,9 @@ export function useThread({ conversationId: convProp, clientId, handle, timeline
         writeCache(res.conversation ? res.conversation.id : idRef.current, timeline, next, hasMore);
         return next;
       });
+      // No business line: hand the text to the phone's Messages app.
+      if (res.smsUrl) openSmsHandoff(res.smsUrl);
+      if (res.notice) toast(res.notice);
       return res.message;
     } catch (err) {
       setMessages((prev) => prev.map((m) => (m.id === tmp ? { ...m, _optimistic: false, _failed: true, status: 'failed', _error: err.message } : m)));
@@ -382,6 +392,7 @@ export function useThread({ conversationId: convProp, clientId, handle, timeline
     try {
       const res = await apiRetry(m.id);
       if (res && res.message) adopt(res.message);
+      if (res && res.smsUrl) openSmsHandoff(res.smsUrl);
     } catch (err) {
       setMessages((prev) => prev.map((x) => (x.id === m.id ? { ...x, status: 'failed', error: err.message } : x)));
       toast.error(err.message || 'Couldn’t retry');

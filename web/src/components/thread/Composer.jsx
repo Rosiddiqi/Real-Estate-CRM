@@ -68,6 +68,7 @@ const Composer = forwardRef(function Composer({
   allowSchedule = true,
   allowListing = true,
   allowVoice = true,
+  allowFiles = true,      // false in device mode (Messages hand-off is text only)
   placeholder,
   name,
   onContentChange,
@@ -415,9 +416,9 @@ const Composer = forwardRef(function Composer({
           <>
             <div style={{ position: 'fixed', inset: 0, zIndex: 35 }} onPointerDown={() => setMenu(null)} />
             <div className="km-cmp-menu km-lg km-lg--menu" role="menu">
-              <button type="button" onClick={() => openPicker('image/*,video/*')}><Icon name="image" size={21} stroke={1.7} />Photos &amp; Videos</button>
-              {touch.current ? <button type="button" onClick={() => openPicker('image/*', 'environment')}><Icon name="camera" size={21} stroke={1.7} />Camera</button> : null}
-              <button type="button" onClick={() => openPicker('*/*')}><Icon name="file" size={21} stroke={1.7} />File</button>
+              {allowFiles ? <button type="button" onClick={() => openPicker('image/*,video/*')}><Icon name="image" size={21} stroke={1.7} />Photos &amp; Videos</button> : null}
+              {allowFiles && touch.current ? <button type="button" onClick={() => openPicker('image/*', 'environment')}><Icon name="camera" size={21} stroke={1.7} />Camera</button> : null}
+              {allowFiles ? <button type="button" onClick={() => openPicker('*/*')}><Icon name="file" size={21} stroke={1.7} />File</button> : null}
               {allowListing ? <button type="button" onClick={() => { setMenu(null); setListingOpen(true); }}><Icon name="house" size={21} stroke={1.7} />Send a Listing</button> : null}
               {allowSchedule ? (
                 <button type="button" disabled={!hasContent} onClick={() => { setMenu(null); setScheduleOpen(true); }}>

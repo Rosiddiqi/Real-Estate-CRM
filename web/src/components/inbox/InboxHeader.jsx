@@ -59,9 +59,15 @@ export default function InboxHeader({ unread = 0, total = 0, whales = 0, filter,
   const info = useLineInfo();
   const btnRef = useRef(null);
   const [open, setOpen] = useState(false);
-  const health = status === 'open' ? 'green' : status === 'connecting' ? 'yellow' : status === 'idle' ? 'unknown' : 'red';
-  const providerLabel = info ? (info.provider === 'twilio' ? 'Twilio SMS line' : 'Demo line · simulated delivery') : 'Messaging line';
-  const lineLabel = health === 'green' ? `${providerLabel} · live` : health === 'red' ? 'Offline — reconnecting' : 'Connecting…';
+  const healthBase = status === 'open' ? 'green' : status === 'connecting' ? 'yellow' : status === 'idle' ? 'unknown' : 'red';
+  const mode = info && info.messaging ? info.messaging.mode : (info && info.provider);
+  const providerLabel = !info ? 'Messaging line'
+    : mode === 'twilio' ? 'Twilio SMS line'
+      : mode === 'device' ? 'Texts send from your phone'
+        : 'Demo line · simulated delivery';
+  // Device mode (no business line) reads amber: it works, but KeyMatch can't send on its own.
+  const health = healthBase === 'green' && mode === 'device' ? 'yellow' : healthBase;
+  const lineLabel = healthBase === 'green' ? `${providerLabel}${mode === 'device' ? '' : ' · live'}` : healthBase === 'red' ? 'Offline — reconnecting' : 'Connecting…';
   const pick = (id) => { setOpen(false); onFilter(id); };
 
   return (

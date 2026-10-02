@@ -11,13 +11,13 @@ import { EmptyState, SkeletonRows, Button } from '../../components/ui/kit';
 import { toast, confirm } from '../../components/ui/toast';
 import { nav } from '../../lib/nav';
 import { deleteCampaign } from '../../api/campaigns';
-import { SectionRule } from '../../components/campaigns/kit';
+import { SectionRule, NeedsLineBanner } from '../../components/campaigns/kit';
 import { CampaignCard, AutomationRow, SwipeRow } from '../../components/campaigns/CampaignCard';
 import SenderGuardCard from '../../components/campaigns/SenderGuardCard';
 import SuggestionCard from '../../components/campaigns/SuggestionCard';
 import AutomationEditor from '../../components/campaigns/AutomationEditor';
 import { useCampaignTz } from '../../components/campaigns/tz';
-import { useAutomations, useAutomationToggle, useCampaignList, useSuggestions } from '../../components/campaigns/useCampaignsData';
+import { useAutomations, useAutomationToggle, useCampaignList, useMessagingMode, useSuggestions } from '../../components/campaigns/useCampaignsData';
 
 const BUCKETS = [
   { id: 'running', label: 'Running', match: (c) => ['running', 'paused'].includes(c.status) },
@@ -55,6 +55,7 @@ export default function CampaignsPage({ onClose }) {
   };
 
   const { busyId: busyAuto, toggle: toggleAuto } = useAutomationToggle(autos, setEditing);
+  const needsLine = useMessagingMode() === 'device';
 
   const loading = list.loading && !list.data;
 
@@ -66,6 +67,7 @@ export default function CampaignsPage({ onClose }) {
       bodyStyle={{ padding: '4px 14px 0' }}
     >
       <div className="kc-wide">
+        {needsLine ? <NeedsLineBanner style={{ marginTop: 4, marginBottom: 10 }} /> : null}
         <SenderGuardCard style={{ marginTop: 4 }} />
 
         <button type="button" className="kc-hero km-press" onClick={() => nav.newCampaign()} style={{ marginTop: 10 }}>
@@ -147,7 +149,7 @@ export default function CampaignsPage({ onClose }) {
             {autos.loading && !autos.data ? <SkeletonRows n={3} /> : null}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {automations.map((a, i) => (
-                <AutomationRow key={a.id} automation={a} index={i} busy={busyAuto === a.id} onToggle={toggleAuto} onOpen={() => setEditing(a)} />
+                <AutomationRow key={a.id} automation={a} index={i} busy={busyAuto === a.id} held={needsLine && a.enabled} onToggle={toggleAuto} onOpen={() => setEditing(a)} />
               ))}
             </div>
           </>

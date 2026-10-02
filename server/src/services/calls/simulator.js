@@ -172,12 +172,18 @@ async function hangup(callId, { by = 'agent', workspaceId = null } = {}) {
   const answered = call.answeredAt || (st && st.answeredAt);
   const durationSec = answered ? Math.max(1, Math.round((now - new Date(answered)) / 1000)) : 0;
   const status = answered ? 'completed' : (call.direction === 'outbound' ? 'cancelled' : 'missed');
-  const meta = { ...(call.meta || {}), endedBy: by, recapStatus: answered ? 'pending' : null, held: false };
-  let updated = await prisma.phoneCall.update({ where: { id: call.id }, data: { status, endedAt: now, durationSec, meta, ...(st ? { transcript: st.lines } : {}) }, include });
+  const meta = { ...(call.meta || {}), endedBy: by, recapStatus: answered ? 'pending' : null, held: false, finalizedAt: now.toISOString() };
+  const updated = await prisma.phoneCall.update({ where: { id: call.id }, data: { status, endedAt: now, durationSec, meta, ...(st ? { transcript: st.lines } : {}) }, include });
   broadcastCall(updated.workspaceId, updated);
+  await afterEnd(updated, { answered: !!answered, durationSec, meta });
+  return updated;
+}
 
+// Timeline row + contact clock now; the recap right after (never blocks the UI).
+async function afterEnd(updated, { answered, durationSec, meta }) {
   if (updated.clientId && answered) {
     const mm = `${Math.floor(durationSec / 60)}:${String(durationSec % 60).padStart(2, '0')}`;
+    const now = new Date();
     await logActivity({
       workspaceId: updated.workspaceId, clientId: updated.clientId, type: updated.direction === 'inbound' ? 'call_in' : 'call_out',
       title: `${updated.direction === 'inbound' ? 'Call from' : 'Called'} ${U.firstOf(updated.client)} · ${mm}`, body: meta.topic || null,
@@ -187,17 +193,30 @@ async function hangup(callId, { by = 'agent', workspaceId = null } = {}) {
     try { hub.broadcast(updated.workspaceId, 'client_updated', { id: updated.clientId, reason: 'call' }); } catch { /* ignore */ }
   }
   if (answered) {
-    // Recap runs after the hang-up returns (never blocks the UI).
     setTimeout(async () => {
       try {
-        updated = await recap.generate(updated.id);
-        if (updated) broadcastCall(updated.workspaceId, updated);
+        const done = await recap.generate(updated.id);
+        if (done) broadcastCall(done.workspaceId, done);
       } catch (err) {
         console.error('[calls] recap failed', err.message);
-        await prisma.phoneCall.update({ where: { id: callId }, data: { meta: { ...meta, recapStatus: 'failed' } } }).catch(() => {});
+        await prisma.phoneCall.update({ where: { id: updated.id }, data: { meta: { ...meta, recapStatus: 'failed' } } }).catch(() => {});
       }
     }, 600);
   }
+}
+
+// A provider (Twilio) already marked the call ended: run the timeline + recap
+// exactly once, keeping the provider's own status, end time and duration.
+async function finalizeEnded(callId, workspaceId) {
+  const call = await prisma.phoneCall.findFirst({ where: { id: callId, workspaceId }, include });
+  if (!call || call.status !== 'completed' || !call.answeredAt) return call;
+  if (call.meta && call.meta.finalizedAt) return call;
+  const now = new Date();
+  const durationSec = call.durationSec || Math.max(1, Math.round(((call.endedAt ? new Date(call.endedAt) : now) - new Date(call.answeredAt)) / 1000));
+  const meta = { ...(call.meta || {}), endedBy: (call.meta && call.meta.endedBy) || 'client', recapStatus: 'pending', held: false, finalizedAt: now.toISOString() };
+  const updated = await prisma.phoneCall.update({ where: { id: call.id }, data: { durationSec, endedAt: call.endedAt || now, meta }, include });
+  broadcastCall(updated.workspaceId, updated);
+  await afterEnd(updated, { answered: true, durationSec, meta });
   return updated;
 }
 
@@ -206,4 +225,4 @@ function isLive(callId) { return live.has(callId); }
 const STALE_MS = 60000;
 function isOrphan(call) { return !live.has(call.id) && Date.now() - new Date(call.updatedAt).getTime() > STALE_MS; }
 
-module.exports = { start, hangup, setHold, addNote, isLive, isOrphan, live };
+module.exports = { start, hangup, finalizeEnded, setHold, addNote, isLive, isOrphan, live };
