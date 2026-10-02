@@ -21,6 +21,7 @@ import { AutomationRow, TEMPLATE_ICON } from './CampaignCard';
 import SenderGuardCard from './SenderGuardCard';
 import SuggestionCard from './SuggestionCard';
 import AutomationEditor from './AutomationEditor';
+import { useCampaignTz } from './tz';
 import { useAutomations, useAutomationToggle, useCampaignList, useLiveThreads, useLoader, useSuggestions } from './useCampaignsData';
 
 const OFF_KEY = 'km.autos.showOff';
@@ -121,6 +122,7 @@ function ThreadGroups({ groups }) {
 }
 
 export default function AutomationsTab({ showThreads, padded = true, style }) {
+  useCampaignTz();
   const rootRef = useRef(null);
   const [inInbox, setInInbox] = useState(false);
   useLayoutEffect(() => {

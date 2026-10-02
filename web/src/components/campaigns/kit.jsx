@@ -4,6 +4,7 @@
 import '../../styles/campaigns.css';
 import Icon from '../ui/Icon';
 import { Spinner } from '../ui/kit';
+import { dayKeyIn, fmtTz, zonedInput } from './tz';
 
 export const LANE_META = {
   green: { color: 'var(--kc-green)', hex: '#30D27A', title: "They're in", tag: 'WANTS TO SEE IT', sub: 'Interested, wants a showing or the details', short: 'Green' },
@@ -178,18 +179,18 @@ export function Progress({ value = 0, total = 0, style }) {
   return <div className="kc-progress" style={style}><i style={{ width: `${pct}%` }} /></div>;
 }
 
-// ── time helpers ───────────────────────────────────────────────────────
+// ── time helpers (agent's zone, see tz.js) ────────────────────────────
 export function fmtWhen(iso, opts = {}) {
   if (!iso) return '';
   const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
   const now = new Date();
-  const sameDay = d.toDateString() === now.toDateString();
-  const tomorrow = new Date(now); tomorrow.setDate(now.getDate() + 1);
-  const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  if (sameDay) return opts.todayWord ? `Today ${time}` : time;
-  if (d.toDateString() === tomorrow.toDateString()) return `Tomorrow ${time}`;
-  if (Math.abs(d - now) < 6 * 864e5) return `${d.toLocaleDateString('en-US', { weekday: 'short' })} ${time}`;
-  return `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ${time}`;
+  const key = dayKeyIn(d);
+  const time = fmtTz(d, { hour: 'numeric', minute: '2-digit' });
+  if (key === dayKeyIn(now)) return opts.todayWord ? `Today ${time}` : time;
+  if (key === dayKeyIn(new Date(now.getTime() + 864e5))) return `Tomorrow ${time}`;
+  if (Math.abs(d - now) < 6 * 864e5) return `${fmtTz(d, { weekday: 'short' })} ${time}`;
+  return `${fmtTz(d, { month: 'short', day: 'numeric' })} ${time}`;
 }
 
 export function fmtEta(iso) {
@@ -210,11 +211,10 @@ export function fmtIn(iso) {
   return fmtWhen(iso);
 }
 
-// datetime-local value from a Date/ISO (local wall time).
+// datetime-local value from a Date/ISO (agent's wall time).
 export function toLocalInput(d) {
   if (!d) return '';
   const x = new Date(d);
   if (Number.isNaN(x.getTime())) return '';
-  const p = (n) => String(n).padStart(2, '0');
-  return `${x.getFullYear()}-${p(x.getMonth() + 1)}-${p(x.getDate())}T${p(x.getHours())}:${p(x.getMinutes())}`;
+  return zonedInput(x);
 }

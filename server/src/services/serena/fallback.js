@@ -147,9 +147,11 @@ async function intentDay(turn, text) {
   const long = new Date(Date.UTC(y, m - 1, d, 12)).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'long', month: 'short', day: 'numeric' });
   let unread = null;
   if (isToday) ({ result: unread } = await turn.call('unread_conversations', { limit: 3 }));
+  const overdueN = (s.overdue_todos || []).length;
+  const todoN = s.todos_due.length + overdueN;
   const counts = [
     `${s.appointments.length} appointment${s.appointments.length === 1 ? '' : 's'}`,
-    `${s.todos_due.length} to-do${s.todos_due.length === 1 ? '' : 's'} due`,
+    `${todoN} to-do${todoN === 1 ? '' : 's'}${overdueN ? ` (${overdueN} overdue)` : ' due'}`,
     unread ? `${unread.count} unread` : null,
   ].filter(Boolean).join(' · ');
   lines.push(`**${dayLabel === 'Today' || dayLabel === 'Tomorrow' ? `${dayLabel}, ${long.split(', ').slice(1).join(', ')}` : long}** — ${counts}`);

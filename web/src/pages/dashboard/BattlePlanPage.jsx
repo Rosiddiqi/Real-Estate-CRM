@@ -317,7 +317,9 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
     if (isToday) return;
     const wrap = scrollRef.current;
     if (!wrap || loading) return;
-    const first = tiles.length ? Math.min(...tiles.map((t) => t.start)) : null;
+    // First real commitment (standing routine blocks like a 6:30 workout don't count).
+    const real = tiles.filter((t) => !String(t.id).startsWith('routine-'));
+    const first = real.length ? Math.min(...real.map((t) => t.start)) : null;
     const anchor = Math.max(DAY_START, Math.min(first ?? Infinity, (data && data.window && data.window.startMin) ?? 9 * 60) - 30);
     programmaticUntil.current = Date.now() + 400;
     const railTop = railRef.current ? railRef.current.offsetTop : 0;

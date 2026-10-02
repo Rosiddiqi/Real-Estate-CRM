@@ -301,7 +301,7 @@ export default function PropertyDetail({ id, seed, client, onClose, onChanged })
               <span className="kc-method-ico" style={{ width: 32, height: 32 }}><Icon name={p.source === 'listing_link' ? 'link' : p.source === 'described' ? 'sparkle' : p.source === 'document' ? 'file' : 'edit'} size={15} /></span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'block', fontSize: 14, fontWeight: 600 }}>{SOURCE_LABEL[p.source] || 'Entered by hand'}</span>
-                <span style={{ display: 'block', fontSize: 12, color: 'var(--dim)', marginTop: 1 }}>{p.source === 'described' ? 'AI-parsed from your words — verify on a match' : p.source === 'listing_link' ? 'Exact — parsed from the listing link' : p.source === 'document' ? 'Confirmed — parsed from a document' : 'Your record'}{p.boughtWithMe ? ' · bought with you' : ''}</span>
+                <span style={{ display: 'block', fontSize: 12, color: 'var(--dim)', marginTop: 1 }}>{({ described: 'AI-parsed from your words — verify on a match', listing_link: 'Exact — parsed from the listing link', document: 'Confirmed — parsed from a document', public_record: 'From county records', mls: 'Pulled from the MLS', import: 'Imported with your book' })[p.source] || 'Your record'}{p.boughtWithMe ? ' · bought with you' : ''}</span>
               </span>
               <button type="button" className="km-btn km-btn--sm km-btn--ghost" style={{ minHeight: 30 }} onClick={() => docInput.current?.click()}>{docBusy ? <Spinner size={13} /> : 'Add doc'}</button>
             </div>

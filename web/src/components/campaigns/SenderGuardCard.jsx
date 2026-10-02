@@ -8,24 +8,25 @@ import { Skeleton } from '../ui/kit';
 import { getSenderGuard } from '../../api/campaigns';
 import { useResync, useSocket } from '../../hooks/useSocket';
 import { MonoLabel } from './kit';
+import { fmtTz } from './tz';
 
 const COLOR = { green: 'var(--green)', yellow: 'var(--amber)', red: 'var(--red)' };
 const GLOW = { green: 'rgba(48,210,122,0.85)', yellow: 'rgba(242,169,59,0.85)', red: 'rgba(255,90,86,0.85)' };
 
-function fmtTime(iso) { try { return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); } catch { return ''; } }
-function fmtWhen(iso) { try { return new Date(iso).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' }); } catch { return ''; } }
+const fmtTime = (iso) => fmtTz(iso, { hour: 'numeric', minute: '2-digit' });
+const fmtWhen = (iso) => fmtTz(iso, { weekday: 'short', hour: 'numeric', minute: '2-digit' });
 
-function Meter({ label, used, limit, sub }) {
+// Label on top, the bar, then "4 of 100 · 96 left" — nothing squeezes at 320px.
+function Meter({ label, used, limit, left }) {
   const pct = limit ? Math.min(100, Math.round((used / limit) * 100)) : 0;
   const full = pct >= 100;
   return (
     <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 6 }}>
-        <span className="km-truncate" style={{ fontSize: 12, color: 'var(--dim)' }}>{label}</span>
-        <span className="km-num" style={{ fontSize: 13, color: 'var(--text)' }}>{used}<span style={{ color: 'var(--faint)', fontWeight: 500 }}> / {limit}</span></span>
-      </div>
+      <div className="km-truncate" style={{ fontSize: 12, color: 'var(--dim)' }}>{label}</div>
       <div className="kc-meter"><i style={{ width: `${pct}%`, background: full ? 'var(--amber)' : 'var(--blue)', boxShadow: full ? 'none' : '0 0 8px var(--glow)' }} /></div>
-      {sub ? <div style={{ fontSize: 11.5, color: 'var(--faint)', marginTop: 5 }}>{sub}</div> : null}
+      <div className="km-truncate" style={{ fontSize: 11.5, color: 'var(--faint)', marginTop: 5 }}>
+        <span className="km-num" style={{ fontSize: 13, color: full ? 'var(--amber)' : 'var(--text)' }}>{used}</span> of {limit}{left != null ? ` · ${left} left` : ''}
+      </div>
     </div>
   );
 }
@@ -87,8 +88,8 @@ export default function SenderGuardCard({ style, defaultOpen = false }) {
       </button>
 
       <div style={{ display: 'flex', gap: 16, marginTop: 13 }}>
-        <Meter label="Automated today" used={t.automated} limit={t.automatedLimit} sub={`${t.automatedLeft} left`} />
-        <Meter label="New conversations" used={t.newConversations} limit={t.newTarget} sub={`${t.newLeft} left today`} />
+        <Meter label="Automated today" used={t.automated} limit={t.automatedLimit} left={t.automatedLeft} />
+        <Meter label="New conversations" used={t.newConversations} limit={t.newTarget} left={t.newLeft} />
       </div>
 
       {s.waiting && s.waiting.count > 0 ? (

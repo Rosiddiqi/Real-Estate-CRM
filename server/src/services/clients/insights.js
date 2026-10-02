@@ -59,7 +59,7 @@ function agoLabel(d) {
   return `${n}d ago`;
 }
 
-function portfolioLine(b) {
+function portfolioParts(b) {
   const owned = b.properties.filter((p) => ['owns', 'leased_out'].includes(p.relationship));
   const rents = b.properties.filter((p) => p.relationship === 'rents');
   const parts = [];
@@ -73,18 +73,22 @@ function portfolioLine(b) {
   const lease = rents.map((p) => p.derived.daysToLeaseEnd).filter((d) => d != null && d >= 0 && d <= 180).sort((a, z) => a - z)[0];
   if (lease != null) parts.push(`lease ends in ${lease} days`);
   const active = b.searches.filter((s) => s.bucket !== 'dream' && s.status === 'active');
+  const head = (t) => String(t || '').split(/\s+[·|]\s+/)[0];
   if (active.length) {
     const s = active[0];
-    parts.push(`searching ${s.title.toLowerCase()}${s.priceMax ? ` ≤ ${moneyShort(s.priceMax)}` : ''}`);
-  } else if (b.searches.length) parts.push(`dreams of ${b.searches[0].title.toLowerCase()}`);
-  return parts.join(' · ') || null;
+    const t = head(s.title);
+    parts.push(`searching: ${t}${s.priceMax && !/\$/.test(t) ? ` ≤ ${moneyShort(s.priceMax)}` : ''}`);
+  } else if (b.searches.length) parts.push(`dreams of: ${head(b.searches[0].title)}`);
+  return parts;
 }
+function portfolioLine(b) { return portfolioParts(b).join(' · ') || null; }
 
 function dealLine(b) {
   const open = b.deals.filter((d) => !['closed', 'lost'].includes(d.stage));
   if (!open.length) return null;
   const d = open[0];
-  const label = d.propertyLabel || d.propertyAddress || d.title || (d.side === 'listing' ? 'their listing' : 'a purchase');
+  // First segment only — "Oceanfront estate · Golden Beach or Indian Creek" → "Oceanfront estate".
+  const label = (d.propertyLabel || d.propertyAddress || d.title || (d.side === 'listing' ? 'their listing' : 'a purchase')).split(/\s+[·|]\s+/)[0].split(',')[0];
   const price = d.contractPrice || d.price || d.salePrice;
   return `${STAGE_LABEL[d.stage] || d.stage} · ${label}${price ? ` · ${moneyShort(price)}` : ''}`;
 }
@@ -108,9 +112,10 @@ const firstOf = (v) => {
   return String(v).split(/[,;—–]/)[0].trim() || null;
 };
 
-// Fair Housing: origin / nationality / religion never leave the record.
+// Fair Housing: origin / nationality / religion / familial status (kids,
+// schools) never surface — not on the card, not in ice-breakers, not to a model.
 const PERSONAL_KEYS = [
-  ['spouse', 'Spouse'], ['kids', 'Kids'], ['pets', 'Pets'], ['hobbies', 'Hobbies'], ['clubs', 'Clubs'],
+  ['spouse', 'Spouse'], ['pets', 'Pets'], ['hobbies', 'Hobbies'], ['clubs', 'Clubs'],
   ['favoriteRestaurants', 'Restaurants'], ['restaurants', 'Restaurants'], ['wine', 'Wine'], ['boats', 'Boats'], ['art', 'Art'],
   ['coffee', 'Coffee'], ['anniversary', 'Anniversary'], ['other', 'Notes'],
 ];
@@ -122,12 +127,11 @@ function personalPoints(c, links, { forAi = false } = {}) {
   const spouseLink = (links || []).find((l) => ['spouse', 'partner'].includes(l.relation));
   if (!p.spouse && spouseLink) out.push(`Spouse: ${S.displayNameOf(spouseLink.client)}`);
   for (const [key, label] of PERSONAL_KEYS) {
-    if (forAi && key === 'kids') continue; // familial status never goes to the model
     const s = fmtPersonal(p[key]);
     if (s) out.push(`${label}: ${s}`);
   }
   const facts = (c.aiFacts && Array.isArray(c.aiFacts.touchPoints)) ? c.aiFacts.touchPoints : [];
-  for (const t of facts) if (out.length < 10 && !(forAi && PROTECTED.test(String(t)))) out.push(String(t));
+  for (const t of facts) if (out.length < 10 && !PROTECTED.test(String(t).replace(/family office/gi, ''))) out.push(String(t));
   return out.slice(0, 10);
 }
 
@@ -148,6 +152,69 @@ function iceBreakersFrom(c) {
   return out.slice(0, 3);
 }
 
+// "Prep for tonight’s dinner — …" from the next appointment: when (in the
+// workspace's time zone), what (type or a cleaned title), and a prep line
+// that fits the kind of meeting.
+const COMMON_FIRST = /^(dinner|lunch|breakfast|brunch|coffee|drinks|showing|showings|tour|private|second|final|call|meeting|listing|open|walkthrough|walk-through|inspection|appraisal|closing|preview|buyer|seller|consult|consultation|presentation|signing|check-in|follow-up)\b/i;
+function apptMove(b) {
+  const a = b.nextAppt;
+  const nm = S.displayNameOf(b.client);
+  const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const names = [nm, b.client.lastName, b.client.firstName].filter((x) => x && String(x).trim().length > 1).map((x) => esc(String(x).trim()));
+  const anyName = `(?:${names.join('|')})`;
+  let what = String(a.title || '')
+    .replace(new RegExp(`\\(\\s*${anyName}\\s*\\)`, 'gi'), '')
+    .replace(new RegExp(`\\s+(?:with|w/|for)\\s+${esc(nm)}\\b`, 'gi'), '')
+    .split(/\s+[·|]\s+|\s+[—–-]\s+/)
+    .map((seg) => seg.trim().replace(new RegExp(`^${esc(nm)}\\b\\s*`, 'i'), '').replace(/^\((.*)\)$/, '$1').trim())
+    .filter((seg) => seg && !new RegExp(`^${anyName}$`, 'i').test(seg))
+    // "Charles & Margaret Lowell" — a household name segment, not the what.
+    .filter((seg) => !(b.client.lastName && new RegExp(`^(?:[A-Z][\\w'’.-]*\\s*(?:&|and)?\\s*)+${esc(String(b.client.lastName).trim())}$`).test(seg)))
+    .join(' · ')
+    .trim();
+  if (!what) what = String(a.type || 'meeting').replace(/_/g, ' ');
+  if (COMMON_FIRST.test(what)) what = what.charAt(0).toLowerCase() + what.slice(1);
+  const tz = b.tz;
+  const { dayKey } = require('../../lib/dates');
+  const today = dayKey(new Date(), tz);
+  const day = dayKey(new Date(a.startAt), tz);
+  const diff = S.daysBetweenKeys ? S.daysBetweenKeys(today, day) : Math.round((new Date(`${day}T12:00:00Z`) - new Date(`${today}T12:00:00Z`)) / 864e5);
+  const hour = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone: tz }).format(new Date(a.startAt)));
+  const when = diff <= 0 ? (hour >= 17 ? 'tonight’s' : 'today’s')
+    : diff === 1 ? 'tomorrow’s'
+      : diff < 7 ? `${new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: tz }).format(new Date(a.startAt))}’s`
+        : `the ${new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: tz }).format(new Date(a.startAt))}`;
+  const k = `${a.type || ''} ${what}`.toLowerCase();
+  const prep = /open house/.test(k) ? 'confirm staging, signage and the sign-in flow'
+    : /show|tour|preview|walk/.test(k) ? 'have comps and the route ready'
+    : /listing|presentation|valuation|cma/.test(k) ? 'bring the CMA and a pricing story'
+      : /dinner|lunch|breakfast|brunch|coffee|drinks/.test(k) ? 'skim their touch points and bring one off-market idea'
+        : /closing|inspection|appraisal|signing/.test(k) ? 'confirm every party, document and time'
+          : 'review the timeline and bring one new idea';
+  return `Prep for ${when} ${what} — ${prep}.`;
+}
+
+const yearsLabel = (n) => `${n} year${n === 1 ? '' : 's'}`;
+function apptInDays(b) {
+  if (!b.nextAppt) return null;
+  const { dayKey } = require('../../lib/dates');
+  return S.daysBetweenKeys(dayKey(new Date(), b.tz), dayKey(new Date(b.nextAppt.startAt), b.tz));
+}
+
+function stageMove(d, name) {
+  switch (d.stage) {
+    case 'new_lead': return `Respond fast — a personal intro and one relevant listing for ${name}.`;
+    case 'consultation': return `Turn the consultation into a plan — send ${name} a short recap and the first matches.`;
+    case 'touring': return `Line up ${name}’s next tour — the two or three best new matches.`;
+    case 'seller_lead': return `Offer ${name} a private valuation — get the listing appointment on the calendar.`;
+    case 'listing_appt': return `Bring ${name} the CMA and a pricing story — win the listing.`;
+    case 'active': return `Send ${name} this week’s showing feedback and traffic — sellers who hear from you stay.`;
+    case 'priority_list': case 'unit_selection': case 'pricing_received': case 'reserved':
+      return `Stay ahead of the release — confirm ${name}’s unit picks and deposit timing.`;
+    default: return null;
+  }
+}
+
 function recommendedMove(b) {
   const c = b.client;
   const name = first(c);
@@ -156,18 +223,23 @@ function recommendedMove(b) {
   if (uc) return `Keep ${name}’s closing on rails — confirm inspection, appraisal and the closing date this week.`;
   const offer = open.find((d) => ['offer_submitted', 'offer_received'].includes(d.stage));
   if (offer) return `Offer is live — update ${name} today, even if there’s no news.`;
+  // Something on the calendar in the next two days is the most concrete move.
+  const apptIn = apptInDays(b);
+  if (apptIn != null && apptIn <= 2) return apptMove(b);
   const owned = b.properties.filter((p) => ['owns', 'leased_out'].includes(p.relationship));
   const arm = owned.filter((p) => p.derived.daysToReset != null && p.derived.daysToReset >= 0 && p.derived.daysToReset <= 180).sort((a, z) => a.derived.daysToReset - z.derived.daysToReset)[0];
   if (arm) return `${name}’s ARM on ${arm.title} resets in ${arm.derived.daysToReset} days — open the refi-or-sell conversation.`;
   const lease = b.properties.find((p) => p.relationship === 'rents' && p.derived.daysToLeaseEnd != null && p.derived.daysToLeaseEnd >= 0 && p.derived.daysToLeaseEnd <= 120);
   if (lease) return `Lease ends in ${lease.derived.daysToLeaseEnd} days — start the buy-vs-renew conversation with ${name}.`;
+  for (const d of open) { const m = stageMove(d, name); if (m) return m; }
   const anniv = owned.find((p) => p.derived.anniversaryInDays != null && p.derived.anniversaryInDays <= 30);
-  if (anniv) return `${anniv.derived.anniversaryYears} years at ${anniv.title} — send ${name} an equity check-in.`;
-  if (owned.some((p) => p.thinkingOfSelling)) return `${name} is thinking of selling — offer a private valuation before another agent does.`;
+  if (anniv) return `${yearsLabel(anniv.derived.anniversaryYears)} at ${anniv.title} — send ${name} an equity check-in.`;
+  const listingOpen = open.some((d) => d.side === 'listing');
+  if (!listingOpen && owned.some((p) => p.thinkingOfSelling)) return `${name} is thinking of selling — offer a private valuation before another agent does.`;
   const silent = daysAgo(b.lastTouch);
   const active = b.searches.find((s) => s.bucket !== 'dream' && s.status === 'active');
   if (active && (silent == null || silent >= 3)) return `Send ${name} the two or three best new matches for “${active.title}”.`;
-  if (b.nextAppt) return `Prep for ${b.nextAppt.title.toLowerCase()} — have comps and the route ready.`;
+  if (b.nextAppt) return apptMove(b);
   if (silent != null && silent >= 21) return `Silent ${silent} days — reconnect with a personal note and one relevant market insight.`;
   return `Keep ${name} warm — share one listing or market note that fits what they care about.`;
 }
@@ -178,12 +250,12 @@ function statusLine(b) {
   const type = TYPE_LABEL[c.type] || null;
   const status = { lead: 'Lead', active: 'Active', past_client: 'Past client', sphere: 'Sphere', inactive: 'Inactive' }[c.status];
   if (c.contactKind === 'vendor' || c.contactKind === 'partner') parts.push(c.vendorRole ? c.vendorRole.replace(/_/g, ' ').replace(/^\w/, (m) => m.toUpperCase()) : (c.contactKind === 'vendor' ? 'Vendor' : 'Partner'));
-  else parts.push([status === 'Active' ? null : status, type].filter(Boolean).join(' ') || 'Client');
+  else parts.push([status === 'Active' || status === type ? null : status, type].filter(Boolean).join(' ') || 'Client');
   const deal = dealLine(b);
   if (deal) parts.push(deal);
   else {
-    const pl = portfolioLine(b);
-    if (pl) parts.push(pl.split(' · ').slice(0, 2).join(' · '));
+    const pl = portfolioParts(b).slice(0, 2);
+    if (pl.length) parts.push(pl.join(' · '));
   }
   const ago = agoLabel(b.lastTouch);
   if (ago) parts.push(daysAgo(b.lastTouch) >= 21 ? `silent ${daysAgo(b.lastTouch)} days` : `last touch ${ago}`);
@@ -215,20 +287,31 @@ function fallbackBriefing(b) {
   };
 }
 
+// Free text (notes, call recaps, texts, earlier summaries) can mention kids,
+// schools, religion… Drop those sentences before anything reaches a model.
+function fhText(t, max) {
+  const { PROTECTED } = require('./reparse');
+  const kept = String(t || '').split(/(?<=[.!?;])\s+|\n+/)
+    .filter((x) => x.trim() && !PROTECTED.test(x.replace(/family office/gi, '')));
+  const out = kept.join(' ').trim();
+  return max ? out.slice(0, max) : out;
+}
+
 function contextText(b) {
   const c = b.client;
   const lines = [];
   lines.push(`CLIENT: ${S.displayNameOf(c)} (${c.contactKind}${c.type ? `, ${c.type}` : ''}, status ${c.status}, rating ${c.rating}/5${c.isWhale ? ', WHALE' : ''})`);
   if (c.company || c.jobTitle) lines.push(`Work: ${[c.jobTitle, c.company].filter(Boolean).join(' at ')}`);
   lines.push(`Lifetime volume ${moneyShort(c.lifetimeVolume || 0)} across ${c.transactionsCount || 0} closings. Lead source: ${c.leadSource || 'unknown'}.`);
-  if (c.financing || c.timeline || c.motivation) lines.push(`Financing: ${c.financing || '—'}${c.preApprovalAmount ? ` (pre-approved ${moneyShort(c.preApprovalAmount)})` : ''} · Timeline: ${c.timeline || '—'} · Motivation: ${c.motivation || '—'}`);
+  if (c.financing || c.timeline || c.motivation) lines.push(`Financing: ${c.financing || '—'}${c.preApprovalAmount ? ` (pre-approved ${moneyShort(c.preApprovalAmount)})` : ''} · Timeline: ${c.timeline || '—'} · Motivation: ${fhText(c.motivation) || '—'}`);
   const pp = personalPoints(c, [], { forAi: true });
   if (pp.length) lines.push(`Agent-recorded personal notes: ${pp.join('; ')}`);
   if (c.aiFacts && typeof c.aiFacts === 'object') {
-    if (Array.isArray(c.aiFacts.mustHaves) && c.aiFacts.mustHaves.length) lines.push(`Known must-haves: ${c.aiFacts.mustHaves.join('; ')}`);
-    if (c.aiFacts.style) lines.push(`Communication style: ${c.aiFacts.style}`);
+    const mh = Array.isArray(c.aiFacts.mustHaves) ? require('./reparse').scrub(c.aiFacts.mustHaves) : [];
+    if (mh.length) lines.push(`Known must-haves: ${mh.join('; ')}`);
+    if (c.aiFacts.style) lines.push(`Communication style: ${fhText(c.aiFacts.style)}`);
   }
-  if (c.aiSummary) lines.push(`Previous summary: ${String(c.aiSummary).slice(0, 600)}`);
+  if (c.aiSummary) lines.push(`Previous summary: ${fhText(c.aiSummary, 600)}`);
   if (b.properties.length) {
     lines.push('PORTFOLIO:');
     for (const p of b.properties.slice(0, 8)) {
@@ -250,15 +333,15 @@ function contextText(b) {
   if (b.tasks.length) lines.push(`OPEN TASKS: ${b.tasks.map((t) => t.title).join('; ')}`);
   if (b.notes.length) {
     lines.push('NOTES (newest first):');
-    for (const n of b.notes) lines.push(`- ${new Date(n.createdAt).toISOString().slice(0, 10)}: ${n.body.slice(0, 400)}`);
+    for (const n of b.notes) { const t = fhText(n.body, 400); if (t) lines.push(`- ${new Date(n.createdAt).toISOString().slice(0, 10)}: ${t}`); }
   }
   if (b.calls.length) {
     lines.push('RECENT CALLS:');
-    for (const k of b.calls) lines.push(`- ${new Date(k.startedAt).toISOString().slice(0, 10)} ${k.direction} ${k.status}${k.summary ? `: ${k.summary.slice(0, 300)}` : ''}`);
+    for (const k of b.calls) lines.push(`- ${new Date(k.startedAt).toISOString().slice(0, 10)} ${k.direction} ${k.status}${k.summary && fhText(k.summary) ? `: ${fhText(k.summary, 300)}` : ''}`);
   }
   if (b.messages.length) {
     lines.push('RECENT MESSAGES (oldest → newest):');
-    for (const m of b.messages.slice(-30)) lines.push(`- ${new Date(m.sentAt).toISOString().slice(0, 16).replace('T', ' ')} ${m.isFromMe ? 'AGENT' : 'CLIENT'}: ${(m.body || '[attachment]').slice(0, 280)}`);
+    for (const m of b.messages.slice(-30)) lines.push(`- ${new Date(m.sentAt).toISOString().slice(0, 16).replace('T', ' ')} ${m.isFromMe ? 'AGENT' : 'CLIENT'}: ${m.body ? (fhText(m.body, 280) || '[omitted]') : '[attachment]'}`);
   }
   lines.push(`Last touch: ${b.lastTouch ? b.lastTouch.toISOString().slice(0, 10) : 'never'}. Today: ${new Date().toISOString().slice(0, 10)}.`);
   return lines.join('\n');

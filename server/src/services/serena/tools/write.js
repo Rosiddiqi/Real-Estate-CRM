@@ -22,7 +22,7 @@ function movedMeta(now, was, tz) {
 const stars = (n) => '★'.repeat(n) + '☆'.repeat(Math.max(0, 5 - n));
 
 function dueFrom(input, tz) {
-  const date = input.due_date || input.date || null;
+  const date = input.due_date || input.date || input.due || null;
   const time = input.due_time || input.time || null;
   if (!date && !time) return { dueAt: null, dueDate: null };
   const day = T.parseDay(date, tz) || T.parseDay(time, tz) || dayKey(new Date(), tz);

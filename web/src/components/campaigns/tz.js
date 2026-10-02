@@ -78,6 +78,6 @@ export function inputIso(v, tz = campaignTz()) {
 export const dayKeyIn = (d, tz = campaignTz()) => zonedParts(d, tz).date;
 
 // Intl formatting in the agent's zone.
-export function fmtIn(d, opts, tz = campaignTz()) {
+export function fmtTz(d, opts, tz = campaignTz()) {
   try { return new Date(d).toLocaleString('en-US', { ...opts, timeZone: tz }); } catch { return ''; }
 }

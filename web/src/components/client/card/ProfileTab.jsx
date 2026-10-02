@@ -11,7 +11,7 @@ import { formatPhone, moneyCompact, formatDate } from '../../../lib/format';
 import { deleteLink } from '../../../api/clients';
 import { heroLine } from './CardHero';
 import {
-  SectionTitle, InfoRow, PERSONAL_FIELDS, PERSONAL_HIDDEN, FINANCING_LABEL, TIMELINE_LABEL, RELATION_LABEL, displayName, copyText, humanize, cap, fmtPersonal,
+  SectionTitle, InfoRow, PERSONAL_FIELDS, PERSONAL_HIDDEN, fhClean, FINANCING_LABEL, TIMELINE_LABEL, RELATION_LABEL, displayName, copyText, humanize, cap, fmtPersonal,
 } from '../clientKit';
 
 const STAGE = {
@@ -73,6 +73,9 @@ function StatCluster({ client }) {
   const s = client.stats || {};
   const yr = (d) => (d ? `’${String(new Date(d).getFullYear()).slice(2)}` : '—');
   const lastClose = s.lastClosedAt ? new Date(s.lastClosedAt).toLocaleDateString('en-US', { month: 'short' }) + ` ’${String(new Date(s.lastClosedAt).getFullYear()).slice(2)}` : '—';
+  const right = s.lifetimeGci ? { value: moneyCompact(s.lifetimeGci), label: 'LIFETIME GCI' }
+    : s.pipelineVolume ? { value: moneyCompact(s.pipelineVolume), label: 'IN PIPELINE', color: 'var(--amber)' }
+      : { value: s.avgPrice ? moneyCompact(s.avgPrice) : '—', label: 'AVG PRICE' };
   return (
     <div className="kc-statcluster">
       <div className="kc-statcluster-band">
@@ -81,8 +84,8 @@ function StatCluster({ client }) {
           <div className="kc-mono" style={{ fontSize: 8, letterSpacing: '0.18em', color: 'var(--faint)', marginTop: 5 }}>LIFETIME VOLUME</div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 17, fontWeight: 700 }}>{s.lifetimeGci ? moneyCompact(s.lifetimeGci) : s.avgPrice ? moneyCompact(s.avgPrice) : '—'}</div>
-          <div className="kc-mono" style={{ fontSize: 8, letterSpacing: '0.16em', color: 'var(--faint)', marginTop: 4 }}>{s.lifetimeGci ? 'LIFETIME GCI' : 'AVG PRICE'}</div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: right.color }}>{right.value}</div>
+          <div className="kc-mono" style={{ fontSize: 8, letterSpacing: '0.16em', color: 'var(--faint)', marginTop: 4 }}>{right.label}</div>
         </div>
       </div>
       <div className="kc-statcluster-rail">
@@ -164,14 +167,16 @@ function Household({ client, onAddLink, onChanged }) {
   );
 }
 
+const CHANNEL_LABEL = { imessage: 'iMessage', sms: 'SMS', text: 'Text', whatsapp: 'WhatsApp', email: 'Email', call: 'Phone call', phone: 'Phone call', facetime: 'FaceTime', video: 'Video call' };
+
 export default function ProfileTab({ client, briefing, briefingLoading, refreshing, onRefreshBriefing, onEdit, onAddLink, onChanged, onScroll }) {
   const [copied, setCopied] = useState(false);
   const hasDetail = !!client._detail;
   const p = (client.personal && typeof client.personal === 'object') ? client.personal : {};
   const known = new Set(PERSONAL_FIELDS.map((f) => f.key));
   const touch = [
-    ...PERSONAL_FIELDS.filter((f) => fmtPersonal(p[f.key])),
-    ...Object.keys(p).filter((k) => !known.has(k) && !PERSONAL_HIDDEN.has(k) && fmtPersonal(p[k])).map((k) => ({ key: k, label: humanize(k.replace(/([a-z])([A-Z])/g, '$1_$2')).toLowerCase().replace(/^\w/, (m) => m.toUpperCase()), icon: 'sparkle' })),
+    ...PERSONAL_FIELDS.filter((f) => fhClean(fmtPersonal(p[f.key]))),
+    ...Object.keys(p).filter((k) => !known.has(k) && !PERSONAL_HIDDEN.has(k) && fhClean(fmtPersonal(p[k]))).map((k) => ({ key: k, label: humanize(k.replace(/([a-z])([A-Z])/g, '$1_$2')).toLowerCase().replace(/^\w/, (m) => m.toUpperCase()), icon: 'sparkle' })),
   ];
   const address = [client.street ? `${client.street}${client.unit ? ` #${client.unit}` : ''}` : null, [client.city, [client.state, client.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ')].filter(Boolean).join('\n');
   const birthday = client.birthday ? (client.birthday.startsWith('--') ? new Date(`2000-${client.birthday.slice(2)}T12:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : new Date(`${client.birthday}T12:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })) : null;
@@ -202,7 +207,7 @@ export default function ProfileTab({ client, briefing, briefingLoading, refreshi
             <InfoRow label="Address" value={address || null} action={address ? <a className="kc-iconbtn" href={`maps:?q=${encodeURIComponent(address.replace('\n', ', '))}`} aria-label="Map"><Icon name="mapPin" size={15} /></a> : null} />
             <InfoRow label="Neighborhood" value={client.neighborhood} />
             <InfoRow label="Birthday" value={birthday} />
-            <InfoRow label="Prefers" value={client.preferredChannel ? cap(client.preferredChannel) : client.deviceMode ? (client.deviceMode === 'imessage' ? 'iMessage' : 'SMS') : null} />
+            <InfoRow label="Prefers" value={client.preferredChannel ? (CHANNEL_LABEL[String(client.preferredChannel).toLowerCase()] || cap(client.preferredChannel)) : client.deviceMode ? (client.deviceMode === 'imessage' ? 'iMessage' : 'SMS') : null} />
             <InfoRow label="Client since" value={formatDate(client.createdAt, { month: 'long', year: 'numeric' })} />
           </div>
 
@@ -210,11 +215,11 @@ export default function ProfileTab({ client, briefing, briefingLoading, refreshi
           {touch.length ? (
             <div className="kc-touch">
               {touch.map((f) => (
-                <span key={f.key} className="km-selectable"><Icon name={f.icon} size={12} color="var(--faint)" /><em>{f.label}</em> {fmtPersonal(p[f.key])}</span>
+                <span key={f.key} className="km-selectable"><Icon name={f.icon} size={12} color="var(--faint)" /><em>{f.label}</em> {fhClean(fmtPersonal(p[f.key]))}</span>
               ))}
             </div>
           ) : (
-            <div style={{ fontSize: 13.5, color: 'var(--faint)' }}>Spouse, kids, pets, clubs, the wine they love — the details that make a call feel personal.</div>
+            <div style={{ fontSize: 13.5, color: 'var(--faint)' }}>Spouse, pets, clubs, the boat, the wine they love — the details that make a call feel personal.</div>
           )}
 
           {(client.contactKind === 'client' || !client.contactKind) ? (

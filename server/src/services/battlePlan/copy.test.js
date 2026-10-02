@@ -50,3 +50,53 @@ test('suppression matcher: full mute, scoped by kind, never mandatory blocks', (
   assert.equal(candidateSuppressed({ kind: 'respond.text', contactId: 'a', signal: {} }, scoped), false);
   assert.equal(candidateSuppressed({ kind: 'content.block', contactId: null, signal: {} }, [{ clientId: null, signalKind: 'content.block' }]), false);
 });
+
+test('AI copy pass (stubbed model): only known ids, once each; platitudes and overlong copy fall back', async () => {
+  const ai = require('../../ai/claude');
+  const prisma = require('../../lib/prisma');
+  const { writeCopyWithAI } = require('./copy');
+  const saved = { available: ai.available, json: ai.json, find: prisma.aiFeedback && prisma.aiFeedback.findMany };
+  let seenPrompt = null;
+  ai.available = () => true;
+  ai.json = async ({ system, prompt }) => {
+    seenPrompt = { system, prompt };
+    return {
+      summary: 'Two calls before noon — Elena first.',
+      narrative: 'Start with Elena: 1200 S Ocean scores 96 against her search.',
+      items: [
+        { id: 'm1', title: 'Call Elena — great opportunity at 1200 S Ocean', sub: '$18.5M · 6 bd', why: '1200 S Ocean scores 96 against her Estate Section search.', tone: 'warm' },
+        { id: 'zzz', title: 'Injected move', why: 'not in the plan' },
+        { id: 'm1', title: 'Duplicate', why: 'second copy of m1' },
+        { id: 'm2', title: 'x'.repeat(90), why: 'Lease at 330 Sunset ends Nov 12.', tone: 'urgent' },
+      ],
+    };
+  };
+  if (prisma.aiFeedback) prisma.aiFeedback.findMany = async () => [{ isCorrect: false, feedback: 'Already handled — stop pitching Grace' }];
+  try {
+    const fb1 = { title: 'Call Elena — 96% match', sub: 'Palm Beach', why: 'Strong match.', tone: 'warm' };
+    const fb2 = { title: 'Call Sofia — lease ends Nov 12', sub: null, why: 'Lease ending.', tone: 'urgent' };
+    const out = await writeCopyWithAI({
+      workspaceId: 'ws-test', date: '2026-10-02', tz: 'America/New_York',
+      moves: [
+        { id: 'm1', kind: 'listing.match.call', channel: 'call', startMin: 600, durationMin: 15, ctx: { name: 'Elena Vasquez' }, fallback: fb1 },
+        { id: 'm2', kind: 'lease.expiry.call', channel: 'call', startMin: 630, durationMin: 15, ctx: { name: 'Sofia Laurent' }, fallback: fb2 },
+      ],
+    });
+    assert.ok(out);
+    assert.deepEqual([...out.items.keys()].sort(), ['m1', 'm2']);
+    assert.equal(out.items.get('m1').title, fb1.title, 'platitude title falls back to the deterministic one');
+    assert.ok(out.items.get('m1').why.includes('96'));
+    assert.ok(out.items.get('m2').title.length <= 50);
+    assert.match(seenPrompt.system, /Fair Housing/);
+    assert.match(seenPrompt.prompt, /REP FEEDBACK/);
+    // A model failure degrades to "no rewrite" (deterministic copy stays).
+    ai.json = async () => { throw new Error('overloaded'); };
+    const warn = console.warn; console.warn = () => {};
+    const none = await writeCopyWithAI({ workspaceId: 'ws-test', date: '2026-10-02', tz: 'UTC', moves: [{ id: 'm1', kind: 'x', fallback: fb1, ctx: {} }] });
+    console.warn = warn;
+    assert.equal(none, null);
+  } finally {
+    ai.available = saved.available; ai.json = saved.json;
+    if (prisma.aiFeedback && saved.find) prisma.aiFeedback.findMany = saved.find;
+  }
+});

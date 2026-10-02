@@ -495,7 +495,9 @@ async function getPlanPayload({ workspaceId, userId, date: dateParam }) {
     if (o) { start = o.startMin; dur = o.durationMin; userPlaced = true; sub = 'Moved by you'; }
     if (!userPlaced && start != null && clientBusy.length && lunchMove.status === 'open') {
       const r = slideLater(start, dur, clientBusy);
-      if (!r.failed && r.after) { start = r.start; sub = `Moved after ${r.after.label}`; movedForAppt = true; }
+      const latest = Math.max(15 * 60, (lunchMove.startMin || 0) + 60);
+      if (!r.failed && r.after && r.start <= latest) { start = r.start; sub = `Moved after ${r.after.label}`; movedForAppt = true; }
+      else if (r.after) start = null; // no real lunch window left today — drop it from the rail
     }
     if (start != null) {
       items.push({ id: lunchMove.id, moveId: lunchMove.id, kind: 'personal', lunch: true, planner: true, title: lunchMove.title, sub, why: lunchMove.why, startMin: start, durationMin: dur, status: lunchMove.status, userPlaced, movedForAppt, mandatory: true });
@@ -703,9 +705,11 @@ reason must paraphrase the agent's actual rationale — never invent one they di
 
 function classifyCoachDeterministic(note) {
   const t = String(note || '').toLowerCase();
-  const num = t.match(/(\d+)\s*(day|week|month)s?/);
+  const WORDS = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, couple: 2, few: 3 };
+  const num = t.match(/\b(\d+|an?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|(?:a\s+)?couple(?:\s+of)?|(?:a\s+)?few)\s*(day|week|month)s?\b/);
   if (num) {
-    const n = Number(num[1]);
+    const w = num[1].replace(/^a\s+/, '').replace(/\s+of$/, '');
+    const n = /^\d+$/.test(w) ? Number(w) : (WORDS[w] || 1);
     const days = num[2] === 'day' ? n : num[2] === 'week' ? n * 7 : n * 30;
     return { action: 'defer', durationDays: Math.max(1, Math.min(365, days)), reason: note.trim().slice(0, 200) };
   }

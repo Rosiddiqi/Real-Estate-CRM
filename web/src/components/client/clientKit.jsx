@@ -44,7 +44,6 @@ export const RELATION_LABEL = {
 
 export const PERSONAL_FIELDS = [
   { key: 'spouse', label: 'Spouse / partner', icon: 'rings', placeholder: 'Camille' },
-  { key: 'kids', label: 'Kids', icon: 'heart', placeholder: 'Léa (11), Marius (8)' },
   { key: 'pets', label: 'Pets', icon: 'heart', placeholder: 'Otis — Bernese mountain dog' },
   { key: 'hobbies', label: 'Hobbies', icon: 'flag', placeholder: 'Offshore sailing, padel' },
   { key: 'clubs', label: 'Clubs', icon: 'award', placeholder: 'Grove Harbour Yacht Club' },
@@ -57,8 +56,17 @@ export const PERSONAL_FIELDS = [
   { key: 'anniversary', label: 'Anniversary', icon: 'calendar', placeholder: 'June 12' },
   { key: 'other', label: 'Other', icon: 'sparkle', placeholder: 'Anything worth remembering' },
 ];
-// Keys never surfaced (protected-class adjacent; Fair Housing).
-export const PERSONAL_HIDDEN = new Set(['origin', 'nationality', 'religion', 'ethnicity', 'race']);
+// Keys never surfaced (protected-class adjacent; Fair Housing): national
+// origin, religion, race, familial status (kids / schools), disability, sex.
+export const PERSONAL_HIDDEN = new Set([
+  'origin', 'nationality', 'religion', 'ethnicity', 'race', 'kids', 'children', 'child', 'school', 'schools',
+  'familyStatus', 'familialStatus', 'maritalStatus', 'disability', 'gender', 'sex', 'age',
+]);
+const FH_WORDS = /\b(kid|kids|child|children|school|schools|baby|pregnan\w*|church|synagogue|mosque|temple|religio\w*|disab\w*|wheelchair)\b/i;
+// Drop the sentences of a free-text touch point that carry protected-class info.
+export function fhClean(text) {
+  return String(text || '').split(/(?<=[.!?;])\s+/).filter((x) => x.trim() && !FH_WORDS.test(x)).join(' ').trim();
+}
 
 // Render any personal value (string · list · {name, age, …} · [{…}]) as text.
 export function fmtPersonal(v) {

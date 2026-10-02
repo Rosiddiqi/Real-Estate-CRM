@@ -25,6 +25,7 @@ import { StatusPill, LaneDot, LANE_META, MonoLabel, Eyebrow, InfoNote, Progress,
 import SuggestionCard from './SuggestionCard';
 import TrafficLanes, { normalizeLanes } from './TrafficLanes';
 import { useCampaign } from './useCampaignsData';
+import { fmtTz, useCampaignTz } from './tz';
 
 const COLS = ['green', 'yellow', 'red', 'gray', 'waiting'];
 const PAGE = 30;
@@ -43,7 +44,7 @@ function activityLine(r) {
   if (r.status === 'canceled') return r.error || 'Never sent';
   if (r.status === 'muted') return 'Muted. Nothing else goes to them';
   if (r.awaitingApproval) return 'Draft waiting for your OK';
-  if (r.repliedAt && r.lastReplyKind === 'off_topic') return `Texted you ${relativeTime(r.repliedAt)} about something else`;
+  if (r.repliedAt && r.lastReplyKind === 'off_topic') return `Off-topic reply · ${relativeTime(r.repliedAt)}`;
   if (r.repliedAt && r.lastReplyKind === 'question') return `Asked a question ${relativeTime(r.repliedAt)}`;
   if (r.status === 'taken_over') return r.repliedAt ? `Replied ${relativeTime(r.repliedAt)} · you took over` : 'You took this conversation over';
   if (r.repliedAt) return `Replied ${relativeTime(r.repliedAt)}`;
@@ -55,12 +56,21 @@ function activityLine(r) {
   return 'Queued';
 }
 
+// "Right away: offer two private showing times · +1 more"
+function laneSummary(steps) {
+  const first = steps[0] || {};
+  const label = String(first.label || '').toLowerCase();
+  const brief = String(first.brief || '').replace(/\s+/g, ' ').trim();
+  const head = [label ? label.charAt(0).toUpperCase() + label.slice(1) : null, brief ? brief.charAt(0).toLowerCase() + brief.slice(1) : null].filter(Boolean).join(': ');
+  return `${head || '1 text'}${steps.length > 1 ? ` · +${steps.length - 1} more` : ''}`;
+}
+
 function Tile({ label, value, color, sub }) {
   return (
     <div className="kc-tile">
-      <MonoLabel style={{ fontSize: 8.5, letterSpacing: '0.1em' }}>{label}</MonoLabel>
       <div className="kc-tile-num" style={{ color }}>{value}</div>
-      {sub ? <div style={{ fontSize: 10.5, color: 'var(--faint)', marginTop: 1 }}>{sub}</div> : null}
+      <div className="kc-tile-label">{label}</div>
+      {sub ? <div className="kc-tile-sub">{sub}</div> : null}
     </div>
   );
 }
@@ -128,6 +138,7 @@ function DetailSkeleton() {
 }
 
 export default function CampaignDetail({ id, onClose }) {
+  useCampaignTz();
   const { data, error, loading, reload, setData } = useCampaign(id);
   const closeRef = useRef(onClose);
   const [col, setCol] = useState(null);
@@ -266,7 +277,7 @@ export default function CampaignDetail({ id, onClose }) {
                 </span>
               </div>
               <div className="kc-tiles" style={{ marginTop: 12 }}>
-                <Tile label="Sent" value={s.sent || 0} sub={s.total ? `of ${s.total}` : null} />
+                <Tile label="Sent" value={s.sent || 0} />
                 <Tile label="Delivered" value={s.delivered || 0} />
                 <Tile label="Replied" value={s.replied || 0} color={s.replied ? 'var(--green)' : undefined} />
                 <Tile label="Reply rate" value={`${Math.round(s.replyRate || 0)}%`} color={(s.replyRate || 0) >= 30 ? 'var(--green)' : undefined} />
@@ -303,7 +314,7 @@ export default function CampaignDetail({ id, onClose }) {
                 <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
                   {c.status === 'paused' ? <Button size="sm" icon="play" onClick={resume} loading={busy === 'resume'} disabled={!!busy} style={{ flex: 1 }}>Resume</Button> : null}
                   {live ? <Button size="sm" variant="ghost" icon="pause" onClick={pause} loading={busy === 'pause'} disabled={!!busy} style={{ flex: 1 }}>Pause</Button> : null}
-                  <Button size="sm" variant="ghost" icon="copy" onClick={duplicate} loading={busy === 'dup'} disabled={!!busy} style={{ flex: 1 }}>Duplicate</Button>
+                  {!live && c.status !== 'paused' ? <Button size="sm" variant="ghost" icon="copy" onClick={duplicate} loading={busy === 'dup'} disabled={!!busy} style={{ flex: 1 }}>Duplicate</Button> : null}
                   {stoppable ? <Button size="sm" variant="ghost" icon="x" onClick={stop} loading={busy === 'stop'} disabled={!!busy} style={{ flex: 1, color: 'var(--red)' }}>Stop</Button> : null}
                 </div>
               ) : null}
@@ -339,6 +350,7 @@ export default function CampaignDetail({ id, onClose }) {
             </div>
             <div style={{ fontSize: 12, color: 'var(--faint)', margin: '9px 2px 9px' }}>
               {LANE_META[activeCol].sub}.{activeCol === 'red' && s.optedOut ? ' Opt-outs are permanent until they text START.' : ''}
+              {activeCol === 'gray' && colRows.some((r) => r.lastReplyKind === 'off_topic') ? ' Off-topic replies stop the campaign for that person; answer them in the thread.' : ''}
             </div>
             {colRows.length ? (
               <div className="kc-list">
@@ -378,8 +390,8 @@ export default function CampaignDetail({ id, onClose }) {
                 <Eyebrow icon="calendar" style={{ marginTop: 22 }}>The event</Eyebrow>
                 <div className="kc-section" style={{ marginTop: 10, padding: 13, display: 'flex', gap: 12, alignItems: 'center' }}>
                   <div style={{ width: 46, borderRadius: 11, overflow: 'hidden', border: '1px solid var(--line)', textAlign: 'center', flexShrink: 0, background: 'var(--surfaceHi)' }}>
-                    <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: '#fff', background: 'var(--kind-openhouse)', padding: '3px 0' }}>{new Date(c.event.startAt).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</div>
-                    <div className="km-num" style={{ fontSize: 19, padding: '3px 0 4px' }}>{new Date(c.event.startAt).getDate()}</div>
+                    <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: '#fff', background: 'var(--kind-openhouse)', padding: '3px 0' }}>{fmtTz(c.event.startAt, { month: 'short' }).toUpperCase()}</div>
+                    <div className="km-num" style={{ fontSize: 19, padding: '3px 0 4px' }}>{fmtTz(c.event.startAt, { day: 'numeric' })}</div>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="km-truncate" style={{ fontSize: 14.5, fontWeight: 600 }}>{c.event.title || 'Event'}</div>
@@ -405,11 +417,11 @@ export default function CampaignDetail({ id, onClose }) {
                 const off = l.enabled === false;
                 const text = off ? 'Off'
                   : k === 'gray' ? (String(l.text || '').trim() ? `Quiet for ${String(l.timerText || '2 days').toLowerCase()}, then one nudge` : 'No nudge')
-                    : steps.length ? (steps.map((x) => String(x.label || '').toLowerCase()).filter(Boolean).join(' → ') || `${steps.length} texts`) : 'No follow-up';
+                    : steps.length ? laneSummary(steps) : 'No follow-up';
                 return (
                   <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '5px 0', fontSize: 13, color: off ? 'var(--faint)' : 'var(--dim)' }}>
                     <LaneDot lane={k} size={7} glow={!off} />
-                    <span style={{ width: 66, flexShrink: 0, color: off ? 'var(--faint)' : 'var(--text)', fontWeight: 600 }}>{LANE_META[k].short}</span>
+                    <span style={{ width: 76, flexShrink: 0, color: off ? 'var(--faint)' : 'var(--text)', fontWeight: 600 }}>{LANE_META[k].short}</span>
                     <span className="km-truncate" style={{ minWidth: 0 }}>{text}</span>
                   </div>
                 );

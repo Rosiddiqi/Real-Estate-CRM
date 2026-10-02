@@ -16,6 +16,7 @@ import { CampaignCard, AutomationRow, SwipeRow } from '../../components/campaign
 import SenderGuardCard from '../../components/campaigns/SenderGuardCard';
 import SuggestionCard from '../../components/campaigns/SuggestionCard';
 import AutomationEditor from '../../components/campaigns/AutomationEditor';
+import { useCampaignTz } from '../../components/campaigns/tz';
 import { useAutomations, useAutomationToggle, useCampaignList, useSuggestions } from '../../components/campaigns/useCampaignsData';
 
 const BUCKETS = [
@@ -26,6 +27,7 @@ const BUCKETS = [
 ];
 
 export default function CampaignsPage({ onClose }) {
+  useCampaignTz();
   const list = useCampaignList();
   const autos = useAutomations();
   const sugg = useSuggestions();

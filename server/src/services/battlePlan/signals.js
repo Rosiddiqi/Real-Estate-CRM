@@ -212,6 +212,23 @@ async function collectCandidates({ workspaceId, date, tz, now = new Date(), sett
   ]);
   const listingById = new Map(listings.map((l) => [l.id, l]));
   const propById = new Map(offProps.map((p) => [p.id, p]));
+  // Already in motion: the client is touring that listing (±14 days) or has a
+  // live deal on it — "call them about it" would be noise.
+  const inMotion = new Set();
+  if (listingIds.length) {
+    const matchClientIds = [...new Set(matches.map((m) => m.clientId).filter(Boolean))];
+    const [tours, liveDeals] = await Promise.all([
+      prisma.appointment.findMany({
+        where: { workspaceId, listingId: { in: listingIds }, clientId: { in: matchClientIds }, status: { not: 'cancelled' }, startAt: { gte: new Date(nowMs - 14 * DAY), lte: new Date(nowMs + 14 * DAY) } },
+        select: { clientId: true, listingId: true },
+      }),
+      prisma.deal.findMany({
+        where: { workspaceId, listingId: { in: listingIds }, clientId: { in: matchClientIds }, archivedAt: null, stage: { notIn: ['closed', 'lost'] } },
+        select: { clientId: true, listingId: true },
+      }),
+    ]);
+    for (const r of [...tours, ...liveDeals]) inMotion.add(`${r.clientId}:${r.listingId}`);
+  }
   const searchById = new Map(matchSearches.map((s) => [s.id, s]));
   const topMatch = new Map();
   const matchedClients = new Set();
@@ -219,6 +236,7 @@ async function collectCandidates({ workspaceId, date, tz, now = new Date(), sett
     matchedClients.add(m.clientId);
     const listing = m.listingId ? listingById.get(m.listingId) : null;
     if (listing && ['sold', 'withdrawn', 'expired'].includes(listing.status)) continue;
+    if (m.listingId && inMotion.has(`${m.clientId}:${m.listingId}`)) continue;
     const prev = topMatch.get(m.clientId);
     if (!prev || m.score > prev.score) topMatch.set(m.clientId, m);
   }

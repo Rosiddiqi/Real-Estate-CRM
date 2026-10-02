@@ -24,6 +24,10 @@ import {
 
 const STICK_PX = 60;
 
+// Tapback bar "+" row (iOS 18 emoji tapbacks) — the reaction is the
+// client's own emoji text, never used as a UI icon.
+const EMOJI_REACTIONS = ['😍', '🔥', '🙏', '🎉', '👏', '🏡', '🥂', '💯'];
+
 function vibrate(ms = 10) {
   haptic('medium');
   try { if (navigator.vibrate) navigator.vibrate(ms); } catch { /* ignore */ }
@@ -299,6 +303,8 @@ export default function MessageList({
 
   // ── long-press menu ───────────────────────────────────────────────────
   const [ctx, setCtx] = useState(null); // { kind:'msg'|'sched', item, anchor }
+  const [emojiRow, setEmojiRow] = useState(false); // tapback bar "+" → emoji reactions
+  useEffect(() => { setEmojiRow(false); }, [ctx]);
   const [dismissing, setDismissing] = useState(false);
   const heldNode = useRef(null);
   const layerRef = useRef(null);
@@ -622,6 +628,7 @@ export default function MessageList({
       );
     } else {
       const mine = new Set((item.reactions || []).filter((r) => r.isFromMe).map((r) => r.type));
+      const mineEmoji = new Set((item.reactions || []).filter((r) => r.isFromMe && r.type === 'emoji').map((r) => r.emoji));
       const canReact = !item._optimistic && !item.synthetic && !(item._failed && item._payload);
       const hasText = !!(item.body && item.body.trim());
       const run = (fn) => guard(() => { dismissMenu(); fn(); });
@@ -629,17 +636,32 @@ export default function MessageList({
         <ContextMenu
           anchor={ctx.anchor} dismissing={dismissing} heldNodeRef={heldNode} layerRef={layerRef}
           onBackdrop={guard(dismissMenu)}
-          tapbacks={canReact ? TAPBACKS.map((t) => (
+          tapbacks={canReact ? (emojiRow ? EMOJI_REACTIONS.map((e) => (
             <button
-              key={t}
+              key={e}
               type="button"
-              aria-label={t}
-              className={`km-ctx-tap ${mine.has(t) ? 'km-ctx-tap--on' : ''}`}
-              onClick={run(() => { vibrate(6); onReact && onReact(item, t); })}
+              aria-label={`React ${e}`}
+              className={`km-ctx-tap km-ctx-tap--emoji ${mineEmoji.has(e) ? 'km-ctx-tap--on' : ''}`}
+              onClick={run(() => { vibrate(6); onReact && onReact(item, 'emoji', e); })}
             >
-              <TapbackGlyph type={t} size={22} />
+              {e}
             </button>
-          )) : null}
+          )) : [
+            ...TAPBACKS.map((t) => (
+              <button
+                key={t}
+                type="button"
+                aria-label={t}
+                className={`km-ctx-tap ${mine.has(t) ? 'km-ctx-tap--on' : ''}`}
+                onClick={run(() => { vibrate(6); onReact && onReact(item, t); })}
+              >
+                <TapbackGlyph type={t} size={22} />
+              </button>
+            )),
+            <button key="more" type="button" aria-label="More reactions" className="km-ctx-tap km-ctx-tap--more" onClick={guard(() => setEmojiRow(true))}>
+              <Icon name="plus" size={18} stroke={2.4} />
+            </button>,
+          ]) : null}
           menu={(
             <>
               {onReply && canReact ? <><MenuItem label="Reply" icon="reply" onClick={run(() => onReply(item))} /><div className="km-ctx-sep" /></> : null}
@@ -659,6 +681,7 @@ export default function MessageList({
   const empty = !loading && !rows.length && !scheduled.length && !typing;
 
   return (
+    <>
     <div className="km-th-scroll" ref={scrollRef} tabIndex={-1}>
       <div className="km-th-inner" ref={innerRef} style={headerSpace ? { paddingTop: `calc(var(--km-th-top) + ${headerSpace}px + 10px)` } : undefined}>
         <div className="km-th-center">
@@ -696,6 +719,9 @@ export default function MessageList({
           {typing ? <TypingBubble /> : null}
         </div>
       </div>
+    </div>
+      {/* Outside the scroller: an absolute child of a scroll container would
+          scroll away with the content. */}
       {(newCount > 0 || !stuck) && rows.length ? (
         <button type="button" className={`km-jump km-lg km-press ${newCount ? '' : 'km-jump--icon'}`} onClick={jumpToLatest} aria-label="Jump to latest">
           <Icon name="arrowDown" size={16} stroke={2.4} />
@@ -703,7 +729,7 @@ export default function MessageList({
         </button>
       ) : null}
       {ctxNode}
-    </div>
+    </>
   );
 }
 

@@ -214,12 +214,15 @@
 .kc-section { border-radius: 14px; border: 1px solid var(--line); background: var(--surface); overflow: hidden; }
 
 /* ── detail: scoreboard + lane columns ── */
-.kc-tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
-.kc-tile { border-radius: 12px; background: var(--kc-panel); border: 1px solid var(--line); padding: 10px 8px 9px; min-width: 0; text-align: left; }
-.kc-tile-num { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; margin-top: 3px; line-height: 1.1; }
+.kc-tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-radius: 12px; background: var(--kc-panel); border: 1px solid var(--line); overflow: hidden; }
+.kc-tile { padding: 11px 2px 10px; min-width: 0; text-align: center; border-left: 1px solid var(--line); }
+.kc-tile:first-child { border-left: 0; }
+.kc-tile-num { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.kc-tile-label { font-size: 11px; color: var(--dim); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kc-tile-sub { font-size: 10px; color: var(--faint); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .kc-lanecols { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
 .kc-lanecol {
-  position: relative; border-radius: 13px; padding: 9px 6px 8px; text-align: center; min-width: 0;
+  position: relative; border-radius: 13px; padding: 9px 2px 8px; text-align: center; min-width: 0;
   background: var(--surface); border: 1px solid var(--line); transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 .kc-lanecol[aria-pressed="true"] { border-color: color-mix(in srgb, var(--kc-c) 65%, transparent); background: color-mix(in srgb, var(--kc-c) 10%, var(--surface)); box-shadow: 0 0 16px -6px color-mix(in srgb, var(--kc-c) 80%, transparent); }

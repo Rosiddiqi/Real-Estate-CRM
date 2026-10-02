@@ -24,6 +24,7 @@ import {
   resolveAudienceText, sampleDrafts, planLaunch, launchCampaign, getTemplates, getInvite,
 } from '../../api/campaigns';
 import { Eyebrow, InfoNote, MonoLabel, ComposerField, SparkButton, Choice, LaneDot, toLocalInput } from './kit';
+import { fmtTz, inputIso, useCampaignTz, zonedIso } from './tz';
 import AudienceBuilder from './AudienceBuilder';
 import TrafficLanes, { normalizeLanes } from './TrafficLanes';
 import ListingPicker from './ListingPicker';
@@ -59,17 +60,15 @@ function splitLocal(iso) {
   const v = toLocalInput(iso);
   return { date: v.slice(0, 10), time: v.slice(11, 16) };
 }
+// Event + schedule inputs are wall clock in the agent's zone (tz.js).
 function joinLocal(date, time) {
-  if (!date || !time) return null;
-  const d = new Date(`${date}T${time}`);
-  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  return zonedIso(date, time);
 }
 function fmtEvent(ev) {
   if (!ev || !ev.startAt) return '';
-  const s = new Date(ev.startAt);
-  const day = s.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-  const t = (d) => d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).replace(':00', '');
-  return `${day} · ${t(s)}${ev.endAt ? `-${t(new Date(ev.endAt))}` : ''}`;
+  const day = fmtTz(ev.startAt, { weekday: 'short', month: 'short', day: 'numeric' });
+  const t = (d) => fmtTz(d, { hour: 'numeric', minute: '2-digit' }).replace(':00', '');
+  return `${day} · ${t(ev.startAt)}${ev.endAt ? `-${t(ev.endAt)}` : ''}`;
 }
 
 function useDebouncedSave(fn, ms) {
@@ -84,6 +83,7 @@ function useDebouncedSave(fn, ms) {
 }
 
 export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
+  useCampaignTz();
   const [campaign, setCampaign] = useState(null);
   const [loadError, setLoadError] = useState(null);
   const [stage, setStage] = useState(0);
@@ -313,12 +313,12 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
 
   const guardInfo = plan && plan.guard;
   const allNowAllowed = !!(guardInfo && count <= 5 && guardInfo.newCount === 0);
-  const startAtIso = startMode === 'at' && startLocal ? new Date(startLocal).toISOString() : null;
-  const endAtIso = endMode === 'at' && endLocal ? new Date(endLocal).toISOString() : null;
+  const startAtIso = startMode === 'at' && startLocal ? inputIso(startLocal) : null;
+  const endAtIso = endMode === 'at' && endLocal ? inputIso(endLocal) : null;
 
   const doLaunch = async () => {
     if (launching || !id) return;
-    if (startMode === 'at' && (!startLocal || new Date(startLocal).getTime() < Date.now() + 4 * 60000)) { toast.error('Pick a start time at least 5 minutes from now'); return; }
+    if (startMode === 'at' && (!startAtIso || new Date(startAtIso).getTime() < Date.now() + 4 * 60000)) { toast.error('Pick a start time at least 5 minutes from now'); return; }
     if (endMode === 'at' && !endLocal) { toast.error('Pick the finish-by time, or choose Run until done'); return; }
     if (endAtIso && new Date(endAtIso) <= new Date(startAtIso || Date.now())) { toast.error('The finish-by time has to be after the start'); return; }
     setLaunching(true);
@@ -592,7 +592,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
 
             <MonoLabel style={{ margin: '20px 2px 8px' }}>When it runs</MonoLabel>
             <Choice value={startMode} onChange={setStartMode} options={[{ id: 'now', label: 'Start now' }, { id: 'at', label: 'Schedule' }]} />
-            {startMode === 'at' ? <input className="kc-input kc-step-in" type="datetime-local" value={startLocal} min={toLocalInput(Date.now() + 5 * 60000)} onChange={(e) => { setStartLocal(e.target.value); if (e.target.value) persist({ schedule: { startAt: new Date(e.target.value).toISOString() } }); }} style={{ marginTop: 8 }} aria-label="Start time" /> : null}
+            {startMode === 'at' ? <input className="kc-input kc-step-in" type="datetime-local" value={startLocal} min={toLocalInput(Date.now() + 5 * 60000)} onChange={(e) => { setStartLocal(e.target.value); if (e.target.value) persist({ schedule: { startAt: inputIso(e.target.value) } }); }} style={{ marginTop: 8 }} aria-label="Start time" /> : null}
             <Choice style={{ marginTop: 8 }} value={endMode} onChange={(v) => { setEndMode(v); if (v === 'open') persist({ schedule: { endAt: null } }); }} options={[{ id: 'open', label: 'Run until done' }, { id: 'at', label: 'Finish by' }]} />
             {endMode === 'at' ? <input className="kc-input kc-step-in" type="datetime-local" value={endLocal} min={toLocalInput(Date.now() + 15 * 60000)} onChange={(e) => setEndLocal(e.target.value)} style={{ marginTop: 8 }} aria-label="Finish by" /> : null}
 
@@ -627,7 +627,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
             <div style={{ fontSize: 19, fontWeight: 600, marginTop: 14 }}>{launched.status === 'scheduled' ? 'Campaign scheduled' : 'Campaign launched'}</div>
             <div style={{ fontSize: 13.5, color: 'var(--dim)', lineHeight: 1.5, marginTop: 7 }}>
               {launched.status === 'scheduled'
-                ? `Starts ${new Date(startLocal).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} for ${launched.recipients} people. Replies land in your inbox.`
+                ? `Starts ${fmtTz(inputIso(startLocal), { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} for ${launched.recipients} people. Replies land in your inbox.`
                 : `Going out to ${launched.recipients} people, spaced out to feel human. Replies land in your inbox.`}
             </div>
             {launched.guard && launched.guard.newCount > 0 ? (

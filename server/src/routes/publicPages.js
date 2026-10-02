@@ -79,7 +79,7 @@ footer{padding:56px 22px 20px;text-align:center}
 .bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));width:min(492px,calc(100% - 28px));display:flex;gap:10px;padding:8px;border-radius:999px;
 background:rgba(12,14,18,.42);-webkit-backdrop-filter:blur(14px) saturate(180%);backdrop-filter:blur(14px) saturate(180%);box-shadow:inset 0 0 6px rgba(255,255,255,.22),0 10px 30px rgba(0,0,0,.45);z-index:10}
 .call{flex:0 0 52px;height:52px;border-radius:50%;background:var(--sms);display:flex;align-items:center;justify-content:center}
-.text{flex:1;min-width:0;height:52px;padding:0 16px;border-radius:999px;background:linear-gradient(180deg,var(--bright),var(--deep));display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:clamp(13px,3.9vw,15.5px);white-space:nowrap;text-decoration:none;box-shadow:0 10px 24px -8px rgba(46,139,255,.5)}.text span{overflow:hidden;text-overflow:ellipsis}
+.text{flex:1;min-width:0;height:52px;padding:0 14px;border-radius:999px;background:linear-gradient(180deg,var(--bright),var(--deep));display:flex;align-items:center;justify-content:center;gap:7px;font-weight:600;font-size:clamp(12.5px,3.55vw,15.5px);white-space:nowrap;text-decoration:none;box-shadow:0 10px 24px -8px rgba(46,139,255,.5)}.text span{overflow:hidden;text-overflow:ellipsis}
 .sold{position:absolute;top:calc(env(safe-area-inset-top,0px) + 56px);left:22px;padding:6px 12px;border-radius:999px;background:rgba(6,8,12,.6);border:1px solid var(--gold);color:var(--gold);font-size:11px;letter-spacing:.2em;font-weight:700}
 .viewer{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:50;display:none;align-items:center;justify-content:center}
 .viewer.on{display:flex}.viewer img{max-width:100%;max-height:100%;object-fit:contain}
@@ -93,7 +93,7 @@ const PH_SVG = '<svg class="ph" viewBox="0 0 400 600" preserveAspectRatio="xMidY
 
 function page({ title, body, og = {} }) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#06080C"><title>${esc(title)}</title>
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#06080C"><link rel="icon" href="data:,"><title>${esc(title)}</title>
 <meta property="og:title" content="${esc(og.title || title)}">${og.description ? `<meta property="og:description" content="${esc(og.description)}">` : ''}${og.image ? `<meta property="og:image" content="${esc(og.image)}">` : ''}
 <meta name="twitter:card" content="summary_large_image"><style>${CSS}</style></head><body>${body}</body></html>`;
 }
@@ -148,7 +148,7 @@ router.get('/p/:slug', async (req, res) => {
       ...(hidden ? [] : [['MLS #', l.mlsNumber]]),
     ].filter(([, v]) => v != null && v !== '');
 
-    const amen = (l.amenities || []).filter(Boolean);
+    const amen = [...new Set((l.amenities || []).filter(Boolean).map(shape.amenityDisplay))];
     const galleryPhotos = photos.slice(1);
     // magazine rhythm: one full-bleed 16:10, then a pair of squares; a lone trailing square goes wide
     const n = galleryPhotos.length;

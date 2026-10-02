@@ -79,6 +79,7 @@ export default function ThreadView({
   const [replyTo, setReplyTo] = useState(null);
   const [viewer, setViewer] = useState(null);
   const [manage, setManage] = useState(null); // { item, action }
+  const [boxFull, setBoxFull] = useState(false); // composer has content → chips step aside
   const touch = useMemo(() => isTouchDevice(), []);
   useThreadBodyClass();
 
@@ -169,7 +170,7 @@ export default function ThreadView({
     return null;
   }, [t.messages]);
   const lastInboundId = lastReal && lastReal.isFromMe === false && !lastReal.synthetic ? lastReal.id : null;
-  const chipsOn = showSuggestions && !!t.conversationId && !!lastInboundId && !(conv && conv.isGroup);
+  const chipsOn = showSuggestions && !boxFull && !!t.conversationId && !!lastInboundId && !(conv && conv.isGroup);
 
 
   const kbAware = mode === 'panel' || mode === 'embedded';
@@ -258,6 +259,7 @@ export default function ThreadView({
           autoFocus={autoFocus}
           name={firstName}
           placeholder={t.defaultService === 'sms' ? channelLabel('sms') : 'iMessage'}
+          onContentChange={setBoxFull}
         />
       </div>
 

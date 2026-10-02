@@ -73,7 +73,7 @@ async function upcomingAnniversaries({ workspaceId, days = 30, now = new Date() 
     out.push({
       kind: 'home_anniversary', clientId: p.clientId, client: S.mini(p.client), propertyId: p.id, propertyTitle: p.title,
       days: d.anniversaryInDays, date: d.anniversaryDate, years: d.anniversaryYears,
-      title: d.anniversaryInDays === 0 ? `${first(p.client)}: ${d.anniversaryYears} years at ${p.title} today` : `${first(p.client)}’s ${d.anniversaryYears}-year home anniversary ${inDays(d.anniversaryInDays)}`,
+      title: d.anniversaryInDays === 0 ? `${first(p.client)}: ${d.anniversaryYears} year${d.anniversaryYears === 1 ? '' : 's'} at ${p.title} today` : `${first(p.client)}’s ${d.anniversaryYears}-year home anniversary ${inDays(d.anniversaryInDays)}`,
       sub: [p.title, d.appreciation ? `${d.appreciation >= 0 ? '+' : '−'}${moneyShort(Math.abs(d.appreciation))} est.` : null].filter(Boolean).join(' · '),
       urgency: (milestone ? 0.75 : 0.5) + (d.anniversaryInDays <= 7 ? 0.2 : 0),
       meta: { appreciation: d.appreciation ?? null, equity: d.equity ?? null, milestone },

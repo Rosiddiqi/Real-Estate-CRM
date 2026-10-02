@@ -46,7 +46,7 @@ export default function ReplySuggestions({ conversationId, lastInboundId, onPick
 
   return (
     <div className="km-chips" role="list" aria-label="Suggested replies">
-      <span className="km-chip-ai km-lg" title={state.source === 'ai' ? 'AI suggestions' : 'Suggestions'}>
+      <span className="km-chip-ai" title={state.source === 'ai' ? 'AI suggestions' : 'Suggestions'}>
         <Icon name="sparkle" size={16} stroke={1.9} />
       </span>
       {state.loading ? [0, 1, 2].map((i) => <span key={i} className="km-chip-skel km-skel" style={{ width: [176, 150, 190][i] }} />) : (
@@ -56,7 +56,7 @@ export default function ReplySuggestions({ conversationId, lastInboundId, onPick
               key={s.id || s.text}
               type="button"
               role="listitem"
-              className="km-chip-btn km-lg km-press"
+              className="km-chip-btn km-press"
               onPointerDown={(e) => e.preventDefault()}
               onClick={() => { onPick && onPick(s.text); feedback(true, s); setHidden(true); }}
             >
@@ -65,7 +65,7 @@ export default function ReplySuggestions({ conversationId, lastInboundId, onPick
           ))}
           <button
             type="button"
-            className="km-chip-ai km-lg km-press"
+            className="km-chip-ai km-press"
             aria-label="Good suggestions"
             style={{ color: rated === true ? 'var(--green)' : 'var(--lg-text-idle)' }}
             onClick={() => { setRated(true); feedback(true); }}
@@ -74,7 +74,7 @@ export default function ReplySuggestions({ conversationId, lastInboundId, onPick
           </button>
           <button
             type="button"
-            className="km-chip-ai km-lg km-press"
+            className="km-chip-ai km-press"
             aria-label="Not helpful — hide"
             style={{ color: 'var(--lg-text-idle)' }}
             onClick={() => { feedback(false); setHidden(true); }}

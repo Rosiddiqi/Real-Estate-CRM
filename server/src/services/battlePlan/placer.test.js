@@ -197,3 +197,18 @@ test('firstFreeSlot finds the first non-overlapping 15-minute step', () => {
   assert.equal(firstFreeSlot({ start: 540, end: 1140 }, 90, [{ start: 540, end: 600 }]), 600);
   assert.equal(firstFreeSlot({ start: 540, end: 640 }, 90, [{ start: 540, end: 600 }]), null);
 });
+
+test('lunch never slides past mid-afternoon — it overflows with a warning instead', () => {
+  const lunch = { id: 'cand-lunch-block', kind: 'personal.lunch', durationMin: 45, score: 35 };
+  const occupied = [
+    { start: 12 * 60, end: 13 * 60 + 30, client: true },     // listing presentation
+    { start: 14 * 60, end: 15 * 60 + 30, client: true },     // inspection
+    { start: 16 * 60, end: 17 * 60 + 15, client: true },     // listing presentation
+  ];
+  const { placed, overflow, warnings } = placeCandidates([lunch], occupied, { start: 9 * 60, end: 18 * 60 }, {
+    lunchWindow: { start: 12 * 60 + 30, end: 14 * 60 + 15 },
+  });
+  assert.equal(placed.find((p) => p.kind === 'personal.lunch'), undefined);
+  assert.equal(overflow[0].reason, 'lunch_window_covered_by_appt');
+  assert.ok(warnings.some((w) => /lunch/i.test(w)));
+});

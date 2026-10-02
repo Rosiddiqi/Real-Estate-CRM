@@ -464,7 +464,15 @@ async function briefing({ workspaceId, clientId }) {
 function fallbackDraft({ first, context, facts }) {
   const n = first || 'there';
   const ctx = String(context || '').toLowerCase();
-  if (/listing|match|came up|just listed|new to market|pocket/.test(ctx)) return `Hi ${n}, a home just came up that fits what you're looking for — want me to send you the details?`;
+  if (/listing|match|came up|just listed|new to market|pocket/.test(ctx)) {
+    // Name the street / area when the context carries one ("…listing on Granada Blvd").
+    const raw = String(context || '');
+    const where = /\b(on|at|in)\s+((?:\d+\s+)?[A-Z][\w'.-]*(?:\s+[A-Z][\w'.-]*){0,4})/.exec(raw)
+      || /()\b(\d+\s+[A-Z][\w'.-]*(?:\s+[A-Z][\w'.-]*){0,4})/.exec(raw);
+    const prep = where ? (/^\d/.test(where[2]) ? 'at' : (where[1] || 'in')) : '';
+    const spot = where ? ` ${prep} ${where[2].trim()}` : '';
+    return `Hi ${n}, a home just came up${spot} that fits what you're looking for — want me to send you the details?`;
+  }
   if (/price (drop|reduc)|reduced/.test(ctx)) return `Hi ${n}, quick heads up: the price just came down on a home you liked. Want to take another look?`;
   if (/birthday/.test(ctx)) return `Happy birthday, ${n}! Hope it's a great one.`;
   if (/anniversar/.test(ctx)) return `Hi ${n}, happy home anniversary! Hard to believe it's been a year — hope you're loving it.`;

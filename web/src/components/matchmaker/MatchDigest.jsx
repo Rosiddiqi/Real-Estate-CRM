@@ -72,12 +72,12 @@ export default function MatchDigest({ minScore = 90, limit = 12, onBeforeNavigat
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="mm-name-row" style={{ flexWrap: 'nowrap', gap: 5 }}>
                       <span className="mm-name km-truncate" style={{ fontSize: 14 }}>{r.client.name}</span>
-                      {r.client.whale ? <Icon name="crown" size={13} color="var(--bright)" stroke={2} title="Whale" /> : null}
-                      {r.count > 1 ? <span className="mm-faint" style={{ fontSize: 11, flexShrink: 0 }}>+{r.count - 1}</span> : null}
+                      {r.client.whale ? <Icon name="crown" size={13} color="var(--bright)" stroke={2} title="Whale" style={{ flexShrink: 0 }} /> : null}
                     </div>
                     <div className="mm-person-sub" style={{ marginTop: 3, gap: 7 }}>
                       <ListingThumb src={s.photo} seed={s.id} w={26} h={19} radius={5} />
                       <span className="km-truncate">{s.label}</span>
+                      {r.count > 1 ? <span className="mm-faint" style={{ fontSize: 11, flexShrink: 0 }}>+{r.count - 1}</span> : null}
                     </div>
                   </div>
                   <ScoreDial value={r.best.score} size={38} stroke={3} fontSize={12.5} label={`${r.best.score}${r.best.verifyHold ? '*' : ''}`} />

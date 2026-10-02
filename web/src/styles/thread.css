@@ -437,6 +437,10 @@ body.km-kb-open .km-thread--kb { --km-th-bottom: calc(var(--keyboard-height) + 6
 .km-th-footer-tint {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 20; pointer-events: none;
   height: calc(var(--km-th-composer-h) + var(--km-th-bottom) + 14px);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-mask-image: linear-gradient(to top, #000 0, #000 calc(100% - 30px), transparent 100%);
+  mask-image: linear-gradient(to top, #000 0, #000 calc(100% - 30px), transparent 100%);
   background: linear-gradient(to top, rgba(0, 0, 0, 0.875) 0%, rgba(0, 0, 0, 0.78) 35%, rgba(0, 0, 0, 0.5) 60%, rgba(0, 0, 0, 0.18) 82%, rgba(0, 0, 0, 0) 100%);
   transition: height 0.25s var(--km-th-ease);
 }
@@ -552,14 +556,23 @@ body.km-kb-open .km-thread--kb { --km-th-bottom: calc(var(--keyboard-height) + 6
 .km-chip-btn {
   flex-shrink: 0; max-width: 270px;
   padding: 9px 14px; border-radius: 18px;
-  font-size: 14px; line-height: 18px; text-align: left; color: var(--lg-text);
+  font-size: 14px; line-height: 18px; text-align: left; color: var(--text);
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   white-space: normal;
+  /* Solid (not glass): bubbles scrolling underneath must never read through. */
+  background: #1C1C1E;
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.6);
 }
 .km-chip-ai {
   flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   color: var(--bright);
+  background: #1C1C1E;
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+}
+:root[data-theme="light"] .km-chip-btn, :root[data-theme="light"] .km-chip-ai {
+  background: #F2F2F7; border-color: rgba(0, 0, 0, 0.08); box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.18);
 }
 .km-chip-skel { flex-shrink: 0; width: 170px; height: 36px; border-radius: 18px; }
 
@@ -665,6 +678,9 @@ body.km-thread-open [data-serena-bubble] { opacity: 0 !important; pointer-events
 :root[data-theme="light"] .km-ctx-tap { color: #6C6C70; }
 .km-ctx-tap:active { transform: scale(1.25) translateY(-2px); background: rgba(255, 255, 255, 0.1); }
 .km-ctx-tap--on { background: var(--imsg); color: #fff; }
+.km-ctx-tap--emoji { font-size: 24px; line-height: 1; animation: km-pop 0.24s var(--km-spring) both; }
+.km-ctx-tap--more { width: 34px; height: 34px; margin: 0 4px 0 2px; background: rgba(255, 255, 255, 0.1); }
+:root[data-theme="light"] .km-ctx-tap--more { background: rgba(0, 0, 0, 0.06); }
 .km-ctx-menu {
   position: absolute; top: calc(100% + 12px);
   width: 250px; max-width: calc(100vw - 32px);

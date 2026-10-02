@@ -88,6 +88,11 @@ function gapContaining(gaps, start, dur) {
   return gaps.findIndex((g) => g.start <= start && start + dur <= g.end);
 }
 
+// Latest a slid lunch may start: 3 PM, or the end of a later lunch window.
+function lunchLatestStart(lunchWindow) {
+  return Math.max(15 * 60, (lunchWindow && lunchWindow.end) || 0);
+}
+
 function placeCandidates(candidates, occupied, window, constraints = {}) {
   const buffer = constraints.bufferMin ?? DEFAULT_BUFFER_MIN;
   const maxMoves = constraints.maxMoves ?? DEFAULT_MAX_MOVES;
@@ -115,7 +120,10 @@ function placeCandidates(candidates, occupied, window, constraints = {}) {
     const covering = (occupied || []).filter((r) => !r.soft && r.start < lunchWindow.end && r.end > lunchWindow.start);
     if (covering.length) {
       const afterAppts = Math.max(lunchWindow.start, ...covering.map((r) => r.end));
-      const slot = findSlot(gaps, lunchCand.durationMin, { earliest: afterAppts });
+      // A "lunch" pushed past mid-afternoon isn't lunch — cap the slide.
+      const slot = afterAppts <= lunchLatestStart(lunchWindow)
+        ? findSlot(gaps, lunchCand.durationMin, { earliest: afterAppts, latestStart: lunchLatestStart(lunchWindow) })
+        : null;
       if (slot) {
         emit({ ...lunchCand, movedForAppt: true }, slot.startMin);
         consume(gaps, slot.gapIndex, slot.startMin, lunchCand.durationMin, buffer);
@@ -217,6 +225,7 @@ function firstFreeSlot(window, dur, busy, from = null) {
 }
 
 module.exports = {
+  lunchLatestStart,
   placeCandidates, freeGaps, findSlot, roundUpTo15, minutesToHHMM, localMinuteOfDay,
   channelOf, slideLater, firstFreeSlot, MANDATORY_KINDS, DEFAULT_LUNCH_WINDOW,
 };

@@ -70,6 +70,7 @@ const Composer = forwardRef(function Composer({
   allowVoice = true,
   placeholder,
   name,
+  onContentChange,
 }, ref) {
   const seeded = useRef(null);
   if (seeded.current === null) {
@@ -99,6 +100,9 @@ const Composer = forwardRef(function Composer({
   const effService = service || defaultService || 'imessage';
   const isSms = effService === 'sms';
   const hasContent = !!(text.trim() || attachments.length || listing);
+  const contentCb = useRef(onContentChange);
+  contentCb.current = onContentChange;
+  useEffect(() => { if (contentCb.current) contentCb.current(hasContent); }, [hasContent]);
 
   // ── drafts ──────────────────────────────────────────────────────────────
   const latest = useRef({ text, attachments, listing, service });

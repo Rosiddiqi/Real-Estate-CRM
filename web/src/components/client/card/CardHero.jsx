@@ -131,6 +131,7 @@ export default function CardHero({ client, briefing, onWhale, onRate, onCall, on
   const volume = stats.lifetimeVolume ?? client.lifetimeVolume ?? 0;
   const closings = stats.closings ?? client.transactionsCount ?? 0;
   const avg = stats.avgPrice ?? (closings > 0 && volume ? Math.round(volume / closings) : null);
+  const pipeline = stats.pipelineVolume || 0;
   const isPerson = client.contactKind === 'client' || !client.contactKind;
   const role = [client.jobTitle, client.company].filter(Boolean).join(' · ')
     || (!isPerson ? [humanize(client.vendorRole), client.contactKind === 'vendor' ? 'Vendor' : 'Partner'].filter(Boolean).join(' · ') : null);
@@ -163,12 +164,15 @@ export default function CardHero({ client, briefing, onWhale, onRate, onCall, on
       <div className="kc-money">
         <div className="kc-money-grid">
           {[
-            ['LIFETIME VOLUME', volume ? moneyCompact(volume) : '—', 'var(--green)', true],
-            ['CLOSINGS', fmtClosings(closings), 'var(--text)', false],
-            ['AVG PRICE', avg ? moneyCompact(avg) : '—', 'var(--text)', false],
+            // Nothing closed yet but money in motion → show what's in the pipeline.
+            !volume && pipeline > 0
+              ? ['IN PIPELINE', moneyCompact(pipeline), 'var(--amber)', '0 0 14px rgba(255,176,32,0.38)']
+              : ['LIFETIME VOLUME', volume ? moneyCompact(volume) : '—', 'var(--green)', '0 0 14px rgba(48,210,122,0.4)'],
+            ['CLOSINGS', fmtClosings(closings), 'var(--text)', 'none'],
+            ['AVG PRICE', avg ? moneyCompact(avg) : '—', 'var(--text)', 'none'],
           ].map(([label, val, color, glow]) => (
             <div key={label} className="kc-money-cell">
-              <span className="kc-money-val" style={{ color, textShadow: glow ? '0 0 14px rgba(48,210,122,0.4)' : 'none' }}>{val}</span>
+              <span className="kc-money-val" style={{ color, textShadow: glow }}>{val}</span>
               <span className="kc-money-lbl">{label}</span>
             </div>
           ))}

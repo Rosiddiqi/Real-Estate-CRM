@@ -8,6 +8,15 @@ import { toast } from '../ui/toast';
 import { mediaUrl } from '../../api/client';
 import { uploadFiles } from '../../api/system';
 
+// An <img> that degrades to a quiet tile when the photo can't load (offline,
+// expired link, blocked host) instead of the browser's broken-image glyph.
+export function SafeImg({ src, alt = '', ...rest }) {
+  const [bad, setBad] = useState(false);
+  useEffect(() => { setBad(false); }, [src]);
+  if (bad || !src) return <span className="kc-img-fallback" aria-hidden="true"><Icon name="image" size={18} color="var(--faint)" /></span>;
+  return <img src={src} alt={alt} onError={() => setBad(true)} {...rest} />;
+}
+
 export function PhotoStrip({ photos = [], onChange, label = 'Photos', hint }) {
   const [busy, setBusy] = useState(false);
   const input = useRef(null);
@@ -35,7 +44,7 @@ export function PhotoStrip({ photos = [], onChange, label = 'Photos', hint }) {
         {photos.map((u, i) => (
           <div key={u} className="kc-thumb" style={i === 0 ? { boxShadow: '0 0 0 1.5px var(--blue)' } : undefined}>
             <button type="button" onClick={() => i && onChange([u, ...photos.filter((x) => x !== u)])} aria-label={i ? 'Make cover photo' : 'Cover photo'} style={{ width: '100%', height: '100%', display: 'block' }}>
-              <img src={mediaUrl(u)} alt="" loading="lazy" />
+              <SafeImg src={mediaUrl(u)} loading="lazy" />
             </button>
             <span style={{ position: 'absolute', left: 4, bottom: 4, fontSize: 8, fontWeight: 800, letterSpacing: '0.1em', padding: '2px 5px', borderRadius: 5, background: i === 0 ? 'var(--blue)' : 'rgba(0,0,0,0.55)', color: '#fff', pointerEvents: 'none' }}>{i === 0 ? 'COVER' : 'TAP = COVER'}</span>
             <button type="button" className="kc-thumb-x" onClick={() => onChange(photos.filter((x) => x !== u))} aria-label="Remove photo"><Icon name="x" size={11} stroke={2.6} /></button>
@@ -71,7 +80,7 @@ export function PhotoLightbox({ photos, index = 0, onClose }) {
         </button>
       </div>
       <div ref={ref} className="kc-carousel" onScroll={(e) => setI(Math.round(e.currentTarget.scrollLeft / Math.max(1, e.currentTarget.clientWidth)))}>
-        {photos.map((u) => <div key={u} style={{ height: '100%' }}><img src={mediaUrl(u)} alt="" /></div>)}
+        {photos.map((u) => <div key={u} style={{ height: '100%' }}><SafeImg src={mediaUrl(u)} /></div>)}
       </div>
     </div>,
     document.body,

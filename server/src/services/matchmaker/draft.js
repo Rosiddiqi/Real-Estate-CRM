@@ -65,7 +65,7 @@ function whisperDetails(l) {
     lines.push([wf && wf !== 'none' ? V.WATERFRONT_LABEL[wf] : null, views.length ? `${views.slice(0, 2).join(' & ')} views` : null].filter(Boolean).join(', '));
   }
   if (l.architecturalStyle) lines.push(`${l.architecturalStyle} architecture`);
-  const am = (l.amenities || []).filter(Boolean).slice(0, 6);
+  const am = [...new Set((l.amenities || []).filter(Boolean).map(shape.amenityDisplay))].slice(0, 6);
   if (am.length) lines.push(`Key amenities: ${am.join(', ')}`);
   return lines.filter(Boolean);
 }

@@ -92,8 +92,13 @@ export default function ActiveCall({ clientId, phone, name, callId, onClose }) {
     setAttached(true);
   }, [callId, clientId, phone, name, close]);
 
-  // Collapse the briefing once the conversation is flowing.
-  useEffect(() => { if (st.lines.length >= 3) setBriefOpen(false); }, [st.lines.length]);
+  // Collapse the briefing once the conversation is flowing (right away on short phones).
+  const autoCollapsed = useRef(false);
+  useEffect(() => {
+    if (autoCollapsed.current) return;
+    const short = typeof window !== 'undefined' && window.innerHeight < 760;
+    if (st.lines.length >= (short ? 1 : 3)) { autoCollapsed.current = true; setBriefOpen(false); }
+  }, [st.lines.length]);
   useEffect(() => {
     const el = txRef.current;
     if (el) el.scrollTop = el.scrollHeight;
