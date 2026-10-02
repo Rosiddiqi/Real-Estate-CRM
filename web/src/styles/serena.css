@@ -80,7 +80,16 @@
   padding-bottom: max(calc(var(--tabbar-clearance) + var(--safe-bottom) - 18px), calc(var(--keyboard-height) + 10px));
   transition: padding-bottom 0.25s var(--km-kb-ease);
 }
-.km-srn-scrim { position: absolute; inset: 0; pointer-events: auto; background: transparent; }
+.km-srn-scrim {
+  position: absolute; inset: 0; pointer-events: auto;
+  /* Dim the page so the assistant reads as a focused layer, not a card
+     floating over live content. */
+  background: rgba(2, 4, 8, 0.55);
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.km-srn-scrim.is-entering, .km-srn-scrim.is-leaving { opacity: 0; }
+:root[data-theme="light"] .km-srn-scrim { background: rgba(20, 24, 32, 0.28); }
 .km-srn-column {
   position: relative; display: flex; flex-direction: column; align-items: flex-end; gap: 12px;
   width: min(400px, calc(100vw - 20px)); pointer-events: none;

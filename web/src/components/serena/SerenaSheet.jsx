@@ -40,6 +40,11 @@ class SideBoundary extends Component {
 
 export default function SerenaSheet({ page: initialPage, prompt, overlayId, onClose }) {
   const { name: assistant } = useAssistant();
+  // A focused layer: the page dims and the tab bar steps aside (like a call).
+  useEffect(() => {
+    document.body.classList.add('km-tabbar-hidden');
+    return () => document.body.classList.remove('km-tabbar-hidden');
+  }, []);
   const s = useSerena();
   const depth = useOverlayDepth();
   const [page, setPageState] = useState(() => readPage(initialPage));
@@ -137,7 +142,7 @@ export default function SerenaSheet({ page: initialPage, prompt, overlayId, onCl
   const anim = phase === 'in' ? '' : phase === 'entering' ? 'is-entering' : 'is-leaving';
   return createPortal(
     <div className="km-srn-wrap" style={{ zIndex: panelZ(depth) }} role="dialog" aria-modal="true" aria-label={assistant}>
-      <div className="km-srn-scrim" onClick={requestClose} aria-hidden="true" />
+      <div className={`km-srn-scrim ${anim}`} onClick={requestClose} aria-hidden="true" />
       <div className="km-srn-column">
         <div className={`km-srn-popup km-lg ${anim}`}>
           <div className="km-srn-nav">
