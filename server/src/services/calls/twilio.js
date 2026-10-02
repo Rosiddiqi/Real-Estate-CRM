@@ -6,6 +6,7 @@
 // the PUBLIC router routes/callWebhooks.js (/api/webhooks/twilio/voice/*): each
 // is X-Twilio-Signature-verified and carries a short-lived per-call token that
 // names the workspace.
+const crypto = require('node:crypto');
 const jwt = require('jsonwebtoken');
 const config = require('../../config');
 const prisma = require('../../lib/prisma');
@@ -25,8 +26,11 @@ function twilioClient() {
   return client;
 }
 
+// Per-call callback token. Signed with a DERIVED secret so it can never pass the
+// API's session check (requireAuth also reads ?token=) — it only names the workspace.
+const hookSecret = () => crypto.createHmac('sha256', String(config.auth.jwtSecret || '')).update('twilio-voice-hooks').digest('hex');
 function hookToken({ userId, workspaceId }) {
-  return jwt.sign({ sub: userId, wid: workspaceId, role: 'agent', hook: 'twilio' }, config.auth.jwtSecret, { expiresIn: '4h' });
+  return jwt.sign({ sub: userId, wid: workspaceId, hook: 'twilio' }, hookSecret(), { expiresIn: '4h' });
 }
 // Same public origin rule as routes/webhooks.js (Twilio signs the exact URL it calls).
 function base() { return String(process.env.PUBLIC_URL || config.appUrl || '').replace(/\/$/, ''); }
@@ -34,7 +38,7 @@ const HOOKS = '/api/webhooks/twilio/voice';
 
 function verifyHookToken(token) {
   try {
-    const p = jwt.verify(String(token || ''), config.auth.jwtSecret);
+    const p = jwt.verify(String(token || ''), hookSecret());
     return p && p.hook === 'twilio' && p.wid ? { workspaceId: p.wid, userId: p.sub } : null;
   } catch {
     return null;
