@@ -162,7 +162,7 @@ function propertyBadges(p, d) {
 
 function fmtDays(n) {
   if (n <= 0) return 'today';
-  if (n < 60) return `${n}d`;
+  if (n < 120) return `${n}d`;
   return `${Math.round(n / 30.4)} mo`;
 }
 

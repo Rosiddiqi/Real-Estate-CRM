@@ -38,7 +38,7 @@ module.exports = function ownListings() {
     },
     {
       key: 'own_solace', src: 'own', origin: 'own', status: 'sold', owner: 'adrian', agent: ME, soldDeal: 'kessler',
-      street: '9001 Collins Avenue', unitNumber: '803', buildingName: 'Solace Surfside', neighborhood: 'Surfside', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
+      street: '88 Surfside Strand', unitNumber: '803', buildingName: 'Solace Surfside', neighborhood: 'Surfside', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
       listPrice: 4150000, closePrice: 3950000, beds: 3, bathsFull: 3, bathsHalf: 1, sqft: 2650, yearBuilt: 2017, waterfront: 'oceanfront', views: ['ocean'],
       amenities: ['pool', 'gym', 'spa', 'concierge', 'private_beach'], hoaFee: 4900, taxAnnual: 61000, photos: 4,
       headline: 'Direct-ocean three-bedroom at Solace Surfside',
@@ -54,7 +54,7 @@ module.exports = function ownListings() {
     },
     {
       key: 'own_aurelia', src: 'own', origin: 'own', status: 'sold', owner: 'olivia', agent: ME, soldDeal: 'marlow',
-      street: '1201 Brickell Bay Drive', unitNumber: 'PH5', buildingName: 'Aurelia Brickell', neighborhood: 'Brickell', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
+      street: '1201 Aurelia Bay Drive', unitNumber: 'PH5', buildingName: 'Aurelia Brickell', neighborhood: 'Brickell', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
       listPrice: 4350000, closePrice: 4100000, beds: 4, bathsFull: 4, bathsHalf: 1, sqft: 4300, yearBuilt: 2019, views: ['bay', 'skyline'],
       amenities: ['rooftop_terrace', 'gym', 'spa', 'concierge', 'elevator'], hoaFee: 6800, taxAnnual: 64000, photos: 4,
       headline: 'Brickell penthouse with a 1,400-sq-ft sky terrace',
@@ -62,7 +62,7 @@ module.exports = function ownListings() {
     },
     {
       key: 'own_aria1402', src: 'own', origin: 'own', status: 'active', owner: 'lydia', agent: ME, dom: 63,
-      street: '10201 Collins Avenue', unitNumber: '1402', buildingName: 'The Aria at Bal Harbour', neighborhood: 'Bal Harbour', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
+      street: '10 Harbour Crest Way', unitNumber: '1402', buildingName: 'The Aria at Bal Harbour', neighborhood: 'Bal Harbour', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
       listPrice: 6450000, drop: { from: 6950000, daysAgo: 6, earlier: [{ from: 7250000, to: 6950000, daysAgo: 31 }] },
       beds: 3, bathsFull: 3, bathsHalf: 1, sqft: 3100, yearBuilt: 2016, waterfront: 'oceanfront', views: ['ocean', 'intracoastal'],
       amenities: ['pool', 'gym', 'spa', 'concierge', 'private_beach', 'elevator'], hoaFee: 6450, taxAnnual: 98000, photos: 5,
@@ -109,7 +109,7 @@ module.exports = function ownListings() {
     },
     {
       key: 'pk_aqua', src: 'pocket', origin: 'pocket', status: 'off_market', agent: ME, hideAddress: true, slug: true,
-      title: 'Edgewater penthouse · off-market', street: '2900 NE 7th Avenue', unitNumber: 'PH-A', buildingName: 'Aqua Lumen Edgewater', neighborhood: 'Edgewater', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
+      title: 'Edgewater penthouse · off-market', street: '2900 Lumen Bay Drive', unitNumber: 'PH-A', buildingName: 'Aqua Lumen Edgewater', neighborhood: 'Edgewater', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
       listPrice: 4600000, beds: 3, bathsFull: 3, bathsHalf: 1, sqft: 3800, yearBuilt: 2021, views: ['bay', 'skyline'], amenities: ['rooftop_terrace', 'pool', 'gym', 'concierge', 'elevator'],
       hoaFee: 5200, taxAnnual: 69000, photos: 4,
       headline: 'Off-market Edgewater penthouse with private plunge pool',
@@ -126,7 +126,7 @@ module.exports = function ownListings() {
     },
     {
       key: 'pk_ellery', src: 'pocket', origin: 'pocket', status: 'off_market', agent: ME, slug: true,
-      street: '1300 Brickell Avenue', unitNumber: '3901', buildingName: 'The Ellery Brickell', neighborhood: 'Brickell', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
+      street: '18 Ellery Lane', unitNumber: '3901', buildingName: 'The Ellery Brickell', neighborhood: 'Brickell', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
       listPrice: 3300000, beds: 3, bathsFull: 3, bathsHalf: 1, sqft: 2400, yearBuilt: 2020, views: ['bay', 'skyline'], amenities: ['pool', 'gym', 'spa', 'concierge'],
       hoaFee: 3600, taxAnnual: 48000, photos: 4,
       headline: 'High-floor Ellery corner, tenant-friendly',
@@ -145,7 +145,7 @@ module.exports = function ownListings() {
     },
     {
       key: 'wh_indiancreek', src: 'whisper', origin: 'whisper', status: 'off_market', hideAddress: true,
-      title: 'Indian Creek compound · may trade in spring', street: 'Indian Creek Island Road', neighborhood: 'Indian Creek', propertyType: 'estate', style: 'Contemporary', family: 'Contemporary',
+      title: 'Indian Creek compound · may trade in spring', street: 'Creek Island Way', neighborhood: 'Indian Creek', propertyType: 'estate', style: 'Contemporary', family: 'Contemporary',
       priceGuide: 58000000, eta: 'spring', whisperSource: 'broker_open', confidence: { price: 0.4, timing: 0.35, specs: 0.7, note: 'Heard at the Gables Estates broker open from two agents independently.' },
       beds: 10, bathsFull: 11, bathsHalf: 3, sqft: 18500, lotSqft: 91476, yearBuilt: 2014, waterfront: 'bayfront', frontage: 200, dock: 150, views: ['bay', 'golf', 'sunset'],
       amenities: ['pool', 'dock', 'guard_gated', 'gated', 'guest_house', 'staff_quarters', 'tennis', 'wine_room', 'gym', 'spa', 'home_theater', 'generator', 'elevator'], photos: 4,
@@ -154,7 +154,7 @@ module.exports = function ownListings() {
     },
     {
       key: 'wh_cpphase2', src: 'whisper', origin: 'whisper', status: 'off_market', developmentName: 'Casa Palmera Residences',
-      title: 'Casa Palmera Phase II · penthouse release', street: '3100 S Bayshore Drive', buildingName: 'Casa Palmera Residences', neighborhood: 'Coconut Grove', propertyType: 'penthouse', style: 'Tropical Modern', family: 'Tropical Modern',
+      title: 'Casa Palmera Phase II · penthouse release', street: '3100 Palmera Bay Lane', buildingName: 'Casa Palmera Residences', neighborhood: 'Coconut Grove', propertyType: 'penthouse', style: 'Tropical Modern', family: 'Tropical Modern',
       priceGuide: 11500000, eta: 'January', whisperSource: 'developer', confidence: { price: 0.75, timing: 0.6, specs: 0.85, note: 'Lorenzo Vidal shared the draft price sheet over lunch — not for distribution.' },
       beds: 4, bathsFull: 5, bathsHalf: 1, sqft: 5400, yearBuilt: 2029, views: ['bay', 'skyline'], amenities: ['rooftop_terrace', 'pool', 'gym', 'spa', 'concierge', 'elevator'], photos: 4,
       headline: 'Phase II penthouses — priority list only',
@@ -162,7 +162,7 @@ module.exports = function ownListings() {
     },
     {
       key: 'wh_fisher', src: 'whisper', origin: 'whisper', status: 'off_market', hideAddress: true,
-      title: 'Fisher Island villa · estate sale coming', street: 'Fisher Island Drive', neighborhood: 'Fisher Island', propertyType: 'villa', style: 'Mediterranean Revival', family: 'Mediterranean',
+      title: 'Fisher Island villa · estate sale coming', street: 'Palmyra Court', neighborhood: 'Fisher Island', propertyType: 'villa', style: 'Mediterranean Revival', family: 'Mediterranean',
       priceGuide: 14000000, eta: '60 days', whisperSource: 'agent', confidence: { price: 0.55, timing: 0.7, specs: 0.6, note: 'Probate attorney contact; heirs want one buyer, no open houses.' },
       beds: 5, bathsFull: 5, bathsHalf: 1, sqft: 6100, yearBuilt: 1998, yearRenovated: 2016, waterfront: 'oceanfront', views: ['ocean'],
       amenities: ['pool', 'gated', 'guard_gated', 'spa', 'generator'], photos: 4,
@@ -177,7 +177,7 @@ module.exports = function ownListings() {
       { key: 'dev_cp2602', unit: '2602', floor: 26, line: '02', price: 6200000, beds: 4, full: 4, half: 1, sqft: 3900, hoa: 5600 },
     ].map((u, i) => ({
       key: u.key, src: 'mls', origin: 'development', status: 'active', agent: VIDAL, dom: 120 - i * 20, developmentName: 'Casa Palmera Residences',
-      street: '3100 S Bayshore Drive', unitNumber: u.unit, buildingName: 'Casa Palmera Residences', neighborhood: 'Coconut Grove', floor: u.floor, unitLine: u.line,
+      street: '3100 Palmera Bay Lane', unitNumber: u.unit, buildingName: 'Casa Palmera Residences', neighborhood: 'Coconut Grove', floor: u.floor, unitLine: u.line,
       propertyType: 'condo', propertySubType: 'pre_construction', style: 'Tropical Modern', family: 'Tropical Modern',
       listPrice: u.price, beds: u.beds, bathsFull: u.full, bathsHalf: u.half, sqft: u.sqft, yearBuilt: 2028, views: ['bay', 'skyline'],
       amenities: ['pool', 'gym', 'spa', 'concierge', 'rooftop_terrace'], hoaFee: u.hoa, photos: 4,
@@ -190,7 +190,7 @@ module.exports = function ownListings() {
     })),
     {
       key: 'dev_solenne7b', src: 'mls', origin: 'development', status: 'active', agent: ['Solenne Sales Team', 'Solenne Bay Harbor'], dom: 85, developmentName: 'Solenne Bay Harbor',
-      street: '1080 Kane Concourse', unitNumber: '7B', buildingName: 'Solenne Bay Harbor', neighborhood: 'Bay Harbor Islands', floor: 7, unitLine: 'B',
+      street: '1080 Solenne Bay Way', unitNumber: '7B', buildingName: 'Solenne Bay Harbor', neighborhood: 'Bay Harbor Islands', floor: 7, unitLine: 'B',
       propertyType: 'condo', propertySubType: 'pre_construction', style: 'Contemporary', family: 'Contemporary',
       listPrice: 2450000, beds: 2, bathsFull: 2, bathsHalf: 1, sqft: 1850, yearBuilt: 2027, waterfront: 'bayfront', views: ['bay'],
       amenities: ['pool', 'gym', 'concierge', 'dock'], hoaFee: 2600, photos: 3,

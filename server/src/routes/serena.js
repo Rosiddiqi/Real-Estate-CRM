@@ -31,6 +31,30 @@ router.get('/unread', ah(async (req, res) => {
   res.json({ unread: await store.unreadCount(req.workspaceId, req.userId), running: agent.isRunning(req.userId) });
 }));
 
+// Empty-state starters, grounded in this book (a real listing, a real household).
+router.get('/starters', ah(async (req, res) => {
+  const wid = req.workspaceId;
+  const [listing, buyers] = await Promise.all([
+    prisma.listing.findFirst({ where: { workspaceId: wid, isOwnListing: true, droppedAt: null, status: { in: ['active', 'coming_soon'] } }, orderBy: [{ listedAt: 'desc' }, { createdAt: 'desc' }], select: { street: true, buildingName: true } }),
+    prisma.client.findMany({ where: { workspaceId: wid, archivedAt: null, contactKind: 'client', type: { in: ['buyer', 'buyer_seller', 'investor'] }, status: { in: ['active', 'lead'] } }, select: { firstName: true, lastName: true, isWhale: true, rating: true }, orderBy: [{ isWhale: 'desc' }, { rating: 'desc' }], take: 40 }),
+  ]);
+  const byLast = new Map();
+  for (const b of buyers) if (b.lastName) byLast.set(b.lastName, (byLast.get(b.lastName) || 0) + 1);
+  const household = [...byLast.entries()].find(([, n]) => n > 1);
+  // "the Whitakers", but "the Delacroix family" (no awkward Delacroixs / Joneses).
+  const householdLabel = (ln) => (/(s|x|z|ch|sh)$/i.test(ln) ? `the ${ln} family` : `the ${ln}s`);
+  const who = household ? householdLabel(household[0]) : buyers[0] ? buyers[0].firstName : null;
+  const where = listing ? (listing.street || listing.buildingName) : null;
+  res.json({
+    starters: [
+      'What’s my day?',
+      'Who should I call first?',
+      where ? `Draft a just-listed text for ${where}` : 'Any hot matches?',
+      who ? `Add a showing with ${who} tomorrow at 2` : 'Show my pipeline',
+    ],
+  });
+}));
+
 router.post('/read', ah(async (req, res) => {
   await store.markRead(req.userId);
   res.json({ ok: true });

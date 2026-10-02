@@ -217,8 +217,8 @@ RULES
 ${V.FAIR_HOUSING}`;
 
 const SCHEMA = (() => {
-  const str = { type: ['string', 'null'] };
-  const num = { type: ['number', 'null'] };
+  const str = { anyOf: [{ type: 'string' }, { type: 'null' }] };
+  const num = { anyOf: [{ type: 'number' }, { type: 'null' }] };
   const props = {
     street: str, unitNumber: str, city: str, state: str, postalCode: str, neighborhood: str, buildingName: str, market: str, developmentName: str,
     propertyType: str, listPrice: num, priceGuide: num, beds: num, bathsTotal: num, livingAreaSqft: num, lotSqft: num, yearBuilt: num, yearRenovated: num,
@@ -271,7 +271,7 @@ async function parseListing({ workspaceId, text, url, mode = 'listing' } = {}) {
         text ? `TEXT:\n${String(text).slice(0, 6000)}` : null,
         places.length ? `PLACES THIS AGENT WORKS (use exact spelling when one is meant): ${places.slice(0, 80).map((p) => p.name).join(', ')}` : null,
       ].filter(Boolean).join('\n\n');
-      const out = await ai.json({ system: SYSTEM, prompt, schema: SCHEMA, effort: 'low', maxTokens: 4000, feature: mode === 'whisper' ? 'whisper_parse' : 'listing_parse', workspaceId });
+      const out = await ai.json({ system: SYSTEM, prompt, schema: SCHEMA, effort: 'low', maxTokens: 8000, feature: mode === 'whisper' ? 'whisper_parse' : 'listing_parse', workspaceId });
       if (out && out.fields) {
         usedAi = true;
         const af = normalizeFields(out.fields);

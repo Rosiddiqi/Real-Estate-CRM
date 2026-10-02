@@ -10,7 +10,9 @@ import { useAuth } from '../../hooks/useAuth';
 import { useResync, useSocket } from '../../hooks/useSocket';
 import { getBadges } from '../../api/system';
 import { mediaUrl } from '../../api/client';
-import { greeting, getInitials } from '../../lib/format';
+import { getInitials } from '../../lib/format';
+import { hourIn, dayLabelIn } from '../../components/battleplan/time';
+import useAgentTz from '../../components/battleplan/useAgentTz';
 import BattlePlanPage from './BattlePlanPage';
 import StatsPage from './StatsPage';
 import '../../styles/dashboard.css';
@@ -50,6 +52,7 @@ function useClockMinute() {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const tz = useAgentTz();
   const [page, setPage] = useState(readPage);
   const setPagePersist = useCallback((p) => {
     setPage(p);
@@ -98,7 +101,10 @@ export default function Dashboard() {
   };
 
   const first = (user && user.firstName) || '';
-  const eyebrow = `${now.toLocaleDateString('en-US', { weekday: 'long' })}, ${now.toLocaleDateString('en-US', { month: 'short' })} ${now.getDate()}`.toUpperCase();
+  // Date + greeting in the agent's zone (the same clock the rail runs on).
+  const eyebrow = dayLabelIn(now, tz, { weekday: 'long', month: 'short', day: 'numeric' }).toUpperCase();
+  const h = hourIn(now, tz);
+  const hello = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
 
   return (
     <div className="km-screen km-dash">
@@ -112,7 +118,7 @@ export default function Dashboard() {
             {user && user.avatarUrl ? <img src={mediaUrl(user.avatarUrl)} alt="" /> : (getInitials(`${first} ${(user && user.lastName) || ''}`) || 'K').slice(0, 1)}
           </button>
         </div>
-        <div className="km-dash-greeting km-truncate">{greeting(now)}{first ? `, ${first}` : ''}</div>
+        <div className="km-dash-greeting km-truncate">{hello}{first ? `, ${first}` : ''}</div>
       </header>
 
       <div

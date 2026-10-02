@@ -140,7 +140,12 @@ router.get('/search', ah(async (req, res) => {
   const messages = msgs.map((m) => {
     const body = m.body || '';
     const i = body.toLowerCase().indexOf(q.toLowerCase());
-    const start = Math.max(0, i - 36);
+    let start = Math.max(0, i - 36);
+    if (start > 0) {
+      // Start the snippet on a word boundary ("…your listing", not "…w your listing").
+      const sp = body.indexOf(' ', start);
+      if (sp >= 0 && sp < i) start = sp + 1;
+    }
     const snippet = `${start > 0 ? '…' : ''}${body.slice(start, start + 120)}${start + 120 < body.length ? '…' : ''}`;
     return {
       id: m.id, conversationId: m.conversationId, body, snippet, sentAt: m.sentAt, isFromMe: m.isFromMe,

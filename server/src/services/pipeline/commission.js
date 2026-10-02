@@ -7,7 +7,8 @@
 //   1. side GCI   flat fee > 0 ? flat
 //                 : dual    → price × (listRate + buyRate)
 //                 : lease   → monthlyRent × leaseFeeMonths (or annual rent × rate; default one month)
-//                 : referral_out → price × partner side rate × referral fee % (fee you receive)
+//                 : referral_out → price × partner side rate × referral fee % (fee you receive;
+//                                  extras.referralFeePct, else referralOutPct, else 25%)
 //                 : price × (sideRate ?? plan default for the side)
 //   2. your share myGci = sideGCI × splitShare        (booked grossCommission wins when typed)
 //   3. off the top referralOut = myGci × referralOutPct; adj = myGci − referralOut + coopBonus
@@ -158,8 +159,9 @@ function sideGci(d, planIn) {
   }
   const price = dealPrice(d);
   if (side === 'referral_out') {
+    // On a referral-out deal the referral % is the fee you RECEIVE.
     const partnerRate = opt(d.sideRate) ?? plan.defaultBuyerRate;
-    const pct = opt(ex.referralFeePct) ?? 0.25;
+    const pct = opt(ex.referralFeePct) ?? opt(d.referralOutPct) ?? 0.25;
     return price * partnerRate * pct;
   }
   return price * effectiveRate(d, plan);
@@ -223,7 +225,8 @@ function estimate(d, planIn, ytdIn) {
     bookedNet,
     after: { ...ytd },
   };
-  const referralOut = my * (opt(d.referralOutPct) || 0);
+  // referral fee you PAY a referring agent (on referral-out deals the % is the fee received instead)
+  const referralOut = side === 'referral_out' ? 0 : my * (opt(d.referralOutPct) || 0);
   const coop = Math.max(0, num(d.coopBonus));
   const adj = my - referralOut + coop;
   out.referralOut = round(referralOut);

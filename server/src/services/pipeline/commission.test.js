@@ -39,6 +39,11 @@ test('referral out: fee you receive, zero sides', () => {
   const d = { side: 'referral_out', stage: 'touring', price: 3000000, sideRate: 0.025 };
   assert.equal(Math.round(C.sideGci(d, PLAN)), 18750);
   assert.equal(C.dealSides(d), 0);
+  // referralOutPct on a referral-out deal is the fee received — never also taken off the top
+  const e = C.estimate({ side: 'referral_out', stage: 'touring', price: 9200000, sideRate: 0.025, referralOutPct: 0.3 }, C.preparePlan({ agentSplit: 1 }));
+  assert.equal(e.myGci, 69000);
+  assert.equal(e.referralOut, 0);
+  assert.equal(e.net, 69000);
 });
 
 test('split share halves GCI and sides (generalised half deal)', () => {

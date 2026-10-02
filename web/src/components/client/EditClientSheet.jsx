@@ -15,7 +15,7 @@ import ClientPicker from './ClientPicker';
 import { clientStore } from './clientStore';
 import {
   Seg, ChipInput, MoneyInput, CLIENT_TYPES, STATUSES, LEAD_SOURCES, VENDOR_ROLES, PARTNER_ROLES, PERSONAL_FIELDS,
-  FINANCING, TIMELINES, displayName,
+  FINANCING, TIMELINES, displayName, fmtPersonal,
 } from './clientKit';
 
 const KIND_OPTS = [{ value: 'client', label: 'Client' }, { value: 'partner', label: 'Partner' }, { value: 'vendor', label: 'Vendor' }];
@@ -29,7 +29,7 @@ function toForm(c) {
     phone: c.phone ? formatPhone(c.phone) : '', phoneAlt: c.phoneAlt ? formatPhone(c.phoneAlt) : '', email: c.email || '', emailAlt: c.emailAlt || '',
     preferredChannel: c.preferredChannel || '', street: c.street || '', unit: c.unit || '', city: c.city || '', state: c.state || '', zip: c.zip || '',
     neighborhood: c.neighborhood || '', birthday: c.birthday && !c.birthday.startsWith('--') ? c.birthday : '', birthdayMD: c.birthday && c.birthday.startsWith('--') ? c.birthday.slice(2) : '',
-    personal: Object.fromEntries(PERSONAL_FIELDS.map((f) => [f.key, Array.isArray(p[f.key]) ? p[f.key].join(', ') : (p[f.key] || '')])),
+    personal: Object.fromEntries(PERSONAL_FIELDS.map((f) => [f.key, fmtPersonal(p[f.key])])),
     financing: c.financing || '', preApprovalAmount: c.preApprovalAmount ?? null, preApprovalExpires: c.preApprovalExpires ? String(c.preApprovalExpires).slice(0, 10) : '',
     lenderName: c.lenderName || '', purchasePower: c.purchasePower ?? null, timeline: c.timeline || '', motivation: c.motivation || '',
     status: c.status || 'lead', leadSource: c.leadSource || '', tags: c.tags || [], rating: c.rating || 0, isWhale: !!c.isWhale,

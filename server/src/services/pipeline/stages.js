@@ -153,16 +153,16 @@ const LABELS = {
 
 // ── Sub-status pills ──────────────────────────────────────────────────────
 const CONTINGENCIES = [
-  { id: 'inspection', label: 'Inspection', deadlineField: 'inspectionDeadline' },
-  { id: 'appraisal', label: 'Appraisal', deadlineField: 'appraisalDeadline' },
-  { id: 'financing', label: 'Financing', deadlineField: 'financingDeadline' },
-  { id: 'clear_to_close', label: 'Clear to close', deadlineField: null },
+  { id: 'inspection', label: 'Inspection', short: 'Inspect', deadlineField: 'inspectionDeadline' },
+  { id: 'appraisal', label: 'Appraisal', short: 'Appraisal', deadlineField: 'appraisalDeadline' },
+  { id: 'financing', label: 'Financing', short: 'Financing', deadlineField: 'financingDeadline' },
+  { id: 'clear_to_close', label: 'Clear to close', short: 'CTC', deadlineField: null },
 ];
 const LISTING_STATUSES = [
-  { id: 'pre_market', label: 'Pre-market' },
-  { id: 'coming_soon', label: 'Coming soon' },
-  { id: 'active', label: 'Active' },
-  { id: 'price_improved', label: 'Price improved' },
+  { id: 'pre_market', label: 'Pre-market', short: 'Pre-market' },
+  { id: 'coming_soon', label: 'Coming soon', short: 'Coming soon' },
+  { id: 'active', label: 'Active', short: 'Active' },
+  { id: 'price_improved', label: 'Price improved', short: 'Improved' },
 ];
 const DEPOSIT_STEPS = [
   { id: 'd1', label: 'Deposit 1' },

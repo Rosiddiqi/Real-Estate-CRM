@@ -75,11 +75,31 @@ test('neighborhood name similarity: exact, abbreviations, containment, generic w
 
 test('proportional price soft window', () => {
   const s = { priceMax: 10_000_000 };
-  const at = (p) => scoreListingForSearch({ status: 'active', listPrice: p }, s).factors.find((f) => f.key === 'priceRange').quality;
+  const at = (p, ctx) => scoreListingForSearch({ status: 'active', listPrice: p }, s, ctx).factors.find((f) => f.key === 'priceRange').quality;
   assert.equal(at(9_900_000), 1);
   // 15% of $10M = $1.5M soft window: $10.75M is half way out → 0.5
   assert.equal(at(10_750_000), 0.5);
-  assert.equal(at(12_000_000), 0);
+  assert.equal(at(12_000_000, { hardPrice: false }), 0);
+});
+
+test('price beyond the soft window is gated (both directions), guides get a wider window', () => {
+  const strong = { markets: ['Miami Beach'], neighborhoods: ['Sunset Islands'], propertyTypes: ['single_family'], bedsMin: 4 };
+  const home = { status: 'active', origin: 'feed', market: 'Miami Beach', neighborhood: 'Sunset Islands', propertyType: 'single_family', beds: 6 };
+  // $4.5M buyer vs an $18.75M estate on their favorite island: location can't buy it
+  const over = scoreListingForSearch({ ...home, listPrice: 18_750_000 }, { ...strong, priceMin: 3e6, priceMax: 4.5e6 });
+  assert.equal(over.gated, 'price');
+  assert.equal(over.score, 0);
+  // a $12–20M buyer is not shopping a $3M condo-priced home
+  const under = scoreListingForSearch({ ...home, listPrice: 3e6 }, { ...strong, priceMin: 12e6, priceMax: 20e6 });
+  assert.equal(under.gated, 'price');
+  // inside the window it is a scored stretch, not a gate
+  const stretch = scoreListingForSearch({ ...home, listPrice: 5e6 }, { ...strong, priceMax: 4.5e6 });
+  assert.equal(stretch.gated, null);
+  assert.ok(stretch.score >= 80 && stretch.score < 100);
+  // whisper guide ~$5.5M vs ≤$4.5M: 1.5× window (≈$1.01M) keeps it in play
+  const guide = scoreListingForSearch({ ...home, origin: 'whisper', status: 'off_market', priceGuide: 5.5e6 }, { ...strong, priceMax: 4.5e6 });
+  assert.equal(guide.gated, null);
+  assert.equal(scoreListingForSearch({ ...home, listPrice: 18_750_000 }, { ...strong, priceMax: 4.5e6 }, { hardPrice: false }).gated, null);
 });
 
 test('factors the buyer never expressed are excluded from the denominator', () => {
@@ -150,4 +170,35 @@ test('rankScored falls back to 70 only when asked and nobody clears 80', () => {
   assert.equal(a.shown.length, 2);
   const b = rankScored([mk(75), mk(72)], {});
   assert.equal(b.shown.length, 0);
+});
+
+test('structured must-haves: {feature:"dock", min:90} is a dock-length threshold with a readable label', () => {
+  const p = V.parseMustHave({ feature: 'dock', importance: 1, source: 'call', min: 90 });
+  assert.deepEqual([p.key, p.min], ['dock_length', 90]);
+  assert.equal(V.mustHaveLabel(p), '90+ ft dock');
+  assert.equal(V.mustHaveLabel(V.parseMustHave({ feature: 'high_floor', min: 26 })), 'Floor 26+');
+  assert.equal(V.mustHaveLabel(V.parseMustHave({ feature: 'guard_gated' })), 'Gated');
+  assert.equal(V.parseMustHave({ feature: 'pool_fence' }).key, null, '"pool fence" is not "pool"');
+});
+
+test('compound free-text must-haves split; Fair Housing proxies are never scored', () => {
+  const l = { status: 'active', origin: 'feed', amenities: ['gated', 'staff_quarters', 'pool'] };
+  const r = scoreListingForSearch(l, { mustHaves: ['Gated + staff quarters', 'Top school zone'] });
+  assert.deepEqual(r.mustHaves.map((m) => [m.key, m.status]), [['gated', 'met'], ['staff_quarters', 'met']]);
+});
+
+test('un-canonical must-haves never count as missing, even on authoritative listings', () => {
+  const l = { status: 'active', origin: 'own', isOwnListing: true, hasFeatureSheet: true, amenities: ['pool'] };
+  const r = scoreListingForSearch(l, { mustHaves: [{ feature: 'no_fixed_bridges', importance: 1 }, { feature: 'home_office', importance: 0.7 }] });
+  assert.equal(r.mustHaves[0].status, 'verify');
+  assert.equal(r.mustHaves[1].status, 'missing', 'feature sheet makes office absence provable');
+  const mls = scoreListingForSearch({ ...l, origin: 'feed', isOwnListing: false, hasFeatureSheet: false }, { mustHaves: [{ feature: 'home_office' }, { feature: 'pool' }, { feature: 'dock' }] });
+  assert.deepEqual(mls.mustHaves.map((m) => m.status), ['verify', 'met', 'missing']);
+});
+
+test('numeric deal-breaker "Dock under 85 ft" fires only on a known short dock', () => {
+  const s = { dealBreakers: ['Dock under 85 ft', 'Shared driveway'] };
+  assert.ok(scoreListingForSearch({ status: 'active', dockLengthFt: 60, amenities: ['dock'] }, s).mustHaves.some((m) => m.dealBreaker));
+  assert.ok(!scoreListingForSearch({ status: 'active', dockLengthFt: 95, amenities: ['dock'] }, s).mustHaves.some((m) => m.dealBreaker));
+  assert.ok(!scoreListingForSearch({ status: 'active', amenities: ['dock'] }, s).mustHaves.some((m) => m.dealBreaker));
 });

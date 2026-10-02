@@ -262,7 +262,7 @@ export default function ClientsPage() {
 
       <div style={{ flexShrink: 0, display: 'grid', gridTemplateRows: searching ? '0fr' : '1fr', transition: 'grid-template-rows .28s var(--km-ease)' }}>
         <div style={{ overflow: 'hidden' }}>
-          <div style={{ padding: '2px 14px 10px', opacity: searching ? 0 : 1, transition: 'opacity .2s' }}>
+          <div className="kc-tabwrap" style={{ padding: '2px 14px 10px', opacity: searching ? 0 : 1, transition: 'opacity .2s' }}>
             <PillTabs items={KIND_TABS} value={kind} onChange={setKindP} />
           </div>
         </div>
@@ -294,7 +294,7 @@ export default function ClientsPage() {
         ) : null}
       </div>
 
-      <div className="kc-list">
+      <div className={`kc-list ${sort === 'az' && !searching && sections && sections.length > 4 ? 'kc-list--az' : ''}`}>
         <div className="kc-list-scroll km-scroll" ref={scrollRef} onScroll={() => openId && setOpenId(null)}>
           <div className="kc-col">
             {error && !rows ? (

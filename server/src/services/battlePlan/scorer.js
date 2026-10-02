@@ -40,7 +40,11 @@ function stageBoost(bundle) {
   return STAGE_BOOST[stage] || 0;
 }
 
-function silenceDecay(bundle) {
+// Relationship touches exist precisely FOR quiet people — no decay on them.
+const NO_DECAY_KINDS = new Set(['birthday.text', 'anniversary.text', 'soi.checkin.text', 'content.block', 'personal.lunch']);
+
+function silenceDecay(bundle, candidate) {
+  if (candidate && NO_DECAY_KINDS.has(candidate.kind)) return 0;
   const d = bundle && bundle.silenceDays;
   if (d == null || d <= 14) return 0;
   return Math.min(20, d - 14); // −1 per day after 14, capped at −20
@@ -119,7 +123,7 @@ function scoreCandidate(candidate, ctx = {}) {
     + stageBoost(bundle)
     + lifecycleBonus(candidate)
     + standingBonus(candidate);
-  const final = base * tagMultiplier(bundle) - silenceDecay(bundle);
+  const final = base * tagMultiplier(bundle) - silenceDecay(bundle, candidate);
   return clamp(Math.round(final), 0, 100);
 }
 

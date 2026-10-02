@@ -328,6 +328,14 @@ router.patch('/:id', ah(async (req, res) => {
     if (live) throw new HttpError(409, 'The message is locked once a campaign launches');
     data.steps = steps;
   }
+  // A listing attached to an event campaign fills the event's blanks.
+  if (listing && c.event && c.event.enabled !== false && body.event === undefined) {
+    const ev = { ...c.event };
+    const street = drafter.listingFacts(listing).street;
+    if (!ev.address) ev.address = [listing.street, listing.unitNumber ? `#${listing.unitNumber}` : null, listing.city].filter(Boolean).join(', ') || null;
+    if (!ev.title || ev.title === 'Open House') ev.title = `Open House${street ? ` · ${street}` : ''}`;
+    data.event = ev;
+  }
   const key = body.applyTemplate && TEMPLATES[body.applyTemplate] ? body.applyTemplate : null;
   if (key) {
     if (live) throw new HttpError(409, 'The message is locked once a campaign launches');
@@ -340,7 +348,8 @@ router.patch('/:id', ah(async (req, res) => {
     if (key === 'open_house_invite' && !(c.event && c.event.enabled)) {
       data.event = { enabled: true, title: l ? `Open House · ${drafter.listingFacts(l).street || ''}`.trim() : 'Open House', address: l ? [l.street, l.city].filter(Boolean).join(', ') : null, startAt: null, endAt: null, rsvp: true, calendarInvite: true };
     }
-    if (c.name === 'New campaign' || !c.name) data.name = `${TEMPLATES[key].label}${l ? ` · ${drafter.listingFacts(l).street || l.neighborhood || ''}` : ''}`.replace(/ · $/, '');
+    const autoNamed = !c.name || c.name === 'New campaign' || Object.values(TEMPLATES).some((t) => c.name === t.label || c.name.startsWith(`${t.label} · `));
+    if (autoNamed && body.name == null) data.name = `${TEMPLATES[key].label}${l ? ` · ${drafter.listingFacts(l).street || l.neighborhood || ''}` : ''}`.replace(/ · $/, '');
   } else if (body.trigger && TEMPLATES[body.trigger]) data.trigger = body.trigger;
   if (body.lanes) data.lanes = { ...cleanLanes(body.lanes, c.lanes || {}), customized: true };
   if (body.event !== undefined) data.event = cleanEvent(body.event);

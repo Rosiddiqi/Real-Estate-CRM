@@ -363,7 +363,12 @@ async function inboxCard({ workspaceId }) {
     scored.push({ c, text, topic, score, name, first, at: lastIn ? lastIn.sentAt : c.lastMessageAt });
   }
   scored.sort((a, b) => b.score - a.score);
-  const top = scored.slice(0, 3);
+  // Only threads that actually need a reply make the card: a "thanks!" or
+  // "sounds good" can wait while someone is asking about a showing. If every
+  // unread is an acknowledgement, fall back to the single most urgent one.
+  const LOW = new Set(['thanks', 'ack']);
+  const needy = scored.filter((s) => !LOW.has(s.topic) && (s.text || '').trim() && s.text !== 'Attachment');
+  const top = (needy.length ? needy : scored.slice(0, 1)).slice(0, 3);
   const reasonFor = (s) => {
     const fb = fallbackSummary([{ who: 'client', text: s.text }], { first: s.first });
     return `${fb.summary} · ${ago(s.at)}`;
@@ -397,6 +402,7 @@ async function inboxCard({ workspaceId }) {
       title: top.length === 1 ? `${lead.first} is waiting on you` : `${lead.first} and ${top.length - 1} more are waiting on you`,
       items,
       unreadThreads: convs.length,
+      more: Math.max(0, convs.length - top.length),
       source,
     },
   };
@@ -408,6 +414,21 @@ async function inboxCard({ workspaceId }) {
 async function briefing({ workspaceId, clientId }) {
   const f = await clientFacts(workspaceId, clientId);
   if (!f) return { briefing: null };
+  if (!f.lastContactedAt) {
+    // Older imports never stamped lastContactedAt — read it off the thread.
+    const latest = await prisma.message.findFirst({
+      where: { workspaceId, conversation: { clientId }, status: { notIn: ['scheduled', 'cancelled', 'failed'] } },
+      orderBy: { sentAt: 'desc' },
+      select: { sentAt: true, isFromMe: true },
+    });
+    if (latest) {
+      f.lastContactedAt = latest.sentAt;
+      if (!f.lastInboundAt && !f.lastOutboundAt) {
+        if (latest.isFromMe) { f.lastOutboundAt = latest.sentAt; f.lastInboundAt = new Date(0); }
+        else { f.lastInboundAt = latest.sentAt; f.lastOutboundAt = new Date(0); }
+      }
+    }
+  }
   const lastTouch = f.lastContactedAt
     ? `${ago(f.lastContactedAt)}${f.lastInboundAt && f.lastOutboundAt ? (new Date(f.lastInboundAt) > new Date(f.lastOutboundAt) ? ' · they texted last' : ' · you texted last') : ''}`
     : 'No contact yet';

@@ -12,7 +12,7 @@ module.exports = function coreClients(ctx) {
       company: 'Delacroix Maritime Logistics', jobTitle: 'Founder & CEO',
       type: 'buyer', status: 'active', rating: 5, isWhale: true, leadSource: 'Referral', referredBy: 'marcus',
       tags: ['waterfront', 'boater', 'relocation', 'schools', 'under-contract'],
-      street: '2900 Bayshore Villas Ct', unit: '4', neighborhood: 'Coconut Grove', birthday: bd(118, 1980),
+      street: '2900 Bayshore Villas Court', unit: '4', neighborhood: 'Coconut Grove', birthday: bd(118, 1980),
       personal: {
         spouse: { name: 'Camille', birthday: ctx.mmdd(201) },
         kids: [{ name: 'Léa', age: 11, school: 'Biscayne Prep' }, { name: 'Marius', age: 8, school: 'Biscayne Prep' }],
@@ -56,7 +56,7 @@ module.exports = function coreClients(ctx) {
       company: 'Ashcombe Capital Partners', jobTitle: 'Founder & CIO',
       type: 'buyer', status: 'active', rating: 5, isWhale: true, leadSource: 'Referral', referredBy: 'sterling',
       tags: ['whale', 'oceanfront', 'relocation', 'cash', 'privacy'],
-      street: '88 Laight Street', unit: 'PH', city: 'New York', state: 'NY', zip: '10013', birthday: bd(156, 1974),
+      city: 'New York', state: 'NY', zip: '10013', birthday: bd(156, 1974),
       personal: {
         kids: [{ name: 'Henry', age: 19, school: 'University (sophomore)' }, { name: 'Clementine', age: 16, school: 'Wexford School, Connecticut' }],
         pets: ['Pip & Juno — whippets'],
@@ -71,7 +71,7 @@ module.exports = function coreClients(ctx) {
       financing: 'cash_pof', timeline: '90d', purchasePower: 45000000,
       motivation: 'Moving her family office to Florida and wants domicile established before year-end; oceanfront or nothing.',
       since: 41,
-      aiSummary: 'Cash buyer at $25–45M relocating her fund from Manhattan; oceanfront only, with privacy and staff quarters. She passed on three Golden Beach houses for ceiling heights and setbacks, but the quiet Golden Beach whisper and the {date:-3} price drop on Ocean Boulevard are live. Dinner tonight at Osteria Vela.',
+      aiSummary: 'Cash buyer at $25–45M relocating her fund from Manhattan; oceanfront only, with privacy and staff quarters. She passed on three Golden Beach houses for ceiling heights and setbacks, but the owner-quiet Golden Beach whisper and the {date:-3} price cut at 455 Seagrape Shore Drive (now $29.5M) are live. Dinner tonight at Osteria Vela.',
       aiFacts: {
         mustHaves: ['Oceanfront with private beach', 'Gated + staff quarters', '12-ft+ ceilings', 'Gym + spa'],
         dealBreakers: ['Busy A1A frontage', 'Visible from neighbors’ terraces'],
@@ -164,7 +164,7 @@ module.exports = function coreClients(ctx) {
       company: 'Ledgerline', jobTitle: 'Co-founder & CEO',
       type: 'buyer', status: 'active', rating: 4, leadSource: 'Referral', referredBy: 'maya',
       tags: ['relocation', 'schools', 'tech', 'coconut-grove', 'coral-gables'],
-      street: '2410 Vallejo Street', city: 'San Francisco', state: 'CA', zip: '94123', birthday: bd(173, 1987),
+      city: 'San Francisco', state: 'CA', zip: '94123', birthday: bd(173, 1987),
       personal: {
         spouse: { name: 'Dev', note: 'ML researcher, works remote; wants a real office with a door' },
         kids: [{ name: 'Anaya', age: 9 }, { name: 'Rohan', age: 6 }],
@@ -185,7 +185,7 @@ module.exports = function coreClients(ctx) {
       company: 'Banyan Spirits', jobTitle: 'Co-founder',
       type: 'buyer', status: 'active', rating: 4, leadSource: 'Zillow',
       tags: ['family', 'pool', 'pinecrest', 'under-contract'],
-      street: '7420 SW 62nd Ct', city: 'South Miami', state: 'FL', zip: '33143', birthday: bd(212, 1982),
+      street: '7420 Sunrise Hammock Lane', city: 'South Miami', state: 'FL', zip: '33143', birthday: bd(212, 1982),
       personal: {
         spouse: { name: 'Mara' },
         kids: [{ name: 'Jack', age: 12, school: 'Pinecrest Day' }, { name: 'Sadie', age: 9, school: 'Pinecrest Day' }, { name: 'Wren', age: 4 }],
@@ -211,7 +211,7 @@ module.exports = function coreClients(ctx) {
       company: 'Montoya Holdings', jobTitle: 'Principal',
       type: 'investor', status: 'active', rating: 5, isWhale: true, leadSource: 'Developer', referredBy: 'lorenzo',
       tags: ['pre-construction', 'investor', 'whale', 'spanish', 'casa-palmera'],
-      street: '1520 Granada Blvd', neighborhood: 'Coral Gables', birthday: bd(64, 1977),
+      street: '1520 Alcazar Vista Way', neighborhood: 'Coral Gables', birthday: bd(64, 1977),
       personal: {
         spouse: { name: 'Lucía' },
         kids: [{ name: 'Mateo', age: 15, school: 'Saint Aurelia Academy' }, { name: 'Valentina', age: 12, school: 'Saint Aurelia Academy' }],
@@ -220,7 +220,7 @@ module.exports = function coreClients(ctx) {
       },
       preferredChannel: 'imessage', deviceMode: 'imessage', financing: 'cash_pof', timeline: '12mo', purchasePower: 25000000, since: 520,
       motivation: 'Builds a portfolio of pre-construction units and flips about half at delivery.',
-      aiSummary: 'Reserved Penthouse B at Casa Palmera Residences ($9.85M) through the Phase I early release; the second 10% deposit is due {date:+9}. Owns two rented condos in Edgewater and Brickell and is first in line for Phase II. Communicates in quick Spanish-English bursts.',
+      aiSummary: 'Reserved Penthouse B at Casa Palmera Residences ($9.85M) through the Phase I early release; the second 10% deposit is due {date:rafaelDeposit}. Owns two rented condos in Edgewater and Brickell and is first in line for Phase II. Communicates in quick Spanish-English bursts.',
     },
 
     // ── 9. Nadia Karimova — Fisher Island, tour today

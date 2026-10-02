@@ -26,7 +26,7 @@ const onBoard = (d) => d && d.stage !== 'lost' && !d.archivedAt;
 function mergePatch(a, b) {
   const out = { ...a };
   for (const [k, v] of Object.entries(b || {})) {
-    if (['contingencies', 'depositSchedule', 'extras'].includes(k) && v && typeof v === 'object' && !Array.isArray(v)) out[k] = { ...(a[k] || {}), ...v };
+    if (['contingencies', 'depositSchedule', 'extras'].includes(k) && v && typeof v === 'object' && !Array.isArray(v) && !Array.isArray(a[k])) out[k] = { ...(a[k] || {}), ...v };
     else out[k] = v;
   }
   return out;
@@ -37,8 +37,8 @@ function applyLocal(deal, patch) {
   if (!patch) return deal;
   const next = { ...deal };
   for (const [k, v] of Object.entries(patch)) {
-    if (['contingencies', 'depositSchedule', 'extras'].includes(k) && v && typeof v === 'object') {
-      const merged = { ...(deal[k] || {}) };
+    if (['contingencies', 'depositSchedule', 'extras'].includes(k) && v && typeof v === 'object' && !Array.isArray(v)) {
+      const merged = { ...(Array.isArray(deal[k]) ? {} : (deal[k] || {})) };
       for (const [kk, vv] of Object.entries(v)) { if (vv === null) delete merged[kk]; else merged[kk] = vv; }
       next[k] = merged;
     } else next[k] = v;

@@ -9,8 +9,9 @@ import { toast, confirm } from '../../ui/toast';
 import { nav } from '../../../lib/nav';
 import { formatPhone, moneyCompact, formatDate } from '../../../lib/format';
 import { deleteLink } from '../../../api/clients';
+import { heroLine } from './CardHero';
 import {
-  SectionTitle, InfoRow, PERSONAL_FIELDS, FINANCING_LABEL, TIMELINE_LABEL, RELATION_LABEL, displayName, copyText, humanize, cap,
+  SectionTitle, InfoRow, PERSONAL_FIELDS, PERSONAL_HIDDEN, FINANCING_LABEL, TIMELINE_LABEL, RELATION_LABEL, displayName, copyText, humanize, cap, fmtPersonal,
 } from '../clientKit';
 
 const STAGE = {
@@ -43,7 +44,7 @@ function Briefing({ client, briefing, loading, onRefresh, refreshing }) {
           {refreshing ? <Spinner size={14} /> : <Icon name="refresh" size={15} />}
         </button>
       </div>
-      <div style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.35, marginTop: 8 }}>{briefing.statusLine}</div>
+      {heroLine(client, briefing) !== briefing.statusLine ? <div style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.35, marginTop: 8 }}>{briefing.statusLine}</div> : null}
       {briefing.recommendedMove ? (
         <div className="kc-brief-move">
           <div className="kc-eyebrow" style={{ color: 'var(--bright)', marginBottom: 4 }}>Next move</div>
@@ -167,7 +168,11 @@ export default function ProfileTab({ client, briefing, briefingLoading, refreshi
   const [copied, setCopied] = useState(false);
   const hasDetail = !!client._detail;
   const p = (client.personal && typeof client.personal === 'object') ? client.personal : {};
-  const touch = PERSONAL_FIELDS.filter((f) => p[f.key]);
+  const known = new Set(PERSONAL_FIELDS.map((f) => f.key));
+  const touch = [
+    ...PERSONAL_FIELDS.filter((f) => fmtPersonal(p[f.key])),
+    ...Object.keys(p).filter((k) => !known.has(k) && !PERSONAL_HIDDEN.has(k) && fmtPersonal(p[k])).map((k) => ({ key: k, label: humanize(k.replace(/([a-z])([A-Z])/g, '$1_$2')).toLowerCase().replace(/^\w/, (m) => m.toUpperCase()), icon: 'sparkle' })),
+  ];
   const address = [client.street ? `${client.street}${client.unit ? ` #${client.unit}` : ''}` : null, [client.city, [client.state, client.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ')].filter(Boolean).join('\n');
   const birthday = client.birthday ? (client.birthday.startsWith('--') ? new Date(`2000-${client.birthday.slice(2)}T12:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : new Date(`${client.birthday}T12:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })) : null;
   const copyAll = () => {
@@ -205,7 +210,7 @@ export default function ProfileTab({ client, briefing, briefingLoading, refreshi
           {touch.length ? (
             <div className="kc-touch">
               {touch.map((f) => (
-                <span key={f.key} className="km-selectable"><Icon name={f.icon} size={12} color="var(--faint)" /><em>{f.label}</em> {Array.isArray(p[f.key]) ? p[f.key].join(', ') : String(p[f.key])}</span>
+                <span key={f.key} className="km-selectable"><Icon name={f.icon} size={12} color="var(--faint)" /><em>{f.label}</em> {fmtPersonal(p[f.key])}</span>
               ))}
             </div>
           ) : (

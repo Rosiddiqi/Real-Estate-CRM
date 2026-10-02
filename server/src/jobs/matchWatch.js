@@ -8,6 +8,7 @@ const { scheduleRescore } = require('../services/matchmaker/engine');
 const { bustPool } = require('../services/matchmaker/pool');
 
 const last = new Map(); // workspaceId -> fingerprint
+let firstPass = true; // boot rescore (match-rescore job) covers workspaces that exist at boot
 
 async function fingerprint(workspaceId) {
   const [s, p, l, c] = await Promise.all([
@@ -48,7 +49,9 @@ module.exports = {
         const fp = await fingerprint(w.id);
         const prev = last.get(w.id);
         last.set(w.id, fp);
-        if (prev && prev !== fp) {
+        // changed since last minute — or a workspace created after boot
+        // (signup, demo seed): score it now instead of waiting for 3:15 AM
+        if ((prev && prev !== fp) || (!prev && !firstPass)) {
           bustPool(w.id);
           scheduleRescore(w.id, { all: true, delay: 2000 });
         }
@@ -57,5 +60,6 @@ module.exports = {
         console.error('[match-watch] failed for', w.id, err.message);
       }
     }
+    firstPass = false;
   },
 };

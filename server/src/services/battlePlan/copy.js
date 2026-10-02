@@ -16,7 +16,7 @@ const REASONS = {
   lease: { label: 'LEASE ENDING', sentence: 'Their lease is ending — buy vs. renew' },
   equity: { label: 'EQUITY WINDOW', sentence: 'Their loan is resetting or maturing' },
   anniversary: { label: 'HOME ANNIVERSARY', sentence: 'Home-purchase anniversary — annual value check' },
-  birthday: { label: 'BIRTHDAY', sentence: 'Birthday coming up' },
+  birthday: { label: 'BIRTHDAY', sentence: 'Birthday on file' },
   search: { label: 'STILL SEARCHING', sentence: 'Still searching — nothing has clicked yet' },
   pipeline: { label: 'GONE QUIET', sentence: 'Their deal has gone quiet' },
   showing: { label: 'SHOWING FEEDBACK', sentence: 'Showing ended — no feedback logged yet' },
@@ -115,8 +115,8 @@ function fallbackSummary(moves, { offDay } = {}) {
   if (calls) parts.push(`${calls} call${calls === 1 ? '' : 's'}`);
   if (texts) parts.push(`${texts} text${texts === 1 ? '' : 's'}`);
   return {
-    summary: clip(`${parts.join(' and ')} queued — start with ${top.title.replace(/^(Call|Text|Send|Reply to) /, '')}.`, 90),
-    narrative: clip(`Start with **${top.title}** — ${top.why ? top.why.charAt(0).toLowerCase() + top.why.slice(1) : 'it scores highest today'} ${tasks.length > 1 ? `Then work down the list; ${tasks.length - 1} more are ranked behind it.` : ''}`, 280),
+    summary: clip(`${parts.join(' and ')} queued — start with ${(top.meta && top.meta.ctx && top.meta.ctx.first) || (top.ctx && top.ctx.first) || 'the top one'}.`, 90),
+    narrative: clip(`Start with **${top.title}**. ${top.why || 'It scores highest today.'} ${tasks.length > 1 ? `Then work down the list — ${tasks.length - 1} more ${tasks.length - 1 === 1 ? 'is' : 'are'} ranked behind it.` : ''}`.trim(), 280),
   };
 }
 

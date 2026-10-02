@@ -23,8 +23,9 @@ import TileDetailSheet from './TileDetailSheet';
 import TrainAiSheet from './TrainAiSheet';
 import useTodoBoard from './useTodoBoard';
 import { moveScore, rankTodos } from './ranking';
-import { dateKey, shiftKey, keyToDate } from './time';
+import { dateKey, shiftKey, keyToDate, agentTz } from './time';
 import '../../styles/dashboard.css';
+import useAgentTz from './useAgentTz';
 
 const SUGGEST_VISIBLE = 3;
 const REASON_COLOR = {
@@ -44,7 +45,7 @@ function taskMeta(t) {
   if (t.rolledOver && t.dueKey) { parts.push(`Rolled over · from ${dayLabel(t.dueKey)}`); hot = true; } else if (t.dueAt) {
     const due = new Date(t.dueAt);
     const overdue = due.getTime() < Date.now();
-    const label = due.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+    const label = due.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit', timeZone: agentTz() });
     parts.push(overdue ? `Overdue · ${label}` : `Due ${label}`);
     hot = overdue;
   } else if (t.dueKey) {
@@ -52,12 +53,11 @@ function taskMeta(t) {
     else if (t.dueKey === shiftKey(today, 1)) parts.push('Tomorrow');
     else if (t.dueKey < today) { parts.push(`Overdue · ${dayLabel(t.dueKey)}`); hot = true; } else parts.push(`Due ${dayLabel(t.dueKey)}`);
   } else if (t.createdAt) {
-    const start = new Date(); start.setHours(0, 0, 0, 0);
-    const created = new Date(t.createdAt);
-    const days = Math.round((start.getTime() - new Date(created).setHours(0, 0, 0, 0)) / 864e5);
+    const ck = dateKey(new Date(t.createdAt));
+    const days = Math.round((keyToDate(today) - keyToDate(ck)) / 864e5);
     if (days === 1) parts.push('Since yesterday');
-    else if (days > 1 && days < 7) parts.push(`Since ${created.toLocaleDateString('en-US', { weekday: 'long' })}`);
-    else if (days >= 7) parts.push(`Since ${created.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`);
+    else if (days > 1 && days < 7) parts.push(`Since ${keyToDate(ck).toLocaleDateString('en-US', { weekday: 'long' })}`);
+    else if (days >= 7) parts.push(`Since ${keyToDate(ck).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`);
   }
   if (t.priority === 2) { parts.unshift('Urgent'); hot = true; } else if (t.priority === 1) { parts.unshift('High priority'); hot = true; }
   const name = t.client && t.client.name;
@@ -231,6 +231,7 @@ function SkeletonTiles() {
 }
 
 export default function TodoPanel({ onNavigate, style }) {
+  useAgentTz();
   const board = useTodoBoard();
   const [showAll, setShowAll] = useState(false);
   const [doneOpen, setDoneOpen] = useState(false);

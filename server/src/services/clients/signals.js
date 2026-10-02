@@ -72,7 +72,7 @@ async function upcomingAnniversaries({ workspaceId, days = 30, now = new Date() 
     out.push({
       kind: 'home_anniversary', clientId: p.clientId, client: S.mini(p.client), propertyId: p.id, propertyTitle: p.title,
       days: d.anniversaryInDays, date: d.anniversaryDate, years: d.anniversaryYears,
-      title: d.anniversaryInDays === 0 ? `${d.anniversaryYears} years at ${p.title} today` : `${d.anniversaryYears}-year home anniversary in ${d.anniversaryInDays} days`,
+      title: d.anniversaryInDays === 0 ? `${first(p.client)}: ${d.anniversaryYears} years at ${p.title} today` : `${first(p.client)}’s ${d.anniversaryYears}-year home anniversary in ${d.anniversaryInDays} days`,
       sub: [p.title, d.appreciation ? `${d.appreciation >= 0 ? '+' : '−'}${moneyShort(Math.abs(d.appreciation))} est.` : null].filter(Boolean).join(' · '),
       urgency: (milestone ? 0.75 : 0.5) + (d.anniversaryInDays <= 7 ? 0.2 : 0),
       meta: { appreciation: d.appreciation ?? null, equity: d.equity ?? null, milestone },
@@ -90,7 +90,7 @@ async function armResets({ workspaceId, days = 180, maturityDays = 365 } = {}) {
   const out = [];
   for (const p of props) {
     const d = p.derived;
-    const rate = p.mortgageRate ? `${(p.mortgageRate * 100).toFixed(3).replace(/\.?0+$/, '')}%` : null;
+    const rate = p.mortgageRate ? `${(p.mortgageRate > 1 ? p.mortgageRate : p.mortgageRate * 100).toFixed(3).replace(/\.?0+$/, '')}%` : null;
     const armYears = p.meta && p.meta.armFixedYears ? `${p.meta.armFixedYears}/1 ARM` : 'ARM';
     if (d.daysToReset != null && d.daysToReset >= 0 && d.daysToReset <= days) {
       out.push({
@@ -106,7 +106,7 @@ async function armResets({ workspaceId, days = 180, maturityDays = 365 } = {}) {
       out.push({
         kind: 'loan_maturity', clientId: p.clientId, client: S.mini(p.client), propertyId: p.id, propertyTitle: p.title,
         days: d.daysToMaturity, date: p.loanMaturesAt,
-        title: `${p.loanType === 'balloon' ? 'Balloon' : 'Interest-only period'} due in ${d.daysToMaturity >= 60 ? `${Math.round(d.daysToMaturity / 30.4)} months` : `${d.daysToMaturity} days`}`,
+        title: `${first(p.client)}’s ${p.loanType === 'balloon' ? 'balloon' : 'interest-only period'} ends in ${d.daysToMaturity >= 60 ? `${Math.round(d.daysToMaturity / 30.4)} months` : `${d.daysToMaturity} days`}`,
         sub: [p.title, p.mortgageBalance ? `${moneyShort(p.mortgageBalance)} balance` : null].filter(Boolean).join(' · '),
         urgency: d.daysToMaturity <= 90 ? 0.9 : 0.5,
         meta: { loanType: p.loanType, balance: p.mortgageBalance },
@@ -127,7 +127,7 @@ async function leaseExpiries({ workspaceId, days = 120 } = {}) {
     out.push({
       kind: renter ? 'lease_expiry' : 'tenant_lease_expiry', clientId: p.clientId, client: S.mini(p.client), propertyId: p.id, propertyTitle: p.title,
       days: n, date: p.leaseEndsAt,
-      title: renter ? `${first(p.client)}’s lease ends in ${n} days` : `Tenant lease at ${p.title} ends in ${n} days`,
+      title: renter ? `${first(p.client)}’s lease ends in ${n} days` : `${first(p.client)}’s tenant lease at ${p.title} ends in ${n} days`,
       sub: renter
         ? [p.title, p.rentAmount ? `${moneyShort(p.rentAmount)}/mo` : null, 'buy-vs-renew conversation'].filter(Boolean).join(' · ')
         : [p.rentAmount ? `${moneyShort(p.rentAmount)}/mo` : null, 're-lease or sell'].filter(Boolean).join(' · '),
@@ -153,7 +153,7 @@ async function equityMilestones({ workspaceId, minAppreciationPct = 0.5, minEqui
     if (!reasons.length) continue;
     out.push({
       kind: 'equity_milestone', clientId: p.clientId, client: S.mini(p.client), propertyId: p.id, propertyTitle: p.title,
-      title: reasons[0], sub: [p.title, reasons[1] || (d.equity != null ? `${moneyShort(d.equity)} est. equity` : null)].filter(Boolean).join(' · '),
+      title: `${first(p.client)}: ${reasons[0].charAt(0).toLowerCase()}${reasons[0].slice(1)}`, sub: [p.title, reasons[1] || (d.equity != null ? `${moneyShort(d.equity)} est. equity` : null)].filter(Boolean).join(' · '),
       urgency: Math.min(0.85, 0.35 + (d.appreciationPct || 0) / 4),
       meta: { appreciation: d.appreciation ?? null, appreciationPct: d.appreciationPct ?? null, equity: d.equity ?? null, ltv: d.ltv ?? null, estValue: p.estValue, thinkingOfSelling: !!p.thinkingOfSelling },
     });
@@ -175,7 +175,7 @@ async function silentClients({ workspaceId, days = 30, minRating = 0, limit = 50
     if (n < days) continue;
     out.push({
       kind: 'silent', clientId: c.id, client: S.mini(c), days: n, lastTouchAt: last,
-      title: last ? `Silent ${n} days` : `No touch since added ${n} days ago`,
+      title: last ? `${first(c)} has been silent ${n} days` : `No touch with ${first(c)} since added ${n} days ago`,
       sub: [c.isWhale ? 'Whale' : null, c.rating ? `${c.rating}★` : null, c.lifetimeVolume ? `${moneyShort(c.lifetimeVolume)} lifetime` : null].filter(Boolean).join(' · ') || null,
       urgency: Math.min(1, 0.3 + (c.isWhale ? 0.35 : 0) + (c.rating || 0) * 0.06 + Math.min(0.2, n / 600)),
       meta: { rating: c.rating, isWhale: c.isWhale },

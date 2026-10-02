@@ -46,6 +46,8 @@
   background: rgba(46, 139, 255, 0.26); filter: blur(42px); pointer-events: none;
 }
 .kc-hero-row { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; }
+.kc-hero-head > * { max-width: 760px; margin-left: auto; margin-right: auto; }
+.kc-tabwrap, .kc-searchrow { width: 100%; max-width: 788px; margin-left: auto; margin-right: auto; }
 .kc-eyebrow-brand { font-size: 10px; font-weight: 700; letter-spacing: 0.24em; color: var(--bright); opacity: 0.9; }
 .kc-title-xl { font-family: var(--font-display); font-size: 32px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin-top: 4px; }
 .kc-stats { display: flex; gap: 14px; font-size: 12px; font-weight: 500; color: var(--dim); margin-top: 5px; }
@@ -80,6 +82,8 @@
 .kc-row-sub { font-size: 12px; color: var(--dim); margin-top: 1px; }
 .kc-row-stars { margin-top: 3px; display: flex; gap: 1px; }
 .kc-chev { color: var(--faint); flex-shrink: 0; }
+.kc-list--az .kc-row { padding-right: 30px; }
+.kc-list--az .kc-chev { display: none; }
 
 .kc-swipe { position: relative; overflow: hidden; }
 .kc-swipe-act {
@@ -89,11 +93,11 @@
 .kc-swipe-body { touch-action: pan-y; background: var(--bg); will-change: transform; }
 
 .kc-scrubber {
-  position: absolute; right: 2px; top: 50%; transform: translateY(-50%); z-index: 5;
-  display: flex; flex-direction: column; align-items: center; padding: 6px 3px; border-radius: 12px;
+  position: absolute; right: max(1px, calc((100% - 760px) / 2 - 26px)); top: 14px; z-index: 5;
+  display: flex; flex-direction: column; align-items: center; padding: 4px 2px; border-radius: 12px;
   touch-action: none; user-select: none; -webkit-user-select: none;
 }
-.kc-scrubber button { font-size: 10.5px; font-weight: 600; line-height: 1; padding: 1.5px 4px; color: var(--blue); }
+.kc-scrubber button { font-size: 10px; font-weight: 600; line-height: 1; padding: 1px 4px; color: var(--blue); }
 .kc-scrubber button.kc-off { color: var(--ghost); }
 .kc-scrub-bubble {
   position: absolute; right: 34px; width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -410,4 +414,30 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .kc-hero-collapse, .kc-acc, .kc-swipe-body { transition: none !important; }
+}
+
+/* card tabs: five labels must fit at 375px */
+.kc-tabs { padding-left: 10px; padding-right: 10px; }
+.kc-tabs [role="tab"] { padding: 0 1px !important; letter-spacing: -0.015em; }
+.kc-tabs [role="tab"] .km-truncate { overflow: visible; }
+.kc-as-group.km-lg--menu { background: color-mix(in srgb, var(--surfaceHi) 92%, transparent); }
+
+/* Short phones (iPhone SE / mini): a tighter hero so the tabs keep room. */
+@media (max-height: 760px) {
+  .kc-hud { display: none; }
+  .kc-halo { width: 64px; height: 64px; }
+  .kc-halo svg { transform: scale(0.762); transform-origin: 0 0; }
+  .kc-puck { width: 46px; height: 46px; }
+  .kc-name { font-size: 19px; margin-top: 4px; }
+  .kc-role { font-size: 12px; }
+  .kc-hero .kc-contactlines { flex-direction: row !important; flex-wrap: wrap; justify-content: center; gap: 0 4px !important; }
+  .kc-money { margin-top: 8px; }
+  .kc-money-cell { padding: 7px 4px 6px; }
+  .kc-summary { display: none; }
+  .kc-pills { margin-top: 6px; }
+  .kc-chiprow { margin-top: 5px; }
+  .kc-seam { margin-top: 8px; }
+  .kc-acts { margin-top: 8px; }
+  .kc-act-c { width: 36px; height: 36px; }
+  .kc-act span:last-child { font-size: 9.5px; }
 }

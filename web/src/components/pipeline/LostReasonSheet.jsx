@@ -14,7 +14,30 @@ export default function LostReasonSheet({ deal, open, onClose, onConfirm }) {
   if (!deal) return null;
   const presets = (cfg && (cfg.lostReasons[deal.side] || cfg.lostReasons.buyer)) || [];
   return (
-    <Sheet open={open} onClose={onClose} title={`Move ${deal.name || 'this deal'} to Lost?`} left={false} zIndex={520}>
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title={`Move ${deal.name || 'this deal'} to Lost?`}
+      left={false}
+      zIndex={520}
+      footer={(
+      <div className="km-pl-btnrow" style={{ marginTop: 0 }}>
+        <button type="button" className="km-pl-btn km-press" onClick={onClose}>Cancel</button>
+        <button
+          type="button"
+          className="km-pl-btn km-pl-btn--danger km-press"
+          style={{ flex: 1.4 }}
+          disabled={!reason || busy}
+          onClick={async () => {
+            setBusy(true);
+            try { await onConfirm(reason.trim()); } finally { setBusy(false); }
+          }}
+        >
+          {busy ? 'Marking…' : 'Mark as Lost'}
+        </button>
+      </div>
+      )}
+    >
       <div className="km-pl-serena">
         <b>SERENA</b>
         Before I close this out — what happened? I’ll keep the note on the card so you can see the pattern over time.
@@ -39,21 +62,6 @@ export default function LostReasonSheet({ deal, open, onClose, onConfirm }) {
         onChange={(e) => { setReason(e.target.value); setPreset(null); }}
         style={{ minHeight: 84 }}
       />
-      <div className="km-pl-btnrow">
-        <button type="button" className="km-pl-btn km-press" onClick={onClose}>Cancel</button>
-        <button
-          type="button"
-          className="km-pl-btn km-pl-btn--danger km-press"
-          style={{ flex: 1.4 }}
-          disabled={!reason || busy}
-          onClick={async () => {
-            setBusy(true);
-            try { await onConfirm(reason.trim()); } finally { setBusy(false); }
-          }}
-        >
-          {busy ? 'Marking…' : 'Mark as Lost'}
-        </button>
-      </div>
     </Sheet>
   );
 }

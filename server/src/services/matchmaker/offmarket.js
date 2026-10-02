@@ -91,8 +91,8 @@ const TRIGGER_WORD = { tenure: 'tenure', loan_event: 'loan event', stated_intent
 function narrativeFor(owner, buyer, trigger, place) {
   const o = firstOf(owner);
   const b = buyer.first;
-  if (trigger) return `${trigger.label}: ${o}'s ${place || 'home'} fits ${b}'s ${buyer.bucket.toLowerCase()} search${buyer.searchSummary ? ` (${buyer.searchSummary})` : ''}.`.slice(0, 180);
-  return `${o}'s ${place || 'home'} fits ${b}'s ${buyer.bucket.toLowerCase()} search. No sell signal yet — worth a soft ask.`.slice(0, 180);
+  if (trigger) return `${trigger.label}. ${o}'s ${place ? `${place} home` : 'home'} fits ${b}'s ${buyer.bucket.toLowerCase()} search.`.slice(0, 180);
+  return `${o}'s ${place ? `${place} home` : 'home'} fits ${b}'s ${buyer.bucket.toLowerCase()} search. No sell signal yet — worth a soft ask.`.slice(0, 180);
 }
 
 async function loadSupply(workspaceId) {
@@ -104,7 +104,7 @@ async function loadSupply(workspaceId) {
   const clientIds = [...new Set(props.map((p) => p.clientId))];
   const [links, priorListings] = await Promise.all([
     clientIds.length ? prisma.clientLink.findMany({ where: { workspaceId, OR: [{ clientId: { in: clientIds } }, { relatedClientId: { in: clientIds } }] } }) : [],
-    clientIds.length ? prisma.listing.findMany({ where: { workspaceId, ownerClientId: { in: clientIds } }, select: { id: true, ownerClientId: true, status: true, updatedAt: true } }) : [],
+    clientIds.length ? prisma.listing.findMany({ where: { workspaceId, OR: [{ ownerClientId: { in: clientIds } }, { id: { in: props.map((p) => p.listingId).filter(Boolean) } }] }, select: { id: true, ownerClientId: true, status: true, updatedAt: true, droppedAt: true, street: true, unitNumber: true } }) : [],
   ]);
   const linked = new Map();
   for (const l of links) {
@@ -119,6 +119,16 @@ async function loadSupply(workspaceId) {
     byOwner.get(p.clientId).push(p);
   }
   return { props, linked, priorListings, byOwner };
+}
+
+// A home already on the agent's books (active / coming soon / pocket / under
+// contract) is matched as a LISTING — pairing it again as "off-market" would
+// show the same home twice with two different stories.
+const DEAD = new Set(['sold', 'withdrawn', 'expired', 'cancelled', 'canceled', 'closed']);
+const addrKey = (street, unit) => `${String(street || '').toLowerCase().replace(/[^a-z0-9]/g, '')}#${String(unit || '').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+function onMarketListing(pp, listings) {
+  return listings.find((l) => !l.droppedAt && !DEAD.has(String(l.status || '').toLowerCase())
+    && (l.id === pp.listingId || (l.ownerClientId === pp.clientId && pp.street && addrKey(l.street, l.unitNumber) === addrKey(pp.street, pp.unit)))) || null;
 }
 
 function placeOf(pp) {
@@ -139,6 +149,7 @@ async function computePairs(workspaceId, { pool, minScore = PAIR_FLOOR } = {}) {
   const now = Date.now();
   const out = [];
   for (const pp of props) {
+    if (onMarketListing(pp, priorListings)) continue;
     const subject = propertyAsListing(pp);
     const rows = scoreSubject(subject, p, {
       ownerClientId: pp.clientId, ownerName: clientName(pp.client),

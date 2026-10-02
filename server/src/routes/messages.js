@@ -63,10 +63,10 @@ const sendSchema = z.object({
 router.post('/send', ah(async (req, res) => {
   const b = parse(sendSchema, req.body || {});
   if (!b.conversationId && !b.clientId && !b.handle) throw new HttpError(400, 'conversationId, clientId or handle is required');
-  const meta = b.meta ? { ...b.meta } : null;
+  let meta = b.meta ? { ...b.meta } : null;
   if (b.replyToId) {
     const parent = await prisma.message.findFirst({ where: { id: b.replyToId, workspaceId: req.workspaceId }, select: { id: true, body: true, isFromMe: true } });
-    if (parent) Object.assign(meta || (b.meta = {}), { replyTo: { id: parent.id, body: (parent.body || '').slice(0, 140), isFromMe: parent.isFromMe } });
+    if (parent) meta = { ...(meta || {}), replyTo: { id: parent.id, body: (parent.body || '').slice(0, 140), isFromMe: parent.isFromMe } };
   }
   const out = await sendMessage({
     workspaceId: req.workspaceId,
@@ -83,7 +83,7 @@ router.post('/send', ah(async (req, res) => {
     listingId: b.listingId,
     replyToId: b.replyToId,
     aiGenerated: b.aiGenerated,
-    meta: meta || b.meta,
+    meta,
     source: 'agent',
   });
   res.status(201).json(out);
@@ -121,8 +121,10 @@ router.post('/suggestions', ah(async (req, res) => {
   res.json(await msgAi.suggestReplies({ workspaceId: req.workspaceId, conversationId: b.conversationId, refresh: b.refresh }));
 }));
 
+// Also used by the inbox AI card ("Not right? Give feedback") with kind 'inbox_triage'.
 router.post('/suggestions/feedback', ah(async (req, res) => {
   const b = parse(z.object({
+    kind: z.enum(['reply_suggestion', 'inbox_triage', 'thread_summary', 'briefing']).optional(),
     conversationId: z.string(),
     text: z.string().max(1000),
     tone: z.string().max(40).optional(),
@@ -134,7 +136,7 @@ router.post('/suggestions/feedback', ah(async (req, res) => {
     data: {
       workspaceId: req.workspaceId,
       userId: req.userId,
-      kind: 'reply_suggestion',
+      kind: b.kind || 'reply_suggestion',
       contextId: b.conversationId,
       isCorrect: b.isCorrect,
       feedback: b.text,

@@ -11,14 +11,13 @@ import { Button, EmptyState } from '../../components/ui/kit';
 import { toast } from '../../components/ui/toast';
 import { nav } from '../../lib/nav';
 import { moneyCompact } from '../../lib/format';
-import { haptic } from '../../lib/native';
 import KanbanBoard from '../../components/pipeline/KanbanBoard';
 import NewDevLane from '../../components/pipeline/NewDevLane';
 import LostReasonSheet from '../../components/pipeline/LostReasonSheet';
-import { runWonFlow } from '../../components/pipeline/WonFlow';
+import { moveWithFlow } from '../../components/pipeline/actions';
 import { stageForPhase, usePipelineConfig } from '../../components/pipeline/config';
 import {
-  bookClose, flushDeal, getDealSync, loadBoard, moveDeal, removeDeal, reopenDeal, updateDeal,
+  flushDeal, getDealSync, loadBoard, moveDeal, removeDeal, reopenDeal, updateDeal,
   useBoardDeals, useDealRealtime,
 } from '../../components/pipeline/dealStore';
 import '../../styles/pipeline.css';
@@ -27,32 +26,6 @@ const FILTER_KEY = 'km-pl-filter';
 const LANE_KEY = 'km-pl-lane';
 const read = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
 const write = (k, v) => { try { localStorage.setItem(k, v); } catch { /* ignore */ } };
-
-// Shared "move with all the side effects" used by the board, lane and Deal sheet.
-export async function moveWithFlow(deal, stage, { track, quiet = false, undo = true } = {}) {
-  const closing = stage === 'closed' && deal.stage !== 'closed';
-  const prevStage = deal.stage;
-  const p = moveDeal(deal.id, stage, track ? { track } : {});
-  if (closing) {
-    haptic('success');
-    const res = await runWonFlow({ ...deal, stage: 'closed' });
-    try {
-      await p;
-      if (res && (res.commission != null || res.closedAt)) {
-        await bookClose(deal.id, res);
-        toast.success(res.commission ? `Booked ${moneyCompact(res.commission)} on ${deal.name}` : 'Closing date saved');
-      }
-    } catch { /* store already rolled back + toasted */ }
-    return;
-  }
-  try {
-    const moved = await p;
-    if (!quiet && moved) {
-      haptic('light');
-      toast(`${deal.name} → ${moved.label}`, undo ? { action: { label: 'Undo', onClick: () => moveDeal(deal.id, prevStage, { quiet: true }).catch(() => {}) } } : undefined);
-    }
-  } catch { /* toasted */ }
-}
 
 export default function PipelinePage({ focus, onClose }) {
   const { cfg, error: cfgError, reload } = usePipelineConfig();
@@ -192,11 +165,11 @@ export default function PipelinePage({ focus, onClose }) {
       <div ref={pageRef} className="km-pl-scroll">
         <div className="km-pl-stats" role="group" aria-label="Pipeline totals">
           <div className="km-pl-stat">
-            <div className="km-pl-eyebrow">Open deals</div>
+            <div className="km-pl-eyebrow">Open</div>
             <div className="km-pl-stat-v">{loading ? '–' : totals.open}</div>
           </div>
           <div className="km-pl-stat">
-            <div className="km-pl-eyebrow">Pipeline volume</div>
+            <div className="km-pl-eyebrow">Volume</div>
             <div className="km-pl-stat-v" style={{ color: 'var(--blue)' }}>{loading ? '–' : moneyCompact(totals.volume)}</div>
           </div>
           <div className="km-pl-stat">

@@ -301,7 +301,7 @@ async function commissionsSummary(workspaceId, { now = new Date(), historyMonths
       receivable.total += amount;
       if (status === 'received') receivable.received += amount; else receivable.pending += amount;
     }
-    if (d.referralOutPct && d.referralOutPct > 0) {
+    if (d.side !== 'referral_out' && d.referralOutPct && d.referralOutPct > 0) {
       const amount = e.referralOut;
       const status = d.stage === 'closed' ? (ex.referralPaid ? 'paid' : 'due') : 'pending';
       payable.rows.push({ ...base, amount, status, pct: d.referralOutPct });

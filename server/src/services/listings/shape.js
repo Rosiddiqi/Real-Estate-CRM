@@ -19,9 +19,12 @@ const LANE_BY_ID = Object.fromEntries(LANES.map((l) => [l.id, l]));
 function laneOf(l) {
   const o = String(l.origin || '').toLowerCase();
   if (o === 'whisper') return 'whisper';
-  if (l.isOwnListing || o === 'own') return 'mine';
+  // an agent's own pocket / new-dev units keep their private lane (their
+  // privacy + badges matter more than "mine"); "mine" = own public listings
+  if (o === 'pocket') return 'pocket';
   if (o === 'development') return 'newdev';
-  if (o === 'pocket' || String(l.status) === 'coming_soon') return 'pocket';
+  if (l.isOwnListing || o === 'own') return 'mine';
+  if (String(l.status) === 'coming_soon') return 'pocket';
   return 'mls';
 }
 
@@ -117,6 +120,13 @@ function badgesOf(l, lane) {
   return out;
 }
 
+// Seeds / feeds may store canonical keys ("boat_lift") — show labels.
+function amenityDisplay(a) {
+  const raw = String(a || '').trim();
+  if (!/^[a-z0-9_]+$/.test(raw)) return raw;
+  return (V.AMENITIES[raw] && V.AMENITIES[raw].label) || V.humanize(raw);
+}
+
 function cardShape(l, extra = {}) {
   const lane = laneOf(l);
   const laneMeta = LANE_BY_ID[lane];
@@ -131,7 +141,9 @@ function cardShape(l, extra = {}) {
     id: l.id,
     lane,
     laneLabel: laneMeta.label,
-    laneColor: (l.source && l.source.color && lane === 'mls' ? l.source.color : null) || laneMeta.color,
+    // lane colors are the vocabulary (chips, section heads, dots) — a source's
+    // own color (bootstrap palette differs) would make MLS and Whisper collide
+    laneColor: laneMeta.color,
     origin: l.origin,
     status: l.status,
     statusLabel: STATUS_LABEL[l.status] || l.status,
@@ -165,7 +177,7 @@ function cardShape(l, extra = {}) {
     waterfront: V.canonicalWaterfront(l.waterfront) || null,
     waterfrontLabel: (() => { const w = V.canonicalWaterfront(l.waterfront); return w && w !== 'none' ? V.WATERFRONT_LABEL[w] : null; })(),
     views: (l.views || []).filter(Boolean),
-    amenities: (l.amenities || []).filter(Boolean),
+    amenities: [...new Set((l.amenities || []).filter(Boolean).map(amenityDisplay))],
     photos: photosOf(l),
     listedAt: l.listedAt || null,
     dom: daysOnMarket(l),
@@ -216,4 +228,4 @@ function tierRank(card) {
   return band * 1e5 + water * 1e4 + age;
 }
 
-module.exports = { LANES, LANE_BY_ID, laneOf, titleOf, subtitleOf, clientLabel, descriptor, cardShape, detailShape, daysOnMarket, photosOf, tierRank, streetLine, STATUS_LABEL, priceOf };
+module.exports = { amenityDisplay, LANES, LANE_BY_ID, laneOf, titleOf, subtitleOf, clientLabel, descriptor, cardShape, detailShape, daysOnMarket, photosOf, tierRank, streetLine, STATUS_LABEL, priceOf };

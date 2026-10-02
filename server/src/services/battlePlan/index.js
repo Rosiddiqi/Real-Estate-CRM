@@ -66,6 +66,13 @@ function candidateSuppressed(c, suppressions) {
 
 const moveKey = (kind, clientId, fallbackId) => `${clientId || fallbackId || 'none'}:${kind}`;
 
+function apptLabel(a, clients) {
+  const c = a.clientId ? clients.get(a.clientId) : null;
+  const t = String(a.type || '').replace(/_/g, ' ');
+  if (c) return `${c.firstName || clientName(c)}'s ${t || 'appointment'}`;
+  return a.type === 'open_house' || a.type === 'broker_open' ? `the ${t}` : (a.title || 'an appointment').slice(0, 40);
+}
+
 function apptRange(a, tz) {
   const s = minuteOfDay(new Date(a.startAt), tz);
   let e = minuteOfDay(new Date(a.endAt), tz);
@@ -116,9 +123,11 @@ async function buildAndPersist({ workspaceId, userId, date, existing, reason, me
 
   // occupied ranges
   const occupied = [];
+  const apptClientIds = [...new Set(appts.map((a) => a.clientId).filter(Boolean))];
+  const bundlesLabel = new Map((apptClientIds.length ? await prisma.client.findMany({ where: { id: { in: apptClientIds } }, select: { id: true, firstName: true, lastName: true, displayName: true } }) : []).map((c) => [c.id, c]));
   for (const a of appts) {
     if (['cancelled', 'no_show'].includes(a.status)) continue;
-    occupied.push({ ...apptRange(a, tz), client: !!a.clientId, appt: true });
+    occupied.push({ ...apptRange(a, tz), client: !!a.clientId, appt: true, label: apptLabel(a, bundlesLabel) });
   }
   for (const b of routine) occupied.push({ start: b.startMin, end: b.startMin + b.durationMin, routine: true });
   for (const w of constraints.blockWindows) occupied.push({ start: w.start, end: w.end, rule: true });
@@ -154,6 +163,14 @@ async function buildAndPersist({ workspaceId, userId, date, existing, reason, me
     if (isDoNotDisturb(bundles.get(c.contactId))) return false;
     return true;
   });
+  // User items beat AI duplicates (also re-checked at read time for to-dos added later).
+  const openTasks = await prisma.task.findMany({ where: { workspaceId, status: 'pending' }, select: { clientId: true, title: true }, take: 300 });
+  const ownedIds = new Set(redundancyFilter(
+    pool.filter((c) => c.contactId).map((c) => ({ id: `${c.contactId}:${c.kind}`, clientId: c.contactId, mandatory: false })),
+    openTasks,
+    new Map([...bundles.entries()].map(([id, b]) => [id, b.client])),
+  ).map((m) => m.id));
+  pool = pool.filter((c) => !c.contactId || ownedIds.has(`${c.contactId}:${c.kind}`));
   // one candidate per (contact, kind)
   const seen = new Set();
   pool = pool.filter((c) => { const k = moveKey(c.kind, c.contactId, c.kind); if (seen.has(k)) return false; seen.add(k); return true; });
@@ -171,9 +188,24 @@ async function buildAndPersist({ workspaceId, userId, date, existing, reason, me
     contentPreferredMin: hhmmToMin(schedule.contentBlock.preferredStart),
   });
 
+  // Moves live in the To-Do list, so a packed calendar shouldn't erase them:
+  // task candidates that found no slot stay as untimed suggestions (cap holds).
+  const cap = constraints.maxMoves ?? 12;
+  let room = cap - placed.filter((c) => !MANDATORY_KINDS.has(c.kind)).length;
+  for (const o of overflow) {
+    if (room <= 0) break;
+    if (o.reason !== 'no_slot' || MANDATORY_KINDS.has(o.kind)) continue;
+    placed.push({ ...o, startMin: null, untimed: true });
+    o.promoted = true;
+    room -= 1;
+  }
   const moves = placed.map((c) => {
     const b = c.contactId ? bundles.get(c.contactId) : null;
     const fb = fallbackCopy(c);
+    if (c.kind === 'personal.lunch' && c.movedForAppt) {
+      const before = occupied.filter((r) => r.appt && r.end <= c.startMin + 1).sort((x, y) => y.end - x.end)[0];
+      if (before && before.label) fb.sub = `Moved after ${before.label}`;
+    }
     const src = SRC_FOR_KIND[c.kind] || 'internal';
     return {
       id: crypto.randomUUID(),
@@ -224,8 +256,8 @@ async function buildAndPersist({ workspaceId, userId, date, existing, reason, me
   const fbSummary = fallbackSummary([...preserved, ...moves], { offDay: day.off });
   const meta = {
     window, offDay: !!day.off, known: day.known, source: day.source,
-    overflowCount: overflow.filter((o) => !MANDATORY_KINDS.has(o.kind)).length,
-    overflow: overflow.slice(0, 20).map((o) => ({ kind: o.kind, clientId: o.contactId || null, reason: o.reason })),
+    overflowCount: overflow.filter((o) => !MANDATORY_KINDS.has(o.kind) && !o.promoted).length,
+    overflow: overflow.filter((o) => !o.promoted).slice(0, 20).map((o) => ({ kind: o.kind, clientId: o.contactId || null, reason: o.reason })),
     warnings, copySource: 'fallback', reason, advisories: constraints.advisories,
     ...(metaExtra || {}),
   };

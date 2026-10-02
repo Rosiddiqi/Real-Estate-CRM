@@ -187,7 +187,7 @@ async function intentCall(turn) {
     return;
   }
   const lines = [list.length > 1 ? 'Here’s who I’d call, in order:' : 'Call this one first:', ''];
-  list.forEach((s, i) => lines.push(`${i + 1}. **${s.name}** — ${s.reason}${s.why ? `. ${s.why}` : ''}`));
+  list.forEach((s, i) => lines.push(`${i + 1}. **${s.name}** — ${s.reason.replace(/[.]$/, '')}${i === 0 && s.why ? `. ${s.why}` : ''}`));
   turn.say(lines.join('\n'));
   turn.entities.push(...list.map((s) => ({ type: 'client', id: s.client_id, name: s.name, sub: s.reason, phone: s.phone, action: 'call' })));
   turn.suggest(SUGGEST.unread, SUGGEST.day);

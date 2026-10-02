@@ -404,13 +404,16 @@ function defaultSubStatus(stage, side, listing) {
   return null;
 }
 
+// Stored estimates (cheap for other builders to query). `probability` is the
+// agent's own call when set; otherwise the stage odds fill it in.
 function estimateColumns(deal, px) {
   const est = C.estimate(deal, px.plan, px.ytd);
-  return {
+  const out = {
     estimatedGci: est.myGci || null,
     estimatedNet: est.estimatedNet != null ? est.estimatedNet : (est.net || null),
-    probability: S.odds(deal.stage),
   };
+  if (deal.probability == null) out.probability = S.odds(deal.stage);
+  return out;
 }
 
 const newEffects = () => ({ clients: new Map(), listings: new Set(), portfolioClients: [] });
@@ -565,8 +568,8 @@ async function createDeal(a, b) {
         stage,
         subStatus,
         inventoryType,
-        contingencies: data.contingencies !== undefined ? data.contingencies : (input.contingencies ? obj(input.contingencies) : undefined),
-        depositSchedule: input.depositSchedule ? obj(input.depositSchedule) : undefined,
+        contingencies: input.contingencies ? obj(input.contingencies) : undefined,
+        depositSchedule: Array.isArray(input.depositSchedule) ? input.depositSchedule : input.depositSchedule ? obj(input.depositSchedule) : undefined,
         extras,
         stageChangedAt: now,
         closedAt: stage === 'closed' ? (data.closedAt || now) : null,
@@ -644,7 +647,11 @@ async function writeDeal(dealId, patch, opts = {}) {
       data.extras = { ...ex0, closedAtOriginal: ex0.closedAtOriginal || before.closedAt.toISOString(), closedAtMovedAt: now.toISOString() };
     }
     if (patch.extras !== undefined) data.extras = mergeJson(data.extras || before.extras, patch.extras);
-    for (const k of MERGE_JSON) if (patch[k] !== undefined) data[k] = mergeJson(before[k], patch[k]);
+    for (const k of MERGE_JSON) {
+      if (patch[k] === undefined) continue;
+      // arrays (e.g. a dated deposit schedule) replace wholesale; objects merge
+      data[k] = Array.isArray(patch[k]) ? patch[k] : patch[k] === null ? null : mergeJson(Array.isArray(before[k]) ? {} : before[k], patch[k]);
+    }
     if (data.listingId && data.listingId !== before.listingId && patch.propertyAddress === undefined) data.propertyAddress = null;
     // Prefill the price from a newly linked listing when the deal has none.
     if (refs.listing && refs.listing.listPrice && data.listingId !== before.listingId) {
@@ -824,7 +831,13 @@ async function listDeals(f = {}) {
   }
   if (f.open) and.push({ stage: { notIn: ['closed', 'lost'] } });
   if (f.closed) and.push({ stage: 'closed' });
-  if (f.board) and.push({ stage: { not: 'lost' } }, { archivedAt: null });
+  if (f.board) {
+    // On the board: everything open + Closed for the current month only
+    // (rollover may not have run yet for older closings).
+    const tz = await require('./plan').workspaceTz(workspaceId);
+    const { start } = monthBounds(new Date(), tz);
+    and.push({ stage: { not: 'lost' } }, { archivedAt: null }, { OR: [{ stage: { not: 'closed' } }, { closedAt: { gte: start } }] });
+  }
   else if (!f.includeArchived) and.push({ archivedAt: null });
   if (f.track) and.push({ track: f.track });
   if (f.side) and.push({ side: { in: String(f.side).split(',') } });

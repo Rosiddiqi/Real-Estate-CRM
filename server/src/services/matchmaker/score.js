@@ -11,7 +11,10 @@
 //
 // `listing` is a Listing row (or any object with the same field names — an
 // owned PortfolioProperty is adapted by toListingShape). `search` is a
-// BuyerSearch row. ctx: { includePending, hardTypes, extraMustHaves, signals, now }.
+// BuyerSearch row. ctx: { includePending, allowOffMarket, hardTypes, hardMarket,
+// hardPrice, extraMustHaves, signals, weights } — the three hard gates (type
+// family, foreign market, price beyond the soft window) default ON; pass false
+// to score through them.
 //
 // Pure + deterministic (no I/O) so node:test vectors pin the behavior.
 const V = require('./vocab');
@@ -221,10 +224,16 @@ function priceQ(l, s) {
   const price = priceOf(l);
   const min = n(s.priceMin); const max = n(s.priceMax);
   if (price == null || (min == null && max == null)) return null;
+  const guide = !isNum(l.listPrice) && isNum(l.priceGuide);
   let soft = Math.max(250000, 0.15 * (max || min || 0));
   if (s.budgetFlexible) soft *= 1.5;
+  if (guide || (!isNum(l.listPrice) && isNum(l.estValue))) soft *= 1.5; // a guide / estimate is fuzzy
   const q = rangeQ(price, min, max, soft);
-  const guide = !isNum(l.listPrice) && isNum(l.priceGuide);
+  // Beyond the soft window the home is out of the buyer's league (a $30M
+  // estate for a $4.5M buyer; a $3M condo for a $12–20M buyer). In cars the
+  // make/model factor gated price implicitly; location doesn't, so gate it.
+  const off = max != null && price > max ? price - max : min != null && price < min ? min - price : 0;
+  const outOfRange = off > soft;
   const label = `${guide ? 'Guide ~' : ''}${money(price)}`;
   const prev = n(l.previousPrice);
   const crossed = prev != null && max != null && prev > max && price <= max;
@@ -233,7 +242,7 @@ function priceQ(l, s) {
   else if (min != null && max != null) detail = `${label} vs budget ${money(min)}–${money(max)}`;
   else if (max != null) detail = `${label} vs ≤${money(max)}`;
   else detail = `${label} vs ${money(min)}+`;
-  return { q, detail, crossed };
+  return { q, detail, crossed, outOfRange };
 }
 
 function bedsQ(l, s) {
@@ -395,6 +404,11 @@ function evalMustHave(mh, l, trust, amenitySet) {
       if (mh.value === 'any' || mh.value === have) return out('met', V.WATERFRONT_LABEL[have]);
       return out('missing', `${V.WATERFRONT_LABEL[have]} (wants ${V.WATERFRONT_LABEL[mh.value] || mh.value})`);
     }
+    case 'floor': {
+      const fl = n(l.floor);
+      if (fl != null) return fl >= mh.min ? out('met', `Floor ${fl}`) : out('missing', `Floor ${fl} (wants ${mh.min}+)`);
+      return out('verify', 'Floor unknown');
+    }
     case 'new_construction': {
       const yb = n(l.yearBuilt);
       const now = new Date().getFullYear();
@@ -408,11 +422,13 @@ function evalMustHave(mh, l, trust, amenitySet) {
     default: break;
   }
   if (!mh.key) {
-    // un-canonical must-have: substring against amenities/description
+    // un-canonical must-have: a phrase match in the amenities / remarks can
+    // confirm it; its absence never proves it's missing → verify.
     const hay = V.squash([...(l.amenities || []), l.description || '', l.headline || ''].join(' | '));
     const f = V.squash(mh.feature);
-    if (f && hay && V.hasPhrase(hay, f)) return out(trust === 'hearsay' ? 'verify' : 'met', mh.feature);
-    return out(trust === 'authoritative' && l.hasFeatureSheet ? 'missing' : 'verify', `${mh.feature} — confirm`);
+    const label = V.mustHaveLabel(mh);
+    if (f && hay && mh.min == null && mh.max == null && V.hasPhrase(hay, f)) return out(trust === 'hearsay' ? 'verify' : 'met', label);
+    return out('verify', `${label} — confirm`);
   }
   const f = flag(mh.key);
   if (f === true) return out('met', V.amenityLabel(mh.key));
@@ -423,7 +439,8 @@ function evalMustHave(mh, l, trust, amenitySet) {
   if (mh.key === 'waterfront') return evalMustHave({ ...mh, key: 'waterfront', value: 'any' }, l, trust, amenitySet);
   const present = amenitySet.has(mh.key);
   if (present) return out(trust === 'hearsay' ? 'verify' : 'met', V.amenityLabel(mh.key));
-  return out(trust === 'authoritative' ? 'missing' : 'verify', trust === 'authoritative' ? `No ${V.amenityLabel(mh.key).toLowerCase()}` : `${V.amenityLabel(mh.key)} — confirm`);
+  const provable = trust === 'authoritative' && (V.STRUCTURED.has(mh.key) || l.hasFeatureSheet);
+  return out(provable ? 'missing' : 'verify', provable ? `No ${V.amenityLabel(mh.key).toLowerCase()}` : `${V.amenityLabel(mh.key)} — confirm`);
 }
 
 // Deal-breakers are negated must-haves: only a CLEAR violation counts.
@@ -447,7 +464,13 @@ function evalDealBreaker(text, l, amenitySet) {
   if (fam && lfam && fam === lfam) return { violated: true, detail: l.architecturalStyle || V.FAMILY_LABEL[fam] };
   if (/(two|2|multi|three|3)[ -]?(story|stories|level)|stairs/.test(t) && (n(l.stories) || 0) >= 2) return { violated: true, detail: `${n(l.stories)} stories` };
   if (/flood ?zone/.test(t) && /flood zone (ae|ve|a)\b/.test(V.squash(l.description))) return { violated: true, detail: 'Flood zone' };
-  const key = V.normalizeAmenity(t);
+  let m;
+  if ((m = /(?:dock|slip)\D{0,16}(?:under|less than|shorter than|below|<)\s*(\d{2,3})/.exec(t))) {
+    const ft = n(l.dockLengthFt);
+    return ft != null && ft < Number(m[1]) ? { violated: true, detail: `${ft}-ft dock` } : null;
+  }
+  if (/\d/.test(t)) return null; // other numeric deal-breakers aren't machine-checkable
+  const key = V.normalizeAmenityStrict(t);
   if (key) {
     const flags = l.amenityFlags || {};
     if (flags[key] === true || amenitySet.has(key)) return { violated: true, detail: V.amenityLabel(key) };
@@ -462,8 +485,14 @@ function normalizeMustHaves(search, extra) {
   const list = [];
   const seen = new Set();
   const push = (mh) => {
+    // free-text compounds ("Gated + staff quarters") become separate must-haves
+    if (typeof mh === 'string' && /[+&,;]|\bwith\b|\band\b/i.test(mh)) {
+      for (const part of V.splitCompound(mh)) push(part);
+      return;
+    }
     const p = V.parseMustHave(mh);
     if (!p || !p.feature) return;
+    if (!V.fairHousingSafe(p.feature)) return; // never score protected-class proxies
     const k = p.key ? `${p.key}:${p.min ?? ''}:${p.max ?? ''}:${p.value ?? ''}` : `txt:${V.squash(p.feature)}`;
     if (seen.has(k)) return;
     seen.add(k);
@@ -499,7 +528,9 @@ function scoreListingForSearch(listing, search, ctx = {}) {
   if (mk && mk.foreign && ctx.hardMarket !== false) return gated('market', mk.detail);
   if (mk) add('market', mk.q, mk.detail);
   const nb = neighborhoodQ(l, s, ctx); if (nb) add('neighborhood', nb.q, nb.detail);
-  const pr = priceQ(l, s); if (pr) add('priceRange', pr.q, pr.detail, pr.crossed ? { crossedBudget: true } : null);
+  const pr = priceQ(l, s);
+  if (pr && pr.outOfRange && ctx.hardPrice !== false) return gated('price', pr.detail);
+  if (pr) add('priceRange', pr.q, pr.detail, pr.crossed ? { crossedBudget: true } : null);
   const bd = bedsQ(l, s); if (bd) add('beds', bd.q, bd.detail);
   const ba = bathsQ(l, s); if (ba) add('baths', ba.q, ba.detail);
   const ar = areaQ(l, s); if (ar) add('livingArea', ar.q, ar.detail);
@@ -528,7 +559,7 @@ function scoreListingForSearch(listing, search, ctx = {}) {
     else if (r.status === 'missing') { q = 0; mustPenalty += MATCH_CONFIG.mustHave.missingPenalty * imp; }
     else q = MATCH_CONFIG.mustHave.unknownQuality;
     mq += q;
-    mustHaves.push({ feature: mh.feature, key: mh.key || null, importance: imp, source: mh.source || 'search', status: r.status, detail: r.detail });
+    mustHaves.push({ feature: V.mustHaveLabel(mh), key: mh.key || null, importance: imp, source: mh.source || 'search', status: r.status, detail: r.detail });
   }
   for (const db of arr(s.dealBreakers)) {
     const r = evalDealBreaker(db, l, amenitySet);
@@ -621,6 +652,9 @@ module.exports = {
   MATCH_CONFIG,
   scoreListingForSearch,
   rankScored,
+  // convenience re-export for consumers that only require('./score') — lazy so
+  // this module stays pure (no DB) at load time.
+  getRecentMatches: (opts) => require('./index').getRecentMatches(opts),
   eligibility,
   // helpers reused by the engine / UI shapers
   priceOf, bathsOf, sqftOf, lotSqftOf, typeOf, monthlyHoa, money, rangeQ, amenityTrust,

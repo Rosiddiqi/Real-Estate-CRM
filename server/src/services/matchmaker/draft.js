@@ -193,7 +193,7 @@ async function draftText({ workspaceId, userId, clientId, mode = 'listing', list
       const out = await ai.text({
         system: SYSTEM,
         prompt: promptFor({ mode, ctx, agentFirst: user && user.firstName, l: listing, pp: ppShape, result, place }),
-        effort: 'medium', maxTokens: 2000, feature: `matchmaker_draft_${mode}`, workspaceId,
+        effort: 'medium', maxTokens: 8000, feature: `matchmaker_draft_${mode}`, workspaceId,
       });
       const clean = sanitize(out);
       if (clean && clean.length >= 8) { text = clean; usedAi = true; }

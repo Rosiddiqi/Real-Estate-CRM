@@ -300,7 +300,11 @@ router.get('/properties/:id/buyers', ah(async (req, res) => {
   try { scorer = require('../services/matchmaker/score'); } catch (_) { scorer = null; }
   const like = listingLike(p);
   const out = [];
+  const value = p.estValue || p.soldPrice || p.purchasePrice || null;
   for (const s of searches) {
+    // Price-band gate: a client-to-client pairing must be affordable.
+    if (value && s.priceMax && value > s.priceMax * (s.budgetFlexible ? 1.5 : 1.25)) continue;
+    if (value && s.priceMin && value < s.priceMin * 0.5) continue;
     let r = null;
     try {
       r = scorer && scorer.scoreListingForSearch ? scorer.scoreListingForSearch(like, s, { allowOffMarket: true, includePending: true }) : fallbackFit(p, s);

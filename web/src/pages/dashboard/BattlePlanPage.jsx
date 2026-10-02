@@ -21,7 +21,8 @@ import TileDetailSheet from '../../components/battleplan/TileDetailSheet';
 import TodoPanel from '../../components/battleplan/TodoPanel';
 import useTodoBoard from '../../components/battleplan/useTodoBoard';
 import { itemColor, apptColor, alpha, KIND_COLOR } from '../../components/calendar/appointmentTypes';
-import { fmtMin, durLabel, dateKey, keyToDate, shiftKey, dateLine, resolveWindow, compactHours, minuteOfDay } from '../../components/battleplan/time';
+import { fmtMin, durLabel, dateKey, keyToDate, shiftKey, dateLine, resolveWindow, compactHours, hourIn, minuteOfDay, zonedDate, setAgentTz } from '../../components/battleplan/time';
+import useAgentTz from '../../components/battleplan/useAgentTz';
 
 const PX = 4.5;
 const PX_MIN = 1.2;
@@ -74,6 +75,7 @@ function useBattlePlan(date) {
     if (!silent) setState({ data: null, loading: true, error: null });
     try {
       const data = await getBattlePlan(date);
+      if (data && data.timeZone) setAgentTz(data.timeZone);
       if (id === req.current) setState({ data, loading: false, error: null });
     } catch (error) {
       if (id === req.current) setState((s) => ({ ...s, loading: false, error }));
@@ -100,6 +102,7 @@ function Spine({ color, beat, glow = true }) {
 
 export default function BattlePlanPage({ page, onSelectPage, active }) {
   const { user } = useAuth();
+  const tz = useAgentTz();
 
   // ── clock + the reactive 7 PM flip ─────────────────────────────────────
   const [nowTick, setNowTick] = useState(() => Date.now());
@@ -110,16 +113,16 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
     document.addEventListener('visibilitychange', bump);
     return () => { clearInterval(id); window.removeEventListener('focus', bump); document.removeEventListener('visibilitychange', bump); };
   }, []);
-  const todayK = useMemo(() => dateKey(new Date(nowTick)), [nowTick]);
+  const todayK = useMemo(() => dateKey(new Date(nowTick)), [nowTick, tz]); // eslint-disable-line react-hooks/exhaustive-deps
   const [override, setOverride] = useState(null);
   const autoKey = useMemo(() => {
     const now = new Date(nowTick);
-    return now.getHours() >= 19 ? shiftKey(dateKey(now), 1) : dateKey(now);
-  }, [nowTick]);
+    return hourIn(now) >= 19 ? shiftKey(dateKey(now), 1) : dateKey(now);
+  }, [nowTick, tz]); // eslint-disable-line react-hooks/exhaustive-deps
   const selectedKey = override || autoKey;
   const isToday = selectedKey === todayK;
   const selDate = useMemo(() => keyToDate(selectedKey), [selectedKey]);
-  const NOW = useMemo(() => { const d = new Date(nowTick); return d.getHours() * 60 + d.getMinutes(); }, [nowTick]);
+  const NOW = useMemo(() => minuteOfDay(new Date(nowTick)), [nowTick, tz]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { data, loading, reload } = useBattlePlan(selectedKey);
   const todo = useTodoBoard();
@@ -399,9 +402,9 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
   const shiftDay = (delta) => setOverride(shiftKey(selectedKey, delta));
   const goToday = () => setOverride(todayK);
   const newEvent = () => {
-    const base = keyToDate(selectedKey);
-    if (isToday) { const n = new Date(); base.setHours(n.getHours(), n.getMinutes() < 30 ? 30 : 60, 0, 0); } else base.setHours(10, 0, 0, 0);
-    nav.newAppointment({ startAt: base.toISOString() });
+    // Next half hour today (agent's zone), else 10 AM on the viewed day.
+    const startMin = isToday ? Math.min(23 * 60 + 30, Math.ceil((minuteOfDay(new Date()) + 1) / 30) * 30) : 600;
+    nav.newAppointment({ startAt: zonedDate(selectedKey, startMin).toISOString() });
   };
   const completeBlock = async (item) => {
     try { await planItemAction(item.moveId || item.id, 'done'); reload(); } catch { toast.error('Couldn’t mark that done.'); throw new Error('failed'); }
@@ -447,6 +450,16 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
                 <Icon name="sparkle" size={13} color="var(--violet)" stroke={2} style={{ marginTop: 2 }} />
                 <span style={{ fontSize: 13, lineHeight: 1.4, color: 'var(--bp-t2)' }}>{data.summary}</span>
               </button>
+            ) : null}
+            {data && data.isPlanDay && !data.offDay && (data.warnings || []).length ? (
+              <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {data.warnings.slice(0, 3).map((w) => (
+                  <div key={w} style={{ display: 'flex', alignItems: 'flex-start', gap: 7, fontSize: 11.5, lineHeight: 1.35, color: 'var(--bp-t3)' }}>
+                    <Icon name="alert" size={12} color="var(--bp-amber)" stroke={2.2} style={{ marginTop: 1, flexShrink: 0 }} />
+                    <span>{w}</span>
+                  </div>
+                ))}
+              </div>
             ) : null}
           </div>
 
@@ -610,7 +623,11 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
                   : { left: 64, right: 0 };
                 const h = Math.max(px >= 3 ? 20 : 16, e.dur * px);
                 const tight = h < 30;
-                const showSub = !!e.sub && h >= 46;
+                // Side-by-side lanes are narrow: the title keeps the first
+                // line and the time drops to its own line (when it fits).
+                const narrow = laneCount > 1;
+                const timeRow = narrow && h >= 36;
+                const showSub = !!e.sub && h >= (timeRow ? 60 : 46);
                 const beat = e.kind === 'appt' && !['completed', 'no_show'].includes(e.status);
                 const done = e.status === 'completed' || e.status === 'done';
                 return (
@@ -626,19 +643,27 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
                       style={{ top: y, ...laneStyle, height: h, justifyContent: tight ? 'center' : 'flex-start', padding: tight ? '0 12px 0 17px' : '6px 12px 6px 17px', '--beat': c }}
                     >
                       <Spine color={c} beat={beat} />
-                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
-                        {beat ? <span className="bp-beat-dot" style={{ flexShrink: 0, width: 7, height: 7, borderRadius: '50%', background: c, display: 'inline-block' }} /> : null}
-                        {done ? <Icon name="check" size={12} color="var(--bp-done)" stroke={2.6} /> : null}
-                        <span className="km-truncate" style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--bp-t1)' }}>
-                          {e.whale ? <Icon name="crown" size={11} color="var(--amber)" style={{ marginRight: 4, verticalAlign: '-1px' }} /> : null}{e.title}
-                        </span>
-                        {laneCount < 3 ? (
-                          <span className="bp-num" style={{ flexShrink: 0, fontSize: 10, fontWeight: 600, color: c, whiteSpace: 'nowrap' }}>
-                            {fmtMin(e.start)} · {durLabel(e.dur)}
+                      {/* Sticky head: a block that's already running keeps its
+                          title readable just under the NOW line instead of
+                          hiding it behind the chrome. */}
+                      <div className="bp-tile-head" style={{ top: LINE_GAP + 10 /* sticky insets from the scroller's padding (= chrome) */ }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
+                          {beat ? <span className="bp-beat-dot" style={{ flexShrink: 0, width: 7, height: 7, borderRadius: '50%', background: c, display: 'inline-block' }} /> : null}
+                          {done ? <Icon name="check" size={12} color="var(--bp-done)" stroke={2.6} /> : null}
+                          <span className="km-truncate" style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--bp-t1)' }}>
+                            {e.whale ? <Icon name="crown" size={11} color="var(--amber)" style={{ marginRight: 4, verticalAlign: '-1px' }} /> : null}{e.title}
                           </span>
+                          {!narrow ? (
+                            <span className="bp-num" style={{ flexShrink: 0, fontSize: 10, fontWeight: 600, color: c, whiteSpace: 'nowrap' }}>
+                              {fmtMin(e.start)} · {durLabel(e.dur)}
+                            </span>
+                          ) : null}
+                        </div>
+                        {timeRow ? (
+                          <div className="bp-num km-truncate" style={{ fontSize: 10, fontWeight: 600, color: c, marginTop: 1 }}>{fmtMin(e.start)} · {durLabel(e.dur)}</div>
                         ) : null}
+                        {showSub ? <div className="km-truncate" style={{ fontSize: 11, color: 'var(--bp-t2)', marginTop: 2 }}>{e.sub}</div> : null}
                       </div>
-                      {showSub ? <div className="km-truncate" style={{ position: 'relative', fontSize: 11, color: 'var(--bp-t2)' }}>{e.sub}</div> : null}
                     </div>
                   </Fragment>
                 );
@@ -741,6 +766,3 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
     </div>
   );
 }
-
-// re-exported for the calendar page's "today" helpers
-export { minuteOfDay };

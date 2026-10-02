@@ -28,7 +28,10 @@ async function fromBattlePlan({ workspaceId, userId, tz, limit }) {
   for (const m of plan.moves) {
     const c = byId.get(m.clientId);
     if (!c || !c.phone) continue;
-    add(out, c.id, c, { score: Math.round(m.score || m.impact || 50), reason: U.clip(m.title, 60), why: U.clip(m.why || m.sub || '', 140), source: 'battle_plan', moveId: m.id, kind: m.kind });
+    // Planner titles read "Call Omar — lease ends Nov 16"; the name is shown separately.
+    let reason = String(m.title || '').replace(/^(call|text|email|ring|phone)\s+(the\s+)?[A-Z][\w'’.-]*(\s+[A-Z][\w'’.-]*)?\s*[—–:-]\s*/i, '');
+    reason = reason ? reason.charAt(0).toUpperCase() + reason.slice(1) : 'On today’s plan';
+    add(out, c.id, c, { score: Math.round(m.score || m.impact || 50), reason: U.clip(reason, 64), why: U.clip(m.why || m.sub || '', 140), source: 'battle_plan', moveId: m.id, kind: m.kind });
   }
   return [...out.values()].slice(0, limit);
 }
@@ -131,12 +134,24 @@ async function heuristic({ workspaceId, tz, limit }) {
 
 async function callSuggestions({ workspaceId, userId, limit = 5 }) {
   const tz = await U.tzFor(workspaceId, userId);
+  // Battle-plan call moves lead (the planner weighed the whole book); live
+  // signals it doesn't cover yet (a voicemail that just landed, an unanswered
+  // question) are interleaved by urgency so nothing hot is buried.
   const plan = await fromBattlePlan({ workspaceId, userId, tz, limit });
-  if (plan.length >= Math.min(3, limit)) return { source: 'battle_plan', suggestions: plan };
   const h = await heuristic({ workspaceId, tz, limit: limit + plan.length });
   const seen = new Set(plan.map((p) => p.clientId));
-  const merged = [...plan, ...h.filter((x) => !seen.has(x.clientId))].slice(0, limit);
-  return { source: plan.length ? 'battle_plan+heuristic' : 'heuristic', suggestions: merged };
+  const extra = h.filter((x) => !seen.has(x.clientId));
+  const merged = [];
+  const hot = extra.filter((x) => x.score >= 85);
+  const rest = extra.filter((x) => x.score < 85);
+  while (merged.length < limit && (plan.length || hot.length || rest.length)) {
+    if (hot.length) merged.push(hot.shift());
+    if (merged.length < limit && plan.length) merged.push(plan.shift());
+    if (!hot.length && !plan.length && rest.length && merged.length < limit) merged.push(rest.shift());
+  }
+  const usedPlan = merged.some((m) => m.source === 'battle_plan');
+  const usedH = merged.some((m) => m.source !== 'battle_plan');
+  return { source: usedPlan && usedH ? 'battle_plan+signals' : usedPlan ? 'battle_plan' : 'signals', suggestions: merged };
 }
 
 module.exports = { callSuggestions };

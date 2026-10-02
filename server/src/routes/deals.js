@@ -62,7 +62,7 @@ const DealFields = {
   contingencies: z.record(z.any()).nullable().optional(),
   finishSelectionDue: date,
   estCompletion: date,
-  depositSchedule: z.record(z.any()).nullable().optional(),
+  depositSchedule: z.union([z.record(z.any()), z.array(z.record(z.any())).max(20)]).nullable().optional(),
   linkedDealId: str,
   lenderName: str,
   titleCompany: str,

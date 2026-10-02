@@ -204,7 +204,8 @@ export function MatchRow({ rank, buyer, top, subject, onDismiss, defaultOpen = f
   );
 }
 
-export function BuyersList({ buyers, subject, onDismiss, emptyTitle = 'No buyers at 80%+ yet', emptySub, threshold = 80, fallback, hiddenCount = 0, closest = [], beforeNav }) {
+export function BuyersList({ buyers, subject, onDismiss, emptyTitle = 'No buyers at 80%+ yet', emptySub, threshold = 80, fallback, hiddenCount = 0, hidden = [], closest = [], beforeNav }) {
+  const [reveal, setReveal] = useState(false);
   if (!buyers.length) {
     return (
       <div>
@@ -228,7 +229,18 @@ export function BuyersList({ buyers, subject, onDismiss, emptyTitle = 'No buyers
       <div className="mm-stack">
         {buyers.map((b, i) => <MatchRow key={b.clientId} rank={i + 1} top={i === 0} buyer={b} subject={subject} onDismiss={onDismiss} beforeNav={beforeNav} />)}
       </div>
-      {hiddenCount ? <div className="kl-more-below">{hiddenCount} more below {threshold}% — hidden by the threshold</div> : null}
+      {hiddenCount ? (
+        hidden.length ? (
+          <button type="button" className="kl-more-below" style={{ width: '100%' }} onClick={() => setReveal((v) => !v)}>
+            {reveal ? 'Hide the closer calls' : `${hiddenCount} more below ${threshold}% — tap to show`}
+          </button>
+        ) : <div className="kl-more-below">{hiddenCount} more below {threshold}% — hidden by the threshold</div>
+      ) : null}
+      {reveal ? (
+        <div className="mm-stack" style={{ marginTop: 9, opacity: 0.82 }}>
+          {hidden.map((b, i) => <MatchRow key={b.clientId} rank={buyers.length + i + 1} buyer={b} subject={subject} onDismiss={onDismiss} beforeNav={beforeNav} />)}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -308,16 +320,19 @@ function SubjectMatchCard({ m, client, top, onOpenSubject, onDismiss, beforeNav 
   );
 }
 
-export function PersonSheet({ row, open, onClose, floorLabel = '≥80%', onDismiss }) {
+export function PersonSheet({ row, open, onClose, floorLabel = '≥80%', onDismiss, onBeforeNavigate }) {
   if (!row) return null;
   const { client } = row;
   const matches = [row.best, ...row.others];
-  const openSubject = (s, close) => {
+  const leave = async (close) => {
     close();
-    setTimeout(() => {
-      if (s.kind === 'offmarket') nav.openClient(s.ownerClientId);
-      else nav.openListing(s.listingId);
-    }, 140);
+    await new Promise((r) => setTimeout(r, 120));
+    if (onBeforeNavigate) await onBeforeNavigate();
+  };
+  const openSubject = async (s, close) => {
+    await leave(close);
+    if (s.kind === 'offmarket') nav.openClient(s.ownerClientId);
+    else nav.openListing(s.listingId);
   };
   return (
     <Sheet open={open} onClose={onClose} left={false} maxHeight="88%">
@@ -327,7 +342,7 @@ export function PersonSheet({ row, open, onClose, floorLabel = '≥80%', onDismi
             <Avatar name={client.name} seed={client.id} src={client.avatarUrl} size={48} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="mm-name-row">
-                <button type="button" className="mm-person-name" onClick={() => { close(); setTimeout(() => nav.openClient(client.id), 140); }}>{client.name}</button>
+                <button type="button" className="mm-person-name" onClick={async () => { await leave(close); nav.openClient(client.id); }}>{client.name}</button>
                 <BucketChip bucket={client.bucket} />
                 {client.whale ? <WhaleChip /> : null}
               </div>
@@ -335,12 +350,12 @@ export function PersonSheet({ row, open, onClose, floorLabel = '≥80%', onDismi
                 {row.count} home{row.count === 1 ? '' : 's'} they'd want · best {row.best.score}%
               </div>
             </div>
-            <button type="button" className="mm-icon-btn" aria-label={`Call ${client.name}`} onClick={() => { close(); setTimeout(() => nav.call({ clientId: client.id, phone: client.phone, name: client.name }), 140); }}><Icon name="phone" size={17} stroke={1.9} /></button>
+            <button type="button" className="mm-icon-btn" aria-label={`Call ${client.name}`} onClick={async () => { await leave(close); nav.call({ clientId: client.id, phone: client.phone, name: client.name }); }}><Icon name="phone" size={17} stroke={1.9} /></button>
           </div>
           <div className="mm-eyebrow" style={{ margin: '6px 2px 10px' }}>Homes for {firstOf(client.name)} · {floorLabel}</div>
           <div className="mm-stack">
             {matches.map((m, i) => (
-              <SubjectMatchCard key={`${m.subject.kind}:${m.subject.id}`} m={m} client={client} top={i === 0} onOpenSubject={(s) => openSubject(s, close)} onDismiss={onDismiss ? (mm) => onDismiss(mm, client) : null} beforeNav={() => { close(); return new Promise((r) => setTimeout(r, 120)); }} />
+              <SubjectMatchCard key={`${m.subject.kind}:${m.subject.id}`} m={m} client={client} top={i === 0} onOpenSubject={(s) => openSubject(s, close)} onDismiss={onDismiss ? (mm) => onDismiss(mm, client) : null} beforeNav={() => leave(close)} />
             ))}
           </div>
         </div>

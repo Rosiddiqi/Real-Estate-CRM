@@ -48,7 +48,6 @@ export default function NewDevLane({
                   <StageDot color={s.color} glow />
                   <span style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: -0.2 }}>{s.label}</span>
                   <span className="km-mono" style={{ fontSize: 10, fontWeight: 600, color: 'var(--faint)' }}>{list.length}</span>
-                  <span style={{ flex: 1 }} />
                   <span className="km-pl-col-sub">{s.sub}</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

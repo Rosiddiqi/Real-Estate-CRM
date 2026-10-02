@@ -147,7 +147,7 @@ export function SourceLine({ l, right }) {
 }
 
 // ── photo carousel (swipe, dots, count, arrows) ──────────────────────────
-export function PhotoCarousel({ photos = [], seed, label, ratio = '4 / 3', height, radius = 0, onTap, children, showCount = true, arrows = true, className = '' }) {
+export function PhotoCarousel({ photos = [], seed, label, ratio = '4 / 3', height, radius = 0, onTap, children, showCount = true, arrows = true, className = '', countPos = 'top' }) {
   const list = photos.length ? photos : [null];
   const n = list.length;
   const [i, setI] = useState(0);
@@ -222,7 +222,7 @@ export function PhotoCarousel({ photos = [], seed, label, ratio = '4 / 3', heigh
       </div>
       {children}
       {showCount && n > 1 ? (
-        <div className="kl-count km-mat km-mat--thin"><Icon name="image" size={11} stroke={2} />{idx + 1}/{n}</div>
+        <div className={`kl-count km-mat km-mat--thin ${countPos === 'bottom' ? 'kl-count--bottom' : ''}`}><Icon name="image" size={11} stroke={2} />{idx + 1}/{n}</div>
       ) : null}
       {arrows && n > 1 ? (
         <>
@@ -430,3 +430,28 @@ export function TileSkeletons({ n = 4 }) {
     </div>
   );
 }
+
+// How solid is a whisper? (seeded / agent-entered {price, timing, specs, note}
+// confidence, or the parser's per-field confidence → a specs average)
+export function WhisperConfidence({ confidence, style }) {
+  if (!confidence || typeof confidence !== 'object') return null;
+  const c = confidence;
+  const rows = [['Price', c.price], ['Timing', c.timing], ['Specs', c.specs]].filter(([, v]) => typeof v === 'number');
+  const note = typeof c.note === 'string' ? c.note : null;
+  if (!rows.length && !note) return null;
+  const tone = (v) => (v >= 0.75 ? 'var(--green)' : v >= 0.5 ? 'var(--amber)' : 'var(--red)');
+  return (
+    <div className="kl-conf-card" style={style}>
+      <div className="kl-eyebrow" style={{ color: 'var(--green)', marginBottom: rows.length ? 8 : 4 }}>How solid is it</div>
+      {rows.map(([k, v]) => (
+        <div key={k} className="mm-factor" style={{ padding: '4px 0' }}>
+          <span className="mm-factor-label" style={{ width: 56 }}>{k}</span>
+          <div className="mm-factor-track"><div style={{ width: `${Math.round(v * 100)}%`, background: tone(v) }} /></div>
+          <span className="mm-factor-detail" style={{ width: 34 }}>{Math.round(v * 100)}%</span>
+        </div>
+      ))}
+      {note ? <div className="kl-conf-note km-selectable">“{note}”</div> : null}
+    </div>
+  );
+}
+

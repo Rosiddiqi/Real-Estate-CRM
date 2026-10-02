@@ -13,15 +13,15 @@ import { moneyCompact } from '../../lib/format';
 
 export function listingRow(l) {
   if (!l) return null;
-  const street = l.street ? `${l.street}${l.unitNumber ? ` #${l.unitNumber}` : ''}` : null;
-  const address = l.address || street || l.buildingName || l.developmentName || l.title || 'Listing';
+  const street = l.street && !l.hideAddress ? `${l.street}${l.unitNumber ? ` #${l.unitNumber}` : ''}` : null;
+  const address = l.address || street || l.title || l.buildingName || l.developmentName || 'Listing';
   return {
     key: `l:${l.id}`,
     listingId: l.id,
     label: address,
     address,
-    sub: [l.buildingName && l.buildingName !== address ? l.buildingName : null, l.neighborhood || l.city].filter(Boolean).join(' · '),
-    price: l.listPrice ?? l.price ?? null,
+    sub: [l.laneLabel || null, l.buildingName && l.buildingName !== address ? l.buildingName : null, l.neighborhood || l.city].filter(Boolean).join(' · '),
+    price: l.listPrice ?? l.priceGuide ?? l.price ?? null,
     photo: l.heroPhoto || (l.photoUrls || l.photos || [])[0] || null,
     mlsNumber: l.mlsNumber || null,
   };
@@ -85,7 +85,7 @@ export default function ShortlistSheet({ deal, open, onClose, onUpdate }) {
   if (!deal) return null;
   const isTheOne = (r) => (r.listingId && r.listingId === deal.listingId)
     || (r.portfolioPropertyId && r.portfolioPropertyId === deal.portfolioPropertyId)
-    || (!r.listingId && !r.portfolioPropertyId && r.address && r.address === deal.propertyAddress);
+    || (!r.listingId && !r.portfolioPropertyId && r.address && r.address === (deal.propertyAddress || deal.address));
   const inList = (r) => shortlist.some((s) => s.key === r.key);
 
   const toggle = (r) => {

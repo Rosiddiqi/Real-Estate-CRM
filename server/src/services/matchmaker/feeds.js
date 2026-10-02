@@ -236,6 +236,7 @@ async function buyersForListing(workspaceId, listing, { fallback = false } = {})
     fallback: ranked.fallback,
     shown: shown.map((r) => engine.buyerRow(r, matchExtra(state, listing.id, r.entry.clientId))),
     hiddenCount: ranked.hidden.length,
+    hidden: ranked.shown.length ? ranked.hidden.slice(0, 12).map((r) => engine.buyerRow(r, matchExtra(state, listing.id, r.entry.clientId))) : [],
     closest: ranked.shown.length ? [] : ranked.hidden.slice(0, 3).map((r) => engine.buyerRow(r, matchExtra(state, listing.id, r.entry.clientId))),
   };
 }

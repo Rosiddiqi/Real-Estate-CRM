@@ -8,7 +8,7 @@ function moneyShort(n) {
   const trim = (x, d) => { const s = x.toFixed(d); return s.includes('.') ? s.replace(/\.?0+$/, '') : s; };
   if (abs >= 1e9) return `$${trim(abs / 1e9, 2)}B`;
   if (abs >= 1e6) return `$${trim(abs / 1e6, 2)}M`;
-  if (abs >= 1e3) return `$${trim(abs / 1e3, abs >= 1e4 ? 0 : 1)}K`;
+  if (abs >= 1e3) return `$${trim(abs / 1e3, abs >= 1e5 ? 0 : 1)}K`;
   return `$${Math.round(abs)}`;
 }
 

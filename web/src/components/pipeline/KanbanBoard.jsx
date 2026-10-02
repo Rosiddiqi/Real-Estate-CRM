@@ -23,10 +23,12 @@ function sortColumn(phase, list) {
 }
 const fmtCount = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(1).replace(/\.0$/, ''));
 
+const ghostLeft = (x) => Math.max(8, Math.min(x - 140, (typeof window !== 'undefined' ? window.innerWidth : 400) - 288));
+
 function Ghost({ deal, x, y, dropping, ghostRef }) {
   if (!deal) return null;
   return (
-    <div ref={ghostRef} className={`km-pl-ghost ${dropping ? 'km-pl-ghost--drop' : ''}`} style={{ left: x - 140, top: y - 30 }}>
+    <div ref={ghostRef} className={`km-pl-ghost ${dropping ? 'km-pl-ghost--drop' : ''}`} style={{ left: ghostLeft(x), top: y - 30 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="km-truncate" style={{ fontSize: 14, fontWeight: 600 }}>{deal.name}</div>
@@ -113,7 +115,7 @@ export default function KanbanBoard({
       else if (st.y < pr.top + 80) page.scrollTop -= 10;
     }
     const g = ghostRef.current;
-    if (g) { g.style.left = `${st.x - 140}px`; g.style.top = `${st.y - 30}px`; }
+    if (g) { g.style.left = `${ghostLeft(st.x)}px`; g.style.top = `${st.y - 30}px`; }
     const over = hitTest(st.x);
     if (over !== st.over) {
       st.over = over;

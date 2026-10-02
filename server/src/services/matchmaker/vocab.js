@@ -9,7 +9,7 @@
 //   parseMustHave('dock for a 70-ft boat') → {key:'dock_length', min:70, ...}
 
 const lc = (s) => String(s == null ? '' : s).toLowerCase().trim();
-const squash = (s) => lc(s).replace(/[_\-./,&()]+/g, ' ').replace(/['’]/g, '').replace(/\s+/g, ' ').trim();
+const squash = (s) => lc(s).replace(/[_\-./,&()+]+/g, ' ').replace(/['’]/g, '').replace(/\s+/g, ' ').trim();
 
 // ── Amenities ─────────────────────────────────────────────────────────────
 // key → { label, syn: phrases (lowercase, matched on word boundaries) }
@@ -72,6 +72,74 @@ function normalizeAmenity(text) {
   return null;
 }
 
+// Strict: exact key / exact synonym, or a synonym covering most of the text —
+// so "pool fence" is NOT "pool" and "no fixed bridges" is not an amenity.
+function normalizeAmenityStrict(text) {
+  const t = squash(text);
+  if (!t) return null;
+  const direct = t.replace(/ /g, '_');
+  if (AMENITIES[direct]) return direct;
+  for (const [phrase, key] of AMENITY_PHRASES) {
+    if (t === phrase) return key;
+  }
+  for (const [phrase, key] of AMENITY_PHRASES) {
+    if (hasPhrase(t, phrase) && phrase.length / t.length >= 0.6) return key;
+  }
+  return null;
+}
+
+// Amenities an MLS-grade record states structurally (PoolPrivateYN, waterfront
+// features, gated community…): absence there IS evidence. Everything else
+// (office, wine room, generator…) is often simply not listed → verify.
+const STRUCTURED = new Set(['pool', 'dock', 'boat_lift', 'gated', 'elevator', 'guest_house', 'tennis', 'beach_access', 'garage', 'golf', 'equestrian', 'concierge', 'waterfront']);
+
+// Fair Housing: never score on protected-class proxies (schools-for-kids,
+// family status, religion, demographics, "safe area").
+const FH_RE = /\b(schools?|school zone|kids?|children|child|family[- ]friendly|families|church|synagogue|mosque|temple|religio\w*|ethnic\w*|demograph\w*|safe (?:area|neighbou?rhood)|crime|adults? only|55\+|seniors?|singles|bachelor|nationality|race)\b/i;
+const fairHousingSafe = (text) => !FH_RE.test(String(text || ''));
+
+// "Gated + staff quarters", "Gym & spa", "Oceanfront with private beach" → parts
+function splitCompound(text) {
+  return String(text || '').split(/\s*(?:\+|&|;|,|\bwith\b|\band\b)\s*/i).map((x) => x.trim()).filter((x) => x.length > 1);
+}
+
+const NUMERIC_FEATURES = {
+  dock: 'dock_length', dock_length: 'dock_length', dock_ft: 'dock_length', boat: 'dock_length', boat_length: 'dock_length',
+  frontage: 'frontage', frontage_ft: 'frontage', water_frontage: 'frontage',
+  high_floor: 'floor', floor: 'floor', min_floor: 'floor',
+  lot: 'lot', lot_sqft: 'lot', lot_size: 'lot', acreage: 'lot', acres: 'lot',
+  hoa: 'hoa', hoa_max: 'hoa', max_hoa: 'hoa',
+  garage: 'garage_spaces', garage_spaces: 'garage_spaces', car_garage: 'garage_spaces',
+  stories: 'stories', max_stories: 'stories',
+};
+const NUMERIC_LABEL = {
+  dock_length: (m) => `${m.min}+ ft dock`,
+  frontage: (m) => `${m.min}+ ft frontage`,
+  floor: (m) => `Floor ${m.min}+`,
+  lot: (m) => `${(m.min / 43560 >= 1 ? (m.min / 43560).toFixed(m.min / 43560 >= 10 ? 0 : 1).replace(/\.0$/, '') : (m.min / 43560).toFixed(2).replace(/0$/, ''))}+ acre lot`,
+  hoa: (m) => (m.max === 0 ? 'No HOA' : `HOA ≤ $${Number(m.max).toLocaleString('en-US')}/mo`),
+  garage_spaces: (m) => `${m.min}+ car garage`,
+  stories: (m) => (m.max <= 1 ? 'Single-level' : `≤ ${m.max} stories`),
+};
+
+function humanize(text) {
+  const raw = String(text || '').trim();
+  if (!/^[a-z0-9_]+$/.test(raw)) return raw;
+  const s = raw.replace(/_/g, ' ');
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// Display label for a parsed must-have.
+function mustHaveLabel(mh) {
+  if (!mh) return '';
+  if (mh.key && NUMERIC_LABEL[mh.key] && (mh.min != null || mh.max != null)) return NUMERIC_LABEL[mh.key](mh);
+  if (mh.key === 'view' && mh.value) return `${mh.value.charAt(0).toUpperCase()}${mh.value.slice(1)} view`;
+  if (mh.key === 'waterfront' && mh.value) return WATERFRONT_LABEL[mh.value] || 'Waterfront';
+  const base = mh.key && AMENITIES[mh.key] && /^[a-z0-9_]+$/.test(String(mh.feature || '')) ? AMENITIES[mh.key].label : humanize(mh.feature);
+  if (!mh.key && (mh.min != null || mh.max != null)) return `${base} ${mh.min != null ? `≥ ${mh.min}` : `≤ ${mh.max}`}`;
+  return base;
+}
+
 function amenityLabel(key) {
   return (AMENITIES[key] && AMENITIES[key].label) || String(key || '').replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
 }
@@ -110,11 +178,20 @@ function parseMustHave(input) {
 
   // explicit structured thresholds win
   if (raw.key && (raw.min != null || raw.max != null)) return { ...base, key: raw.key, min: raw.min ?? null, max: raw.max ?? null };
+  if (raw.min != null || raw.max != null) {
+    const nk = NUMERIC_FEATURES[squash(feature).replace(/ /g, '_')];
+    if (nk) {
+      let min = raw.min != null ? Number(raw.min) : null;
+      if (nk === 'lot' && min != null && min < 200) min = Math.round(min * 43560); // acres
+      return { ...base, key: nk, min, max: raw.max != null ? Number(raw.max) : null };
+    }
+    return { ...base, key: null, min: raw.min ?? null, max: raw.max ?? null };
+  }
 
   let m;
   // dock length / boat size
-  if ((m = /(\d{2,3})\s*(?:ft|foot|feet|')\s*(?:\w+\s){0,3}?(?:boat|yacht|dock|vessel|slip)/.exec(t))
-    || (m = /(?:dock|slip|boat|yacht)\D{0,24}?(\d{2,3})\s*(?:ft|foot|feet|')/.exec(t))) {
+  if ((m = /(\d{2,3})\s*\+?\s*(?:ft|foot|feet|')\s*(?:\w+\s){0,3}?(?:boat|yacht|dock|vessel|slip)/.exec(t))
+    || (m = /(?:dock|slip|boat|yacht)\D{0,24}?(\d{2,3})\s*\+?\s*(?:ft|foot|feet|')/.exec(t))) {
     return { ...base, key: 'dock_length', min: num(m[1]) };
   }
   // water frontage
@@ -146,7 +223,7 @@ function parseMustHave(input) {
   const wf = canonicalWaterfront(t);
   if (wf && wf !== 'none' && /front|on the|water/.test(t)) return { ...base, key: 'waterfront', value: wf };
 
-  const key = normalizeAmenity(feature);
+  const key = normalizeAmenityStrict(feature);
   return { ...base, key: key || null };
 }
 
@@ -324,7 +401,8 @@ const FAIR_HOUSING = 'FAIR HOUSING (mandatory): never extract, infer, store or r
 
 module.exports = {
   lc, squash, hasPhrase,
-  AMENITIES, normalizeAmenity, amenityLabel, amenityKeys, parseMustHave,
+  AMENITIES, normalizeAmenity, normalizeAmenityStrict, amenityLabel, amenityKeys, parseMustHave, mustHaveLabel, humanize,
+  STRUCTURED, fairHousingSafe, splitCompound,
   canonicalType, typeCompat, typeLabel, TYPE_FAMILY, TYPE_KEYS,
   STYLE_FAMILIES, styleFamily, FAMILY_LABEL,
   canonicalView, viewKeyFromText, WATER_VIEWS,

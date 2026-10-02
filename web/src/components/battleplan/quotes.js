@@ -3,6 +3,7 @@
 // affirmation to say out loud. Every attributed quote below is sourced to a
 // published work or a documented speech/interview; anything we couldn't pin to
 // its author is left out. Affirmations are unattributed by design.
+import { dateKey, hourIn } from './time';
 
 export const QUOTES = [
   { text: 'We shape our buildings and afterwards our buildings shape us.', author: 'Winston Churchill' },
@@ -49,7 +50,7 @@ export const AFFIRMATIONS = [
 const STATE_KEY = 'km_quoteState';
 
 function localDayKey(d) {
-  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  return dateKey(d); // the agent's day (same clock as the rail)
 }
 
 function daySeed(d) {
@@ -79,8 +80,8 @@ export function dailyAffirmation(now = new Date()) {
   return AFFIRMATIONS[daySeed(now) % AFFIRMATIONS.length];
 }
 
-// 5:00–8:00 AM and 7:00–10:00 PM local → the affirmation windows.
+// 5:00–8:00 AM and 7:00–10:00 PM (agent's zone) → the affirmation windows.
 export function inAffirmationWindow(now = new Date()) {
-  const h = now.getHours();
+  const h = hourIn(now);
   return (h >= 5 && h < 8) || (h >= 19 && h < 22);
 }

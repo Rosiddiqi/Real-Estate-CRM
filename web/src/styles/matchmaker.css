@@ -16,7 +16,7 @@
 .mm-header .mm-eyebrow { color: var(--dim); font-size: 9.5px; }
 .mm-modebar { padding: 12px 18px 0; }
 .mm-seg { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px; border-radius: 999px; }
-.mm-seg-lens { position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: 999px; transition: transform 0.34s var(--km-spring); }
+.mm-seg-lens { position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: 999px; transition: transform 0.34s var(--km-spring); pointer-events: none; }
 .mm-seg button { position: relative; z-index: 1; padding: 9px 4px; border-radius: 999px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.01em; white-space: nowrap;
   color: var(--lg-text-idle); transition: color 0.16s; }
 .mm-seg button[aria-selected="true"] { color: var(--lg-text); }
@@ -60,10 +60,10 @@
 .mm-crossed { display: inline-flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 11px; font-weight: 700; color: var(--amber); }
 .mm-expand { padding: 4px 14px 14px; border-top: 1px solid var(--line); animation: fadeIn 0.2s ease both; }
 .mm-factor { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
-.mm-factor-label { font-size: 9.5px; font-weight: 600; letter-spacing: 0.04em; color: var(--dim); width: 78px; flex-shrink: 0; text-transform: uppercase; }
-.mm-factor-track { flex: 1; height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; min-width: 40px; }
+.mm-factor-label { font-size: 9px; font-weight: 600; letter-spacing: 0.03em; color: var(--dim); width: 86px; flex-shrink: 0; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mm-factor-track { flex: 1; height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; min-width: 36px; }
 .mm-factor-track div { height: 100%; border-radius: 4px; transition: width 0.5s var(--km-ease); }
-.mm-factor-detail { font-size: 11.5px; color: var(--dim); max-width: 158px; text-align: right; line-height: 1.25; }
+.mm-factor-detail { font-size: 11.5px; color: var(--dim); width: 46%; flex-shrink: 0; text-align: right; line-height: 1.25; }
 .mm-musts { display: flex; flex-wrap: wrap; gap: 6px; }
 .mm-must { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; padding: 4px 8px; border-radius: 7px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); }
 :root[data-theme="light"] .mm-must { background: rgba(0, 0, 0, 0.03); }
@@ -144,10 +144,10 @@
 .mm-swap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 0 8px; }
 .mm-swap-line { width: 1px; flex: 1; background: linear-gradient(180deg, transparent, var(--lineHi), transparent); }
 .mm-triggers { display: flex; flex-wrap: wrap; gap: 5px; }
-.mm-trigger { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; padding: 3px 7px; border-radius: 6px; border: 1px solid var(--line); color: var(--dim); }
+.mm-trigger { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; padding: 3px 7px; border-radius: 6px; border: 1px solid var(--line); color: var(--dim); white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 .mm-trigger--active { color: #C08BFF; border-color: rgba(154, 77, 255, 0.4); background: rgba(154, 77, 255, 0.1); }
 .mm-narr { margin: 10px 14px 0; font-size: 12.5px; color: var(--dim); line-height: 1.45; font-style: italic; }
-.mm-pair-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 14px 14px; }
+.mm-pair-btns { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; padding: 12px 14px 14px; }
 .mm-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; border-radius: 11px; font-size: 13px; font-weight: 600;
   color: var(--text); background: rgba(255, 255, 255, 0.05); border: 1px solid var(--lineHi); }
 :root[data-theme="light"] .mm-ghost { background: rgba(0, 0, 0, 0.04); }
@@ -170,10 +170,19 @@
 .mm-avstack > * + * { margin-left: -8px; }
 
 /* ── digest (Serena page 3) ───────────────────────────────────────── */
-.mm-digest-row { display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+.mm-digest-row { display: flex; align-items: center; gap: 8px; padding: 10px 10px 10px 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
 .mm-digest-main { flex: 1; min-width: 0; text-align: left; display: flex; align-items: center; gap: 10px; }
 
 @media (prefers-reduced-motion: reduce) {
   .mm-mode-dot { animation: none; }
   .mm-panel-in, .mm-expand { animation: none; }
+}
+
+/* ── desktop: keep the reading column comfortable ─────────────────── */
+@media (min-width: 900px) {
+  .mm-header, .mm-modebar { max-width: 800px; margin-left: auto; margin-right: auto; }
+  .mm-panel { max-width: 800px; margin: 0 auto; }
+  .mm-panel .kl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mm-drops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .mm-drops .mm-drop-card { margin-bottom: 0; }
 }

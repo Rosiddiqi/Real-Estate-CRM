@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Sheet from '../ui/Sheet';
 import Icon from '../ui/Icon';
-import { dateKey, keyToDate } from './time';
+import { dateKey, keyToDate, calKey } from './time';
 
 const DOW = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -16,7 +16,7 @@ function cellsFor(year, month) {
   const days = new Date(year, month + 1, 0).getDate();
   const cells = [];
   for (let i = 0; i < first.getDay(); i++) cells.push(null);
-  for (let d = 1; d <= days; d++) cells.push({ day: d, key: dateKey(new Date(year, month, d, 12)) });
+  for (let d = 1; d <= days; d++) cells.push({ day: d, key: calKey(year, month, d) });
   while (cells.length % 7) cells.push(null);
   return cells;
 }

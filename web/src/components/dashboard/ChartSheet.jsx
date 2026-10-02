@@ -1,7 +1,7 @@
 // Chart pop-ups for the Stats page (lazy-loaded so recharts only ships when
 // opened).
-//   MTD — cumulative GCI by day, this month (accent, with a 10% wash) vs last
-//         month (de-emphasis gray). Emphasis form: one hue + gray, one axis,
+//   MTD — cumulative GCI by day (step lines: closings land on a day), this
+//         month (accent, with a 10% wash) vs last month (de-emphasis gray). Emphasis form: one hue + gray, one axis,
 //         2px lines, crosshair tooltip listing both series, end labels.
 //   YTD — GCI by month this year: one series, ≤24px columns with 4px rounded
 //         caps, the best month labeled, per-bar tooltip.
@@ -15,6 +15,7 @@ import PillTabs from '../ui/PillTabs';
 import { moneyCompact, money } from '../../lib/format';
 
 const GRAY = '#7D8696';
+const sidesLabel = (n) => { const v = Math.round((n || 0) * 10) / 10; return `${v} side${v === 1 ? '' : 's'}`; };
 
 function TipBox({ title, rows }) {
   return (
@@ -71,10 +72,10 @@ function MtdChart({ charts }) {
                 />
               ) : null)}
             />
-            <Line type="monotone" dataKey="lastCum" stroke={GRAY} strokeWidth={2} dot={false} isAnimationActive={false} activeDot={{ r: 4, stroke: 'var(--surface)', strokeWidth: 2, fill: GRAY }}>
+            <Line type="stepAfter" dataKey="lastCum" stroke={GRAY} strokeWidth={2} dot={false} isAnimationActive={false} activeDot={{ r: 4, stroke: 'var(--surface)', strokeWidth: 2, fill: GRAY }}>
               <LabelList dataKey="lastCum" content={({ x, y, index, value }) => (lastEnd && index === lastEnd.day - 1 ? <text x={x + 6} y={y + 4} fontSize={10} fill="var(--dim)">{moneyCompact(value)}</text> : null)} />
             </Line>
-            <Area type="monotone" dataKey="thisCum" stroke="var(--blue)" strokeWidth={2} fill="var(--blue)" fillOpacity={0.1} connectNulls={false} dot={false} isAnimationActive={false} activeDot={{ r: 4, stroke: 'var(--surface)', strokeWidth: 2, fill: 'var(--blue)' }}>
+            <Area type="stepAfter" dataKey="thisCum" stroke="var(--blue)" strokeWidth={2} fill="var(--blue)" fillOpacity={0.1} connectNulls={false} dot={false} isAnimationActive={false} activeDot={{ r: 4, stroke: 'var(--surface)', strokeWidth: 2, fill: 'var(--blue)' }}>
               <LabelList dataKey="thisCum" content={({ x, y, index, value }) => (lastPoint && index === lastPoint.day - 1 ? <text x={x + 6} y={y - 6} fontSize={11} fontWeight={700} fill="var(--text)">{moneyCompact(value)}</text> : null)} />
             </Area>
           </ComposedChart>
@@ -114,7 +115,7 @@ function YtdChart({ charts, metric }) {
               content={({ active, payload }) => (active && payload && payload[0] ? (
                 <TipBox title={payload[0].payload.label} rows={[
                   { label: 'GCI', value: money(payload[0].payload.gci), color: 'var(--blue)' },
-                  { label: 'sides', value: `${Math.round(payload[0].payload.sides * 10) / 10}`, color: 'var(--dim)' },
+                  { label: Math.round(payload[0].payload.sides * 10) / 10 === 1 ? 'side' : 'sides', value: `${Math.round(payload[0].payload.sides * 10) / 10}`, color: 'var(--dim)' },
                   { label: 'volume', value: moneyCompact(payload[0].payload.volume), color: 'var(--dim)' },
                 ]}
                 />
@@ -133,7 +134,7 @@ function YtdChart({ charts, metric }) {
           <div key={m.month} className="km-row" style={{ padding: '9px 0', fontSize: 13 }}>
             <span style={{ width: 44, color: 'var(--dim)' }}>{m.label}</span>
             <span style={{ flex: 1, fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{money(m.gci)}</span>
-            <span style={{ width: 70, textAlign: 'right', color: 'var(--dim)', fontVariantNumeric: 'tabular-nums' }}>{Math.round(m.sides * 10) / 10} sides</span>
+            <span style={{ width: 70, textAlign: 'right', color: 'var(--dim)', fontVariantNumeric: 'tabular-nums' }}>{sidesLabel(m.sides)}</span>
             <span style={{ width: 64, textAlign: 'right', color: 'var(--faint)', fontVariantNumeric: 'tabular-nums' }}>{moneyCompact(m.volume)}</span>
           </div>
         ))}
@@ -151,8 +152,8 @@ export default function ChartSheet({ open, kind, stats, money: m, onClose }) {
     <Sheet
       open={open}
       onClose={onClose}
-      title={isMtd ? `${charts.thisMonthLabel} GCI` : `${charts.year} GCI`}
-      subtitle={isMtd ? `${money(m.mtdGci)} so far · ${charts.lastMonthLabel} closed ${money(m.lastMonthGci)}` : `${money(m.ytdGci)} year to date · ${Math.round((m.ytdSides || 0) * 10) / 10} sides`}
+      title={isMtd ? `${charts.thisMonthLabel} GCI` : `${charts.year} production`}
+      subtitle={isMtd ? `${money(m.mtdGci)} so far · ${String(charts.lastMonthLabel).slice(0, 3)} closed ${moneyCompact(m.lastMonthGci)}` : `${money(m.ytdGci)} GCI year to date · ${sidesLabel(m.ytdSides)}`}
       left={false}
       right={{ label: 'Done', onClick: onClose }}
       maxWidth={620}

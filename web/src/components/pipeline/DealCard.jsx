@@ -5,7 +5,7 @@
 //   Row 4  SELLING {linked home} · MLS #
 //   Under Contract → contingency pills + closing countdown · Listed → status pills
 //   New Dev Reserved → dates box + deposit pills
-import { memo, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import Icon from '../ui/Icon';
 import PropertyPhoto from '../ui/PropertyPhoto';
 import { nav } from '../../lib/nav';
@@ -35,9 +35,11 @@ function SubPills({ deal, cfg, onUpdate }) {
                 className={`km-pl-pill ${on ? 'km-pl-pill--on' : done ? 'km-pl-pill--done' : ''}`}
                 onClick={() => onUpdate({ subStatus: on ? null : s.id })}
                 aria-pressed={on}
+                aria-label={s.label}
+                title={s.label}
               >
                 {done && !on ? <Icon name="check" size={9} stroke={3} /> : null}
-                {s.label}
+                {s.short || s.label}
               </button>
             );
           })}
@@ -58,8 +60,8 @@ function SubPills({ deal, cfg, onUpdate }) {
       <div className="km-pl-subbox km-pl-subbox--listing" onClick={(e) => e.stopPropagation()}>
         <div className="km-pl-pills">
           {list.map((s) => (
-            <button key={s.id} type="button" className={`km-pl-pill ${deal.subStatus === s.id ? 'km-pl-pill--on' : ''}`} onClick={() => onUpdate({ subStatus: s.id })} aria-pressed={deal.subStatus === s.id}>
-              {s.label}
+            <button key={s.id} type="button" title={s.label} aria-label={s.label} className={`km-pl-pill ${deal.subStatus === s.id ? 'km-pl-pill--on' : ''}`} onClick={() => onUpdate({ subStatus: s.id })} aria-pressed={deal.subStatus === s.id}>
+              {s.short || s.label}
             </button>
           ))}
         </div>
@@ -67,7 +69,28 @@ function SubPills({ deal, cfg, onUpdate }) {
     );
   }
   if (deal.stage === 'reserved') {
-    const dep = deal.depositSchedule || {};
+    const dep = deal.depositSchedule;
+    const arr = Array.isArray(dep) && dep.length ? dep : null;
+    const steps = arr
+      ? arr.map((x, i) => ({
+        id: `i${i}`,
+        label: /balance/i.test(x.label || '') ? 'Balance' : `Dep ${i + 1}`,
+        title: [x.label, x.amount ? moneyCompact(x.amount) : null, x.dueAt ? `due ${shortDate(x.dueAt)}` : null].filter(Boolean).join(' · '),
+        paid: !!x.paidAt,
+      }))
+      : cfg.depositSteps.map((x) => {
+        const v = (dep || {})[x.id];
+        return { id: x.id, label: x.id === 'balance' ? 'Balance' : x.label.replace('Deposit ', 'Dep '), title: x.label, paid: !!(v && (v === true || v.paid)) };
+      });
+    const nextDue = arr ? arr.find((x) => !x.paidAt) : null;
+    const toggle = (s, i) => {
+      if (arr) {
+        const next = arr.map((x, j) => (j === i ? { ...x, paidAt: x.paidAt ? null : new Date().toISOString() } : x));
+        onUpdate({ depositSchedule: next });
+      } else {
+        onUpdate({ depositSchedule: { [s.id]: s.paid ? null : { paid: true, at: new Date().toISOString() } } });
+      }
+    };
     return (
       <div className="km-pl-subbox km-pl-subbox--dates" onClick={(e) => e.stopPropagation()}>
         <div className="km-pl-dates">
@@ -81,20 +104,38 @@ function SubPills({ deal, cfg, onUpdate }) {
           </label>
         </div>
         <div className="km-pl-pills" style={{ marginTop: 7 }}>
-          {cfg.depositSteps.map((s) => {
-            const paid = !!(dep[s.id] && (dep[s.id] === true || dep[s.id].paid));
-            return (
-              <button key={s.id} type="button" className={`km-pl-pill ${paid ? 'km-pl-pill--on' : ''}`} onClick={() => onUpdate({ depositSchedule: { [s.id]: paid ? null : { paid: true, at: new Date().toISOString() } } })} aria-pressed={paid}>
-                {paid ? <Icon name="check" size={9} stroke={3} /> : null}
-                {s.id === 'balance' ? 'Balance' : s.label.replace('Deposit ', 'Dep ')}
-              </button>
-            );
-          })}
+          {steps.map((s, i) => (
+            <button key={s.id} type="button" title={s.title} className={`km-pl-pill ${s.paid ? 'km-pl-pill--on' : ''}`} onClick={() => toggle(s, i)} aria-pressed={s.paid}>
+              {s.paid ? <Icon name="check" size={9} stroke={3} /> : null}
+              {s.label}
+            </button>
+          ))}
         </div>
+        {nextDue ? (
+          <div className="km-pl-countdown" style={{ color: 'rgba(90,200,250,0.85)' }}>
+            Next · {nextDue.label}{nextDue.amount ? ` · ${moneyCompact(nextDue.amount)}` : ''}{nextDue.dueAt ? ` · ${shortDate(nextDue.dueAt)}` : ''}
+          </div>
+        ) : null}
       </div>
     );
   }
   return null;
+}
+
+// The grip lives near the screen's left edge, where PushPanel's edge-swipe-back
+// listens for touchstart on <body>. Stop the native touchstart at the grip so a
+// long-press drag can never turn into a swipe-back (pointer events unaffected).
+function useGripIsolation() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const stop = (e) => e.stopPropagation();
+    el.addEventListener('touchstart', stop, { passive: true });
+    el.addEventListener('touchmove', stop, { passive: true });
+    return () => { el.removeEventListener('touchstart', stop); el.removeEventListener('touchmove', stop); };
+  }, []);
+  return ref;
 }
 
 function DealCard({
@@ -102,6 +143,7 @@ function DealCard({
   dragging, landed, onGripPointerDown, onCardPointerDown, flash,
 }) {
   const [shortOpen, setShortOpen] = useState(false);
+  const gripRef = useGripIsolation();
   const c = deal.client || {};
   const next = deal.next;
   const nextLabel = next && cfg ? labelFor(cfg, next, deal.side).label : null;
@@ -135,7 +177,7 @@ function DealCard({
       >
         <div className="km-pl-row1">
           {onGripPointerDown ? (
-            <div className="km-pl-grip" data-drag-handle onPointerDown={onGripPointerDown} onClick={(e) => e.stopPropagation()} aria-label="Drag to another stage" role="button" tabIndex={-1}>
+            <div ref={gripRef} className="km-pl-grip" data-drag-handle onPointerDown={onGripPointerDown} onClick={(e) => e.stopPropagation()} aria-label="Drag to another stage" role="button" tabIndex={-1}>
               <GripDots />
             </div>
           ) : null}
@@ -153,8 +195,7 @@ function DealCard({
             )}
             {c.whale ? <Icon name="diamond" size={13} color="var(--bright)" stroke={2} title="Whale" /> : null}
             {lost ? <span className="km-pl-badge km-pl-badge--lost">LOST</span>
-              : deal.dom != null ? <span className="km-pl-badge km-pl-badge--dom" title="Days on market">DOM {deal.dom}</span>
-                : deal.stale ? <span className="km-pl-badge km-pl-badge--stale" title={`${deal.staleDays} days in this stage`}>{deal.staleDays}d</span> : null}
+              : deal.stale ? <span className="km-pl-badge km-pl-badge--stale" title={`${deal.staleDays} days in this stage`}>{deal.staleDays}d</span> : null}
           </div>
           {priceShown > 0 && !lost ? (
             <div className="km-pl-price">
@@ -181,9 +222,11 @@ function DealCard({
             <span className="km-pl-addr" title={deal.address}>
               <b>{deal.address}</b>{deal.addressLine2 ? ` · ${deal.addressLine2}` : deal.propertyLabel && deal.propertyLabel !== deal.address ? ` · ${deal.propertyLabel}` : ''}
             </span>
+          ) : deal.propertyLabel ? (
+            <span className="km-pl-addr" title={deal.propertyLabel}>{deal.propertyLabel}</span>
           ) : (
             <button type="button" className="km-pl-setprop" onClick={(e) => { e.stopPropagation(); setShortOpen(true); }}>
-              {shortlist.length ? `Set the property · ${shortlist.length} shortlisted` : deal.propertyLabel ? `${deal.propertyLabel} · set the property` : '+ Set the property'}
+              {shortlist.length ? `Set the property · ${shortlist.length} shortlisted` : '+ Set the property'}
             </button>
           )}
           <MiniStars value={c.rating || 0} />
@@ -193,6 +236,12 @@ function DealCard({
           <span className={`km-pl-tag ${sideTone}`}>{deal.sideChip}</span>
           {deal.side !== 'referral_out' && deal.group !== 'leases' ? <span className="km-pl-tag">{deal.inventoryChip || 'RESALE'}</span> : null}
           {deal.splitShare < 1 ? <span className="km-pl-tag">{Math.round(deal.splitShare * 100)}% SPLIT</span> : null}
+          {deal.dom != null ? <span className="km-pl-tag km-pl-tag--side" title="Days on market">{deal.dom} DOM</span> : null}
+          {!deal.address && deal.phase !== 'closed' && !lost && !deal.side.startsWith('referral') && (shortlist.length || !deal.propertyLabel) ? (
+            <button type="button" className="km-pl-tag km-pl-tag--side" style={{ cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); setShortOpen(true); }}>
+              {shortlist.length ? `${shortlist.length} SHORTLISTED` : '+ PROPERTY'}
+            </button>
+          ) : null}
           <span className="km-pl-stagename" style={{ color: deal.color }}>{deal.label}</span>
         </div>
 

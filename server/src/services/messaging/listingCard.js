@@ -1,8 +1,30 @@
 // Listing cards in threads: a Message of kind 'listing' carries a snapshot of
 // the listing in meta.listing (so the card renders even if the listing later
 // changes) plus a shareable link in the body the client actually receives.
+const crypto = require('node:crypto');
 const prisma = require('../../lib/prisma');
 const config = require('../../config');
+const { HttpError } = require('../../lib/http');
+
+// Same slug scheme as routes/listings.js (POST /api/listings/:id/share).
+const SLUG_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function newSlug() {
+  const bytes = crypto.randomBytes(10);
+  let s = '';
+  for (let i = 0; i < 10; i++) s += SLUG_ALPHABET[bytes[i] % SLUG_ALPHABET.length];
+  return s;
+}
+async function ensureSlug(listing) {
+  if (listing.publicSlug) return listing.publicSlug;
+  for (let i = 0; i < 3; i++) {
+    try {
+      const slug = newSlug();
+      await prisma.listing.update({ where: { id: listing.id }, data: { publicSlug: slug } });
+      return slug;
+    } catch (err) { if (err.code !== 'P2002') throw err; }
+  }
+  return null;
+}
 
 function moneyCompact(n) {
   if (n == null) return null;
@@ -21,14 +43,16 @@ function addressOf(l) {
   return street || l.title || l.buildingName || 'Listing';
 }
 
+const publicUrl = (slug) => `${String(config.appUrl || '').replace(/\/$/, '')}/api/public/p/${slug}`;
+
+// MLS/feed listings link to their public listing page when we have one;
+// everything else links to the agent's private showcase page.
 function shareUrl(l) {
   if (!l) return null;
-  if (l.listingUrl && /^https?:\/\//i.test(l.listingUrl)) return l.listingUrl;
-  if (l.publicSlug) {
-    const base = String(process.env.PUBLIC_URL || config.appUrl || '').replace(/\/$/, '');
-    return `${base}/p/${l.publicSlug}`;
-  }
-  return null;
+  const external = l.listingUrl && /^https?:\/\//i.test(l.listingUrl) ? l.listingUrl : null;
+  if (l.origin === 'feed' && external) return external;
+  if (l.publicSlug) return publicUrl(l.publicSlug);
+  return external;
 }
 
 function snapshot(l) {
@@ -64,6 +88,8 @@ function defaultLine(snap) {
 async function buildListingMessage({ workspaceId, listingId, note }) {
   const l = await prisma.listing.findFirst({ where: { id: listingId, workspaceId } });
   if (!l) return null;
+  if (l.origin === 'whisper') throw new HttpError(400, 'Whispers stay private — add it as a pocket listing to share it');
+  if (!l.publicSlug && !(l.origin === 'feed' && l.listingUrl)) l.publicSlug = await ensureSlug(l);
   const snap = snapshot(l);
   const text = String(note || '').trim() || defaultLine(snap);
   const body = snap.url && !text.includes(snap.url) ? `${text}\n${snap.url}` : text;

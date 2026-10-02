@@ -119,13 +119,19 @@ function placeCandidates(candidates, occupied, window, constraints = {}) {
       if (slot) {
         emit({ ...lunchCand, movedForAppt: true }, slot.startMin);
         consume(gaps, slot.gapIndex, slot.startMin, lunchCand.durationMin, buffer);
-      } else overflow.push({ ...lunchCand, reason: 'lunch_window_covered_by_appt' });
+      } else {
+        overflow.push({ ...lunchCand, reason: 'lunch_window_covered_by_appt' });
+        warnings.push(`No ${lunchCand.durationMin}-min window for lunch after your appointments today.`);
+      }
     } else {
       const slot = findSlot(gaps, lunchCand.durationMin, { earliest: lunchWindow.start, latestStart: lunchWindow.end - lunchCand.durationMin });
       if (slot) {
         emit(lunchCand, slot.startMin);
         consume(gaps, slot.gapIndex, slot.startMin, lunchCand.durationMin, buffer);
-      } else overflow.push({ ...lunchCand, reason: 'no_slot_in_lunch_window' });
+      } else {
+        overflow.push({ ...lunchCand, reason: 'no_slot_in_lunch_window' });
+        warnings.push(`No ${lunchCand.durationMin}-min window for lunch today.`);
+      }
     }
   }
 

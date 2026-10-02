@@ -43,18 +43,35 @@ export const RELATION_LABEL = {
 };
 
 export const PERSONAL_FIELDS = [
-  { key: 'spouse', label: 'Spouse / partner', icon: 'rings', placeholder: 'Elena' },
-  { key: 'kids', label: 'Kids', icon: 'heart', placeholder: 'Mateo (12), Sofia (9)' },
-  { key: 'pets', label: 'Pets', icon: 'heart', placeholder: 'Bruno — golden retriever' },
-  { key: 'hobbies', label: 'Hobbies', icon: 'flag', placeholder: 'Sailing, golf, padel' },
-  { key: 'clubs', label: 'Clubs', icon: 'award', placeholder: 'Coral Reef Yacht Club, La Gorce' },
-  { key: 'restaurants', label: 'Restaurants', icon: 'star', placeholder: 'Cote, Carbone, Le Sirenuse' },
-  { key: 'wine', label: 'Wine', icon: 'wine', placeholder: 'Burgundy, Opus One' },
-  { key: 'boats', label: 'Boats', icon: 'anchor', placeholder: '74’ Riva at Grove Harbour' },
-  { key: 'art', label: 'Art', icon: 'image', placeholder: 'Collects Basquiat prints' },
+  { key: 'spouse', label: 'Spouse / partner', icon: 'rings', placeholder: 'Camille' },
+  { key: 'kids', label: 'Kids', icon: 'heart', placeholder: 'Léa (11), Marius (8)' },
+  { key: 'pets', label: 'Pets', icon: 'heart', placeholder: 'Otis — Bernese mountain dog' },
+  { key: 'hobbies', label: 'Hobbies', icon: 'flag', placeholder: 'Offshore sailing, padel' },
+  { key: 'clubs', label: 'Clubs', icon: 'award', placeholder: 'Grove Harbour Yacht Club' },
+  { key: 'favoriteRestaurants', label: 'Restaurants', icon: 'star', placeholder: 'Le Petit Quai, Osteria Vela' },
+  { key: 'wine', label: 'Wine', icon: 'wine', placeholder: 'White Burgundy — Meursault' },
+  { key: 'boats', label: 'Boats', icon: 'anchor', placeholder: 'Belle Rive · 82′ motor yacht' },
+  { key: 'art', label: 'Art', icon: 'image', placeholder: 'Large-format seascapes' },
+  { key: 'coffee', label: 'Coffee', icon: 'sun', placeholder: 'Cortado, oat milk' },
+  { key: 'languages', label: 'Languages', icon: 'globe', placeholder: 'French, English' },
   { key: 'anniversary', label: 'Anniversary', icon: 'calendar', placeholder: 'June 12' },
   { key: 'other', label: 'Other', icon: 'sparkle', placeholder: 'Anything worth remembering' },
 ];
+// Keys never surfaced (protected-class adjacent; Fair Housing).
+export const PERSONAL_HIDDEN = new Set(['origin', 'nationality', 'religion', 'ethnicity', 'race']);
+
+// Render any personal value (string · list · {name, age, …} · [{…}]) as text.
+export function fmtPersonal(v) {
+  if (v == null || v === '') return '';
+  if (Array.isArray(v)) return v.map(fmtPersonal).filter(Boolean).join(', ');
+  if (typeof v === 'object') {
+    if (v.name && v.lengthFt) return `${v.name} · ${v.lengthFt}′${v.kind ? ` ${v.kind}` : ''}`;
+    if (v.name && v.age != null) return `${v.name} (${v.age})`;
+    if (v.name) return v.name;
+    return Object.values(v).filter((x) => typeof x === 'string' || typeof x === 'number').join(' · ');
+  }
+  return String(v);
+}
 
 export const FINANCING = [
   { value: 'cash_pof', label: 'Cash · proof of funds' }, { value: 'preapproved', label: 'Pre-approved' },
@@ -88,7 +105,8 @@ export function subLine(c, { withKind = false } = {}) {
     return [withKind ? cap(c.contactKind) : null, c.vendorRole ? humanize(c.vendorRole) : null, c.company, !c.company && c.neighborhood ? c.neighborhood : null].filter(Boolean).join(' · ') || formatPhone(c.phone);
   }
   const t = lastTouch(c);
-  return [TYPE_LABEL[c.type] || null, c.neighborhood || c.city || null, t ? relativeTime(t) : null].filter(Boolean).join(' · ') || formatPhone(c.phone);
+  const when = t ? (t.getTime() > Date.now() ? 'today' : relativeTime(t)) : null;
+  return [TYPE_LABEL[c.type] || null, c.neighborhood || c.city || null, when].filter(Boolean).join(' · ') || formatPhone(c.phone);
 }
 
 export const money = (n) => (n ? moneyCompact(n) : '—');
@@ -285,14 +303,13 @@ export function ChipInput({ value = [], onChange, suggestions = [], placeholder 
   );
 }
 
-// ── MoneyInput: "8.5" → $8,500,000 (RE rule), shows compact hint ─────────
+// ── MoneyInput: "8.5" → $8,500,000 (RE rule). Compact when idle ($8.5M),
+// full digits while editing, live hint of what the shorthand means.
 export function MoneyInput({ value, onChange, placeholder = '$', style, inputStyle, label }) {
-  const [text, setText] = useState(value != null && value !== '' ? Number(value).toLocaleString('en-US') : '');
-  const focused = useRef(false);
-  useEffect(() => {
-    if (!focused.current) setText(value != null && value !== '' ? Number(value).toLocaleString('en-US') : '');
-  }, [value]);
+  const [text, setText] = useState('');
+  const [focused, setFocused] = useState(false);
   const parsed = parseMoneyInput(text);
+  const idle = value != null && value !== '' ? moneyCompact(Number(value)).replace(/^\$/, '') : '';
   return (
     <label className="km-field" style={style}>
       {label ? <span className="km-field-label">{label}</span> : null}
@@ -301,15 +318,20 @@ export function MoneyInput({ value, onChange, placeholder = '$', style, inputSty
         <input
           className="km-input"
           inputMode="decimal"
-          value={text}
+          value={focused ? text : idle}
           placeholder={placeholder}
-          style={{ paddingLeft: 26, paddingRight: parsed ? 70 : 14, ...inputStyle }}
-          onFocus={(e) => { focused.current = true; const t = e.target; setTimeout(() => { try { t.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch { /* noop */ } }, 300); }}
+          style={{ paddingLeft: 26, paddingRight: focused && parsed ? 66 : 14, ...inputStyle }}
+          onFocus={(e) => {
+            setFocused(true);
+            setText(value != null && value !== '' ? Number(value).toLocaleString('en-US') : '');
+            const t = e.target;
+            setTimeout(() => { try { t.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch { /* noop */ } }, 300);
+          }}
           onChange={(e) => { setText(e.target.value); onChange(parseMoneyInput(e.target.value)); }}
-          onBlur={() => { focused.current = false; const v = parseMoneyInput(text); setText(v != null ? v.toLocaleString('en-US') : ''); }}
+          onBlur={() => setFocused(false)}
         />
-        {parsed ? (
-          <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12.5, fontWeight: 600, color: 'var(--bright)' }}>{moneyCompact(parsed)}</span>
+        {focused && parsed ? (
+          <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12.5, fontWeight: 600, color: 'var(--bright)', pointerEvents: 'none' }}>{moneyCompact(parsed)}</span>
         ) : null}
       </span>
     </label>

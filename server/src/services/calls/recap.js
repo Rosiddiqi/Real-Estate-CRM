@@ -53,9 +53,20 @@ function heuristic(lines, client, tz) {
     suggestions.unshift({ kind: 'appointment', title: isCall ? `Schedule the call with ${first}?` : `Book it with ${first}?`, heard: agreed.text, fields: { type: isCall ? 'call' : /listing|presentation/i.test(agreed.text) ? 'listing_presentation' : 'showing', date: agreed.text, time: `${String(t.h).padStart(2, '0')}:${String(t.m).padStart(2, '0')}` } });
   }
   if (client) suggestions.push({ kind: 'text', title: `Text ${first} a quick recap`, heard: '', fields: { body: `Hi ${first}, thanks for the time today. I'll follow up on everything we discussed shortly.` } });
-  const theirs = lines.filter((l) => l.speaker === 'client').map((l) => l.text);
-  const summary = lines.length < 4 ? null : `${client ? first : 'The caller'} and you spoke for ${lines.length} exchanges.${theirs.length ? ` They said: “${U.clip(theirs[theirs.length - 1], 120)}”` : ''}`;
-  return { summary, bullets: promises.map((p) => `You: ${U.clip(p.text, 110)}`), sentiment: 'neutral', suggestions };
+  const { classify } = require('./cues');
+  const raised = [...new Set(lines.filter((l) => l.speaker === 'client').map((l) => (classify(l).cue || {}).title).filter(Boolean))];
+  const who = client ? first : 'The caller';
+  const summary = lines.length < 3 ? null : [
+    `${lines.length < 10 ? 'A short call' : 'A call'} with ${who}${agreed ? ' that ended with a next step agreed' : ''}.`,
+    raised.length ? `They raised: ${raised.join(', ').toLowerCase().replace(/“|”/g, '')}.` : null,
+    promises.length ? `You committed to ${promises.length} follow-up${promises.length === 1 ? '' : 's'}.` : 'No commitments were made yet.',
+  ].filter(Boolean).join(' ');
+  const bullets = [
+    ...raised.slice(0, 1).map((r) => `Objection: ${r.replace(/“|”/g, '')}`),
+    ...promises.slice(0, 2).map((p) => `You: ${U.clip(p.text, 100)}`),
+    agreed ? `Agreed: ${U.clip(agreed.text, 100)}` : null,
+  ].filter(Boolean).slice(0, 3);
+  return { summary, bullets, sentiment: 'neutral', suggestions };
 }
 
 const RECAP_SCHEMA = {
@@ -124,9 +135,22 @@ async function generate(callId) {
   const meta = (call.meta && typeof call.meta === 'object') ? call.meta : {};
   let r = null;
   let source = 'heuristic';
-  if (meta.script && meta.script.recap && meta.script.linesTotal && lines.length >= Math.min(meta.script.linesTotal, 6)) { r = meta.script.recap; source = 'script'; }
+  const scripted = meta.script && meta.script.recap && meta.script.linesTotal;
+  // A finished demo script carries its own (accurate) recap. A call cut short
+  // must only reflect what was actually said.
+  if (scripted && lines.length >= meta.script.linesTotal) { r = meta.script.recap; source = 'script'; }
   if (!r) { r = await aiRecap(call, lines, call.client, tz); if (r) source = 'ai'; }
-  if (!r) r = heuristic(lines, call.client, tz);
+  if (!r) {
+    r = heuristic(lines, call.client, tz);
+    if (scripted) {
+      const spoken = new Set(lines.map((l) => U.norm(l.text)));
+      const kept = (meta.script.recap.suggestions || []).filter((sg) => sg.heard && spoken.has(U.norm(sg.heard)));
+      const textDraft = (meta.script.recap.suggestions || []).find((sg) => sg.kind === 'text');
+      r.suggestions = [...kept, ...r.suggestions.filter((x) => x.kind !== 'task' && x.kind !== 'text'), ...(kept.some((k) => k.kind === 'text') || !call.client ? [] : [{ kind: 'text', title: `Text ${U.firstOf(call.client)} a quick follow-up`, heard: '', fields: { body: `Hi ${U.firstOf(call.client)}, sorry we got cut short. ${textDraft ? 'I’ll follow up with everything we discussed today.' : 'When’s a good time to pick it back up?'}` } }])];
+      if (!kept.length && r.suggestions.length > 2) r.suggestions = r.suggestions.slice(0, 2);
+    }
+    source = 'heuristic';
+  }
   const notes = Array.isArray(meta.notes) ? meta.notes.filter((n) => n.text) : [];
   const suggestions = materialize(r.suggestions, tz);
   if (notes.length && !suggestions.some((s) => s.kind === 'note')) {
@@ -209,8 +233,8 @@ async function decide({ workspaceId, userId, callId, sid, status, fields }) {
     s.undoToken = undoToken;
   }
   const suggestions = list.map((x) => (x.id === sid ? s : x));
-  const updated = await prisma.phoneCall.update({ where: { id: call.id }, data: { aiSuggestions: suggestions } });
-  try { hub.broadcast(workspaceId, 'call_updated', { id: updated.id, aiSuggestions: suggestions, partial: true }); } catch { /* ignore */ }
+  const updated = await prisma.phoneCall.update({ where: { id: call.id }, data: { aiSuggestions: suggestions }, include: { client: { select: U.CLIENT_LITE } } });
+  try { hub.broadcast(workspaceId, 'call_updated', require('./serialize').serializeCall(updated)); } catch { /* ignore */ }
   return { suggestion: s, undoToken, draft };
 }
 

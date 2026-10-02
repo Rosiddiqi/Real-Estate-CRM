@@ -9,7 +9,6 @@
 const prisma = require('../../lib/prisma');
 const ai = require('../../ai/claude');
 const { clientName } = require('../../lib/clients');
-const { partsIn } = require('../../lib/dates');
 const { FAIR_HOUSING_GUARDRAIL, AUTOMATION_DEFS } = require('./constants');
 
 const MAX_LEN = 480;
@@ -111,10 +110,11 @@ async function voiceSample(workspaceId) {
 }
 
 // ── Deterministic templates ────────────────────────────────────────────
+// FNV-1a — spreads well even for seeds that share a long suffix.
 function hashPick(seed, n) {
-  let h = 0;
+  let h = 0x811c9dc5;
   const s = String(seed || 'x');
-  for (let i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) >>> 0;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
   return n ? h % n : 0;
 }
 
@@ -126,15 +126,15 @@ const BLAST_VARIANTS = {
   just_listed: [
     'Hi {first}, I just listed {addr}{inHood}: {specs}{atPrice}. Want a private showing before it opens to everyone?',
     '{first}, a new listing of mine just went live at {addr}. {specsCap}{offered}. Happy to walk you through it privately this week.',
-    'Hi {first}! Just listed {addr}{inHoodParen}. {specsCap}{atPriceSentence} Want to see it before the weekend?',
+    'Hi {first}! Just listed {addr}{inHoodParen}. {specsCap}{offered}. Want to see it before the weekend?',
   ],
   just_sold: [
     'Hi {first}, I just closed {addr}{inHood}{forPrice}. Curious what yours would sell for today? Happy to run the numbers for you.',
-    '{first}, quick note: we just sold {addr}{forPrice}. If you have ever wondered what your home is worth right now, I would be glad to put together a private valuation.',
+    '{first}, quick note: we just sold {addr}{forPrice}. If you’ve ever wondered what your home is worth right now, I’d be glad to put together a private valuation.',
   ],
   open_house_invite: [
-    'Hi {first}, I am hosting an open house at {addr}{whenComma}. Light bites and a private walkthrough, bring a friend. Will you come by?{rsvp}',
-    '{first}, you are invited: open house at {addr}{whenComma}. I would love to show you around.{rsvp}',
+    'Hi {first}, I’m hosting an open house at {addr}{whenComma}. Light bites and a private walkthrough, bring a friend. Will you come by?{rsvp}',
+    '{first}, you’re invited: open house at {addr}{whenComma}. I’d love to show you around.{rsvp}',
     'Hi {first}! Open house at {addr}{whenComma}. Come see it in person, bring a friend.{rsvp}',
   ],
   price_improvement: [
@@ -143,10 +143,10 @@ const BLAST_VARIANTS = {
   ],
   market_update: [
     'Hi {first}, quick {hoodOrArea} market update: well-priced homes are getting strong attention right now. Curious what yours would bring today? Happy to put together a private valuation.',
-    '{first}, {hoodOrArea} has been active lately. If you would like a complimentary, no-pressure valuation of your home, just say the word.',
+    '{first}, {hoodOrArea} has been active lately. If you’d like a complimentary, no-pressure valuation of your home, just say the word.',
   ],
   home_anniversary: [
-    'Happy home anniversary, {first}! {yearsSentence}Values around {hoodOrArea} have moved, so if you would like a complimentary equity review, I would be glad to put one together.',
+    'Happy home anniversary, {first}! {yearsSentence}Values around {hoodOrArea} have moved, so if you’d like a complimentary equity review, I’d be glad to put one together.',
   ],
   coming_soon: [
     'Hi {first}, quiet heads up: I have an off-market home coming soon{inHood}, before it hits the MLS. Want first look?',
@@ -155,18 +155,18 @@ const BLAST_VARIANTS = {
 };
 
 const AUTO_VARIANTS = {
-  home_anniversary: ['Happy home anniversary, {first}! {yearsSentence}If you are curious what it is worth today, I would be glad to put together a complimentary CMA.'],
+  home_anniversary: ['Happy home anniversary, {first}! {yearsSentence}If you’re curious what it’s worth today, I’d be glad to put together a complimentary CMA.'],
   birthday: ['Happy birthday, {first}! Hope you have a wonderful day.', 'Happy birthday {first}! Wishing you a great year ahead.'],
-  new_listing_match: ['Hi {first}, a new listing just hit that fits what you are looking for: {addr}{inHood}, {specs}{atPrice}. Want a private showing?'],
-  price_drop: ['Hi {first}, the home you have been watching at {addr} just dropped to {price}{wasPrice}. Want to set up a showing?'],
+  new_listing_match: ['Hi {first}, a new listing just hit that fits what you’re looking for: {addr}{inHood}, {specs}{atPrice}. Want a private showing?'],
+  price_drop: ['Hi {first}, the home you’ve been watching at {addr} just dropped to {price}{wasPrice}. Want to set up a showing?'],
   open_house_invite: ['Hi {first}, thanks for stopping by the open house at {addr}. What did you think? Happy to set up a private second look.'],
   post_closing: [
-    'Hi {first}, how is the move-in going? If you need anything at all (contractors, movers, utilities), I am a text away.',
+    'Hi {first}, how’s the move-in going? If you need anything at all (contractors, movers, utilities), I’m a text away.',
     'One month in, {first}! How are you settling in? Anything need attention?',
     'Hi {first}, six months in the new place already. Values nearby have held up nicely. Always a text away if you need anything.',
-    'Happy one year in your home, {first}! If you would like a complimentary equity review, just say the word. And if anyone you know is thinking of buying or selling, I would be grateful for the intro.',
+    'Happy one year in your home, {first}! If you’d like a complimentary equity review, just say the word. And if anyone you know is thinking of buying or selling, I’d be grateful for the intro.',
   ],
-  lease_expiry: ['Hi {first}, your lease is coming up{leaseDate}. Want a quick buy-versus-renew comparison? Sometimes what you are paying in rent could own something nearby. No pressure either way.'],
+  lease_expiry: ['Hi {first}, your lease is coming up{leaseDate}. Want a quick buy-versus-renew comparison? Sometimes what you’re paying in rent could own something nearby. No pressure either way.'],
   showing_followup: ['Hi {first}, what did you think of {addr} yesterday? Even a quick gut reaction helps me find the right one.'],
 };
 
@@ -174,15 +174,22 @@ const AUTO_VARIANTS = {
 function briefToText(brief, first) {
   let t = String(brief || '').trim();
   if (!t) return `Hi ${first}, hope you are doing well.`;
-  t = t.replace(/^(please\s+)?(let|tell|remind|ask|invite|text|message|send|share with)\s+(them|everyone|all of them|people|clients|my clients)\s*(know\s+)?(that\s+)?(about\s+)?/i, '');
-  t = t.replace(/^(share|send)\s+/i, '');
-  t = t.replace(/\bask (them )?(if|whether) they('re| are)\b/gi, 'are you')
-    .replace(/\bask (them )?(if|whether) they\b/gi, 'do you')
+  t = t.replace(/^(please\s+)?(let|tell)\s+(them|everyone|all of them|people|clients|my clients)\s+(know\s+)?about\s+/i, 'wanted to tell you about ');
+  t = t.replace(/^(please\s+)?remind\s+(them|everyone|people|clients)\s+(that\s+|about\s+)?/i, 'just a reminder: ');
+  t = t.replace(/^(please\s+)?invite\s+(them|everyone|people|clients)\s+to\s+/i, 'you’re invited to ');
+  t = t.replace(/^(please\s+)?(let|tell|ask|text|message|send|share with)\s+(them|everyone|all of them|people|clients|my clients)\s*(know\s+)?(that\s+)?/i, '');
+  t = t.replace(/^(share|send)\s+(them\s+)?/i, 'sharing ');
+  t = t.replace(/,?\s*(and|then)?\s*ask (them )?(if|whether) they('re| are)\s+/gi, '. Are you ')
+    .replace(/,?\s*(and|then)?\s*ask (them )?(if|whether) they (would|want|have|need)\s+/gi, (m, a, b, c, v) => `. ${v === 'would' ? 'Would' : 'Do'} you ${v === 'would' || v === 'have' || v === 'need' ? (v === 'would' ? '' : `${v} `) : 'want '}`)
+    .replace(/,?\s*(and|then)?\s*offer (them )?(a|an)\s+/gi, '. Happy to set up a ')
     .replace(/\bthey're\b/gi, "you're").replace(/\bthey are\b/gi, 'you are').replace(/\bthey'll\b/gi, "you'll")
     .replace(/\bthemselves\b/gi, 'yourself').replace(/\btheirs\b/gi, 'yours').replace(/\btheir\b/gi, 'your')
     .replace(/\bthem\b/gi, 'you').replace(/\bthey\b/gi, 'you');
   t = t.charAt(0).toLowerCase() + t.slice(1);
   if (/^i\b/.test(t)) t = `I${t.slice(1)}`;
+  t = t.replace(/\s+\./g, '.').replace(/\.\s*\./g, '.').replace(/\s{2,}/g, ' ');
+  // Sentences that ask something end with a question mark.
+  t = t.split(/(?<=[.!?])\s+/).map((sent) => (/^(are|do|would|want|can|could|is|should) /i.test(sent) ? sent.replace(/[.!]?$/, '?') : sent)).join(' ');
   if (!/[.!?]$/.test(t)) t += '.';
   return `Hi ${first}, ${t}`;
 }
@@ -208,7 +215,7 @@ function templateVars({ client, listing, event, agent, extra = {} }) {
     wasPrice: L && L.wasPrice ? ` (was ${L.wasPrice})` : '',
     whenComma: when ? `, ${when}` : '',
     when,
-    rsvp: event && event.rsvp ? ' Just reply yes if you are coming.' : '',
+    rsvp: event && event.rsvp ? ' Just reply yes if you’re coming.' : '',
     title: (event && event.title) || 'the open house',
     eventAddr: (event && event.address) || (L && L.address) || '',
     agent: agent.firstName,
@@ -216,21 +223,36 @@ function templateVars({ client, listing, event, agent, extra = {} }) {
   };
 }
 
-function fallbackText({ campaign, client, kind, lane, stepIndex = 0, listing, event, agent, seed, attempt = 0, extra = {} }) {
+// A cold contact (never replied) may not have the agent saved: say who it is.
+function withIntro(text, agent) {
+  const who = `it’s ${agent.firstName}${agent.brokerage ? ` with ${agent.brokerage}` : ''}`;
+  const m = text.match(/^(Hi\s+[^,!.]+|[A-Z][\w'’-]*)[,!]\s*/);
+  if (!m) return `${who.charAt(0).toUpperCase()}${who.slice(1)}. ${text}`;
+  const rest = text.slice(m[0].length);
+  return `${m[1]}, ${who}. ${rest.charAt(0).toUpperCase()}${rest.slice(1)}`;
+}
+
+function fallbackText(opts) {
+  const text = fallbackCore(opts);
+  if (opts.tier === 'cold' && ['initial_send', 'auto_step'].includes(opts.kind || 'initial_send') && !/happy (birthday|home anniversary|one year)/i.test(text)) return sanitizeOutbound(withIntro(text, opts.agent));
+  return text;
+}
+
+function fallbackCore({ campaign, client, kind, lane, stepIndex = 0, listing, event, agent, seed, attempt = 0, extra = {} }) {
   const v = templateVars({ client, listing, event, agent, extra });
   const pick = (arr) => arr[(hashPick(seed || client.id, arr.length) + attempt) % arr.length];
   let out;
   if (kind === 'gray_check') {
     out = pick(['Hi {first}, just making sure you saw my last text. No rush at all.', '{first}, circling back in case my last message got buried. No pressure.']);
   } else if (kind === 'close_out') {
-    out = pick(['Totally understand, {first}. Thanks for letting me know, I will keep you posted on the next one.', 'No worries at all, {first}. Thanks for getting back to me. I will keep you in mind for the next one.']);
+    out = pick(['Totally understand, {first}. Thanks for letting me know, I’ll keep you posted on the next one.', 'No worries at all, {first}. Thanks for getting back to me. I’ll keep you in mind for the next one.']);
   } else if (kind === 'reminder_step') {
     out = v.when ? 'Quick reminder, {first}: {title} is {when}{atEventAddr}. See you there!' : 'Quick reminder, {first}. Looking forward to it!';
     v.atEventAddr = v.eventAddr ? ` at ${v.eventAddr}` : '';
   } else if (kind === 'lane_step') {
     if (lane === 'green') out = v.when ? 'Looking forward to seeing you {when}, {first}. {eventAddrSentence}' : (listing ? 'Great, {first}! Want me to set up a private showing at {addr}? What day works best?' : 'Great to hear, {first}! What day works best to connect?');
-    else if (lane === 'yellow') out = v.when ? 'No pressure at all, {first}. If you can make it {when}, I would love to see you.' : 'No rush at all, {first}. Happy to answer any questions whenever you are ready.';
-    else out = 'Thanks again, {first}. I will keep you posted.';
+    else if (lane === 'yellow') out = v.when ? 'No pressure at all, {first}. If you can make it {when}, I’d love to see you.' : 'No rush at all, {first}. Happy to answer any questions whenever you’re ready.';
+    else out = 'Thanks again, {first}. I’ll keep you posted.';
     v.eventAddrSentence = v.eventAddr ? `${v.eventAddr}.` : '';
   } else if (kind === 'auto_step' && campaign && AUTO_VARIANTS[campaign.trigger]) {
     const list = AUTO_VARIANTS[campaign.trigger];
@@ -322,7 +344,7 @@ async function draft({ workspaceId, campaign, client, kind = 'initial_send', lan
       if (err.code !== 'ai_unavailable') console.error('[campaigns/drafter] AI draft failed, using template:', err.message);
     }
   }
-  const text = fallbackText({ campaign, client, kind, lane, stepIndex, listing, event, agent: a, seed: `${client.id}:${campaign && campaign.id}`, attempt, extra });
+  const text = fallbackText({ campaign, client, kind, lane, stepIndex, listing, event, agent: a, tier, seed: `${client.id}:${campaign && campaign.id}`, attempt, extra });
   const citations = [];
   if (listing) citations.push('listing');
   if (event && event.startAt) citations.push('event');

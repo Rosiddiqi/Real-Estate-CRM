@@ -86,33 +86,62 @@ function dealLine(b) {
   return `${STAGE_LABEL[d.stage] || d.stage} · ${label}${price ? ` · ${moneyShort(price)}` : ''}`;
 }
 
-function personalPoints(c, links) {
+// Any personal value (string · list · {name, age} · [{name, lengthFt}]) → text.
+function fmtPersonal(v) {
+  if (v == null || v === '') return '';
+  if (Array.isArray(v)) return v.map(fmtPersonal).filter(Boolean).join(', ');
+  if (typeof v === 'object') {
+    if (v.name && v.lengthFt) return `${v.name} (${v.lengthFt}′${v.kind ? ` ${v.kind}` : ''})`;
+    if (v.name && v.age != null) return `${v.name} (${v.age})`;
+    if (v.name) return v.name;
+    return Object.values(v).filter((x) => typeof x === 'string' || typeof x === 'number').join(' · ');
+  }
+  return String(v);
+}
+const firstOf = (v) => {
+  if (v == null) return null;
+  if (Array.isArray(v)) return v.length ? firstOf(v[0]) : null;
+  if (typeof v === 'object') return v.name || null;
+  return String(v).split(/[,;—–]/)[0].trim() || null;
+};
+
+// Fair Housing: origin / nationality / religion never leave the record.
+const PERSONAL_KEYS = [
+  ['spouse', 'Spouse'], ['kids', 'Kids'], ['pets', 'Pets'], ['hobbies', 'Hobbies'], ['clubs', 'Clubs'],
+  ['favoriteRestaurants', 'Restaurants'], ['restaurants', 'Restaurants'], ['wine', 'Wine'], ['boats', 'Boats'], ['art', 'Art'],
+  ['coffee', 'Coffee'], ['anniversary', 'Anniversary'], ['other', 'Notes'],
+];
+
+function personalPoints(c, links, { forAi = false } = {}) {
   const p = (c.personal && typeof c.personal === 'object') ? c.personal : {};
   const out = [];
-  const add = (label, v) => {
-    if (v == null || v === '') return;
-    const s = Array.isArray(v) ? v.filter(Boolean).join(', ') : typeof v === 'object' ? Object.values(v).filter(Boolean).join(', ') : String(v);
+  const { PROTECTED } = require('./reparse');
+  const spouseLink = (links || []).find((l) => ['spouse', 'partner'].includes(l.relation));
+  if (!p.spouse && spouseLink) out.push(`Spouse: ${S.displayNameOf(spouseLink.client)}`);
+  for (const [key, label] of PERSONAL_KEYS) {
+    if (forAi && key === 'kids') continue; // familial status never goes to the model
+    const s = fmtPersonal(p[key]);
     if (s) out.push(`${label}: ${s}`);
-  };
-  const spouseLink = links.find((l) => ['spouse', 'partner'].includes(l.relation));
-  add('Spouse', p.spouse || (spouseLink ? S.displayNameOf(spouseLink.client) : null));
-  add('Kids', p.kids); add('Pets', p.pets); add('Hobbies', p.hobbies); add('Clubs', p.clubs);
-  add('Restaurants', p.restaurants); add('Wine', p.wine); add('Boats', p.boats); add('Art', p.art);
-  add('Anniversary', p.anniversary); add('Notes', p.other);
-  return out.slice(0, 8);
+  }
+  const facts = (c.aiFacts && Array.isArray(c.aiFacts.touchPoints)) ? c.aiFacts.touchPoints : [];
+  for (const t of facts) if (out.length < 10 && !(forAi && PROTECTED.test(String(t)))) out.push(String(t));
+  return out.slice(0, 10);
 }
 
 function iceBreakersFrom(c) {
   const p = (c.personal && typeof c.personal === 'object') ? c.personal : {};
-  const pick = (v) => (Array.isArray(v) ? v[0] : typeof v === 'string' ? v.split(/[,;]/)[0] : null);
   const out = [];
-  if (p.boats) out.push(`How’s the ${pick(p.boats)} running this season?`);
-  if (p.wine) out.push(`Opened anything good lately? Last time it was ${pick(p.wine)}.`);
-  if (p.restaurants) out.push(`Been back to ${pick(p.restaurants)} recently?`);
-  if (p.hobbies) out.push(`Getting much ${pick(p.hobbies)} in lately?`);
-  if (p.art) out.push(`Any new pieces since the ${pick(p.art)}?`);
-  if (p.clubs) out.push(`See you at ${pick(p.clubs)} soon?`);
-  if (p.pets) out.push(`How’s ${pick(p.pets)} doing?`);
+  const boat = firstOf(p.boats);
+  const hobby = firstOf(p.hobbies);
+  const resto = firstOf(p.favoriteRestaurants || p.restaurants);
+  if (boat) out.push(`How’s ${boat} running this season?`);
+  if (p.wine) out.push(`Opened anything good lately? Still on ${firstOf(p.wine)}?`);
+  if (resto) out.push(`Been back to ${resto} recently?`);
+  if (hobby) out.push(`Getting much ${hobby.toLowerCase()} in lately?`);
+  if (p.art) out.push(`Any new work since we last talked about ${firstOf(p.art).toLowerCase()}?`);
+  if (p.clubs) out.push(`See you at ${firstOf(p.clubs)} soon?`);
+  const pet = firstOf(p.pets);
+  if (pet) out.push(`How’s ${pet.split(' ')[0]} doing?`);
   return out.slice(0, 3);
 }
 
@@ -176,7 +205,7 @@ function fallbackBriefing(b) {
     personalTouchPoints: personalPoints(b.client, [...(b.client.links || []).map((l) => ({ relation: l.relation, client: l.relatedClient })), ...(b.client.linkedFrom || []).map((l) => ({ relation: l.relation, client: l.client }))]),
     portfolioContext: portfolioLine(b),
     dealContext: dealLine(b),
-    toneNotes: null,
+    toneNotes: (b.client.aiFacts && typeof b.client.aiFacts.style === 'string') ? b.client.aiFacts.style : null,
     lastContactSummary: lastContactSummary(b),
     generatedAt: new Date().toISOString(),
     source: 'fallback',
@@ -190,8 +219,13 @@ function contextText(b) {
   if (c.company || c.jobTitle) lines.push(`Work: ${[c.jobTitle, c.company].filter(Boolean).join(' at ')}`);
   lines.push(`Lifetime volume ${moneyShort(c.lifetimeVolume || 0)} across ${c.transactionsCount || 0} closings. Lead source: ${c.leadSource || 'unknown'}.`);
   if (c.financing || c.timeline || c.motivation) lines.push(`Financing: ${c.financing || '—'}${c.preApprovalAmount ? ` (pre-approved ${moneyShort(c.preApprovalAmount)})` : ''} · Timeline: ${c.timeline || '—'} · Motivation: ${c.motivation || '—'}`);
-  const pp = personalPoints(c, []);
+  const pp = personalPoints(c, [], { forAi: true });
   if (pp.length) lines.push(`Agent-recorded personal notes: ${pp.join('; ')}`);
+  if (c.aiFacts && typeof c.aiFacts === 'object') {
+    if (Array.isArray(c.aiFacts.mustHaves) && c.aiFacts.mustHaves.length) lines.push(`Known must-haves: ${c.aiFacts.mustHaves.join('; ')}`);
+    if (c.aiFacts.style) lines.push(`Communication style: ${c.aiFacts.style}`);
+  }
+  if (c.aiSummary) lines.push(`Previous summary: ${String(c.aiSummary).slice(0, 600)}`);
   if (b.properties.length) {
     lines.push('PORTFOLIO:');
     for (const p of b.properties.slice(0, 8)) {

@@ -10,7 +10,7 @@ function fillBrief(key, listing) {
   if (!t || !t.brief) return '';
   const L = listingFacts(listing);
   const v = {
-    address: L ? (L.offMarket ? `a home${L.neighborhood ? ` in ${L.neighborhood}` : ''}` : L.address) : 'my new listing',
+    address: L ? (L.offMarket ? `a home${L.neighborhood ? ` in ${L.neighborhood}` : ''}` : L.address) : ({ just_listed: 'a new home', just_sold: 'a home nearby', open_house_invite: 'my new listing', price_improvement: 'one of my listings' }[key] || 'a home'),
     area: L && L.neighborhood && !(L.offMarket && key !== 'coming_soon') && L.address.indexOf(L.neighborhood) === -1 ? ` in ${L.neighborhood}` : '',
     specsParen: L && L.specs ? ` (${L.specs})` : '',
     atPrice: L && L.price ? ` at ${L.price}` : '',
@@ -32,20 +32,20 @@ function defaultLanes(key, { hasEvent = false } = {}) {
   if (key === 'open_house_invite') {
     green = 'Remind them the evening before at 6 with the address';
     yellow = 'Give them space, check back the day before';
-    red = 'Thank them and offer a private showing another day, right away';
+    red = 'Right away, thank them and offer a private showing another day';
     gray = 'One easy nudge, did they see the invite';
     reminders = { enabled: true, text: 'Remind everyone who said yes the morning of with the address', audience: 'green' };
     ai = 'Answer questions about the open house using the details. If anyone asks about price, offers or terms, tell them I will call them personally. Keep it short and warm.';
   } else if (['just_listed', 'price_improvement', 'coming_soon'].includes(key)) {
-    green = 'Offer two private showing times in the next few days, right away';
+    green = 'Right away, offer two private showing times this week';
     yellow = 'Check back in 2 days with one standout detail about the home';
-    red = 'Thank them and say I will keep an eye out for the right one, right away';
+    red = 'Right away, thank them and say I will keep an eye out for the right one';
     gray = 'One light nudge, did they see it';
     ai = 'Answer questions using the listing details only. If they ask about offers, price flexibility or terms, tell them I will call them personally.';
   } else if (['just_sold', 'market_update', 'home_anniversary'].includes(key)) {
-    green = 'Offer a complimentary valuation call this week, right away';
-    yellow = 'Check back in a few days, no pressure';
-    red = 'Thank them, right away';
+    green = 'Right away, offer a complimentary valuation call this week';
+    yellow = 'Check back 3 days later, no pressure';
+    red = 'Right away, thank them warmly';
     gray = '';
     ai = 'Answer simple questions. Anything about what their home is worth: tell them I will put together a private valuation and call them.';
   }

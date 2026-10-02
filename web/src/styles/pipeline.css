@@ -54,12 +54,13 @@
 .km-pl-scroll > * { flex-shrink: 0; }
 
 .km-pl-stats {
-  display: grid; grid-template-columns: 0.8fr 1.15fr 1fr; margin: 2px 14px 12px;
+  display: grid; grid-template-columns: 0.82fr 1.1fr 1fr; margin: 2px 14px 12px;
   border: 1px solid var(--line); border-radius: var(--r-card); background: var(--surface); overflow: hidden;
 }
 .km-pl-stat { padding: 11px 12px 10px; min-width: 0; }
+.km-pl-stat .km-pl-eyebrow { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 1.2px; }
 .km-pl-stat + .km-pl-stat { border-left: 1px solid var(--line); }
-.km-pl-stat-v { font-size: 19px; font-weight: 700; letter-spacing: -0.03em; margin-top: 3px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.km-pl-stat-v { font-size: 19px; font-weight: 700; letter-spacing: -0.03em; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .km-pl-chips { display: flex; gap: 6px; padding: 0 14px 10px; overflow-x: auto; scrollbar-width: none; }
 .km-pl-chips::-webkit-scrollbar { display: none; }
@@ -106,7 +107,7 @@
 /* ── columns ─────────────────────────────────────────────────────────── */
 .km-pl-cols {
   display: flex; overflow-x: auto; overflow-y: visible; scroll-snap-type: x mandatory;
-  padding: 0 0 16px 14px; gap: 10px; scrollbar-width: none; overscroll-behavior-x: contain;
+  padding: 0 0 16px 14px; scroll-padding-left: 14px; gap: 10px; scrollbar-width: none; overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
 }
 .km-pl-cols::-webkit-scrollbar { display: none; }
@@ -133,8 +134,15 @@
   border: 1px dashed var(--lineHi); border-radius: 12px;
 }
 @media (min-width: 900px) {
-  .km-pl-col { width: max(280px, calc((100vw - 92px) / 6)); max-width: 360px; }
-  .km-pl-cols { scroll-snap-type: x proximity; padding-left: 20px; }
+  .km-pl-col { width: clamp(330px, calc((100vw - 92px) / 3.6), 400px); max-width: 400px; }
+  .km-pl-cols { scroll-snap-type: x proximity; padding-left: 20px; scroll-padding-left: 20px; }
+  .km-pl-stats { max-width: 660px; margin-left: 20px; }
+  .km-pl-chips { padding-left: 20px; }
+  .km-pl-jumprow { max-width: 700px; padding-left: 20px; }
+  .km-pl-nav { max-width: 700px; padding-left: 20px; }
+  .km-pl-nav-menu { left: 20px; }
+  .km-pl-lane { margin-left: 20px; margin-right: 20px; }
+  .km-pl-error { margin-left: 20px; max-width: 660px; }
 }
 
 /* ── deal card ───────────────────────────────────────────────────────── */
@@ -147,7 +155,7 @@
 .km-pl-card--dragging { opacity: 0.45; }
 .km-pl-card--landed { animation: km-pl-land 0.42s var(--km-spring); }
 .km-pl-card-main { padding: 11px 12px; cursor: pointer; user-select: none; -webkit-user-select: none; }
-.km-pl-row1 { display: flex; align-items: center; gap: 10px; }
+.km-pl-row1 { display: flex; align-items: center; gap: 8px; }
 .km-pl-grip {
   display: flex; align-items: center; justify-content: center; width: 18px; height: 28px; margin-left: -4px;
   color: var(--faint); touch-action: none; cursor: grab; flex-shrink: 0; border-radius: 6px;
@@ -167,7 +175,7 @@
 .km-pl-badge--dom { background: rgba(46, 139, 255, 0.12); color: var(--bright); }
 .km-pl-badge--lost { background: rgba(142, 142, 147, 0.16); color: var(--dim); }
 .km-pl-price { text-align: right; flex-shrink: 0; }
-.km-pl-price-v { font-size: 16px; font-weight: 600; color: var(--blue); letter-spacing: -0.3px; line-height: 1; font-variant-numeric: tabular-nums; }
+.km-pl-price-v { font-size: 15.5px; font-weight: 600; color: var(--blue); letter-spacing: -0.3px; line-height: 1; font-variant-numeric: tabular-nums; }
 .km-pl-price-c { font-size: 9px; color: var(--faint); margin-top: 3px; letter-spacing: 0.5px; }
 .km-pl-adv {
   width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
@@ -175,7 +183,7 @@
   transition: transform 0.18s var(--km-ease), background 0.18s;
 }
 .km-pl-adv:active { transform: scale(0.9); background: rgba(46, 139, 255, 0.22); }
-.km-pl-chev { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; color: var(--faint); transition: transform 0.2s; flex-shrink: 0; }
+.km-pl-chev { width: 18px; height: 22px; display: flex; align-items: center; justify-content: center; color: var(--faint); transition: transform 0.2s; flex-shrink: 0; }
 .km-pl-chev--open { transform: rotate(180deg); }
 .km-pl-row2 { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
 .km-pl-addr { flex: 1; min-width: 0; font-size: 12px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -203,8 +211,8 @@
 .km-pl-subbox--dates { background: rgba(90, 200, 250, 0.05); border-color: rgba(90, 200, 250, 0.20); padding: 8px; }
 .km-pl-pills { display: flex; gap: 4px; }
 .km-pl-pill {
-  flex: 1; min-width: 0; padding: 5px 3px; border-radius: 6px; font-size: 9px; font-weight: 700;
-  letter-spacing: 0.3px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  flex: 1 1 auto; min-width: 0; padding: 5px 4px; border-radius: 6px; font-size: 8.5px; font-weight: 700;
+  letter-spacing: 0.1px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   color: rgba(50, 215, 201, 0.9); border: 1px solid rgba(50, 215, 201, 0.22); background: transparent;
   display: inline-flex; align-items: center; justify-content: center; gap: 3px;
   transition: background 0.18s, color 0.18s, border-color 0.18s;
@@ -276,7 +284,12 @@
 .km-pl-amt--date { padding-left: 0; }
 .km-pl-amt--date input { width: 138px; text-align: left; padding: 0 8px; font-size: 13px; }
 .km-pl-amt-suffix { padding-right: 9px; }
-@media (hover: none) { .km-pl-amt input { font-size: 16px; } }
+@media (hover: none) {
+  .km-pl-amt input, .km-pl-dates input { font-size: 16px; }
+  .km-pl-amt input { width: 118px; }
+  .km-pl-amt--sm input { width: 58px; }
+  .km-pl-amt--date input { width: 158px; }
+}
 .km-pl-readout { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 2px 2px 8px; }
 .km-pl-readout-v { font-size: 15px; font-weight: 600; color: var(--blue); font-variant-numeric: tabular-nums; }
 .km-pl-breakdown { font-size: 10.5px; color: var(--faint); margin: -4px 2px 10px; line-height: 1.45; font-variant-numeric: tabular-nums; }
@@ -305,7 +318,13 @@
 
 .km-pl-conting { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
 .km-pl-conting:last-child { border-bottom: 0; }
-.km-pl-conting-l { flex: 1; font-size: 12.5px; }
+.km-pl-conting-l { flex: 1; min-width: 0; font-size: 12.5px; }
+.km-pl-cdate {
+  position: relative; display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 10px; border-radius: 8px;
+  background: var(--surface); border: 1px solid var(--lineHi); font-size: 12px; font-weight: 600; white-space: nowrap;
+  font-variant-numeric: tabular-nums; flex-shrink: 0; cursor: pointer;
+}
+.km-pl-cdate input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; font-size: 16px; cursor: pointer; border: 0; }
 .km-pl-state {
   padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; min-width: 70px; text-align: center;
   border: 1px solid var(--lineHi); color: var(--dim); background: var(--pl-s3); transition: all 0.18s;
@@ -368,6 +387,8 @@
 .km-pl-lane-body { padding: 0 12px 12px; animation: km-pl-expand 0.18s ease; }
 .km-pl-lane-group { margin-top: 10px; }
 .km-pl-lane-grouphead { display: flex; align-items: center; gap: 8px; padding: 0 2px 8px; }
+.km-pl-lane-grouphead > span:nth-child(2) { white-space: nowrap; }
+.km-pl-lane-grouphead .km-pl-col-sub { flex: 1; min-width: 0; text-align: right; }
 .km-pl-return {
   margin-top: 6px; padding: 9px 11px; background: rgba(48, 210, 122, 0.08); border: 1px solid rgba(48, 210, 122, 0.25); border-radius: 12px;
 }
@@ -471,7 +492,7 @@
 .km-cm-wrap { display: flex; flex-direction: column; gap: 12px; padding: 0 16px; }
 .km-cm-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
 .km-cm-eye { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--faint); }
-.km-cm-big { font-size: 34px; font-weight: 800; letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; }
+.km-cm-big { font-size: 34px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
 .km-cm-line { font-size: 11.5px; color: var(--dim); margin-top: 7px; font-variant-numeric: tabular-nums; }
 .km-cm-line b { color: var(--text); font-weight: 700; }
 .km-cm-sep { color: var(--ghost); }
@@ -494,7 +515,7 @@
 .km-cm-cell { padding: 11px 0 2px; }
 .km-cm-cell:nth-child(odd) { padding-right: 12px; border-right: 1px solid var(--line); }
 .km-cm-cell:nth-child(even) { padding-left: 14px; }
-.km-cm-cellv { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; margin-top: 3px; font-variant-numeric: tabular-nums; }
+.km-cm-cellv { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; margin-top: 3px; }
 .km-cm-chip { font-size: 9px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; white-space: nowrap; border: 1px solid; }
 .km-cm-fbars { display: flex; align-items: flex-end; gap: 8px; height: 74px; margin-top: 14px; }
 .km-cm-fbar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; }
@@ -503,7 +524,7 @@
 .km-cm-fbar span { font-size: 9px; color: var(--faint); font-weight: 600; letter-spacing: 0.4px; }
 .km-cm-monthhead { width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line); text-align: left; }
 .km-cm-tabs { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: var(--pl-fill); }
-.km-cm-tabs button { flex: 1; padding: 6px 8px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--dim); }
+.km-cm-tabs button { flex: 1; padding: 6px 8px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--dim); white-space: nowrap; }
 .km-cm-tabs button.on { background: var(--surfaceHi); color: var(--text); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18); }
 .km-cm-planbtn {
   padding: 9px 14px; border-radius: 999px; background: rgba(46, 139, 255, 0.12); border: 0.5px solid rgba(46, 139, 255, 0.35);
@@ -531,7 +552,7 @@
 .km-bk-stats { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0 16px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
 .km-bk-stat { padding: 10px 8px; text-align: center; min-width: 0; }
 .km-bk-stat + .km-bk-stat { border-left: 1px solid var(--line); }
-.km-bk-stat-v { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.km-bk-stat-v { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .km-bk-badge {
   display: inline-flex; align-items: center; gap: 3px; font-size: 9px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
   padding: 2px 6px; border-radius: 5px; white-space: nowrap;

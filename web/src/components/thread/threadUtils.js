@@ -43,7 +43,8 @@ export function splitBodyLink(text) {
   if (!urls.length) return { text: s, url: null };
   const u = urls[0];
   const before = s.slice(0, u.index).trim();
-  const after = s.slice(u.end).trim();
+  const tail = s.slice(u.end).trim();
+  const after = /^[.,;:!?)\]]*$/.test(tail) ? '' : tail;
   if (!before) return { text: after, url: u.href };
   if (!after) return { text: before, url: u.href };
   return { text: s, url: u.href, inline: true };

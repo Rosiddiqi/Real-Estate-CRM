@@ -538,8 +538,8 @@ const AI_SCHEMA = {
     property: {
       type: 'object',
       properties: {
-        relationship: { type: ['string', 'null'], enum: ['owns', 'rents', 'sold', 'watching', 'leased_out', null] },
-        occupancy: { type: ['string', 'null'], enum: ['primary', 'second_home', 'investment', 'vacation', 'rental', null] },
+        relationship: nul('string'),
+        occupancy: nul('string'),
         street: nul('string'), unit: nul('string'), city: nul('string'), state: nul('string'), zip: nul('string'),
         neighborhood: nul('string'), buildingName: nul('string'), propertyType: nul('string'), architecturalStyle: nul('string'),
         beds: nul('integer'), baths: nul('number'), sqft: nul('integer'), lotSqft: nul('integer'), yearBuilt: nul('integer'),
@@ -554,19 +554,20 @@ const AI_SCHEMA = {
     search: {
       type: 'object',
       properties: {
-        name: nul('string'), bucket: { type: ['string', 'null'], enum: ['active', 'dream', null] },
+        name: nul('string'), bucket: nul('string'),
         neighborhoods: strArr, markets: strArr, buildings: strArr, propertyTypes: strArr,
         priceMin: nul('integer'), priceMax: nul('integer'), budgetFlexible: nul('boolean'),
         bedsMin: nul('integer'), bathsMin: nul('number'), sqftMin: nul('integer'), lotSqftMin: nul('integer'), yearBuiltMin: nul('integer'),
         styles: strArr, waterfront: strArr, views: strArr,
-        mustHaves: { type: 'array', items: { type: 'object', properties: { feature: { type: 'string' }, importance: { type: 'string', enum: ['must', 'want'] }, min: nul('number') } } },
+        mustHaves: { type: 'array', items: { type: 'object', properties: { feature: { type: 'string' }, importance: { type: 'string' }, min: nul('number') } } },
         niceToHaves: strArr, dealBreakers: strArr, timeline: nul('string'), financing: nul('string'), preApprovalAmount: nul('integer'),
       },
     },
   },
 };
 
-const AI_SYSTEM = `You extract structured real-estate data for a luxury agent's CRM from the agent's own shorthand, or from the text of a listing URL. Decide whether the input describes ONE property the client owns/rents/sold/watches ("property") or what the client WANTS to buy ("search"); fill only that object (leave the other with nulls/empty arrays).
+const AI_SYSTEM = `You extract structured real-estate data for a luxury agent's CRM from the agent's own shorthand, or from the text of a listing URL. Field vocab: relationship owns | rents | sold | watching | leased_out; occupancy primary | second_home | investment | vacation | rental; search bucket active | dream; must-have importance must | want.
+Decide whether the input describes ONE property the client owns/rents/sold/watches ("property") or what the client WANTS to buy ("search"); fill only that object (leave the other with nulls/empty arrays).
 
 Rules:
 - Missing detail is fine; DROPPED detail is not. Never invent prices, dates, addresses, sizes or features that are not stated (a URL slug only yields its address/city/zip).
@@ -600,6 +601,8 @@ async function aiParse({ text, url, target, workspaceId }) {
 function mergeProperty(h, a, text) {
   const out = { ...h };
   if (!a) return out;
+  if (a.relationship && !['owns', 'rents', 'sold', 'watching', 'leased_out'].includes(a.relationship)) a.relationship = null;
+  if (a.occupancy && !['primary', 'second_home', 'investment', 'vacation', 'rental'].includes(a.occupancy)) a.occupancy = null;
   const keys = ['relationship', 'occupancy', 'street', 'unit', 'city', 'state', 'zip', 'neighborhood', 'buildingName', 'propertyType', 'architecturalStyle', 'beds', 'baths', 'sqft', 'lotSqft', 'yearBuilt', 'waterfront', 'waterFrontageFt', 'dockLengthFt', 'purchasedAt', 'soldAt', 'loanType', 'lenderName', 'leaseEndsAt', 'mlsNumber', 'thinkingOfSelling', 'boughtWithMe', 'soldWithMe'];
   for (const k of keys) {
     if (a[k] == null || a[k] === '') continue;
@@ -628,6 +631,7 @@ function mergeProperty(h, a, text) {
 function mergeSearch(h, a, text) {
   const out = { ...h };
   if (!a) return out;
+  if (a.bucket && !['active', 'dream'].includes(a.bucket)) a.bucket = null;
   const lower = text.toLowerCase();
   // Only keep AI places that literally appear in the text (no invented areas).
   const named = (list) => (list || []).filter((x) => x && lower.includes(String(x).toLowerCase().split(/[ ,]/)[0]));
@@ -695,7 +699,7 @@ function chipsFor(kind, f) {
     if (f.estValue) chips.push({ key: 'est', label: `${money(f.estValue)} est.`, tone: 'soft', group: 'Value' });
     if (f.purchasePrice) chips.push({ key: 'paid', label: `Paid ${money(f.purchasePrice)}${f.purchasedAt ? ` · ${f.purchasedAt.slice(0, 4)}` : ''}`, tone: 'firm', group: 'Purchase' });
     if (f.soldPrice) chips.push({ key: 'sold', label: `Sold ${money(f.soldPrice)}`, tone: 'firm', group: 'Sale' });
-    if (f.loanType && f.loanType !== 'cash') chips.push({ key: 'loan', label: [f.meta && f.meta.armFixedYears ? `${f.meta.armFixedYears}/1 ARM` : f.loanType.replace('_', ' ').toUpperCase(), f.mortgageRate ? `${(f.mortgageRate * 100).toFixed(3).replace(/\.?0+$/, '')}%` : null, f.lenderName].filter(Boolean).join(' · '), tone: 'firm', group: 'Loan' });
+    if (f.loanType && f.loanType !== 'cash') chips.push({ key: 'loan', label: [f.meta && f.meta.armFixedYears ? `${f.meta.armFixedYears}/1 ARM` : ({ fixed: 'Fixed', interest_only: 'Interest-only', balloon: 'Balloon', arm: 'ARM' }[f.loanType] || f.loanType), f.mortgageRate ? `${(f.mortgageRate * 100).toFixed(3).replace(/\.?0+$/, '')}%` : null, f.lenderName, f.mortgageBalance ? `owes ${money(f.mortgageBalance)}` : null].filter(Boolean).join(' · '), tone: 'firm', group: 'Loan' });
     if (f.loanType === 'cash') chips.push({ key: 'loan', label: 'Free & clear', tone: 'firm', group: 'Loan' });
     if (f.rentAmount) chips.push({ key: 'rent', label: `${money(f.rentAmount)}/mo rent`, tone: 'firm', group: 'Rent' });
     if (f.leaseEndsAt) chips.push({ key: 'lease', label: `Lease ends ${f.leaseEndsAt.slice(0, 7)}`, tone: 'firm', group: 'Lease' });

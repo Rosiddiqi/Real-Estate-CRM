@@ -33,7 +33,8 @@ function clientName(c) {
 
 function listingAddress(l) {
   if (!l) return null;
-  const street = l.street ? `${l.street}${l.unitNumber ? ` #${l.unitNumber}` : ''}` : null;
+  // whispers / pocket listings can hide the street — never leak it onto a deal
+  const street = l.street && !l.hideAddress ? `${l.street}${l.unitNumber ? ` #${l.unitNumber}` : ''}` : null;
   return street || l.buildingName || l.developmentName || l.title || null;
 }
 function propertyAddress(p) {
@@ -186,6 +187,7 @@ function normalizeDeal(d, ctx) {
     portfolioPropertyId: d.portfolioPropertyId || null,
     address,
     addressLine2,
+    propertyAddress: d.propertyAddress || null,
     propertyLabel: d.propertyLabel || null,
     mlsNumber: (listing && listing.mlsNumber) || (property && property.mlsNumber) || ex.mlsNumber || null,
     photo,

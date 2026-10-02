@@ -328,7 +328,11 @@ function fallbackBriefing(appt, ctx) {
     if (client.isWhale) bits.push('whale');
     bits.push(client.type ? client.type.replace('_', ' / ') : 'client');
     if (client.transactionsCount) bits.push(`${client.transactionsCount} closed with you`);
-    bullets.push(`${clientName(client)} — ${bits.join(' · ')}${client.lastContactedAt ? ` · last spoke ${rel(client.lastContactedAt)}` : ''}`);
+    // Last touch = the later of the contact stamp and their latest message.
+    const lastMsgAt = messages && messages[0] ? new Date(messages[0].sentAt) : null;
+    const stamp = client.lastContactedAt ? new Date(client.lastContactedAt) : null;
+    const lastTouch = lastMsgAt && (!stamp || lastMsgAt > stamp) ? lastMsgAt : stamp;
+    bullets.push(`${clientName(client)} — ${bits.join(' · ')}${lastTouch ? ` · last spoke ${rel(lastTouch)}` : ''}`);
     const fin = [];
     if (client.financing) fin.push({ cash_pof: 'Cash (proof of funds)', preapproved: 'Pre-approved', prequalified: 'Pre-qualified', contingent: 'Contingent on sale' }[client.financing] || client.financing);
     if (client.preApprovalAmount) fin.push(`up to ${money(client.preApprovalAmount)}`);
@@ -349,7 +353,7 @@ function fallbackBriefing(appt, ctx) {
     if ((s.dealBreakers || []).length) watchOuts.push(`Deal-breakers: ${s.dealBreakers.slice(0, 3).join(', ')}.`);
   }
   const d = deals.find((x) => !['closed', 'lost'].includes(x.stage));
-  if (d) bullets.push(`${STAGE[d.stage] || d.stage} deal${d.propertyLabel ? ` · ${d.propertyLabel}` : ''}${d.price ? ` · ${money(d.price)}` : ''}`);
+  if (d) bullets.push(`Open deal — ${STAGE[d.stage] || String(d.stage).replace(/_/g, ' ')}${d.propertyLabel ? ` · ${d.propertyLabel}` : ''}${d.price ? ` · ${money(d.price)}` : ''}`);
   const owned = props.find((p) => p.relationship === 'owns');
   if (owned) bullets.push(`Owns ${[owned.street, owned.city].filter(Boolean).join(', ') || 'a home'}${owned.estValue ? ` (est. ${money(owned.estValue)})` : ''}${owned.thinkingOfSelling ? ' — thinking of selling' : ''}`);
   const rents = props.find((p) => p.relationship === 'rents');

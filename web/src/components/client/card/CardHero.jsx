@@ -106,6 +106,19 @@ function Act({ icon, label, primary, onTap, disabled }) {
   );
 }
 
+// Hero status line: the stored AI summary's "Status" sentence when there is
+// one (richer narrative), else the briefing status line.
+export function heroLine(client, briefing) {
+  const raw = client && client.aiSummary ? String(client.aiSummary) : '';
+  if (raw) {
+    const m = /\*\*Status:\*\*\s*([^\n]+)/i.exec(raw);
+    const text = (m ? m[1] : raw.replace(/\*\*[^*]+\*\*/g, '').split(/\n/).find((l) => l.trim()) || '').trim();
+    const sentence = (/^(.{20,200}?[.!?])(\s|$)/.exec(text) || [null, text.slice(0, 180)])[1];
+    if (sentence) return sentence.trim();
+  }
+  return briefing?.statusLine || null;
+}
+
 function fmtClosings(n) {
   if (!n) return '0';
   return Number.isInteger(n) ? String(n) : n.toFixed(1);
@@ -122,7 +135,7 @@ export default function CardHero({ client, briefing, onWhale, onRate, onCall, on
   const role = [client.jobTitle, client.company].filter(Boolean).join(' · ')
     || (!isPerson ? [humanize(client.vendorRole), client.contactKind === 'vendor' ? 'Vendor' : 'Partner'].filter(Boolean).join(' · ') : null);
   const status = STATUS[client.status];
-  const summary = briefing?.statusLine || null;
+  const summary = heroLine(client, briefing);
 
   return (
     <div className="kc-hero">
@@ -141,7 +154,7 @@ export default function CardHero({ client, briefing, onWhale, onRate, onCall, on
       {role ? <div className="kc-role km-truncate" style={{ maxWidth: '100%' }}>{role}</div> : null}
 
       {(client.phone || client.email) ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, marginTop: 5 }}>
+        <div className="kc-contactlines" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, marginTop: 5 }}>
           {client.phone ? <ContactLine icon="phone" value={formatPhone(client.phone)} copy={formatPhone(client.phone)} /> : null}
           {client.email ? <ContactLine icon="mail" value={client.email} /> : null}
         </div>

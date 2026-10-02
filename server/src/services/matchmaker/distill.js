@@ -78,13 +78,13 @@ const SCHEMA = {
         styles: { type: 'array', items: { type: 'string' } },
         waterfront: { type: 'array', items: { type: 'string' } },
         views: { type: 'array', items: { type: 'string' } },
-        bedsMin: { type: ['number', 'null'] },
-        bathsMin: { type: ['number', 'null'] },
-        sqftMin: { type: ['number', 'null'] },
-        priceMin: { type: ['number', 'null'] },
-        priceMax: { type: ['number', 'null'] },
-        timeline: { type: ['string', 'null'] },
-        financing: { type: ['string', 'null'] },
+        bedsMin: { anyOf: [{ type: 'number' }, { type: 'null' }] },
+        bathsMin: { anyOf: [{ type: 'number' }, { type: 'null' }] },
+        sqftMin: { anyOf: [{ type: 'number' }, { type: 'null' }] },
+        priceMin: { anyOf: [{ type: 'number' }, { type: 'null' }] },
+        priceMax: { anyOf: [{ type: 'number' }, { type: 'null' }] },
+        timeline: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+        financing: { anyOf: [{ type: 'string' }, { type: 'null' }] },
       },
     },
     sellSignals: { type: 'array', items: { type: 'object', properties: { signal: { type: 'string' }, strength: { type: 'number' }, quote: { type: 'string' }, source: { type: 'string' } } } },
@@ -162,7 +162,7 @@ async function distillClient(workspaceId, clientId, { force = false } = {}) {
       return EMPTY;
     }
     if (!ai.available()) return prev ? prev.result : EMPTY;
-    const out = await ai.json({ system: SYSTEM, prompt: buildPrompt(g), schema: SCHEMA, effort: 'low', maxTokens: 4000, feature: 'matchmaker_distill', workspaceId });
+    const out = await ai.json({ system: SYSTEM, prompt: buildPrompt(g), schema: SCHEMA, effort: 'low', maxTokens: 8000, feature: 'matchmaker_distill', workspaceId });
     const result = clean(out);
     mem.set(key, { hash: h, at: Date.now(), result });
     save();

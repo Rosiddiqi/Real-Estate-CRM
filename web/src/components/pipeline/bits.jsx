@@ -17,6 +17,21 @@ export function shortDate(iso, opts = { month: 'short', day: 'numeric' }) {
   if (!iso) return '';
   return new Date(iso).toLocaleDateString('en-US', opts);
 }
+// Day-granular "when" for closing dates (date-only values live at local noon).
+export function dayAgo(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const a = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const n = new Date();
+  const b = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  const days = Math.round((b - a) / 864e5);
+  if (days === 0) return 'today';
+  if (days === 1) return 'yesterday';
+  if (days === -1) return 'tomorrow';
+  if (days > 1 && days < 7) return `${days}d ago`;
+  if (days >= 7 && days < 60) return `${Math.floor(days / 7)}w ago`;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: days > 300 ? 'numeric' : undefined });
+}
 export const money0 = (n) => (n == null || Number.isNaN(Number(n)) ? '—' : `$${Math.round(Number(n)).toLocaleString('en-US')}`);
 export const mc = (n) => (n == null ? '—' : moneyCompact(n));
 export const pctOf = (r, d = 2) => (r == null ? '' : `${Number((r * 100).toFixed(d))}`);
@@ -135,6 +150,25 @@ export function DateInput({ value, onChange, ariaLabel, min, max }) {
         onChange={(e) => onChange(e.target.value || null)}
       />
     </div>
+  );
+}
+
+// Compact date pill ("Sep 26") with the native picker underneath — fits in
+// dense rows (contingency deadlines) where a full date field doesn't.
+export function CompactDate({ value, onChange, ariaLabel, placeholder = 'Set date', tone }) {
+  const ref = useRef(null);
+  const label = value ? shortDate(value) : placeholder;
+  const late = tone === 'late';
+  return (
+    <span
+      className="km-pl-cdate"
+      style={{ color: value ? (late ? 'var(--red)' : 'var(--text)') : 'var(--faint)' }}
+      onClick={(e) => { e.stopPropagation(); try { ref.current && ref.current.showPicker && ref.current.showPicker(); } catch { /* not supported */ } }}
+    >
+      <Icon name="calendar" size={12} />
+      {label}
+      <input ref={ref} type="date" aria-label={ariaLabel} value={toDateInput(value)} onChange={(e) => onChange(e.target.value || null)} />
+    </span>
   );
 }
 

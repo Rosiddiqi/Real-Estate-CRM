@@ -76,6 +76,13 @@ async function start({ workspaceId, userId, clientId = null, phone = null }) {
   });
   const st = { id: call.id, workspaceId, userId, client, script, idx: 0, lines: [], timers: new Set(), paused: false, ended: false, answeredAt: null };
   live.set(call.id, st);
+  // Heartbeat: bumps updatedAt so other processes know this call is owned and alive.
+  st.beat = setInterval(() => {
+    if (st.ended) return;
+    const secs = st.answeredAt ? Math.round((Date.now() - st.answeredAt.getTime()) / 1000) : 0;
+    prisma.phoneCall.update({ where: { id: st.id }, data: { durationSec: secs } }).catch(() => {});
+  }, 10000);
+  st.beat.unref?.();
   broadcastCall(workspaceId, call);
   later(st, () => answer(st), RING_MS);
   return call;
@@ -156,10 +163,11 @@ async function addNote(callId, workspaceId, { t, text }) {
 // calls, Twilio calls (after the provider leg is ended) and stale rows.
 async function hangup(callId, { by = 'agent', workspaceId = null } = {}) {
   const st = live.get(callId);
-  if (st) { st.ended = true; clearTimers(st); live.delete(callId); }
+  if (st) { st.ended = true; clearTimers(st); clearInterval(st.beat); live.delete(callId); }
   const call = await prisma.phoneCall.findFirst({ where: { id: callId, ...(workspaceId ? { workspaceId } : {}) }, include });
   if (!call) return null;
-  if (['completed', 'missed', 'no_answer', 'voicemail', 'cancelled', 'failed', 'busy'].includes(call.status) && call.endedAt) return call;
+  // The owning process always finalizes (another process may have closed it early).
+  if (!st && ['completed', 'missed', 'no_answer', 'voicemail', 'cancelled', 'failed', 'busy'].includes(call.status) && call.endedAt) return call;
   const now = new Date();
   const answered = call.answeredAt || (st && st.answeredAt);
   const durationSec = answered ? Math.max(1, Math.round((now - new Date(answered)) / 1000)) : 0;
@@ -194,5 +202,8 @@ async function hangup(callId, { by = 'agent', workspaceId = null } = {}) {
 }
 
 function isLive(callId) { return live.has(callId); }
+// A simulated call is orphaned when no process has touched it for a minute.
+const STALE_MS = 60000;
+function isOrphan(call) { return !live.has(call.id) && Date.now() - new Date(call.updatedAt).getTime() > STALE_MS; }
 
-module.exports = { start, hangup, setHold, addNote, isLive, live };
+module.exports = { start, hangup, setHold, addNote, isLive, isOrphan, live };

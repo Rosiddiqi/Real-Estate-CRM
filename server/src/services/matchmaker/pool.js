@@ -19,7 +19,7 @@ const CLIENT_SELECT = {
   status: true, type: true, contactKind: true, isWhale: true, lifetimeVolume: true, lifetimeGci: true,
   purchasePower: true, financing: true, preApprovalExpires: true, timeline: true, leadSource: true,
   lastContactedAt: true, lastInboundAt: true, lastOutboundAt: true, notes: true, preferredChannel: true,
-  deviceMode: true, rating: true, archivedAt: true, blocked: true, updatedAt: true,
+  deviceMode: true, rating: true, archivedAt: true, blocked: true, updatedAt: true, aiFacts: true,
 };
 
 function clientName(c) {
@@ -84,6 +84,10 @@ async function buildPool(workspaceId) {
     }];
     if (search.notes) signals.push({ kind: 'note', label: 'Search note', text: String(search.notes).slice(0, 220) });
     if (client.notes) signals.push({ kind: 'note', label: 'Client note', text: String(client.notes).slice(0, 220) });
+    // distilled facts already on the client card (shown, not double-scored)
+    const facts = client.aiFacts && typeof client.aiFacts === 'object' ? client.aiFacts : null;
+    const factMust = facts && Array.isArray(facts.mustHaves) ? facts.mustHaves.map(String).filter((x) => V.fairHousingSafe(x)) : [];
+    if (factMust.length) signals.push({ kind: 'text', label: 'From conversations', text: factMust.slice(0, 5).join(' · ') });
     const d = distill.peek(workspaceId, client.id);
     if (d) {
       for (const sg of (d.signals || []).slice(0, 4)) signals.push(sg);

@@ -12,7 +12,7 @@ import { moneyCompact } from '../../lib/format';
 import PropertyPhoto from '../ui/PropertyPhoto';
 import StageDropdown from './StageDropdown';
 import ShortlistSheet from './ShortlistSheet';
-import { AmountInput, Check, DateInput, Eyebrow, Field, RateInput, money0, pctOf, todayInput } from './bits';
+import { AmountInput, Check, CompactDate, DateInput, Eyebrow, Field, RateInput, money0, pctOf, todayInput } from './bits';
 import { familyOf, getConfigState } from './config';
 
 const STATE_NEXT = { open: 'cleared', cleared: 'waived', waived: 'open' };
@@ -76,7 +76,7 @@ export default function DealDetail({
   const defaultRate = plan ? (fam === 'listing' && side !== 'dual' ? plan.defaultListingRate : side === 'dual' ? plan.defaultListingRate + plan.defaultBuyerRate : plan.defaultBuyerRate) : null;
   const est = deal.estimates || {};
   const shortlist = Array.isArray(deal.shortlist) ? deal.shortlist : [];
-  const hasProperty = !!(deal.listingId || deal.propertyAddress || deal.portfolioPropertyId);
+  const hasProperty = !!(deal.listingId || deal.address || deal.portfolioPropertyId);
 
   const breakdown = [
     est.gci ? `GCI ${moneyCompact(est.gci)}` : null,
@@ -190,8 +190,8 @@ export default function DealDetail({
               <Field label="Partner’s side rate">
                 <RateInput ariaLabel="Partner side rate" value={deal.sideRate} placeholder={pctOf(plan ? plan.defaultBuyerRate : 0.025)} onChange={(v) => update({ sideRate: v })} />
               </Field>
-              <Field label="Referral fee">
-                <RateInput ariaLabel="Referral fee percent" value={ex.referralFeePct ?? null} placeholder="25" onChange={(v) => update({ extras: { referralFeePct: v } })} />
+              <Field label="Referral fee you receive">
+                <RateInput ariaLabel="Referral fee percent" value={ex.referralFeePct ?? deal.referralOutPct ?? null} placeholder="25" onChange={(v) => update(ex.referralFeePct != null ? { extras: { referralFeePct: v } } : { referralOutPct: v })} />
               </Field>
             </>
           ) : (
@@ -293,9 +293,13 @@ export default function DealDetail({
                 return (
                   <div className="km-pl-conting" key={x.id}>
                     <span className="km-pl-conting-l">{x.label}</span>
-                    <div className="km-pl-amt km-pl-amt--date">
-                      <input type="date" aria-label={`${x.label} deadline`} value={deal[x.deadlineField] ? deal[x.deadlineField].slice(0, 10) : ''} onChange={(e) => update({ [x.deadlineField]: e.target.value || null })} style={{ width: 128 }} />
-                    </div>
+                    <CompactDate
+                      ariaLabel={`${x.label} deadline`}
+                      value={deal[x.deadlineField]}
+                      placeholder="Deadline"
+                      tone={st === 'open' && deal[x.deadlineField] && new Date(deal[x.deadlineField]) < new Date() ? 'late' : undefined}
+                      onChange={(v) => update({ [x.deadlineField]: v })}
+                    />
                     <button type="button" className={`km-pl-state km-press km-pl-state--${st}`} onClick={() => update({ contingencies: { [x.id]: STATE_NEXT[st] || 'cleared' } })}>
                       {STATE_LABEL[st] || 'Open'}
                     </button>

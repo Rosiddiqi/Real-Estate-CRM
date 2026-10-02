@@ -28,7 +28,7 @@ module.exports = function mlsListings() {
     },
     {
       key: 'mls_harborpoint', mls: 'A11602218', status: 'pending', agent: GK, dom: 95,
-      street: '700 NE 26th Terrace', unitNumber: 'PH 4501', buildingName: 'One Harbor Point', neighborhood: 'Edgewater', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
+      street: '1 Harbor Point Drive', unitNumber: 'PH 4501', buildingName: 'One Harbor Point', neighborhood: 'Edgewater', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
       listPrice: 9250000, beds: 4, bathsFull: 5, bathsHalf: 1, sqft: 5900, yearBuilt: 2022, views: ['bay', 'ocean', 'skyline'],
       amenities: ['rooftop_terrace', 'pool', 'gym', 'spa', 'concierge', 'elevator', 'smart_home'], hoaFee: 9800, taxAnnual: 131000, photos: 5,
       headline: 'Full-floor penthouse at One Harbor Point with private rooftop pool',
@@ -44,7 +44,7 @@ module.exports = function mlsListings() {
     },
     {
       key: 'mls_aria1102', mls: 'A11538890', status: 'under_contract', agent: VM, dom: 120,
-      street: '10201 Collins Avenue', unitNumber: '1102', buildingName: 'The Aria at Bal Harbour', neighborhood: 'Bal Harbour', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
+      street: '10 Harbour Crest Way', unitNumber: '1102', buildingName: 'The Aria at Bal Harbour', neighborhood: 'Bal Harbour', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
       listPrice: 5450000, beds: 3, bathsFull: 3, bathsHalf: 1, sqft: 2950, yearBuilt: 2016, waterfront: 'oceanfront', views: ['ocean'],
       amenities: [...CONDO_AM, 'private_beach'], hoaFee: 6200, taxAnnual: 82000, photos: 4,
       headline: 'Turnkey Aria three-bedroom, sold furnished',
@@ -52,7 +52,7 @@ module.exports = function mlsListings() {
     },
     {
       key: 'mls_mariner', mls: 'A11610457', status: 'active', agent: LU, dom: 38,
-      street: '9349 Collins Avenue', unitNumber: 'PH 2', buildingName: 'The Mariner Surfside', neighborhood: 'Surfside', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
+      street: '140 Mariner Strand', unitNumber: 'PH 2', buildingName: 'The Mariner Surfside', neighborhood: 'Surfside', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
       listPrice: 7100000, beds: 4, bathsFull: 4, bathsHalf: 1, sqft: 4100, yearBuilt: 2020, waterfront: 'oceanfront', views: ['ocean', 'intracoastal'],
       amenities: ['rooftop_terrace', ...CONDO_AM, 'private_beach'], hoaFee: 7900, taxAnnual: 104000, photos: 5,
       headline: 'Surfside penthouse with a 2,000-sq-ft wraparound terrace',
@@ -60,7 +60,7 @@ module.exports = function mlsListings() {
     },
     {
       key: 'mls_palmyra', mls: 'A11571126', status: 'active', agent: CL, dom: 71,
-      street: '5122 Fisher Island Drive', unitNumber: '5122', buildingName: 'The Palmyra at Fisher Island', neighborhood: 'Fisher Island', propertyType: 'condo', style: 'Mediterranean Revival', family: 'Mediterranean',
+      street: '12 Palmyra Court', unitNumber: '5122', buildingName: 'The Palmyra at Fisher Island', neighborhood: 'Fisher Island', propertyType: 'condo', style: 'Mediterranean Revival', family: 'Mediterranean',
       listPrice: 11750000, beds: 4, bathsFull: 5, bathsHalf: 1, sqft: 5200, yearBuilt: 2008, yearRenovated: 2022, waterfront: 'oceanfront', views: ['ocean', 'skyline'],
       amenities: [...CONDO_AM, 'private_beach', 'tennis', 'guard_gated'], hoaFee: 11400, taxAnnual: 168000, photos: 6,
       headline: 'Fisher Island oceanfront with a 1,600-sq-ft terrace',
@@ -125,7 +125,7 @@ module.exports = function mlsListings() {
     },
     {
       key: 'mls_seaview1801', mls: 'A11607735', status: 'active', agent: VM, dom: 29,
-      street: '10155 Collins Avenue', unitNumber: '1801', buildingName: 'Seaview Bal Harbour', neighborhood: 'Bal Harbour', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
+      street: '26 Harbour Crest Way', unitNumber: '1801', buildingName: 'Seaview Bal Harbour', neighborhood: 'Bal Harbour', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
       listPrice: 4250000, beds: 3, bathsFull: 3, bathsHalf: 1, sqft: 2600, yearBuilt: 2014, waterfront: 'oceanfront', views: ['ocean', 'intracoastal'],
       amenities: [...CONDO_AM, 'private_beach'], hoaFee: 4700, taxAnnual: 63000, photos: 4,
       headline: 'Single-level oceanfront in Bal Harbour, no stairs anywhere',
@@ -133,7 +133,7 @@ module.exports = function mlsListings() {
     },
     {
       key: 'mls_oceanique5201', mls: 'A11561049', status: 'active', agent: SO, dom: 76,
-      street: '17901 Collins Avenue', unitNumber: 'PH 5201', buildingName: 'Oceanique Sunny Isles', neighborhood: 'Sunny Isles', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
+      street: '300 Oceanique Way', unitNumber: 'PH 5201', buildingName: 'Oceanique Sunny Isles', neighborhood: 'Sunny Isles', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
       listPrice: 5650000, drop: { from: 5995000, daysAgo: 2 }, beds: 4, bathsFull: 4, bathsHalf: 1, sqft: 4000, yearBuilt: 2018, waterfront: 'oceanfront', views: ['ocean', 'intracoastal'],
       amenities: [...CONDO_AM, 'private_beach', 'rooftop_terrace'], hoaFee: 6900, taxAnnual: 86000, photos: 5,
       headline: 'Sunny Isles penthouse, 52 floors up — reduced',
@@ -167,7 +167,7 @@ module.exports = function mlsListings() {
     },
     {
       key: 'mls_grove3270', mls: 'A11618021', status: 'active', agent: PP, dom: 12,
-      street: '3270 Kumquat Lane', neighborhood: 'Coconut Grove', propertyType: 'single_family', style: 'Tropical Modern', family: 'Tropical Modern',
+      street: '3270 Kumquat Hammock Lane', neighborhood: 'Coconut Grove', propertyType: 'single_family', style: 'Tropical Modern', family: 'Tropical Modern',
       listPrice: 5350000, beds: 5, bathsFull: 5, bathsHalf: 1, sqft: 4800, lotSqft: 11000, yearBuilt: 2017, stories: 2, garage: 2,
       views: ['garden', 'pool'], amenities: ['pool', 'smart_home', 'generator', 'summer_kitchen'], taxAnnual: 79000, photos: 5,
       headline: 'Tropical modern on a fenced lot, blocks from Biscayne Prep',
@@ -191,21 +191,21 @@ module.exports = function mlsListings() {
     },
     {
       key: 'mls_vela4102', mls: 'A11619913', status: 'active', agent: HL, dom: 15,
-      street: '1100 Brickell Bay Drive', unitNumber: '4102', buildingName: 'Vela Brickell', neighborhood: 'Brickell', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
+      street: '60 Vela Bay Walk', unitNumber: '4102', buildingName: 'Vela Brickell', neighborhood: 'Brickell', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
       listPrice: 2350000, beds: 2, bathsFull: 2, bathsHalf: 1, sqft: 1750, yearBuilt: 2019, views: ['bay', 'skyline'], amenities: CONDO_AM, hoaFee: 2400, taxAnnual: 35000, photos: 4,
       headline: '41st-floor Vela two-bedroom with bay views',
       description: 'A high-floor two-bedroom with a bay-facing terrace and Italian cabinetry. Two-bedrooms in the building lease for $11–13K a month.',
     },
     {
       key: 'mls_aqua2908', mls: 'A11622406', status: 'active', agent: GK, dom: 9,
-      street: '2900 NE 7th Avenue', unitNumber: '2908', buildingName: 'Aqua Lumen Edgewater', neighborhood: 'Edgewater', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
+      street: '2900 Lumen Bay Drive', unitNumber: '2908', buildingName: 'Aqua Lumen Edgewater', neighborhood: 'Edgewater', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
       listPrice: 2890000, beds: 3, bathsFull: 3, bathsHalf: 1, sqft: 2250, yearBuilt: 2021, waterfront: 'bayfront', views: ['bay'], amenities: CONDO_AM, hoaFee: 2900, taxAnnual: 42000, photos: 4,
       headline: 'Edgewater three-bedroom with a 40-ft gallery wall',
       description: 'A bayfront three-bedroom with an unusually long, uninterrupted wall in the living room and gallery lighting already wired. Walk to the Design District.',
     },
     {
       key: 'mls_atelier6c', mls: 'A11576644', status: 'active', agent: MW, dom: 52,
-      street: '4100 NE 2nd Avenue', unitNumber: '6C', buildingName: 'Atelier 41 Residences', neighborhood: 'Edgewater', propertyType: 'condo', style: 'Industrial Loft', family: 'Contemporary',
+      street: '41 Atelier Row', unitNumber: '6C', buildingName: 'Atelier 41 Residences', neighborhood: 'Edgewater', propertyType: 'condo', style: 'Industrial Loft', family: 'Contemporary',
       listPrice: 2150000, beds: 2, bathsFull: 2, bathsHalf: 1, sqft: 1900, yearBuilt: 2018, views: ['city'], amenities: ['gym', 'concierge', 'rooftop_terrace'], hoaFee: 1900, taxAnnual: 31000, photos: 4,
       headline: 'Design District loft with 13-ft ceilings',
       description: 'Board-formed concrete, 13-ft ceilings and a den that works as a studio. One block from the Design District galleries.',
@@ -221,7 +221,7 @@ module.exports = function mlsListings() {
     },
     {
       key: 'mls_palmbeach240', mls: 'RX-11023817', status: 'active', agent: PB, dom: 61,
-      street: '240 Seabreeze Court', neighborhood: 'Palm Beach', propertyType: 'single_family', style: 'British Colonial', family: 'Colonial',
+      street: '240 Seabreeze Mews', neighborhood: 'Palm Beach', propertyType: 'single_family', style: 'British Colonial', family: 'Colonial',
       listPrice: 12500000, beds: 5, bathsFull: 5, bathsHalf: 2, sqft: 6000, lotSqft: 17400, yearBuilt: 1998, yearRenovated: 2020, stories: 2, garage: 2,
       views: ['garden', 'pool'], amenities: ['pool', 'guest_house', 'generator', 'summer_kitchen'], taxAnnual: 152000, photos: 5,
       headline: 'In-town Palm Beach, two blocks to Worth Avenue',
