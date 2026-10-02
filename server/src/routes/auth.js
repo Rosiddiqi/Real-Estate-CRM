@@ -10,7 +10,21 @@ const {
   setRefreshCookie, clearRefreshCookie, rotateRefresh, revokeRefresh, publicUser,
 } = require('../lib/auth');
 
+const { limiter } = require('../lib/rateLimit');
+
 const router = express.Router();
+
+// Brute-force brakes for the public endpoints: failed sign-ins per IP+email,
+// failed sign-ins per IP, and new accounts per IP.
+// (Generous outside production so local QA scripts never trip them.)
+const loginByAccount = limiter({ windowMs: 15 * 60e3, max: 8 });
+const loginByIp = limiter({ windowMs: 15 * 60e3, max: config.isProd ? 40 : 1000 });
+const registerByIp = limiter({ windowMs: 60 * 60e3, max: config.isProd ? 10 : 1000 });
+
+function tooMany(res, sec) {
+  res.set('Retry-After', String(Math.max(1, sec)));
+  return new HttpError(429, 'Too many attempts. Try again in a few minutes.');
+}
 
 async function sessionResponse(res, req, user) {
   const accessToken = signAccess(user);
@@ -24,10 +38,17 @@ const LoginBody = z.object({ email: z.string().email(), password: z.string().min
 
 router.post('/login', ah(async (req, res) => {
   const { email, password } = parse(LoginBody, req.body);
-  const user = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
+  const normalized = email.toLowerCase().trim();
+  const accountKey = `${req.ip}|${normalized}`;
+  if (!loginByAccount.allowed(accountKey)) throw tooMany(res, loginByAccount.retryAfterSec(accountKey));
+  if (!loginByIp.allowed(req.ip)) throw tooMany(res, loginByIp.retryAfterSec(req.ip));
+  const user = await prisma.user.findUnique({ where: { email: normalized } });
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
+    loginByAccount.hit(accountKey);
+    loginByIp.hit(req.ip);
     throw new HttpError(401, 'That email and password don’t match.');
   }
+  loginByAccount.reset(accountKey);
   return sessionResponse(res, req, user);
 }));
 
@@ -53,6 +74,8 @@ const RegisterBody = z.object({
 
 router.post('/register', ah(async (req, res) => {
   const body = parse(RegisterBody, req.body);
+  if (!registerByIp.allowed(req.ip)) throw tooMany(res, registerByIp.retryAfterSec(req.ip));
+  registerByIp.hit(req.ip);
   const email = body.email.toLowerCase().trim();
   const exists = await prisma.user.findUnique({ where: { email } });
   if (exists) throw new HttpError(409, 'An account with that email already exists.');
