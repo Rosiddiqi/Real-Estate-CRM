@@ -306,7 +306,7 @@ async function pollReplies({ maxPerWorkspace = 200 } = {}) {
       try {
         if (!m.isFromMe) {
           await onInboundMessage({ workspaceId, clientId, conversationId: m.conversationId, message: m });
-        } else if (!m.campaignId && ['queued', 'sending', 'sent', 'delivered', 'read', 'scheduled'].includes(m.status)) {
+        } else if (!m.campaignId && ['queued', 'sending', 'sent', 'delivered', 'read'].includes(m.status)) {
           await onManualOutbound({ workspaceId, clientId, conversationId: m.conversationId, message: m });
         }
         processed += 1;

@@ -102,10 +102,13 @@ async function deliver({ workspaceId, client, body, attachments = [], campaignId
   if (!mod) return fallbackSend({ workspaceId, client, body, attachments, campaignId, recipientId, aiGenerated });
 
   const before = await findThread(workspaceId, client);
+  // The messaging stack routes campaign-born threads into the Automations lane
+  // itself, persists campaignId/campaignRecipientId, and never bumps a live
+  // inbox thread with a campaign echo.
   const out = await mod.sendMessage({
     workspaceId,
     clientId: client.id,
-    ...(before ? { conversationId: before.id } : { handle: normalizePhone(client.phone || '') }),
+    ...(before ? { conversationId: before.id } : {}),
     body,
     attachments,
     source: 'campaign',
@@ -114,21 +117,8 @@ async function deliver({ workspaceId, client, body, attachments = [], campaignId
     aiGenerated,
   });
   const message = out && (out.message || out);
-  let conversation = out && out.conversation;
+  const conversation = out && out.conversation;
   const created = !before;
-  // Tag + route (best effort; the messaging stack may already have done both).
-  try {
-    if (message && message.id && recipientId && !message.campaignRecipientId) {
-      await prisma.message.update({ where: { id: message.id }, data: { campaignRecipientId: recipientId, ...(campaignId && !message.campaignId ? { campaignId } : {}) } });
-    }
-    const convId = (conversation && conversation.id) || (message && message.conversationId);
-    if (created && convId) {
-      conversation = await prisma.conversation.update({ where: { id: convId }, data: { lane: 'automations' } });
-      hub.broadcast(workspaceId, 'conversation_updated', conversation);
-    }
-  } catch (err) {
-    console.error('[campaigns/transport] post-send tagging failed:', err.message);
-  }
   return { message, conversation, created, via: 'messaging' };
 }
 

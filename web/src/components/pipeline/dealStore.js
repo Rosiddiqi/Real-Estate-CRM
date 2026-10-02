@@ -42,6 +42,7 @@ function applyLocal(deal, patch) {
       for (const [kk, vv] of Object.entries(v)) { if (vv === null) delete merged[kk]; else merged[kk] = vv; }
       next[k] = merged;
     } else next[k] = v;
+    if (k === 'price') next.rawPrice = v;
   }
   return next;
 }

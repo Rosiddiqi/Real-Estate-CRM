@@ -71,25 +71,25 @@ const TEMPLATES = {
   just_listed: {
     key: 'just_listed', label: 'Just Listed', icon: 'sign', accent: '#2E8BFF', needsListing: true,
     sub: 'Announce a new listing to the right buyers',
-    brief: 'Let them know I just listed {address}{specs}{price}. Offer a private showing before the weekend.',
+    brief: 'Let them know I just listed {address}{area}{specsParen}{atPrice}. Offer a private showing before the weekend.',
     audienceHint: 'Buyers with active searches in the area and price band',
   },
   just_sold: {
     key: 'just_sold', label: 'Just Sold', icon: 'key', accent: '#30D27A', needsListing: true,
     sub: 'Social proof for owners nearby',
-    brief: 'Tell them I just closed {address}{price}. Ask if they are curious what their own home would sell for today.',
+    brief: 'Tell them I just closed {address}{area}{forPrice}. Ask if they are curious what their own home would sell for today.',
     audienceHint: 'Homeowners in the same neighborhood',
   },
   open_house_invite: {
     key: 'open_house_invite', label: 'Open House Invite', icon: 'door', accent: '#BF5AF2', needsListing: true, needsEvent: true,
     sub: 'Invite, RSVP, reminders',
-    brief: 'Invite them to the open house at {address}. Light bites and a private walkthrough, bring a friend. Ask them to reply if they are coming.',
+    brief: 'Invite them to my open house at {address}{area}. Light bites and a private walkthrough, bring a friend. Ask them to reply if they are coming.',
     audienceHint: 'Sphere and active buyers nearby',
   },
   price_improvement: {
     key: 'price_improvement', label: 'Price Improvement', icon: 'trendingDown', accent: '#F2A93B', needsListing: true,
     sub: 'Tell matched buyers the price moved',
-    brief: 'Let them know {address} just had a price improvement{price}. Offer a private tour this week.',
+    brief: 'Let them know {address}{area} just had a price improvement{toPrice}. Offer a private tour this week.',
     audienceHint: 'Buyers searching in that price band',
   },
   market_update: {

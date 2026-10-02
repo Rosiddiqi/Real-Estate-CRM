@@ -450,10 +450,16 @@ async function processRow(row, from, ctx) {
   try {
     sent = await transport.deliver({ workspaceId, client, body: text, attachments, campaignId: campaign.id, recipientId: row.id, aiGenerated: true });
   } catch (err) {
-    const offline = /offline|kill ?switch|disabled|not connected|unavailable|paused/i.test(String(err.message || ''));
+    const msg = String(err.message || '');
+    const offline = err.status === 503 || err.status === 429 || /offline|kill ?switch|disabled|not connected|unavailable|paused|held by send safety|too many/i.test(msg);
+    if (err.status === 409 && /opted out/i.test(msg)) {
+      await finish(row, (l) => ({ ...Q.withQueue(Q.metaOf(l), []), status: 'opted_out', error: 'This person asked not to be texted' }));
+      return;
+    }
     if (offline) {
       const at = new Date(now.getTime() + 5 * 60000).toISOString();
-      await finish(row, (l, ours) => ({ ...Q.withQueue({ ...Q.metaOf(l), resumeStatus: from }, Q.queueOf(l).map((i) => (i.id === item.id ? { ...i, at } : i))), ...(ours ? { status: 'rate_deferred', error: 'Messaging is offline. Retrying shortly' } : {}) }));
+      const why = /kill ?switch|paused/i.test(msg) ? 'Sending is paused (kill switch). Retrying shortly' : /held|too many/i.test(msg) ? 'Held by send safety. Retrying shortly' : 'Messaging is offline. Retrying shortly';
+      await finish(row, (l, ours) => ({ ...Q.withQueue({ ...Q.metaOf(l), resumeStatus: from }, Q.queueOf(l).map((i) => (i.id === item.id ? { ...i, at, deferred: true } : i))), ...(ours ? { status: 'rate_deferred', error: why } : {}) }));
     } else {
       await guard.recordFailure({ workspaceId, now }).catch(() => {});
       await finish(row, (l) => dropItem(l, item.id, { status: item.kind === 'initial_send' ? 'failed' : from, error: `Send failed: ${String(err.message || err).slice(0, 160)}` }));

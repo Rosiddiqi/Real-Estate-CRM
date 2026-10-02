@@ -24,6 +24,14 @@ function init({ hub }) {
   // RevMatch-era event names, kept so older clients still work.
   hub.on('web', 'typing_start', (ctx, payload) => relay(ctx, payload, true));
   hub.on('web', 'typing_stop', (ctx, payload) => relay(ctx, payload, false));
+
+  // Resume demo deliveries/replies that a restart interrupted.
+  const t = setTimeout(() => {
+    require('../services/messaging/providers/demo').recover()
+      .then((n) => { if (n) console.log(`[messaging] resumed ${n} in-flight demo message(s)`); })
+      .catch((err) => console.error('[messaging] demo recovery failed:', err.message));
+  }, 1500);
+  if (t.unref) t.unref();
 }
 
 module.exports = { init };

@@ -11,6 +11,14 @@ const tools = [];
 const def = (t) => tools.push({ kind: 'write', ...t });
 
 const who = (ctx, id, fallback = 'the client') => ctx.names.get(id) || fallback;
+// "Today, 4:00 PM · was 11:00 AM" (drops the day when it didn't change)
+function movedMeta(now, was, tz) {
+  const a = U.fmtWhen(now, tz);
+  const b = U.fmtWhen(was, tz);
+  const [ad] = a.split(' · ');
+  const [bd, bt] = b.split(' · ');
+  return `${a.replace(' · ', ', ')} · was ${ad === bd ? bt : b.replace(' · ', ', ')}`;
+}
 const stars = (n) => '★'.repeat(n) + '☆'.repeat(Math.max(0, 5 - n));
 
 function dueFrom(input, tz) {
@@ -116,7 +124,7 @@ def({
     const when = U.fmtWhen(appointment.startAt, ctx.tz);
     return {
       ok: true, appointment_id: appointment.id, new_when_local: when, previous_when_local: U.fmtWhen(prev.startAt, ctx.tz),
-      __card: { category: 'calendar', label: 'Calendar · moved', title: appointment.title, meta: `Now ${when.replace(' · ', ', ')} · was ${U.fmtWhen(prev.startAt, ctx.tz).replace(' · ', ', ')}`, open: { type: 'appointment', id: appointment.id }, undo },
+      __card: { category: 'calendar', label: 'Calendar · moved', title: appointment.title, meta: movedMeta(appointment.startAt, prev.startAt, ctx.tz), open: { type: 'appointment', id: appointment.id }, undo },
     };
   },
 });
@@ -233,8 +241,8 @@ def({
       return { ok: false, needs_confirmation: true, message: 'Closing a deal books GCI. Ask the agent to confirm it actually closed (and the final price) before moving it to Closed.' };
     }
     const { deal, prev, unchanged, undo } = await fx.moveDeal(ctx, input.deal_id, target);
-    if (unchanged) return { ok: true, note: `Already in ${deal.stage}.` };
     const { stageLabel } = require('./read');
+    if (unchanged) return { ok: true, note: `It’s already in ${stageLabel(deal.stage, deal.side)}.` };
     return {
       ok: true, deal_id: deal.id, stage: deal.stage, previous_stage: prev.stage,
       __card: { category: 'pipeline', label: deal.stage === 'closed' ? 'Pipeline · closed' : 'Pipeline · stage', title: deal.title || 'Deal', meta: `${stageLabel(deal.stage, deal.side)} · was ${stageLabel(prev.stage, deal.side)}`, open: { type: 'deal', id: deal.id }, undo },

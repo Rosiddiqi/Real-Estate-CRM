@@ -23,6 +23,11 @@ const APPT_LABEL = {
   appraisal: 'Appraisal', final_walkthrough: 'Final walkthrough', closing: 'Closing', call: 'Call', video: 'Video call',
   meeting: 'Meeting', content: 'Listing media', personal: 'Personal', team: 'Team', other: 'Appointment',
 };
+// Prefer the calendar builder's labels so every surface reads the same.
+try {
+  const cal = require('../calendar');
+  if (cal && cal.TYPES) for (const [k, v] of Object.entries(cal.TYPES)) if (v && v.label) APPT_LABEL[k] = v.label;
+} catch { /* calendar service not present */ }
 const APPT_TYPES = Object.keys(APPT_LABEL);
 
 function broadcast(ctx, event, payload) {
@@ -54,30 +59,35 @@ async function createTask(ctx, { title, clientId = null, dealId = null, listingI
     dueAt: dueAt || null, dueDate: dueDate || (dueAt ? dayKey(dueAt, ctx.tz) : null),
     priority: typeof priority === 'number' ? priority : (PRIORITY[priority] ?? 0), meta,
   };
-  let task = null;
-  const fn = U.fnFrom(svc.tasks(), 'createTask');
-  if (fn) {
-    try { task = await fn({ ...data, workspaceId: ctx.workspaceId, userId: ctx.userId }); } catch (err) { if (!/is not a function|Cannot read prop/i.test(err.message)) throw err; }
-    if (task && task.task) task = task.task;
-  }
-  if (!task || !task.id) {
+  let task;
+  const T = svc.tasks();
+  if (T && typeof T.createTask === 'function') {
+    // undefined clientId lets the service auto-link a client named in the title
+    task = await T.createTask({ ...data, clientId: clientId || undefined, actor: ctx.actor || 'ai' });
+  } else {
     task = await prisma.task.create({ data });
-    broadcast(ctx, 'task_updated', task);
+    broadcast(ctx, 'task_updated', { task, action: 'created' });
+    if (clientId) await activity(ctx, { clientId, type: 'task_created', title: `To-do: ${task.title}`, meta: { taskId: task.id, source } });
   }
-  const act = clientId ? await activity(ctx, { clientId, type: 'task_created', title: `To-do: ${task.title}`, meta: { taskId: task.id, source } }) : null;
   planChanged(ctx, 'task');
-  return { task, undo: { kind: 'delete_task', taskId: task.id, activityIds: [act].filter(Boolean) } };
+  return { task, undo: { kind: 'delete_task', taskId: task.id } };
 }
 
 async function completeTask(ctx, { taskId }) {
   const t = await prisma.task.findFirst({ where: { id: taskId, workspaceId: ctx.workspaceId } });
   if (!t) throw new Error(`No to-do with id ${taskId}.`);
   if (t.status === 'done') return { task: t, already: true, undo: null };
-  const task = await prisma.task.update({ where: { id: t.id }, data: { status: 'done', completedAt: new Date() } });
-  broadcast(ctx, 'task_updated', task);
-  const act = t.clientId ? await activity(ctx, { clientId: t.clientId, type: 'task_done', title: `Done: ${t.title}`, meta: { taskId: t.id } }) : null;
+  let task;
+  const T = svc.tasks();
+  if (T && typeof T.completeTask === 'function') {
+    task = await T.completeTask({ workspaceId: ctx.workspaceId, id: t.id, actor: ctx.actor || 'ai' });
+  } else {
+    task = await prisma.task.update({ where: { id: t.id }, data: { status: 'done', completedAt: new Date() } });
+    broadcast(ctx, 'task_updated', { task, action: 'updated' });
+    if (t.clientId) await activity(ctx, { clientId: t.clientId, type: 'task_done', title: `Done: ${t.title}`, meta: { taskId: t.id } });
+  }
   planChanged(ctx, 'task');
-  return { task, undo: { kind: 'restore_task', taskId: t.id, prev: { status: t.status, completedAt: t.completedAt }, activityIds: [act].filter(Boolean) } };
+  return { task, undo: { kind: 'restore_task', taskId: t.id, prev: { status: t.status, completedAt: t.completedAt } } };
 }
 
 // ── appointments ───────────────────────────────────────────────────────────
@@ -90,7 +100,7 @@ function apptTitle(type, client, listing) {
   return label;
 }
 
-async function createAppointment(ctx, { clientId = null, listingId = null, dealId = null, type = 'showing', title = null, startAt, endAt = null, durationMin = 60, location = null, notes = null, source = 'serena' }) {
+async function createAppointment(ctx, { clientId = null, listingId = null, dealId = null, type = 'showing', title = null, startAt, endAt = null, durationMin = null, location = null, notes = null, source = 'serena' }) {
   if (!startAt || Number.isNaN(new Date(startAt).getTime())) throw new Error('Appointment needs a valid start time.');
   const t = APPT_TYPES.includes(type) ? type : 'other';
   const [client, listing] = await Promise.all([
@@ -99,46 +109,54 @@ async function createAppointment(ctx, { clientId = null, listingId = null, dealI
   ]);
   if (clientId && !client) throw new Error(`No client with id ${clientId}.`);
   const start = new Date(startAt);
-  const end = endAt ? new Date(endAt) : new Date(start.getTime() + (durationMin || 60) * 60000);
-  const data = {
-    workspaceId: ctx.workspaceId, userId: ctx.userId || null, clientId, listingId: listing ? listing.id : null, dealId,
-    type: t, title: (title && String(title).trim()) || apptTitle(t, client, listing), notes,
-    location: location || (listing ? [U.addressOf(listing), listing.city].filter(Boolean).join(', ') : null),
-    startAt: start, endAt: end, status: 'scheduled', source,
-  };
-  let appt = null;
-  const fn = U.fnFrom(svc.calendar(), 'createAppointment');
-  if (fn) {
-    try { appt = await fn({ ...data, workspaceId: ctx.workspaceId, userId: ctx.userId }); } catch (err) { if (!/is not a function|Cannot read prop/i.test(err.message)) throw err; }
-    if (appt && appt.appointment) appt = appt.appointment;
+  const Cal = svc.calendar();
+  let appt;
+  if (Cal && typeof Cal.createAppointment === 'function') {
+    appt = await Cal.createAppointment({
+      workspaceId: ctx.workspaceId, userId: ctx.userId || null, type: t, title: (title && String(title).trim()) || apptTitle(t, client, listing),
+      clientId: client ? client.id : null, dealId, listingId: listing ? listing.id : null, startAt: start, endAt: endAt || undefined,
+      durationMin: durationMin || undefined, location: location || undefined, notes, source, actor: ctx.actor || 'ai',
+    });
+  } else {
+    const end = endAt ? new Date(endAt) : new Date(start.getTime() + (durationMin || 60) * 60000);
+    appt = await prisma.appointment.create({
+      data: {
+        workspaceId: ctx.workspaceId, userId: ctx.userId || null, clientId, listingId: listing ? listing.id : null, dealId,
+        type: t, title: (title && String(title).trim()) || apptTitle(t, client, listing), notes,
+        location: location || (listing ? [U.addressOf(listing), listing.city].filter(Boolean).join(', ') : null),
+        startAt: start, endAt: end, status: 'scheduled', source,
+      },
+    });
+    broadcast(ctx, 'appointment_updated', { appointment: appt, action: 'created' });
+    if (clientId) await activity(ctx, { clientId, listingId: appt.listingId, type: ['showing', 'private_tour', 'open_house'].includes(t) ? 'showing' : 'appointment', title: `${APPT_LABEL[t] || 'Appointment'} booked · ${U.fmtWhen(start, ctx.tz)}`, meta: { appointmentId: appt.id, source } });
   }
-  if (!appt || !appt.id) {
-    appt = await prisma.appointment.create({ data });
-    broadcast(ctx, 'appointment_updated', appt);
-  }
-  const act = clientId ? await activity(ctx, { clientId, listingId: data.listingId, type: ['showing', 'private_tour', 'open_house'].includes(t) ? 'showing' : 'appointment', title: `${APPT_LABEL[t] || 'Appointment'} booked · ${U.fmtWhen(start, ctx.tz)}`, meta: { appointmentId: appt.id, source } }) : null;
   planChanged(ctx, 'appointment');
-  return { appointment: appt, client, listing, undo: { kind: 'delete_appointment', appointmentId: appt.id, activityIds: [act].filter(Boolean) } };
+  return { appointment: appt, client, listing, undo: { kind: 'delete_appointment', appointmentId: appt.id } };
 }
 
 async function updateAppointment(ctx, appointmentId, patch) {
   const a = await prisma.appointment.findFirst({ where: { id: appointmentId, workspaceId: ctx.workspaceId } });
   if (!a) throw new Error(`No appointment with id ${appointmentId}.`);
-  const prev = { startAt: a.startAt, endAt: a.endAt, status: a.status, type: a.type, title: a.title, location: a.location };
-  const data = {};
-  if (patch.startAt) {
-    const dur = new Date(a.endAt) - new Date(a.startAt);
-    data.startAt = new Date(patch.startAt);
-    data.endAt = patch.endAt ? new Date(patch.endAt) : new Date(data.startAt.getTime() + (patch.durationMin ? patch.durationMin * 60000 : dur));
-  } else if (patch.durationMin) {
-    data.endAt = new Date(new Date(a.startAt).getTime() + patch.durationMin * 60000);
+  const prev = { startAt: a.startAt, endAt: a.endAt, status: a.status, type: a.type, title: a.title, location: a.location, notes: a.notes };
+  const p = {};
+  if (patch.startAt) { p.startAt = new Date(patch.startAt); if (patch.endAt) p.endAt = new Date(patch.endAt); if (patch.durationMin) p.durationMin = patch.durationMin; }
+  else if (patch.durationMin) p.durationMin = patch.durationMin;
+  if (patch.status) p.status = patch.status;
+  if (patch.type && APPT_TYPES.includes(patch.type)) p.type = patch.type;
+  if (patch.location !== undefined) p.location = patch.location;
+  if (patch.notes) p.notes = [a.notes, patch.notes].filter(Boolean).join('\n');
+  let appointment;
+  const Cal = svc.calendar();
+  if (Cal && typeof Cal.updateAppointment === 'function') {
+    appointment = await Cal.updateAppointment({ workspaceId: ctx.workspaceId, id: a.id, patch: p, actor: ctx.actor || 'ai' });
+  } else {
+    const data = { ...p };
+    delete data.durationMin;
+    if (p.startAt) data.endAt = p.endAt || new Date(p.startAt.getTime() + (p.durationMin ? p.durationMin * 60000 : (new Date(a.endAt) - new Date(a.startAt))));
+    else if (p.durationMin) data.endAt = new Date(new Date(a.startAt).getTime() + p.durationMin * 60000);
+    appointment = await prisma.appointment.update({ where: { id: a.id }, data });
+    broadcast(ctx, 'appointment_updated', { appointment, action: 'updated' });
   }
-  if (patch.status) data.status = patch.status;
-  if (patch.type && APPT_TYPES.includes(patch.type)) data.type = patch.type;
-  if (patch.location !== undefined) data.location = patch.location;
-  if (patch.notes) data.notes = [a.notes, patch.notes].filter(Boolean).join('\n');
-  const appointment = await prisma.appointment.update({ where: { id: a.id }, data });
-  broadcast(ctx, 'appointment_updated', appointment);
   planChanged(ctx, 'appointment');
   return { appointment, prev, undo: { kind: 'restore_appointment', appointmentId: a.id, prev } };
 }
@@ -195,38 +213,21 @@ async function createClient(ctx, { firstName, lastName = '', phone = null, email
 async function createDeal(ctx, { clientId, side = 'buyer', stage = null, title = null, price = null, propertyAddress = null, listingId = null, portfolioPropertyId = null, closingDate = null, notes = null }) {
   const client = await prisma.client.findFirst({ where: { id: clientId, workspaceId: ctx.workspaceId }, select: U.CLIENT_LITE });
   if (!client) throw new Error(`No client with id ${clientId}.`);
-  const S = svc.stages();
-  let st = stage || (['listing', 'dual', 'lease_landlord'].includes(side) ? 'seller_lead' : 'new_lead');
-  let subStatus = null;
-  if (S && S.canonicalize) {
-    try { const c = S.canonicalize(st, side); if (c && c.stage) { st = c.stage; subStatus = c.subStatus || null; } } catch { /* keep raw */ }
-  }
-  const listing = listingId ? await prisma.listing.findFirst({ where: { id: listingId, workspaceId: ctx.workspaceId } }) : null;
-  const plan = await prisma.payPlan.findFirst({ where: { workspaceId: ctx.workspaceId }, orderBy: { createdAt: 'asc' } });
-  const rate = ['listing', 'dual', 'lease_landlord'].includes(side) ? (plan ? plan.defaultListingRate : 0.03) : (plan ? plan.defaultBuyerRate : 0.025);
-  const p = price || (listing && listing.listPrice) || null;
-  const data = {
-    workspaceId: ctx.workspaceId, clientId, side, stage: st, subStatus, stageChangedAt: new Date(),
-    title: title || (listing ? U.addressOf(listing) : propertyAddress) || `${U.nameOf(client)} · ${side === 'buyer' ? 'Purchase' : 'Sale'}`,
-    price: p, listPrice: listing ? listing.listPrice : null, propertyAddress: propertyAddress || (listing ? U.addressOf(listing) : null),
-    propertyLabel: listing ? U.addressOf(listing) : null, listingId: listing ? listing.id : null, portfolioPropertyId,
-    sideRate: rate, splitShare: 1, estimatedGci: p ? Math.round(p * rate) : null, closingDate: closingDate ? new Date(closingDate) : null, notes,
-  };
-  let deal = null;
-  const fn = U.fnFrom(svc.deals(), 'createDeal');
-  if (fn) {
-    try { deal = await fn({ ...data, workspaceId: ctx.workspaceId, userId: ctx.userId }); } catch (err) { if (!/is not a function|Cannot read prop/i.test(err.message)) throw err; }
-    if (deal && deal.deal) deal = deal.deal;
-  }
-  let acts = [];
-  if (!deal || !deal.id) {
-    deal = await prisma.deal.create({ data });
-    await prisma.dealEvent.create({ data: { workspaceId: ctx.workspaceId, dealId: deal.id, type: 'created', toStage: deal.stage } }).catch(() => {});
+  const D = svc.deals();
+  let deal;
+  if (D && typeof D.createDeal === 'function') {
+    deal = await D.createDeal({
+      workspaceId: ctx.workspaceId, clientId, side, stage: stage || undefined, title: title || undefined, price: price || undefined,
+      propertyAddress: propertyAddress || undefined, listingId: listingId || undefined, portfolioPropertyId: portfolioPropertyId || undefined,
+      closingDate: closingDate || undefined, notes: notes || undefined, actor: ctx.actor === 'agent' ? 'agent' : 'serena',
+    });
+  } else {
+    const st = stage || (['listing', 'dual', 'lease_landlord'].includes(side) ? 'seller_lead' : 'new_lead');
+    deal = await prisma.deal.create({ data: { workspaceId: ctx.workspaceId, clientId, side, stage: st, stageChangedAt: new Date(), title: title || propertyAddress || `${U.nameOf(client)} · ${side === 'buyer' ? 'Purchase' : 'Sale'}`, price, propertyAddress, listingId, portfolioPropertyId, closingDate: closingDate ? new Date(closingDate) : null, notes } });
     broadcast(ctx, 'deal_created', deal);
-    const act = await activity(ctx, { clientId, dealId: deal.id, type: 'deal_created', title: `Deal started · ${deal.title}`, meta: { dealId: deal.id, stage: deal.stage } });
-    acts = [act].filter(Boolean);
+    await activity(ctx, { clientId, dealId: deal.id, type: 'deal_created', title: `Deal started · ${deal.title}`, meta: { dealId: deal.id, stage: deal.stage } });
   }
-  return { deal, client, undo: { kind: 'delete_deal', dealId: deal.id, activityIds: acts } };
+  return { deal, client, undo: { kind: 'delete_deal', dealId: deal.id } };
 }
 
 async function moveDeal(ctx, dealId, toStage) {
@@ -236,29 +237,25 @@ async function moveDeal(ctx, dealId, toStage) {
   let stage = toStage;
   let subStatus = null;
   if (S && S.canonicalize) {
-    try { const c = S.canonicalize(toStage, d.side); if (c && c.stage) { stage = c.stage; subStatus = c.subStatus || null; } } catch { /* keep raw */ }
+    const c = S.canonicalize(toStage, d.side);
+    if (!c || !c.stage) throw new Error(`"${toStage}" is not a pipeline stage.`);
+    stage = c.stage; subStatus = c.subStatus || null;
   }
-  if (S && S.isValidStage && !S.isValidStage(stage)) throw new Error(`"${toStage}" is not a pipeline stage.`);
   const prev = { stage: d.stage, subStatus: d.subStatus, stageChangedAt: d.stageChangedAt, closedAt: d.closedAt, lostAt: d.lostAt };
   if (d.stage === stage && (!subStatus || d.subStatus === subStatus)) return { deal: d, unchanged: true, undo: null };
-  let deal = null;
-  const fn = U.fnFrom(svc.deals(), 'moveDeal', 'moveStage', 'changeStage');
-  if (fn) {
-    try { deal = await fn({ workspaceId: ctx.workspaceId, userId: ctx.userId, dealId: d.id, stage, subStatus, source: 'serena' }); } catch (err) { if (!/is not a function|Cannot read prop/i.test(err.message)) throw err; }
-    if (deal && deal.deal) deal = deal.deal;
-  }
-  let acts = [];
-  if (!deal || !deal.id) {
+  const D = svc.deals();
+  let deal;
+  if (D && typeof D.moveDeal === 'function') {
+    deal = await D.moveDeal({ workspaceId: ctx.workspaceId, dealId: d.id, stage, ...(subStatus ? { subStatus } : {}), actor: ctx.actor === 'agent' ? 'agent' : 'serena' });
+  } else {
     const data = { stage, subStatus, stageChangedAt: new Date() };
     if (stage === 'closed' && !d.closedAt) data.closedAt = new Date();
     if (stage === 'lost' && !d.lostAt) data.lostAt = new Date();
     deal = await prisma.deal.update({ where: { id: d.id }, data });
-    await prisma.dealEvent.create({ data: { workspaceId: ctx.workspaceId, dealId: d.id, type: stage === 'closed' ? 'closed' : stage === 'lost' ? 'lost' : 'stage', fromStage: d.stage, toStage: stage } }).catch(() => {});
     broadcast(ctx, 'deal_updated', deal);
-    const act = await activity(ctx, { clientId: d.clientId, dealId: d.id, type: stage === 'closed' ? 'deal_closed' : 'deal_stage_change', title: `${deal.title || 'Deal'} → ${stage.replace(/_/g, ' ')}`, meta: { dealId: d.id, from: d.stage, to: stage } });
-    acts = [act].filter(Boolean);
+    await activity(ctx, { clientId: d.clientId, dealId: d.id, type: stage === 'closed' ? 'deal_closed' : 'deal_stage_change', title: `${deal.title || 'Deal'} → ${stage.replace(/_/g, ' ')}`, meta: { dealId: d.id, from: d.stage, to: stage } });
   }
-  return { deal, prev, undo: { kind: 'restore_deal_stage', dealId: d.id, prev, activityIds: acts } };
+  return { deal, prev, undo: { kind: 'restore_deal_stage', dealId: d.id, prev } };
 }
 
 // ── portfolio + searches ───────────────────────────────────────────────────
@@ -335,6 +332,12 @@ async function remember(ctx, { text, kind = 'fact', source = 'serena' }) {
 async function dropActivities(ctx, ids) {
   if (ids && ids.length) await prisma.activity.deleteMany({ where: { id: { in: ids }, workspaceId: ctx.workspaceId } }).catch(() => {});
 }
+// Services log their own timeline rows; undo removes the rows that point at
+// the undone entity (meta.<key> === id), created in the last hour.
+async function dropActivitiesByMeta(ctx, key, id) {
+  if (!id) return;
+  await prisma.activity.deleteMany({ where: { workspaceId: ctx.workspaceId, createdAt: { gte: new Date(Date.now() - 3600e3) }, meta: { path: [key], equals: id } } }).catch(() => {});
+}
 
 async function applyUndo(ctx, u) {
   if (!u || !u.kind) throw new Error('Nothing to undo.');
@@ -343,34 +346,38 @@ async function applyUndo(ctx, u) {
     case 'delete_task': {
       const t = await prisma.task.findFirst({ where: { id: u.taskId, workspaceId: wid } });
       if (t) {
-        await prisma.task.delete({ where: { id: t.id } });
-        broadcast(ctx, 'task_updated', { ...t, deleted: true, status: 'cancelled' });
+        const T = svc.tasks();
+        if (T && typeof T.deleteTask === 'function') await T.deleteTask({ workspaceId: wid, id: t.id });
+        else { await prisma.task.delete({ where: { id: t.id } }); broadcast(ctx, 'task_updated', { id: t.id, action: 'deleted' }); }
       }
       await dropActivities(ctx, u.activityIds);
+      await dropActivitiesByMeta(ctx, 'taskId', u.taskId);
       planChanged(ctx, 'task');
       return { ok: true };
     }
     case 'restore_task': {
       const t = await prisma.task.findFirst({ where: { id: u.taskId, workspaceId: wid } });
       if (!t) throw new Error('That to-do no longer exists.');
-      const task = await prisma.task.update({ where: { id: t.id }, data: { status: u.prev.status, completedAt: u.prev.completedAt ? new Date(u.prev.completedAt) : null } });
-      broadcast(ctx, 'task_updated', task);
+      const T = svc.tasks();
+      if (T && typeof T.updateTask === 'function') await T.updateTask({ workspaceId: wid, id: t.id, patch: { status: u.prev.status || 'pending' }, actor: 'agent' });
+      else {
+        const task = await prisma.task.update({ where: { id: t.id }, data: { status: u.prev.status, completedAt: u.prev.completedAt ? new Date(u.prev.completedAt) : null } });
+        broadcast(ctx, 'task_updated', { task, action: 'updated' });
+      }
       await dropActivities(ctx, u.activityIds);
+      await prisma.activity.deleteMany({ where: { workspaceId: wid, type: 'task_done', meta: { path: ['taskId'], equals: t.id } } }).catch(() => {});
       planChanged(ctx, 'task');
       return { ok: true };
     }
     case 'delete_appointment': {
       const a = await prisma.appointment.findFirst({ where: { id: u.appointmentId, workspaceId: wid } });
       if (a) {
-        const fn = U.fnFrom(svc.calendar(), 'deleteAppointment');
-        let done = false;
-        if (fn) { try { await fn({ workspaceId: wid, userId: ctx.userId, id: a.id, appointmentId: a.id }); done = true; } catch { done = false; } }
-        if (!done) {
-          await prisma.appointment.delete({ where: { id: a.id } }).catch(() => {});
-          broadcast(ctx, 'appointment_updated', { ...a, deleted: true, status: 'cancelled' });
-        }
+        const Cal = svc.calendar();
+        if (Cal && typeof Cal.deleteAppointment === 'function') await Cal.deleteAppointment({ workspaceId: wid, id: a.id });
+        else { await prisma.appointment.delete({ where: { id: a.id } }); broadcast(ctx, 'appointment_updated', { id: a.id, action: 'deleted', appointment: { id: a.id, startAt: a.startAt } }); }
       }
       await dropActivities(ctx, u.activityIds);
+      await dropActivitiesByMeta(ctx, 'appointmentId', u.appointmentId);
       planChanged(ctx, 'appointment');
       return { ok: true };
     }
@@ -378,8 +385,13 @@ async function applyUndo(ctx, u) {
       const a = await prisma.appointment.findFirst({ where: { id: u.appointmentId, workspaceId: wid } });
       if (!a) throw new Error('That appointment no longer exists.');
       const p = u.prev;
-      const appointment = await prisma.appointment.update({ where: { id: a.id }, data: { startAt: new Date(p.startAt), endAt: new Date(p.endAt), status: p.status, type: p.type, title: p.title, location: p.location } });
-      broadcast(ctx, 'appointment_updated', appointment);
+      const Cal = svc.calendar();
+      if (Cal && typeof Cal.updateAppointment === 'function') {
+        await Cal.updateAppointment({ workspaceId: wid, id: a.id, patch: { startAt: new Date(p.startAt), endAt: new Date(p.endAt), status: p.status, type: p.type, title: p.title, location: p.location, notes: p.notes }, actor: 'agent' });
+      } else {
+        const appointment = await prisma.appointment.update({ where: { id: a.id }, data: { startAt: new Date(p.startAt), endAt: new Date(p.endAt), status: p.status, type: p.type, title: p.title, location: p.location, notes: p.notes } });
+        broadcast(ctx, 'appointment_updated', { appointment, action: 'updated' });
+      }
       planChanged(ctx, 'appointment');
       return { ok: true };
     }
@@ -409,9 +421,10 @@ async function applyUndo(ctx, u) {
     case 'delete_deal': {
       const d = await prisma.deal.findFirst({ where: { id: u.dealId, workspaceId: wid } });
       if (d) {
-        await dropActivities(ctx, u.activityIds);
-        await prisma.deal.delete({ where: { id: d.id } });
-        broadcast(ctx, 'deal_deleted', { id: d.id });
+        const D = svc.deals();
+        await dropActivitiesByMeta(ctx, 'dealId', d.id);
+        if (D && typeof D.deleteDeal === 'function') await D.deleteDeal({ workspaceId: wid, dealId: d.id });
+        else { await prisma.deal.delete({ where: { id: d.id } }); broadcast(ctx, 'deal_deleted', { id: d.id, clientId: d.clientId }); }
       }
       return { ok: true };
     }
@@ -419,10 +432,14 @@ async function applyUndo(ctx, u) {
       const d = await prisma.deal.findFirst({ where: { id: u.dealId, workspaceId: wid } });
       if (!d) throw new Error('That deal no longer exists.');
       const p = u.prev;
-      const deal = await prisma.deal.update({ where: { id: d.id }, data: { stage: p.stage, subStatus: p.subStatus, stageChangedAt: p.stageChangedAt ? new Date(p.stageChangedAt) : new Date(), closedAt: p.closedAt ? new Date(p.closedAt) : null, lostAt: p.lostAt ? new Date(p.lostAt) : null } });
-      await prisma.dealEvent.create({ data: { workspaceId: wid, dealId: d.id, type: 'stage', fromStage: d.stage, toStage: p.stage, meta: { undo: true } } }).catch(() => {});
+      const D = svc.deals();
+      if (D && typeof D.moveDeal === 'function') {
+        await D.moveDeal({ workspaceId: wid, dealId: d.id, stage: p.stage, ...(p.subStatus ? { subStatus: p.subStatus } : {}), actor: 'agent' });
+      } else {
+        const deal = await prisma.deal.update({ where: { id: d.id }, data: { stage: p.stage, subStatus: p.subStatus, stageChangedAt: p.stageChangedAt ? new Date(p.stageChangedAt) : new Date(), closedAt: p.closedAt ? new Date(p.closedAt) : null, lostAt: p.lostAt ? new Date(p.lostAt) : null } });
+        broadcast(ctx, 'deal_updated', deal);
+      }
       await dropActivities(ctx, u.activityIds);
-      broadcast(ctx, 'deal_updated', deal);
       return { ok: true };
     }
     case 'delete_search': {

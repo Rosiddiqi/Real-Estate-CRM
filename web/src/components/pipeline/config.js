@@ -151,7 +151,9 @@ export function derive(deal, s = state) {
   const info = sideInfo(cfg, side);
   const { label, sub } = labelFor(cfg, deal.stage, side);
   const plan = s.plan || C.preparePlan({});
-  const est = C.estimate(deal, plan, s.capYtd);
+  // normalized deals expose the effective price as `price` and the raw column as `rawPrice`
+  const raw = { ...deal, price: deal.rawPrice !== undefined ? deal.rawPrice : deal.price };
+  const est = C.estimate(raw, plan, s.capYtd);
   const o = odds(cfg, deal.stage);
   const net = est.estimatedNet != null ? est.estimatedNet : est.net;
   const t = timing(cfg, deal);
@@ -171,8 +173,8 @@ export function derive(deal, s = state) {
     color: colorFor(cfg, deal.stage),
     next: nextStage(cfg, deal),
     price: est.price,
-    priceCaption: C.priceCaption(deal),
-    priceField: C.priceField(deal),
+    priceCaption: C.priceCaption(raw),
+    priceField: C.priceField(raw),
     rate: est.rate,
     booked: deal.commission != null,
     estimates: {

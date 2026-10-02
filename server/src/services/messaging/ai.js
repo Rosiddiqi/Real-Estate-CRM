@@ -485,11 +485,11 @@ async function draftText({ workspaceId, clientId, conversationId, context, instr
 
 // ── demo provider: the client's side of the conversation ─────────────────
 const CANNED = {
-  listing: ['Wow. That kitchen. Can we see it this weekend?', 'Love the light in that one. Is the dock deep enough for our boat?', 'Very interesting — what do you think it would actually trade at?', 'Send me the floor plan? Mark wants to see the layout.'],
+  listing: ['Wow. That kitchen. Can we see it this weekend?', 'Love the light in that one. Is the dock deep enough for our boat?', 'Very interesting — what do you think it would actually trade at?', 'Send me the floor plan? I want to see the layout.'],
   showing: ['Saturday at 11 works for us.', 'Can we do 2pm instead? Morning is packed.', 'Perfect, see you there. Should we meet out front?', 'Works! Thanks for setting it up so fast.'],
   offer: ['What do you think they’d take? We’re thinking closer to asking minus 5.', 'Let’s talk tonight. I want to move before someone else does.', 'Okay. Let’s write it — clean, quick close.'],
   price: ['That’s a little more than we wanted, but I’m open if it’s the one.', 'Has it come down at all since it listed?', 'Fair. What are the carrying costs looking like?'],
-  question: ['Yes, that works for me.', 'Let me check with Mark and get back to you tonight.', 'Good question — I’d say yes, as long as the timing works.', 'Honestly not sure yet. Can we talk tomorrow?'],
+  question: ['Yes, that works for me.', 'Let me check my calendar and get back to you tonight.', 'Good question — I’d say yes, as long as the timing works.', 'Honestly not sure yet. Can we talk tomorrow?'],
   thanks: ['Thank you! Couldn’t have done it without you.', 'You’re the best. Talk soon.', 'Appreciate you!'],
   checkin: ['Hi! All good here. Still thinking about the waterfront place honestly.', 'Busy week but yes, still looking. Anything new?', 'Hey! Doing well. Let’s catch up next week.'],
   docs: ['Perfect, got it. Will review tonight.', 'Thanks — the survey is exactly what I needed.', 'Great, I’ll forward to our attorney.'],
