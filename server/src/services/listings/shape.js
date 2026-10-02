@@ -116,7 +116,8 @@ function badgesOf(l, lane) {
   if (lane === 'pocket') out.push(l.status === 'coming_soon' ? 'COMING SOON' : 'POCKET');
   else if (l.status === 'coming_soon' && lane !== 'whisper') out.push('COMING SOON');
   if (lane === 'newdev') out.push('NEW DEV');
-  if (lane === 'whisper') out.push('WHISPER');
+  // the source line already says "Whispers" — badge only a custom-named source
+  if (lane === 'whisper' && !/whisper/i.test((l.source && l.source.name) || 'Whispers')) out.push('WHISPER');
   return out;
 }
 

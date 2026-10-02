@@ -207,7 +207,7 @@ function buildAppointments(S, appts) {
     const ended = endAt <= ctx.now;
     const status = ended
       ? (['completed', 'no_show', 'cancelled'].includes(d.status) ? d.status : 'completed')
-      : (startAt <= ctx.now || startAt - ctx.now < 2 * DAY ? 'confirmed' : 'scheduled');
+      : (d.status === 'scheduled' ? 'scheduled' : (startAt <= ctx.now || startAt - ctx.now < 2 * DAY ? 'confirmed' : 'scheduled'));
     if (!ended) { d.outcome = null; }
     const created = new Date(Math.min(startAt.getTime() - (3 + (i % 5)) * DAY, ctx.now.getTime() - (2 + (i % 7)) * 3600e3));
     return clean({
