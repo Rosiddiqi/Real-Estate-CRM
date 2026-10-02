@@ -520,7 +520,10 @@ async function getPlanPayload({ workspaceId, userId, date: dateParam }) {
 
   // AI moves for the to-do list (open, non-mandatory) minus user-owned duplicates
   const openTasks = await prisma.task.findMany({ where: { workspaceId, status: 'pending' }, select: { clientId: true, title: true }, take: 300 });
-  const openMoves = moves.filter((m) => !m.mandatory && m.status === 'open');
+  // Read-time guard: a contact+kind handled since this plan was built (e.g.
+  // dismissed on today's plan) never resurfaces from the other day's plan.
+  const handledNow = await handledKeys(userId);
+  const openMoves = moves.filter((m) => !m.mandatory && m.status === 'open' && !handledNow.has(m.key));
   const visible = redundancyFilter(openMoves, openTasks, clients).map((m) => serializeMove(m, clients, date));
 
   const meta = (plan && plan.meta) || {};
@@ -564,10 +567,11 @@ async function getTodoBoard({ workspaceId, userId }) {
   ]);
   const { todoBoard } = require('../tasks');
   const board = await todoBoard({ workspaceId, tz: ctx.tz });
+  const handledNow = await handledKeys(userId);
   const moves = [
     ...((pToday && pToday.moves) || []).map((m) => ({ m, date: today })),
     ...((pTomorrow && pTomorrow.moves) || []).map((m) => ({ m, date: tomorrow })),
-  ].filter(({ m }) => !m.mandatory && m.status === 'open');
+  ].filter(({ m }) => !m.mandatory && m.status === 'open' && !handledNow.has(m.key));
   const clients = await clientMinis(workspaceId, moves.map(({ m }) => m.clientId));
   const seen = new Set();
   const deduped = [];
