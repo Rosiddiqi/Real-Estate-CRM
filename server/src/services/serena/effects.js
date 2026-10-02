@@ -16,6 +16,7 @@ const { logActivity } = require('../../lib/activity');
 const { normalizePhone } = require('../../lib/phone');
 const { dayKey } = require('../../lib/dates');
 const U = require('./util');
+const { assistantName } = require('../../lib/assistant');
 
 const APPT_LABEL = {
   showing: 'Showing', private_tour: 'Private tour', open_house: 'Open house', broker_open: 'Broker open',
@@ -165,7 +166,7 @@ async function updateAppointment(ctx, appointmentId, patch) {
 async function addNote(ctx, { clientId, body, source = 'serena', dealId = null, listingId = null }) {
   if (!body || !String(body).trim()) throw new Error('Note is empty.');
   const note = await prisma.note.create({ data: { workspaceId: ctx.workspaceId, clientId, dealId, listingId, body: String(body).trim(), source } });
-  const act = clientId ? await activity(ctx, { clientId, type: 'note', title: source === 'serena' ? 'Note added by Serena' : 'Note added', body: note.body, meta: { noteId: note.id, source } }) : null;
+  const act = clientId ? await activity(ctx, { clientId, type: 'note', title: source === 'serena' ? `Note added by ${ctx.assistantName || await assistantName(ctx.userId)}` : 'Note added', body: note.body, meta: { noteId: note.id, source } }) : null;
   broadcast(ctx, 'client_updated', { id: clientId, reason: 'note' });
   return { note, undo: { kind: 'delete_note', noteId: note.id, clientId, activityIds: [act].filter(Boolean) } };
 }
@@ -201,7 +202,7 @@ async function createClient(ctx, { firstName, lastName = '', phone = null, email
     const dupe = await prisma.client.findFirst({ where: { workspaceId: ctx.workspaceId, OR: [{ phone: ph }, { phoneAlt: ph }] }, select: U.CLIENT_LITE });
     if (dupe) return { client: dupe, existing: true, undo: null };
   }
-  const client = await prisma.client.create({ data: { workspaceId: ctx.workspaceId, firstName: firstName || '', lastName: lastName || '', phone: ph, email, type, status, leadSource: leadSource || 'Serena', notes, contactKind } });
+  const client = await prisma.client.create({ data: { workspaceId: ctx.workspaceId, firstName: firstName || '', lastName: lastName || '', phone: ph, email, type, status, leadSource: leadSource || `Added by ${ctx.assistantName || await assistantName(ctx.userId)}`, notes, contactKind } });
   // Back-link earlier calls from this number.
   if (ph) await prisma.phoneCall.updateMany({ where: { workspaceId: ctx.workspaceId, clientId: null, OR: [{ fromNumber: ph }, { toNumber: ph }] }, data: { clientId: client.id } }).catch(() => {});
   broadcast(ctx, 'client_updated', client);

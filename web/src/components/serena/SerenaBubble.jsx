@@ -12,6 +12,7 @@ import SerenaAvatar from './SerenaAvatar';
 import { serena, useSerena } from './serenaStore';
 import { useCallState } from '../calls/callStore';
 import '../../styles/serena.css';
+import { useAssistant } from '../../hooks/useAssistant';
 
 const SIZE = 44;
 const EDGE = 8;
@@ -69,6 +70,7 @@ function prefersReduced() {
 }
 
 export default function SerenaBubble() {
+  const { name: assistant } = useAssistant();
   const s = useSerena();
   const { overlays } = useNav();
   const call = useCallState();
@@ -167,7 +169,7 @@ export default function SerenaBubble() {
     <div
       role="button"
       tabIndex={0}
-      aria-label={s.unread ? `Open Serena — ${s.unread} new` : 'Open Serena'}
+      aria-label={s.unread ? `Open ${assistant} — ${s.unread} new` : `Open ${assistant}`}
       data-serena-bubble=""
       className={`km-srn-bubble ${dragging ? 'is-dragging' : ''} ${flying ? 'is-flying' : ''}`}
       onPointerDown={onPointerDown}

@@ -74,7 +74,7 @@ const TurnBody = z.object({
 
 router.post('/turn', ah(async (req, res) => {
   const { text, context } = parse(TurnBody, req.body || {});
-  if (agent.isRunning(req.userId)) throw new HttpError(409, 'Serena is still working on your last message.');
+  if (agent.isRunning(req.userId)) throw new HttpError(409, 'Still working on your last message.');
 
   res.writeHead(200, {
     'Content-Type': 'text/event-stream; charset=utf-8',
@@ -159,7 +159,7 @@ router.post('/proposals/:id', ah(async (req, res) => {
     }
     const mod = U.optionalRequire('../messaging/send');
     const send = U.fnFrom(mod, 'sendMessage');
-    if (!send) throw new HttpError(501, 'Sending from Serena isn’t available yet — open the thread to send it.');
+    if (!send) throw new HttpError(501, 'Sending from here isn’t available yet — open the thread to send it.');
     const payload = {
       workspaceId: req.workspaceId,
       userId: req.userId,

@@ -1,7 +1,7 @@
 # KeyMatch
 
 **The personal CRM for luxury & exotic real estate agents** — RevMatch's foundation (battle plan,
-stats, iMessage-grade inbox, pipeline, client cards, matchmaker, Serena AI) re-geared for real
+stats, iMessage-grade inbox, pipeline, client cards, matchmaker, your own AI assistant) re-geared for real
 estate: the car **Garage** becomes a property **Portfolio**, dealer **Inventory** becomes
 **Listings**, test drives become **showings**, deliveries become **closings**.
 
@@ -11,14 +11,14 @@ Native iPhone app (Capacitor, TestFlight-ready) + mobile-first PWA that also wor
 
 | Area | What it does |
 |---|---|
-| **Home · Battle Plan** | A time-ordered plan for the day built from your book: showings, calls to make, follow-ups and protected blocks. It has a live NOW line, a To-Do list with Serena's suggestions, and an AI coach on each tile. |
+| **Home · Battle Plan** | A time-ordered plan for the day built from your book: showings, calls to make, follow-ups and protected blocks. It has a live NOW line and an AI coach on each tile. |
 | **Home · Stats** | Closings ring against your goal, volume, GCI, projected end of month, MTD and YTD pace, pipeline funnel and at-risk deals. |
 | **Inbox** | An iMessage-style inbox with a "needs you first" triage card, pinned threads, buckets, swipe actions, AI reply chips, scheduled sends, quick text and a split view on desktop. |
 | **Clients** | Clients, partners and vendors. The client card has a relationship ring, lifetime stats, a timeline that interleaves texts and activity, notes, appointments, and a **Portfolio** (owned, rented, sold, watching), which replaces RevMatch's Garage. |
 | **Pipeline** | Buyer, listing, lease and new-development lanes with drag and one-tap advance. Closing shows a celebration screen and asks for the net. Also commissions (pay plan, cap and tiers, ICA parsing) and the Book of Business ledger. |
 | **Listings · Matchmaker** | Your listings, MLS, pocket, whisper and new-development lanes. Add a listing by pasting text or a link, share a private showcase page (address can be hidden), and see every buyer at 80%+ fit. Matchmaker has Whisper, Listings, Off-Market and Price Drops views. |
 | **Phone** | A "call now" list, recents, voicemail, and a live-call screen with briefing, transcript and co-pilot (in the demo), plus a post-call recap with one-tap follow-ups. |
-| **Serena (AI)** | Floating assistant with chat, 31 tools, action cards with undo, and drafts that never send without your OK. It also reads your To-Do and match digest. |
+| **Your AI assistant** | Each agent builds their own in onboarding: they name it and pick how it talks (the demo agent's is called Serena). It's a floating bubble on every screen. Its chat swipes between Chat, **To-Do** (your list plus what it caught in texts and calls) and Matchmaker. It has 31 tools, action cards with undo, and drafts that never send without your OK. The To-Do lives only here, not on the Battle Plan, same as RevMatch. |
 | **Campaigns** | Text campaign builder (audience, message, event invite, reply lanes), Sender Guard pacing and automations such as home anniversaries. |
 | **Calendar** | Showings, consults and closings, plus work schedule and routine, conflict checks and pre-meeting briefings. |
 

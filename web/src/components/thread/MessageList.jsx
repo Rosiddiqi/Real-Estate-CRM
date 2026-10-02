@@ -17,6 +17,7 @@ import { TapbackGlyph } from './glyphs';
 import { Linkified, LinkPreviewCard, ListingCard, FileCard, CallCard, Reactions, TypingBubble } from './parts';
 import VoiceNote from './VoiceNote';
 import ContextMenu from './ContextMenu';
+import { useAssistant } from '../../hooks/useAssistant';
 import {
   separatorFor, groupedWith, isBubble, sepLabel, statusLabel, splitBodyLink, emojiCount,
   serviceOf, channelLabel, attachmentKind, scheduledCaption, TAPBACKS, isTouchDevice, msgTime,
@@ -60,6 +61,7 @@ export default function MessageList({
   onOpenMedia,
   onStickChange,
 }) {
+  const { name: assistant } = useAssistant();
   const scrollRef = useRef(null);
   const innerRef = useRef(null);
   const stick = useRef(true);
@@ -668,7 +670,7 @@ export default function MessageList({
               {hasText ? <><MenuItem label="Copy" icon="copy" onClick={run(() => onCopy && onCopy(item))} /><div className="km-ctx-sep" /></> : null}
               {touch && hasText ? <><MenuItem label="Select Text" icon="edit" onClick={run(() => setSelectId(item.id))} /><div className="km-ctx-sep" /></> : null}
               {onSchedule ? <><MenuItem label="Schedule" icon="calendar" onClick={run(() => onSchedule(item))} /><div className="km-ctx-sep" /></> : null}
-              {onAskSerena && hasText ? <MenuItem label="Ask Serena" icon="sparkle" onClick={run(() => onAskSerena(item))} /> : null}
+              {onAskSerena && hasText ? <MenuItem label={`Ask ${assistant}`} icon="sparkle" onClick={run(() => onAskSerena(item))} /> : null}
               <div className="km-ctx-sep km-ctx-sep--group" />
               <MenuItem label="Delete" icon="trash" danger onClick={run(() => onDelete && onDelete(item))} />
             </>

@@ -124,25 +124,6 @@
   transition: transform 0.18s var(--km-ease);
 }
 .bp-arrow:active { transform: scale(0.92); }
-.bp-todo-chip {
-  height: 36px; padding: 0 11px 0 9px; border-radius: 10px; flex-shrink: 0;
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 11px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;
-  background: color-mix(in srgb, var(--violet) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--violet) 42%, transparent);
-  color: color-mix(in srgb, var(--violet) 55%, #fff);
-  transition: transform 0.18s var(--km-ease);
-}
-:root[data-theme="light"] .bp-todo-chip { color: var(--violet); }
-.bp-todo-chip:active { transform: scale(0.95); }
-.bp-todo-chip--hot { background: rgba(255, 159, 10, 0.14); border-color: rgba(255, 159, 10, 0.5); color: #FFB340; box-shadow: 0 0 14px -4px rgba(255, 159, 10, 0.55); }
-.bp-todo-count {
-  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: 10.5px; font-weight: 800; letter-spacing: 0; background: var(--violet); color: #fff;
-}
-.bp-todo-chip--hot .bp-todo-count { background: var(--bp-amber); color: #1a1308; }
-:root[data-theme="light"] .bp-todo-chip--hot { color: #A35400; background: rgba(255, 159, 10, 0.12); box-shadow: none; }
 
 .bp-tile {
   position: relative; isolation: isolate; border-radius: 13px;

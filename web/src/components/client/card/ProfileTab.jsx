@@ -10,6 +10,7 @@ import { nav } from '../../../lib/nav';
 import { formatPhone, moneyCompact, formatDate } from '../../../lib/format';
 import { deleteLink } from '../../../api/clients';
 import { heroLine } from './CardHero';
+import { useAssistant } from '../../../hooks/useAssistant';
 import {
   SectionTitle, InfoRow, PERSONAL_FIELDS, PERSONAL_HIDDEN, fhClean, FINANCING_LABEL, TIMELINE_LABEL, RELATION_LABEL, displayName, copyText, humanize, cap, fmtPersonal,
 } from '../clientKit';
@@ -23,6 +24,7 @@ const STAGE = {
 };
 
 function Briefing({ client, briefing, loading, onRefresh, refreshing }) {
+  const { name: assistant } = useAssistant();
   if (!briefing && loading) {
     return (
       <div className="kc-brief">
@@ -50,7 +52,7 @@ function Briefing({ client, briefing, loading, onRefresh, refreshing }) {
           <div className="kc-eyebrow" style={{ color: 'var(--bright)', marginBottom: 4 }}>Next move</div>
           {briefing.recommendedMove}
           <div style={{ display: 'flex', gap: 14, marginTop: 9 }}>
-            <button type="button" className="kc-link" onClick={() => nav.openSerena('chat', `Help me with ${displayName(client)}: ${briefing.recommendedMove}`)}>Ask Serena</button>
+            <button type="button" className="kc-link" onClick={() => nav.openSerena('chat', `Help me with ${displayName(client)}: ${briefing.recommendedMove}`)}>Ask {assistant}</button>
             <button type="button" className="kc-link" onClick={() => nav.openThread({ clientId: client.id })}>Open thread</button>
           </div>
         </div>

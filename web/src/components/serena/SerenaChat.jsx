@@ -10,6 +10,7 @@ import SerenaAvatar from './SerenaAvatar';
 import SerenaComposer from './SerenaComposer';
 import { AssistantMessage, UserBubble } from './SerenaMessage';
 import { serena, useSerena } from './serenaStore';
+import { useAssistant } from '../../hooks/useAssistant';
 
 const ICONS = [
   { icon: 'calendar', color: 'var(--srn-violet)', bg: 'rgba(154,77,255,0.14)' },
@@ -31,6 +32,7 @@ function sepLabel(msg, prev) {
 }
 
 function Hello({ name, mode, onPick }) {
+  const { name: assistant } = useAssistant();
   const [starters, setStarters] = useState(startersCache || DEFAULT_STARTERS);
   useEffect(() => {
     if (startersCache) return;
@@ -40,7 +42,7 @@ function Hello({ name, mode, onPick }) {
     <div className="km-srn-hello">
       <SerenaAvatar size={58} />
       <h2>{greeting()}{name ? `, ${name}` : ''}</h2>
-      <p>I’m Serena, your chief of staff. I run your day, book showings, keep the pipeline moving and draft client texts for your OK.</p>
+      <p>I’m {assistant}, your chief of staff. I run your day, keep your To-Do, book showings, keep the pipeline moving and draft client texts for your OK.</p>
       {mode === 'offline' ? (
         <p style={{ fontSize: 12, color: 'var(--faint)', marginTop: 2 }}>Offline mode · no AI key on the server — I understand the core commands below.</p>
       ) : null}

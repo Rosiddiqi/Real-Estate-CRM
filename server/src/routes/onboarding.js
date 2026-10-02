@@ -43,7 +43,7 @@ async function stateFor(req) {
   const ai = user.aiPreferences || {};
   const assistantDone = !!ai.aiName || !!ob.grandfathered;
   return {
-    assistant: { done: assistantDone, required: !assistantDone, name: ai.aiName || 'Serena' },
+    assistant: { done: assistantDone, required: !assistantDone, name: ai.aiName || null },
     userName: user.firstName,
     tasks,
     doneCount,

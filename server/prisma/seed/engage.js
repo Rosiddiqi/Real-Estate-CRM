@@ -149,7 +149,12 @@ module.exports = function buildEngage(ctx) {
     user: {
       preferences: { theme: 'dark', dashboardPage: 'today', notifications: { push: true, email: false, quietHours: { start: '21:30', end: '07:00' } } },
       onboarding: { completed: true, steps: { profile: true, import: true, schedule: true, payPlan: true, bridge: false } },
+      // The demo agent built their own assistant in onboarding (every agent
+      // names theirs — this one is "Serena"). Change the name here to rename it.
       aiPreferences: {
+        aiName: 'Serena',
+        aiPersonalityId: 'polished',
+        aiPersonality: 'Be calm, polished and precise. My clients are high-net-worth and the way I communicate has to match that — never breathless, never salesy, never over-familiar. When you draft anything that goes to a client, err on the side of understated. With me, be measured and thorough: give me the full picture, then your recommendation.',
         tone: 'warm, concise, specific', personality: 'calm closer', signoff: '— Alex', avoid: ['exclamation-point pileups', '“just checking in”'],
         voiceSamples: ['Good. I’d go 14.6 with a 10-day inspection — the seller wants certainty more than a top number.', 'Both out. One said “this is the one I’d buy if I had the money.” The other has the money and went quiet — which is often better.', 'Please leave — buyers talk more freely when owners aren’t there.'],
       },

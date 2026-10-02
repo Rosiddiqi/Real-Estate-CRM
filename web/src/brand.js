@@ -2,7 +2,8 @@
 export const BRAND = {
   name: 'KeyMatch',
   tagline: 'The personal CRM for luxury real estate.',
-  assistantName: 'Serena',
+  // Fallback only — each agent names their own assistant in onboarding.
+  assistantName: 'Assistant',
 };
 
 export default BRAND;

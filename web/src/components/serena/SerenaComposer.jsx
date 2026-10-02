@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Icon from '../ui/Icon';
 import { haptic } from '../../lib/native';
+import { useAssistant } from '../../hooks/useAssistant';
 
 const DRAFT_KEY = 'km_serena_draft';
 const SR = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
@@ -17,6 +18,7 @@ function grow(el) {
 }
 
 export default function SerenaComposer({ busy, onSend, focusKey }) {
+  const { name: assistant } = useAssistant();
   const [text, setText] = useState(() => { try { return localStorage.getItem(DRAFT_KEY) || ''; } catch { return ''; } });
   const [listening, setListening] = useState(false);
   const ref = useRef(null);
@@ -81,12 +83,12 @@ export default function SerenaComposer({ busy, onSend, focusKey }) {
           className="km-srn-input"
           rows={1}
           value={text}
-          placeholder={listening ? 'Listening…' : 'Message Serena'}
+          placeholder={listening ? 'Listening…' : `Message ${assistant}`}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey && !coarse() && !e.nativeEvent.isComposing) { e.preventDefault(); submit(); }
           }}
-          aria-label="Message Serena"
+          aria-label={`Message ${assistant}`}
           enterKeyHint="send"
         />
         <button type="button" className={`km-srn-sendbtn ${ready ? 'is-ready' : ''}`} onClick={submit} disabled={!ready} aria-label="Send">

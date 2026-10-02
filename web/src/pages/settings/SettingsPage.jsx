@@ -8,6 +8,8 @@ import Icon from '../../components/ui/Icon';
 import { Button, Group, Row, Section, Switch, TextInput, TextArea, Select, Spinner } from '../../components/ui/kit';
 import { toast, confirm } from '../../components/ui/toast';
 import { useAuth } from '../../hooks/useAuth';
+import { assistantNameOf } from '../../hooks/useAssistant';
+import { PERSONALITY_PRESETS } from '../../components/onboarding/personalityPresets';
 import { api } from '../../api/client';
 import { updateMe, updateWorkspace, uploadFiles } from '../../api/system';
 import { nav } from '../../lib/nav';
@@ -15,12 +17,7 @@ import { ACCENTS, getStoredAccent, getStoredTheme, setAccent, setTheme } from '.
 import { fullName, formatPhone, formatPhoneInput, formatDate } from '../../lib/format';
 import { BRAND } from '../../brand';
 
-const PERSONALITIES = [
-  { id: 'straight', label: 'Straight shooter', sub: 'Short, direct, no fluff', text: 'Talk to me like a sharp colleague, not an assistant. Short sentences. No preamble. If I ask something, answer it in the first line. If you think I’m about to make a mistake, say so plainly.' },
-  { id: 'warm', label: 'Warm and personal', sub: 'Remembers the human details', text: 'Be warm and personable — with me and about my clients. Remember the human details: kids’ names, the view they’ve always wanted, the school their kids are starting. When you draft a text, make it sound like someone who actually knows them wrote it.' },
-  { id: 'closer', label: 'High energy', sub: 'Keeps the pressure on follow-ups', text: 'Keep me moving. Tell me when a hot buyer has gone three days without a touch. Be direct about what needs doing now versus what can wait. Celebrate the wins with me. If something is slipping, put it in front of me before I ask.' },
-  { id: 'polished', label: 'Calm professional', sub: 'Polished — fits luxury clients', text: 'Be calm, polished and precise. My clients are high-net-worth; never breathless, never salesy, never over-familiar. Drafts to clients should be understated. With me, give the full picture, then your recommendation.' },
-];
+const PERSONALITIES = PERSONALITY_PRESETS;
 
 const NOTIFY_TYPES = [
   { id: 'message', label: 'New messages' },
@@ -29,7 +26,7 @@ const NOTIFY_TYPES = [
   { id: 'match', label: 'New buyer matches' },
   { id: 'price_drop', label: 'Price reductions' },
   { id: 'deal', label: 'Deal milestones' },
-  { id: 'ai', label: 'Serena suggestions' },
+  { id: 'ai', label: 'Assistant suggestions' }, // shown with the agent's own assistant name
 ];
 
 const TIMEZONES = ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Phoenix', 'America/Los_Angeles', 'Pacific/Honolulu', 'Europe/London'];
@@ -131,10 +128,10 @@ export default function SettingsPage({ onClose }) {
 
         <SectionHeading>Assistant</SectionHeading>
         <div className="km-ai-card" style={{ marginBottom: 10, fontSize: 12.5, color: 'var(--dim)', lineHeight: 1.45, borderLeftColor: 'var(--violet)', background: 'linear-gradient(135deg, rgba(154,77,255,0.10), rgba(46,139,255,0.06))', borderColor: 'rgba(154,77,255,0.25)' }}>
-          {aiPrefs.aiName || BRAND.assistantName} reads your book, drafts texts in your voice and keeps your day straight. It never texts a client without your approval.
+          {assistantNameOf(user)} reads your book, drafts texts in your voice and keeps your day straight. It never texts a client without your approval.
         </div>
         <Group>
-          <Row icon="sparkle" iconColor="var(--violet)" iconBg="rgba(154,77,255,0.14)" title={aiPrefs.aiName || BRAND.assistantName} sub={PERSONALITIES.find((p) => p.id === aiPrefs.aiPersonalityId)?.label || 'Personality & voice'} chevron onClick={() => setSheet('assistant')} />
+          <Row icon="sparkle" iconColor="var(--violet)" iconBg="rgba(154,77,255,0.14)" title={assistantNameOf(user)} sub={PERSONALITIES.find((p) => p.id === aiPrefs.aiPersonalityId)?.label || 'Personality & voice'} chevron onClick={() => setSheet('assistant')} />
           <Row
             icon="zap" iconColor={ai?.available ? 'var(--green)' : 'var(--amber)'} iconBg={ai?.available ? 'rgba(48,210,122,0.14)' : 'rgba(242,169,59,0.14)'}
             title="AI engine"
@@ -156,7 +153,7 @@ export default function SettingsPage({ onClose }) {
         <SectionHeading>Notifications</SectionHeading>
         <Group>
           {NOTIFY_TYPES.map((t, i) => (
-            <Row key={t.id} title={t.label} style={i === NOTIFY_TYPES.length - 1 ? { borderBottom: 0 } : undefined}
+            <Row key={t.id} title={t.id === 'ai' ? `${assistantNameOf(user)} suggestions` : t.label} style={i === NOTIFY_TYPES.length - 1 ? { borderBottom: 0 } : undefined}
               right={<Switch checked={notify[t.id] !== false} onChange={(v) => savePrefs({ notifications: { ...notify, [t.id]: v } })} label={t.label} />} />
           ))}
         </Group>
@@ -255,14 +252,14 @@ function AssistantSheet({ open, onClose, user, onSaved }) {
   useEffect(() => {
     if (!open) return;
     const p = user?.aiPreferences || {};
-    setName(p.aiName || BRAND.assistantName);
+    setName(p.aiName || '');
     setPreset(p.aiPersonalityId || null);
     setText(p.aiPersonality || '');
   }, [open, user]);
   const save = async () => {
     setBusy(true);
     try {
-      const aiPreferences = { ...(user?.aiPreferences || {}), aiName: name.trim() || BRAND.assistantName, aiPersonalityId: preset, aiPersonality: text };
+      const aiPreferences = { ...(user?.aiPreferences || {}), aiName: name.trim(), aiPersonalityId: preset, aiPersonality: text };
       await api.patch('/me/ai-preferences', aiPreferences).catch(async () => {
         // Fallback: store under preferences if the dedicated endpoint isn't there.
         await updateMe({ preferences: { aiPreferences } });
@@ -273,9 +270,9 @@ function AssistantSheet({ open, onClose, user, onSaved }) {
     } catch (e) { toast.error(e.message); } finally { setBusy(false); }
   };
   return (
-    <Sheet open={open} onClose={onClose} title="Assistant" right={{ label: busy ? 'Saving…' : 'Save', onClick: save, disabled: busy }}>
+    <Sheet open={open} onClose={onClose} title="Assistant" right={{ label: busy ? 'Saving…' : 'Save', onClick: save, disabled: busy || !name.trim() }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <TextInput label="Name" value={name} onChange={(e) => setName(e.target.value)} maxLength={40} />
+        <TextInput label="Name" value={name} onChange={(e) => setName(e.target.value)} maxLength={40} placeholder="Name your assistant" />
         <div className="km-field-label">How should {name || 'your assistant'} talk to you?</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {PERSONALITIES.map((p) => (

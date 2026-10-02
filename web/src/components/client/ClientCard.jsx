@@ -27,6 +27,7 @@ import EditClientSheet from './EditClientSheet';
 import LinkSheet from './LinkSheet';
 import PortfolioTab from '../portfolio/PortfolioTab';
 import PropertyDetail from '../portfolio/PropertyDetail';
+import { useAssistant } from '../../hooks/useAssistant';
 
 const TABS = ['Profile', 'Notes', 'Timeline', 'Appts', 'Portfolio'];
 
@@ -66,6 +67,7 @@ function CardBar({ client, collapsed, onExpand, onMore, loading }) {
 }
 
 export default function ClientCard({ id, tab: tabProp, onClose }) {
+  const { name: assistant } = useAssistant();
   useClientStoreVersion();
   const client = clientStore.get(id);
   const [loaded, setLoaded] = useState(!!(client && client._detail));
@@ -232,7 +234,7 @@ export default function ClientCard({ id, tab: tabProp, onClose }) {
     { label: 'Share contact', icon: 'share', onClick: share },
     c.phone ? { label: 'Copy phone number', icon: 'copy', onClick: () => { copyText(formatPhone(c.phone)); toast('Phone copied'); } } : null,
     c.email ? { label: 'Copy email', icon: 'at', onClick: () => { copyText(c.email); toast('Email copied'); } } : null,
-    { label: 'Ask Serena about them', icon: 'sparkle', onClick: () => nav.openSerena('chat', `Tell me about ${displayName(c)} and what I should do next.`) },
+    { label: `Ask ${assistant} about them`, icon: 'sparkle', onClick: () => nav.openSerena('chat', `Tell me about ${displayName(c)} and what I should do next.`) },
     { label: c.blocked ? 'Unblock' : 'Block', icon: 'lock', onClick: toggleBlock },
     { label: 'Delete client', icon: 'trash', danger: true, onClick: remove },
   ] : [];

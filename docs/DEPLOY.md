@@ -38,7 +38,7 @@ cp .env.example server/.env
 #   DATABASE_URL=postgresql://USER:PASS@localhost:5432/estate_crm
 #   JWT_SECRET=$(openssl rand -hex 32)       # paste real values, no $( )
 #   REFRESH_SECRET=$(openssl rand -hex 32)
-#   ANTHROPIC_API_KEY=sk-ant-...             # turns on Serena + AI drafting
+#   ANTHROPIC_API_KEY=sk-ant-...             # turns on the AI assistant + AI drafting
 #   DEMO_LOGIN_ENABLED=1                     # keep for testers; 0 when it goes live
 #   DEMO_DAILY_RESET=1                       # re-seed the demo nightly so its dates stay current
 #   APP_TIMEZONE=America/New_York

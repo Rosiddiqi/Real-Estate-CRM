@@ -9,7 +9,7 @@ const FAIR_HOUSING = 'Fair Housing (non-negotiable): never record, infer or act 
 
 function stablePrompt({ user, workspace }) {
   const ai = (user && user.aiPreferences) || {};
-  const aiName = (ai.aiName || config.brand.assistantName || 'Serena').trim();
+  const aiName = (ai.aiName || config.brand.assistantName || 'Assistant').trim();
   const agent = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() || 'the agent';
   const first = user?.firstName || 'the agent';
   const role = [user?.title || 'luxury real-estate agent', workspace?.brokerageName ? `at ${workspace.brokerageName}` : null, workspace?.market ? `in ${workspace.market}` : null].filter(Boolean).join(' ');

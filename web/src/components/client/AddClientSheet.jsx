@@ -15,6 +15,7 @@ import { createClient, lookupClient, clientFacets } from '../../api/clients';
 import ClientPicker from './ClientPicker';
 import { clientStore } from './clientStore';
 import { CLIENT_TYPES, LEAD_SOURCES, VENDOR_ROLES, PARTNER_ROLES, Seg, ChipInput, displayName } from './clientKit';
+import { useAssistant } from '../../hooks/useAssistant';
 
 const KIND_OPTS = [{ value: 'client', label: 'Client' }, { value: 'partner', label: 'Partner' }, { value: 'vendor', label: 'Vendor' }];
 
@@ -51,6 +52,7 @@ function DupeNote({ client, close }) {
 }
 
 export default function AddClientSheet({ prefill = {}, onClose }) {
+  const { name: assistant } = useAssistant();
   const initial = useMemo(() => {
     const n = prefill.name ? splitName(prefill.name) : {};
     return {
@@ -229,7 +231,7 @@ export default function AddClientSheet({ prefill = {}, onClose }) {
               <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 1.3, color: 'var(--violet)' }}>ASK SERENA</span>
               <span style={{ fontSize: 11, color: 'var(--faint)' }}>— optional</span>
             </div>
-            <div style={{ fontSize: 12.5, color: 'var(--dim)', margin: '5px 0 8px' }}>Hand Serena something to do the second you save.</div>
+            <div style={{ fontSize: 12.5, color: 'var(--dim)', margin: '5px 0 8px' }}>Hand {assistant} something to do the second you save.</div>
             <textarea className="km-input" rows={2} value={serena} onChange={(e) => setSerena(e.target.value)} placeholder="“Text her a welcome” · “Set a showing Saturday” · “Remind me to call Friday”" style={{ minHeight: 64 }} />
           </div>
 

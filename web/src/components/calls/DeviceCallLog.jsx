@@ -16,6 +16,7 @@ import { callStore, useCallState } from './callStore';
 import { fmtShort } from './callUtil';
 import CallRecap from './CallRecap';
 import '../../styles/calls.css';
+import { useAssistant } from '../../hooks/useAssistant';
 
 const OUTCOMES = [
   { id: 'talked', label: 'Talked', icon: 'phone' },
@@ -38,6 +39,7 @@ function parseDur(v) {
 }
 
 export default function DeviceCallLog({ onClose }) {
+  const { name: assistant } = useAssistant();
   const st = useCallState();
   const depth = useOverlayDepth();
   const dev = useRef(st.device).current; // snapshot — the store clears it once logged
@@ -136,7 +138,7 @@ export default function DeviceCallLog({ onClose }) {
             <div className="km-recap-eyebrow"><Icon name="sparkle" size={12} stroke={2.2} color="#C29BFF" />Notes</div>
             <textarea className="km-dlog-notes km-selectable" rows={4} value={notes} onChange={(e) => setNotes(e.target.value)}
               placeholder={outcome === 'no_answer' ? 'Anything to remember? (optional)' : 'What did you cover? Dates, next steps, anything you promised…'} />
-            <div className="km-dlog-hint" style={{ marginTop: 8 }}>Serena turns your notes into follow-ups — the showing to book, the to-dos you promised, a text to send.</div>
+            <div className="km-dlog-hint" style={{ marginTop: 8 }}>{assistant} turns your notes into follow-ups — the showing to book, the to-dos you promised, a text to send.</div>
           </div>
 
           <div className="km-sg-actions" style={{ marginTop: 16 }}>

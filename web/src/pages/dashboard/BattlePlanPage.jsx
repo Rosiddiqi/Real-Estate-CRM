@@ -1,13 +1,13 @@
 // Battle Plan — page 0 of Home. Port of RevMatch's live "Minimal Rail
 // Planner" (BattlePlanRail): burn-away quote hero, fixed chrome (＋ Event ·
-// PLAN/STATS dots · ＋ Work schedule, day picker, To-Do chip), a 5 AM–10 PM
+// PLAN/STATS dots · ＋ Work schedule, day picker — the To-Do lives in the
+// assistant's chat, not here, exactly like RevMatch), a 5 AM–10 PM
 // rail that opens centered on a fixed gold NOW line and keeps creeping under
 // it, KIND-colored appointment tiles that pulse, side-by-side lanes for
 // overlaps, the work-hours bracket, MISSED / ROLLED OVER / PAST groups, pinch
 // zoom, and the reactive 7 PM flip to tomorrow.
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, Fragment } from 'react';
 import Icon from '../../components/ui/Icon';
-import Sheet from '../../components/ui/Sheet';
 import { toast } from '../../components/ui/toast';
 import { nav } from '../../lib/nav';
 import { useAuth } from '../../hooks/useAuth';
@@ -18,7 +18,6 @@ import QuoteHero from '../../components/battleplan/QuoteHero';
 import PageDots from '../../components/battleplan/PageDots';
 import MonthCalendarSheet from '../../components/battleplan/MonthCalendar';
 import TileDetailSheet from '../../components/battleplan/TileDetailSheet';
-import TodoPanel from '../../components/battleplan/TodoPanel';
 import useTodoBoard from '../../components/battleplan/useTodoBoard';
 import { itemColor, apptColor, alpha, KIND_COLOR } from '../../components/calendar/appointmentTypes';
 import { fmtMin, durLabel, dateKey, keyToDate, shiftKey, dateLine, resolveWindow, compactHours, hourIn, minuteOfDay, zonedDate, setAgentTz } from '../../components/battleplan/time';
@@ -180,13 +179,6 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
     return out;
   }, [data, isToday, NOW]);
   const rolled = useMemo(() => (todo.tasks || []).filter((t) => t.rolledOver), [todo.tasks]);
-  const todoCount = useMemo(() => {
-    const people = new Set();
-    let loose = 0;
-    for (const s of [...(todo.suggested || []), ...(todo.moves || [])]) { if (s.clientId) people.add(s.clientId); else loose += 1; }
-    return (todo.tasks || []).length + people.size + loose;
-  }, [todo.tasks, todo.suggested, todo.moves]);
-  const todoHot = useMemo(() => (todo.tasks || []).some((t) => t.rolledOver || t.overdue || t.priority >= 1), [todo.tasks]);
 
   // ── routine collapse (persisted) ───────────────────────────────────────
   const [routineCollapsed, setRoutineCollapsed] = useState(() => { try { return localStorage.getItem('km_routineCollapsed') !== '0'; } catch { return true; } });
@@ -195,7 +187,6 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
 
   // ── sheets ─────────────────────────────────────────────────────────────
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [todoOpen, setTodoOpen] = useState(false);
   const [detail, setDetail] = useState(null);
 
   const openTile = useCallback((e) => {
@@ -723,11 +714,6 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
                   </button>
                   <button type="button" className="bp-arrow" onClick={() => shiftDay(1)} aria-label="Next day"><Icon name="chevronRight" size={15} stroke={2.2} /></button>
                 </div>
-                <button type="button" className={`bp-todo-chip ${todoHot ? 'bp-todo-chip--hot' : ''}`} onClick={() => setTodoOpen(true)} aria-label={`To-do list, ${todoCount} items`}>
-                  <Icon name="checklist" size={14} stroke={2.1} />
-                  To-Do
-                  <span className="bp-todo-count">{todoCount}</span>
-                </button>
               </div>
               {!isToday ? (
                 <button
@@ -763,10 +749,6 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
         dots={dots}
         marks={marks}
       />
-
-      <Sheet open={todoOpen} onClose={() => setTodoOpen(false)} title="To-Do" subtitle={todoCount ? `${todoCount} open · today + tomorrow` : 'Today + tomorrow'} left={false} right={{ label: 'Done', onClick: () => setTodoOpen(false) }} padded={false} maxHeight="88%">
-        {({ close }) => <TodoPanel onNavigate={close} style={{ paddingBottom: 20 }} />}
-      </Sheet>
 
       <TileDetailSheet
         open={!!detail}

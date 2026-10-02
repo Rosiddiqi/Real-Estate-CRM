@@ -26,6 +26,7 @@ import { moveScore, rankTodos } from './ranking';
 import { dateKey, shiftKey, keyToDate, agentTz } from './time';
 import '../../styles/dashboard.css';
 import useAgentTz from './useAgentTz';
+import { useAssistant } from '../../hooks/useAssistant';
 
 const SUGGEST_VISIBLE = 3;
 const REASON_COLOR = {
@@ -156,7 +157,8 @@ function MyRow({ task, onDone, onRemove, onOpen }) {
 }
 
 function SuggestionRow({ s, onAdd, onDismiss, onOpen }) {
-  const why = s.notes || (s.client ? `${s.client.name} · Serena picked this up from a text or call` : 'Serena picked this up from a text or call');
+  const { name: assistant } = useAssistant();
+  const why = s.notes || (s.client ? `${s.client.name} · ${assistant} picked this up from a text or call` : `${assistant} picked this up from a text or call`);
   return (
     <div data-bp-item={`sugg-${s.id}`} className="bp-tile km-row-in" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 12px 12px 16px', marginBottom: 8 }}>
       <Spine color="var(--violet)" glow={false} />
@@ -231,6 +233,7 @@ function SkeletonTiles() {
 }
 
 export default function TodoPanel({ onNavigate, style }) {
+  const { name: assistant } = useAssistant();
   useAgentTz();
   const board = useTodoBoard();
   const [showAll, setShowAll] = useState(false);
@@ -297,7 +300,7 @@ export default function TodoPanel({ onNavigate, style }) {
             Your list{mine.length ? ` · ${mine.length}` : ''}
           </Label>
           {!mine.length ? (
-            <div style={{ fontSize: 14, color: 'var(--bp-t3)', padding: '4px 2px 8px' }}>Nothing on your list. Type one above, or add one Serena suggests.</div>
+            <div style={{ fontSize: 14, color: 'var(--bp-t3)', padding: '4px 2px 8px' }}>Nothing on your list. Type one above, or add one {assistant} suggests.</div>
           ) : null}
           {mine.map((t, i) => (
             <div key={t.id} style={{ animationDelay: `${Math.min(i, 12) * 25}ms` }}>
@@ -314,7 +317,7 @@ export default function TodoPanel({ onNavigate, style }) {
 
       {suggestions.length ? (
         <>
-          <Label color="var(--violet)" right={<Icon name="sparkle" size={12} color="var(--violet)" />}>Serena suggests</Label>
+          <Label color="var(--violet)" right={<Icon name="sparkle" size={12} color="var(--violet)" />}>{assistant} suggests</Label>
           {shown.map((it) => (it.kind === 'suggested' ? (
             <SuggestionRow
               key={`s-${it.row.id}`}

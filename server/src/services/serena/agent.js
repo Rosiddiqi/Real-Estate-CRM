@@ -15,12 +15,13 @@ const { contextBlock } = require('./context');
 const { runTool, agentTools } = require('./tools');
 const fallback = require('./fallback');
 const memory = require('./memory');
+const { nameFromUser } = require('../../lib/assistant');
 
 const running = new Map(); // userId → { messageId, startedAt }
 
 class Turn {
-  constructor({ workspaceId, userId, tz, messageId, emit, agentFirst }) {
-    this.ctx = { workspaceId, userId, tz, names: new Map(), actor: 'ai', agentFirst, offline: false };
+  constructor({ workspaceId, userId, tz, messageId, emit, agentFirst, assistantName }) {
+    this.ctx = { workspaceId, userId, tz, names: new Map(), actor: 'ai', agentFirst, assistantName, offline: false };
     this.messageId = messageId;
     this._emit = emit;
     this.text = '';
@@ -134,7 +135,7 @@ async function runTurn({ workspaceId, userId, text, context = {}, emit }) {
   if (running.has(userId)) {
     const r = running.get(userId);
     if (Date.now() - r.startedAt < 5 * 60e3) {
-      const err = new Error('Serena is still working on your last message.');
+      const err = new Error('Still working on your last message.');
       err.status = 409;
       throw err;
     }
@@ -153,7 +154,7 @@ async function runTurn({ workspaceId, userId, text, context = {}, emit }) {
   emit('turn.start', { userMessageId: userMsg.id, messageId: asst.id, createdAt: asst.createdAt });
 
   running.set(userId, { messageId: asst.id, startedAt: Date.now() });
-  const turn = new Turn({ workspaceId, userId, tz, messageId: asst.id, emit, agentFirst: user ? user.firstName : null });
+  const turn = new Turn({ workspaceId, userId, tz, messageId: asst.id, emit, agentFirst: user ? user.firstName : null, assistantName: nameFromUser(user) });
   const started = Date.now();
   let status = 'done';
   let error = null;

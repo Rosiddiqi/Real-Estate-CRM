@@ -11,7 +11,8 @@ const bool = (v, d = false) => (v == null || v === '' ? d : /^(1|true|yes|on)$/i
 const config = {
   brand: {
     name: env.BRAND_NAME || 'KeyMatch',
-    assistantName: env.ASSISTANT_NAME || 'Serena',
+    // Fallback only — every agent names their own assistant in onboarding.
+    assistantName: env.ASSISTANT_NAME || 'Assistant',
   },
   env: env.NODE_ENV || 'development',
   isProd: (env.NODE_ENV || '') === 'production',

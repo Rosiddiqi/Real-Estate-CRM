@@ -15,12 +15,13 @@ import SerenaAvatar from './SerenaAvatar';
 import SerenaChat from './SerenaChat';
 import { serena, useSerena } from './serenaStore';
 import '../../styles/serena.css';
+import { useAssistant } from '../../hooks/useAssistant';
 
 const TodoPanel = lazy(() => import('../battleplan/TodoPanel'));
 const MatchDigest = lazy(() => import('../matchmaker/MatchDigest'));
 
 const PAGES = ['chat', 'todo', 'matches'];
-const PAGE_LABEL = { chat: 'Serena', todo: 'To-Do', matches: 'Matchmaker' };
+const PAGE_LABEL = { chat: null /* the agent's own assistant name */, todo: 'To-Do', matches: 'Matchmaker' };
 const PAGE_KEY = 'km_serena_page';
 const handledPrompts = new Set();
 
@@ -38,6 +39,7 @@ class SideBoundary extends Component {
 }
 
 export default function SerenaSheet({ page: initialPage, prompt, overlayId, onClose }) {
+  const { name: assistant } = useAssistant();
   const s = useSerena();
   const depth = useOverlayDepth();
   const [page, setPageState] = useState(() => readPage(initialPage));
@@ -134,20 +136,20 @@ export default function SerenaSheet({ page: initialPage, prompt, overlayId, onCl
 
   const anim = phase === 'in' ? '' : phase === 'entering' ? 'is-entering' : 'is-leaving';
   return createPortal(
-    <div className="km-srn-wrap" style={{ zIndex: panelZ(depth) }} role="dialog" aria-modal="true" aria-label="Serena">
+    <div className="km-srn-wrap" style={{ zIndex: panelZ(depth) }} role="dialog" aria-modal="true" aria-label={assistant}>
       <div className="km-srn-scrim" onClick={requestClose} aria-hidden="true" />
       <div className="km-srn-column">
         <div className={`km-srn-popup km-lg ${anim}`}>
           <div className="km-srn-nav">
-            <button type="button" onClick={requestClose} aria-label="Close Serena"><Icon name="chevronLeft" size={22} stroke={2.4} /></button>
+            <button type="button" onClick={requestClose} aria-label={`Close ${assistant}`}><Icon name="chevronLeft" size={22} stroke={2.4} /></button>
             <div className="km-srn-nav-id">
               <SerenaAvatar size={26} thinking={s.typing} />
               <span className="km-srn-nav-name">
-                {PAGE_LABEL[page]}
+                {PAGE_LABEL[page] || assistant}
                 {page === 'chat' && s.mode === 'offline' ? <span className="km-srn-mode">· offline</span> : null}
               </span>
             </div>
-            <button type="button" onClick={() => setMenu((v) => !v)} aria-label="Serena options" style={{ justifyContent: 'flex-end' }}><Icon name="info" size={20} stroke={2} /></button>
+            <button type="button" onClick={() => setMenu((v) => !v)} aria-label={`${assistant} options`} style={{ justifyContent: 'flex-end' }}><Icon name="info" size={20} stroke={2} /></button>
           </div>
           {menu ? (
             <>
@@ -155,8 +157,8 @@ export default function SerenaSheet({ page: initialPage, prompt, overlayId, onCl
               <div className="km-srn-menu km-lg km-lg--menu">
                 <div className="km-srn-menu-note">
                   {s.mode === 'ai'
-                    ? 'Serena is running on Claude. She acts with Undo on every change, and never sends a client message without your tap.'
-                    : 'Offline mode: no AI key is set on the server, so Serena understands a fixed set of commands — every action still has Undo and nothing sends without your tap.'}
+                    ? `${assistant} is running on Claude. Every change comes with Undo, and no client message goes out without your tap.`
+                    : `Offline mode: no AI key is set on the server, so ${assistant} understands a fixed set of commands — every action still has Undo and nothing sends without your tap.`}
                 </div>
                 <button type="button" className="km-srn-menu-row" onClick={newConversation}><Icon name="compose" size={17} stroke={2} />New conversation</button>
                 <button type="button" className="km-srn-menu-row" onClick={() => { setMenu(false); setPage('todo'); }}><Icon name="checklist" size={17} stroke={2} />Open To-Do</button>
@@ -166,7 +168,7 @@ export default function SerenaSheet({ page: initialPage, prompt, overlayId, onCl
           ) : null}
           <div className="km-srn-dots" role="tablist">
             {PAGES.map((p) => (
-              <button key={p} type="button" role="tab" aria-selected={p === page} aria-label={PAGE_LABEL[p]} className={`km-srn-dot ${p === page ? 'is-on' : ''}`} onClick={() => setPage(p)} />
+              <button key={p} type="button" role="tab" aria-selected={p === page} aria-label={PAGE_LABEL[p] || assistant} className={`km-srn-dot ${p === page ? 'is-on' : ''}`} onClick={() => setPage(p)} />
             ))}
           </div>
           <div className="km-srn-pager" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} onTouchCancel={() => { swipe.current = null; }}>
@@ -195,7 +197,7 @@ export default function SerenaSheet({ page: initialPage, prompt, overlayId, onCl
             </div>
           </div>
         </div>
-        <button type="button" className={`km-srn-min km-lg km-lg--solid ${anim}`} onClick={requestClose} aria-label="Minimize Serena">
+        <button type="button" className={`km-srn-min km-lg km-lg--solid ${anim}`} onClick={requestClose} aria-label={`Minimize ${assistant}`}>
           <Icon name="x" size={15} stroke={2.4} />
         </button>
       </div>

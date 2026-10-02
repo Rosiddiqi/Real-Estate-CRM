@@ -182,6 +182,10 @@ fix every one. Check 390×844 (primary), 375×667 (small), and 1280×860 (deskto
   `separatorType`, `shouldGroup`, `greeting`, `plural`, `dateKey`.
 - Mobile gestures: use pointer events; `touch-action` on draggable handles; respect
   `prefers-reduced-motion`. iOS inputs must be ≥16px font.
+- **The assistant is the agent's own.** Each agent names it and sets its personality in onboarding
+  (`AssistantBuilder`; "Serena" is only the demo agent's choice). Never hard-code a name: use
+  `useAssistant().name` (web) or `lib/assistant.js` (server). The **To-Do lives only in the
+  assistant's chat** (page 2 of `SerenaSheet`), never as a separate button on the Battle Plan, same as RevMatch.
 - **Native iOS app (Capacitor, ships to TestFlight).** The app runs from bundled files at
   `capacitor://localhost` and reaches the server through an absolute origin (`getApiBase()`), so:
   - never put a server-relative URL (`/uploads/…`, `/api/…`) into `src`, `href`, `poster` or a CSS

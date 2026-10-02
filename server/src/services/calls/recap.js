@@ -99,7 +99,7 @@ async function aiRecap(call, lines, client, tz) {
   try {
     const transcript = lines.map((l) => `${l.speaker === 'agent' ? 'AGENT' : 'CLIENT'}: ${l.text}`).join('\n');
     const out = await ai.json({
-      system: `You are Serena, co-pilot to a luxury real-estate agent. A phone call just ended. Produce:
+      system: `You are the AI co-pilot to a luxury real-estate agent. A phone call just ended. Produce:
 - summary: 2–3 neutral sentences leading with the outcome (what moved, what was agreed, objections raised).
 - bullets: exactly 3 short bullets (≤ 110 chars) — outcome, commitment, objection.
 - sentiment.
@@ -233,7 +233,7 @@ async function aiNotesRecap(call, notes, client, tz, outcome) {
   if (!ai.available() || String(notes).trim().length < 12) return null;
   try {
     const out = await ai.json({
-      system: `You are Serena, co-pilot to a luxury real-estate agent. The agent just made a call from their own phone (no recording) and typed notes. Using ONLY those notes, produce:
+      system: `You are the AI co-pilot to a luxury real-estate agent. The agent just made a call from their own phone (no recording) and typed notes. Using ONLY those notes, produce:
 - summary: 1–2 neutral sentences leading with the outcome.
 - bullets: up to 3 short bullets (≤ 110 chars) — outcome, commitment, objection — only if the notes support them.
 - sentiment.
