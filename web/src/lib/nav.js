@@ -31,6 +31,7 @@ let state = { tab: readStoredTab(), overlays: [], menuOpen: false };
 const listeners = new Set();
 let pushedEntries = 0;     // history entries we pushed (so close can go back)
 let ignorePops = 0;
+let selfBacks = 0;         // our own history.back() calls — their hashchange is not a deep link
 
 function emit() { for (const fn of listeners) fn(); }
 function setState(patch) {
@@ -87,16 +88,45 @@ if (typeof window !== 'undefined') {
   }
   window.addEventListener('popstate', () => {
     if (ignorePops > 0) { ignorePops -= 1; return; }
-    pushedEntries = Math.max(0, pushedEntries - 1);
     const parsed = parseHash(location.hash);
     if (!parsed) return;
     // Back button: drop overlays that are no longer in the hash (top first).
     if (parsed.overlays.length < state.overlays.length) {
+      pushedEntries = Math.max(0, pushedEntries - 1);
       setState({ overlays: state.overlays.slice(0, parsed.overlays.length) });
-    } else if (parsed.tab && parsed.tab !== state.tab) {
-      setState({ tab: parsed.tab });
+    } else {
+      syncFromHash(parsed);
     }
   });
+  // A link/deep link that changes the hash while the app is running
+  // (e.g. `#/clients?o=client:abc`) opens what it names.
+  window.addEventListener('hashchange', () => {
+    if (selfBacks > 0) { selfBacks -= 1; return; }
+    const parsed = parseHash(location.hash);
+    if (parsed) syncFromHash(parsed);
+  });
+}
+
+// Forward navigation from the hash: keep the overlays that already match,
+// open the rest; if the stacks diverge, the hash wins. No-op when in sync.
+function overlayKey(o) {
+  const p = o.props || {};
+  return `${o.type}:${p.id || p.conversationId || p.clientId || p.focus || p.page || ''}`;
+}
+function syncFromHash(parsed) {
+  const open = state.overlays.filter((o) => SERIALIZABLE.has(o.type));
+  let same = 0;
+  while (same < open.length && same < parsed.overlays.length && overlayKey(open[same]) === overlayKey(parsed.overlays[same])) same += 1;
+  const tab = parsed.tab || state.tab;
+  if (same === open.length && same === parsed.overlays.length) {
+    if (tab !== state.tab) setState({ tab });
+    return;
+  }
+  if (same === open.length) {
+    setState({ tab, overlays: [...state.overlays, ...parsed.overlays.slice(same)], menuOpen: false });
+  } else {
+    setState({ tab, overlays: parsed.overlays, menuOpen: false });
+  }
 }
 
 // ── public API ───────────────────────────────────────────────────────────
@@ -121,7 +151,8 @@ function close(overlayId) {
   if (SERIALIZABLE.has(removed.type) && pushedEntries > 0) {
     pushedEntries -= 1;
     ignorePops += 1;
-    try { history.back(); } catch { ignorePops -= 1; }
+    selfBacks += 1;
+    try { history.back(); } catch { ignorePops -= 1; selfBacks -= 1; }
   } else {
     writeHash(false);
   }
