@@ -182,6 +182,17 @@ fix every one. Check 390×844 (primary), 375×667 (small), and 1280×860 (deskto
   `separatorType`, `shouldGroup`, `greeting`, `plural`, `dateKey`.
 - Mobile gestures: use pointer events; `touch-action` on draggable handles; respect
   `prefers-reduced-motion`. iOS inputs must be ≥16px font.
+- **Native iOS app (Capacitor, ships to TestFlight).** The app runs from bundled files at
+  `capacitor://localhost` and reaches the server through an absolute origin (`getApiBase()`), so:
+  - never put a server-relative URL (`/uploads/…`, `/api/…`) into `src`, `href`, `poster` or a CSS
+    `url()` — wrap it with `mediaUrl(u)` (`Avatar`/`PropertyPhoto` already do);
+  - never call `fetch('/api/…')` or `new EventSource('/api/…')` — use `api.*`; for streaming use
+    `` fetch(`${getApiBase()}/api/…`, { headers: { Authorization: `Bearer ${getAccessToken()}` } }) ``;
+  - `tel:` / `sms:` / `mailto:` / `maps:` links open natively — use them freely;
+  - `haptic('light'|'success'|…)` from `lib/native.js` for key confirmations (no-op on web);
+  - `.km-native` is on `<html>` in the app; text selection is off on chrome there — add
+    `km-selectable` to message bodies / notes the user may want to copy.
+  - The iMessage bridge is out of scope: no pairing UI anywhere.
 
 ## 6. Real-estate glossary (RevMatch → KeyMatch)
 

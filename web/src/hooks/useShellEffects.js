@@ -3,7 +3,7 @@
 //    --keyboard-height so sheets/composers rise in lockstep (visualViewport).
 //  • useTheme — applies dark/light + accent palette from preferences.
 import { useEffect } from 'react';
-import { isNative } from '../lib/native';
+import { isNative, syncNativeTheme } from '../lib/native';
 
 export function useKeyboardInset() {
   useEffect(() => {
@@ -65,6 +65,7 @@ export function applyTheme(theme = getStoredTheme(), accent = getStoredAccent())
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', theme === 'light' ? '#F2F2F7' : '#06080C');
   document.body.style.background = theme === 'light' ? '#F2F2F7' : '#06080C';
+  syncNativeTheme(theme === 'light' ? 'light' : 'dark');
 }
 
 export function setTheme(theme) {

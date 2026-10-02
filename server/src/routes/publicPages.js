@@ -41,18 +41,18 @@ a{color:inherit}
 .top{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 18px) 22px 0;font-size:11px;letter-spacing:.24em;text-transform:uppercase}
 .mark b{font-weight:800}.mark span{font-weight:400;opacity:.8}
 .no{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--dim)}
-.copy{position:absolute;left:0;right:0;bottom:0;padding:0 22px 26px}
+.copy{position:absolute;left:0;right:0;bottom:0;padding:0 22px calc(96px + env(safe-area-inset-bottom,0px))}
 .kicker{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);font-weight:600}
 h1{font-family:var(--sans);font-weight:700;font-size:44px;line-height:1;letter-spacing:-.035em;margin:12px 0 0}
 h1.long{font-size:34px}
 .sub{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--dim);margin-top:10px}
 .ledger{display:grid;grid-template-columns:1fr 1fr;margin-top:22px;border-top:1px solid var(--line)}
-.ledger div{padding:14px 0 0}.ledger div+div{padding-left:18px;border-left:1px solid var(--line)}
+.ledger>div{padding:14px 0 0}.ledger>div+div{padding-left:18px;border-left:1px solid var(--line)}
 .lab{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint);font-weight:600}
 .val{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
 .val.gold{color:var(--gold)}
 .band{display:grid;grid-template-columns:repeat(3,1fr);margin:6px 22px 0;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
-.band div{padding:16px 14px;text-align:center}.band div+div{border-left:1px solid var(--line)}
+.band>div{padding:16px 10px;text-align:center}.band>div+div{border-left:1px solid var(--line)}
 .band .val{font-size:22px;margin-top:4px}
 .pill{display:flex;align-items:center;justify-content:center;gap:8px;margin:18px 22px 0;height:50px;border-radius:999px;border:1px solid rgba(217,182,119,.5);color:var(--gold);font-size:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;text-decoration:none}
 section{padding:40px 22px 0}
@@ -79,7 +79,7 @@ footer{padding:56px 22px 20px;text-align:center}
 .bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));width:min(492px,calc(100% - 28px));display:flex;gap:10px;padding:8px;border-radius:999px;
 background:rgba(12,14,18,.42);-webkit-backdrop-filter:blur(14px) saturate(180%);backdrop-filter:blur(14px) saturate(180%);box-shadow:inset 0 0 6px rgba(255,255,255,.22),0 10px 30px rgba(0,0,0,.45);z-index:10}
 .call{flex:0 0 52px;height:52px;border-radius:50%;background:var(--sms);display:flex;align-items:center;justify-content:center}
-.text{flex:1;height:52px;border-radius:999px;background:linear-gradient(180deg,var(--bright),var(--deep));display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:15.5px;text-decoration:none;box-shadow:0 10px 24px -8px rgba(46,139,255,.5)}
+.text{flex:1;min-width:0;height:52px;padding:0 16px;border-radius:999px;background:linear-gradient(180deg,var(--bright),var(--deep));display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:clamp(13px,3.9vw,15.5px);white-space:nowrap;text-decoration:none;box-shadow:0 10px 24px -8px rgba(46,139,255,.5)}.text span{overflow:hidden;text-overflow:ellipsis}
 .sold{position:absolute;top:calc(env(safe-area-inset-top,0px) + 56px);left:22px;padding:6px 12px;border-radius:999px;background:rgba(6,8,12,.6);border:1px solid var(--gold);color:var(--gold);font-size:11px;letter-spacing:.2em;font-weight:700}
 .viewer{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:50;display:none;align-items:center;justify-content:center}
 .viewer.on{display:flex}.viewer img{max-width:100%;max-height:100%;object-fit:contain}
@@ -148,7 +148,10 @@ router.get('/p/:slug', async (req, res) => {
 
     const amen = (l.amenities || []).filter(Boolean);
     const galleryPhotos = photos.slice(1);
-    const gallery = galleryPhotos.length ? galleryPhotos.map((p, i) => `<button class="${i % 3 === 0 ? 'wide' : ''}" data-i="${i + 1}" aria-label="Photo ${i + 2}"><img src="${esc(p)}" alt="" loading="lazy" onerror="this.remove()"></button>`).join('') : '';
+    // magazine rhythm: one full-bleed 16:10, then a pair of squares; a lone trailing square goes wide
+    const n = galleryPhotos.length;
+    const isWide = (i) => i % 3 === 0 || (i % 3 === 1 && i === n - 1);
+    const gallery = n ? galleryPhotos.map((p, i) => `<button class="${isWide(i) ? 'wide' : ''}" data-i="${i + 1}" aria-label="Photo ${i + 2}"><img src="${esc(p)}" alt="" loading="lazy" onerror="this.remove()"></button>`).join('') : '';
     const descParas = String(l.description || '').split(/\n{2,}|\r\n\r\n/).map((p) => p.trim()).filter(Boolean).slice(0, 6);
 
     const body = `
@@ -171,7 +174,7 @@ ${specs.length ? `<section><div class="sec"><i>${String(1 + (descParas.length ? 
 ${amen.length ? `<section><div class="sec"><i>${String(2 + (descParas.length ? 1 : 0) + (gallery ? 1 : 0)).padStart(2, '0')}</i>Features</div><div class="feat" id="feat">${amen.map((a, i) => `<span class="${i >= 6 ? 'more' : ''}">${esc(a)}</span>`).join('')}</div>${amen.length > 6 ? `<button class="showall" onclick="document.getElementById('feat').classList.add('open');this.remove()">Show all ${amen.length}</button>` : ''}</section>` : ''}
 <footer><div class="sig">${esc(first)} — ${esc(brokerage)}</div><div class="via">Presented privately via KeyMatch</div><div class="fine">A private presentation shared with you personally. Information deemed reliable but not guaranteed; please do not forward.</div></footer>
 <div class="bar">${phone ? `<a class="call" href="tel:${esc(phone)}" aria-label="Call ${esc(first)}"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg></a>` : ''}
-<a class="text" href="sms:${esc(phone || '')}${phone ? '&' : '?'}body=${encodeURIComponent(smsBody)}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Text ${esc(first)} About This Home</a></div>
+<a class="text" href="sms:${esc(phone || '')}${phone ? '&' : '?'}body=${encodeURIComponent(smsBody)}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Text ${esc(first)} About This Home</span></a></div>
 <div class="viewer" id="v" role="dialog" aria-modal="true"><button class="x" aria-label="Close">×</button><img id="vi" alt=""><div class="n" id="vn"></div></div>
 <script>(function(){var P=${JSON.stringify(photos).replace(/</g, '\\u003c')};var v=document.getElementById('v'),vi=document.getElementById('vi'),vn=document.getElementById('vn'),i=0;
 function show(n){i=(n+P.length)%P.length;vi.src=P[i];vn.textContent=(i+1)+' / '+P.length;v.classList.add('on');}

@@ -172,7 +172,8 @@ export default function SettingsPage({ onClose }) {
         <SectionHeading>Account</SectionHeading>
         <Group>
           <Row icon="lock" title="Change password" chevron onClick={() => setSheet('password')} />
-          <Row icon="logOut" title="Sign out" danger iconColor="var(--red)" iconBg="rgba(255,90,90,0.12)" onClick={signOut} style={{ borderBottom: 0 }} />
+          <Row icon="logOut" title="Sign out" danger iconColor="var(--red)" iconBg="rgba(255,90,90,0.12)" onClick={signOut} />
+          <Row icon="trash" title="Delete account" sub="Permanently erase your account and data" danger iconColor="var(--red)" iconBg="rgba(255,90,90,0.12)" onClick={() => setSheet('delete')} style={{ borderBottom: 0 }} />
         </Group>
 
         <div style={{ textAlign: 'center', color: 'var(--faint)', fontSize: 12, padding: '28px 0 8px' }}>
@@ -184,6 +185,7 @@ export default function SettingsPage({ onClose }) {
       <BrokerageSheet open={sheet === 'brokerage'} onClose={() => setSheet(null)} workspace={workspace} onSaved={patchWs} />
       <AssistantSheet open={sheet === 'assistant'} onClose={() => setSheet(null)} user={user} onSaved={updateUser} />
       <PasswordSheet open={sheet === 'password'} onClose={() => setSheet(null)} />
+      <DeleteAccountSheet open={sheet === 'delete'} onClose={() => setSheet(null)} onDeleted={logout} />
       <BlockedSheet open={sheet === 'blocked'} onClose={() => setSheet(null)} />
     </PushPanel>
   );
@@ -311,6 +313,35 @@ function PasswordSheet({ open, onClose }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <TextInput type="password" label="Current password" value={cur} onChange={(e) => setCur(e.target.value)} autoComplete="current-password" />
         <TextInput type="password" label="New password" value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" hint="At least 8 characters" />
+      </div>
+    </Sheet>
+  );
+}
+
+// Permanent account deletion (required for App Store apps that offer sign-up).
+function DeleteAccountSheet({ open, onClose, onDeleted }) {
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { if (open) setPassword(''); }, [open]);
+  const erase = async () => {
+    if (!(await confirm({ title: 'Delete your account?', message: 'Your clients, conversations, deals and files are erased for good. This can’t be undone.', confirmLabel: 'Delete forever', destructive: true }))) return;
+    setBusy(true);
+    try {
+      await api.del('/me', { password });
+      toast.success('Your account was deleted');
+      onClose();
+      await onDeleted();
+    } catch (e) { toast.error(e.message); } finally { setBusy(false); }
+  };
+  return (
+    <Sheet open={open} onClose={onClose} title="Delete account">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ fontSize: 14, color: 'var(--dim)', lineHeight: 1.5 }}>
+          Deleting your account permanently erases your profile, clients, conversations, deals, listings and uploaded files.
+          If teammates share your workspace, only your login is removed.
+        </div>
+        <TextInput type="password" label="Confirm with your password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+        <Button variant="danger" size="lg" block onClick={erase} loading={busy} disabled={!password}>Delete my account</Button>
       </div>
     </Sheet>
   );

@@ -52,7 +52,7 @@ function streetLine(l) {
 // What kind of home, in words: "5-bedroom oceanfront estate"
 function descriptor(l) {
   const t = typeOf(l);
-  const typeWord = t ? V.typeLabel(t).toLowerCase() : 'residence';
+  const typeWord = !t ? 'residence' : t === 'single_family' ? 'home' : t === 'land' ? 'homesite' : V.typeLabel(t).toLowerCase();
   const wf = V.canonicalWaterfront(l.waterfront);
   const water = wf && wf !== 'none' ? `${(V.WATERFRONT_LABEL[wf] || 'waterfront').toLowerCase()} ` : '';
   const beds = l.beds ? `${l.beds}-bedroom ` : '';
@@ -111,7 +111,7 @@ function clientLabel(l) {
 function badgesOf(l, lane) {
   const out = [];
   if (lane === 'pocket') out.push(l.status === 'coming_soon' ? 'COMING SOON' : 'POCKET');
-  else if (l.status === 'coming_soon') out.push('COMING SOON');
+  else if (l.status === 'coming_soon' && lane !== 'whisper') out.push('COMING SOON');
   if (lane === 'newdev') out.push('NEW DEV');
   if (lane === 'whisper') out.push('WHISPER');
   return out;

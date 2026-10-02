@@ -248,7 +248,7 @@ def({
       type: c.type, status: c.status, rating: c.rating, whale: c.isWhale,
       phone: c.phone ? U.formatPhone(c.phone) : null, email: c.email || null,
       company: c.company || null, job_title: c.jobTitle || null,
-      home_area: [c.neighborhood, c.city].filter(Boolean).join(', ') || null,
+      home_area: [...new Set([c.neighborhood, c.city].filter(Boolean))].join(', ') || null,
       birthday: c.birthday || null,
       lead_source: c.leadSource || null,
       tags: c.tags,
@@ -374,7 +374,11 @@ def({
   name: 'todays_schedule',
   description: 'The agent\'s day: appointments (showings, consults, closings…) in order with local times, to-dos due that day, and overdue to-dos. Default = today; pass date ("tomorrow", "friday", YYYY-MM-DD) for another day.',
   input_schema: { type: 'object', properties: { date: { type: 'string' } } },
-  activity: (i) => (i.date && !/today/i.test(i.date) ? `Checking your calendar for ${i.date}…` : 'Checking your day…'),
+  activity: (i, ctx) => {
+    const day = T.parseDay(i.date, ctx.tz);
+    if (!day || day === dayKey(new Date(), ctx.tz)) return 'Checking your day…';
+    return `Checking your calendar for ${U.fmtDayKey(day, ctx.tz).replace(/^Tomorrow$/, 'tomorrow')}…`;
+  },
   async run(input, ctx) {
     const { workspaceId, tz } = ctx;
     const day = T.parseDay(input.date, tz) || dayKey(new Date(), tz);
@@ -570,21 +574,33 @@ def({
 
 def({
   name: 'client_signals',
-  description: 'Relationship moments coming up: birthdays, home-purchase anniversaries, ARM resets, loan maturities, renter lease expiries, equity milestones. Great for "who should I reach out to".',
-  input_schema: { type: 'object', properties: { kind: { type: 'string', enum: ['all', 'birthdays', 'anniversaries', 'arm_resets', 'loan_maturities', 'lease_expiries'] }, within_days: { type: 'integer' } } },
+  description: 'Relationship moments: birthdays, home-purchase anniversaries, ARM resets / loan maturities, renter lease expiries, equity milestones, and clients gone silent. Great for "who should I reach out to".',
+  input_schema: { type: 'object', properties: { kind: { type: 'string', enum: ['all', 'birthdays', 'anniversaries', 'arm_resets', 'lease_expiries', 'equity', 'silent'] }, kinds: { type: 'array', items: { type: 'string' } }, within_days: { type: 'integer' }, limit: { type: 'integer' } } },
   activity: () => 'Scanning for birthdays, anniversaries and loan resets…',
   async run(input, ctx) {
     const { workspaceId, tz } = ctx;
     const within = input.within_days || 30;
-    const kind = input.kind || 'all';
-    // Prefer the clients builder's signal engine when it exists.
-    const mod = U.optionalRequire('../clients/signals');
-    const fn = U.fnFrom(mod, 'getSignals', 'listSignals', 'upcomingSignals', 'computeSignals');
-    if (fn) {
-      try {
-        const out = await fn({ workspaceId, withinDays: within, kind });
-        if (out) return out;
-      } catch (err) { /* fall through to the local scan */ }
+    const kinds = (input.kinds && input.kinds.length ? input.kinds : [input.kind || 'all']).filter(Boolean);
+    const want = (k) => kinds.includes('all') || kinds.includes(k);
+    const limit = Math.min(40, input.limit || 20);
+    // The clients builder's signal engine is the source of truth.
+    const S = U.optionalRequire('../clients/signals');
+    if (S && typeof S.allSignals === 'function') {
+      const jobs = [];
+      if (want('birthdays')) jobs.push(S.upcomingBirthdays({ workspaceId, days: Math.max(within, 14) }));
+      if (want('anniversaries')) jobs.push(S.upcomingAnniversaries({ workspaceId, days: Math.max(within, 30) }));
+      if (want('arm_resets')) jobs.push(S.armResets({ workspaceId, days: Math.max(within, 180) }));
+      if (want('lease_expiries')) jobs.push(S.leaseExpiries({ workspaceId, days: Math.max(within, 120) }));
+      if (want('equity')) jobs.push(S.equityMilestones({ workspaceId }));
+      if (kinds.includes('silent')) jobs.push(S.silentClients({ workspaceId, days: 30, limit: 15 }));
+      const rows = (await Promise.all(jobs.map((j) => j.catch(() => [])))).flat();
+      rows.sort((a, b) => (a.days ?? 999) - (b.days ?? 999) || (b.urgency || 0) - (a.urgency || 0));
+      const out = rows.slice(0, limit).map((r) => ({
+        kind: r.kind, in_days: r.days ?? null, client: (r.client && (r.client.name || U.nameOf(r.client))) || null, client_id: r.clientId,
+        detail: [r.title, r.sub].filter(Boolean).join(' · '),
+      }));
+      for (const s of out) if (s.client_id) ctx.names.set(s.client_id, s.client);
+      return { count: out.length, signals: out };
     }
     const today = dayKey(new Date(), tz);
     const [ty, tm, td] = today.split('-').map(Number);
@@ -595,7 +611,7 @@ def({
       return Math.round((t - todayUtc) / 864e5);
     };
     const out = [];
-    if (kind === 'all' || kind === 'birthdays') {
+    if (want('birthdays')) {
       const rows = await prisma.client.findMany({ where: { workspaceId, archivedAt: null, birthday: { not: null } }, select: { ...U.CLIENT_LITE, birthday: true } });
       for (const c of rows) {
         const m = /(\d{1,2})-(\d{1,2})$/.exec(c.birthday || '');
@@ -608,28 +624,24 @@ def({
     for (const p of props) {
       if (!p.client) continue;
       const who = { client: U.nameOf(p.client), client_id: p.clientId, property: U.addressOf(p) || p.nickname };
-      if ((kind === 'all' || kind === 'anniversaries') && p.purchasedAt && p.relationship === 'owns') {
+      if (want('anniversaries') && p.purchasedAt && p.relationship === 'owns') {
         const d = new Date(p.purchasedAt);
         const n = daysUntilMD(d.getUTCMonth() + 1, d.getUTCDate());
-        const years = ty - d.getUTCFullYear() + (n > 0 && Date.UTC(ty, d.getUTCMonth(), d.getUTCDate()) < todayUtc ? 1 : 0);
-        if (n <= within && years > 0) out.push({ kind: 'home_anniversary', in_days: n, ...who, detail: `${years} year${years === 1 ? '' : 's'} at ${who.property}${p.boughtWithMe ? ' (bought with you)' : ''}` });
+        const years = ty - d.getUTCFullYear() + (Date.UTC(ty, d.getUTCMonth(), d.getUTCDate()) < todayUtc ? 1 : 0);
+        if (n <= within && years > 0) out.push({ kind: 'home_anniversary', in_days: n, ...who, detail: `${years} year${years === 1 ? '' : 's'} at ${who.property}` });
       }
-      if ((kind === 'all' || kind === 'arm_resets') && p.loanResetAt) {
+      if (want('arm_resets') && p.loanResetAt) {
         const n = Math.round((new Date(p.loanResetAt) - Date.now()) / 864e5);
-        if (n >= 0 && n <= Math.max(within, 180)) out.push({ kind: 'arm_reset', in_days: n, ...who, detail: `ARM resets ${U.fmtDate(p.loanResetAt, tz, { month: 'short', day: 'numeric', year: 'numeric' })}${p.mortgageRate ? ` (now ${(p.mortgageRate < 1 ? p.mortgageRate * 100 : p.mortgageRate).toFixed(2)}%)` : ''}` });
+        if (n >= 0 && n <= Math.max(within, 180)) out.push({ kind: 'arm_reset', in_days: n, ...who, detail: `ARM resets ${U.fmtDate(p.loanResetAt, tz, { month: 'short', day: 'numeric', year: 'numeric' })}` });
       }
-      if ((kind === 'all' || kind === 'loan_maturities') && p.loanMaturesAt) {
-        const n = Math.round((new Date(p.loanMaturesAt) - Date.now()) / 864e5);
-        if (n >= 0 && n <= Math.max(within, 180)) out.push({ kind: 'loan_maturity', in_days: n, ...who, detail: `Loan matures ${U.fmtDate(p.loanMaturesAt, tz, { month: 'short', year: 'numeric' })}` });
-      }
-      if ((kind === 'all' || kind === 'lease_expiries') && p.leaseEndsAt && ['rents', 'leased_out'].includes(p.relationship)) {
+      if (want('lease_expiries') && p.leaseEndsAt && ['rents', 'leased_out'].includes(p.relationship)) {
         const n = Math.round((new Date(p.leaseEndsAt) - Date.now()) / 864e5);
         if (n >= 0 && n <= Math.max(within, 120)) out.push({ kind: 'lease_expiry', in_days: n, ...who, detail: `Lease ends ${U.fmtDate(p.leaseEndsAt, tz, { month: 'short', day: 'numeric' })}` });
       }
     }
     out.sort((a, b) => a.in_days - b.in_days);
     for (const s of out) ctx.names.set(s.client_id, s.client);
-    return { count: out.length, signals: out.slice(0, 25) };
+    return { count: out.length, signals: out.slice(0, limit) };
   },
 });
 

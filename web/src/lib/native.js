@@ -45,7 +45,8 @@ export async function initNative() {
   document.documentElement.classList.add('km-native');
   try {
     const { StatusBar, Style } = await import('@capacitor/status-bar');
-    await StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+    const light = document.documentElement.getAttribute('data-theme') === 'light';
+    await StatusBar.setStyle({ style: light ? Style.Light : Style.Dark }).catch(() => {});
     await StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {});
   } catch { /* plugin missing */ }
 
@@ -69,6 +70,21 @@ export async function initNative() {
       ws.emit('resync', { reason: 'foreground' });
       window.dispatchEvent(new CustomEvent('km:badges'));
     });
+  } catch { /* plugin missing */ }
+}
+
+// Status bar + keyboard follow the in-app theme (light text on dark, and
+// vice versa). Called by applyTheme(); a no-op on the web.
+export async function syncNativeTheme(theme) {
+  if (!isNative()) return;
+  const dark = theme !== 'light';
+  try {
+    const { StatusBar, Style } = await import('@capacitor/status-bar');
+    await StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light });
+  } catch { /* plugin missing */ }
+  try {
+    const { Keyboard, KeyboardStyle } = await import('@capacitor/keyboard');
+    await Keyboard.setStyle({ style: dark ? KeyboardStyle.Dark : KeyboardStyle.Light });
   } catch { /* plugin missing */ }
 }
 

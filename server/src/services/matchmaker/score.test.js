@@ -98,6 +98,17 @@ test('condo-vs-house hard gate (configurable)', () => {
   assert.equal(soft.factors.find((f) => f.key === 'propertyType').quality, 0);
 });
 
+test('market hard gate: a different metro never matches; a near-miss market only scores 0', () => {
+  const aspen = { markets: ['Aspen'], propertyTypes: ['single_family'], priceMax: 25e6, bedsMin: 5 };
+  const r = scoreListingForSearch({ status: 'active', market: 'Miami', city: 'Miami Beach', neighborhood: 'Sunset Islands', propertyType: 'single_family', listPrice: 13e6, beds: 6 }, aspen);
+  assert.equal(r.gated, 'market');
+  const near = scoreListingForSearch({ status: 'active', market: 'Miami', city: 'Miami', neighborhood: 'Brickell' }, { markets: ['Miami Beach'] });
+  assert.equal(near.gated, null);
+  assert.equal(near.factors.find((f) => f.key === 'market').quality, 0);
+  const noMarket = scoreListingForSearch({ status: 'active', neighborhood: 'Sunset Islands' }, { markets: ['Miami Beach'], priceMax: 1e7 });
+  assert.equal(noMarket.gated, null, 'unknown market is never gated');
+});
+
 test('status gates: sold never matches, pending only with includePending', () => {
   assert.equal(scoreListingForSearch({ ...balHarbourCondo, status: 'sold' }, search).score, 0);
   assert.equal(scoreListingForSearch({ ...balHarbourCondo, status: 'pending' }, search).gated, 'status:pending');

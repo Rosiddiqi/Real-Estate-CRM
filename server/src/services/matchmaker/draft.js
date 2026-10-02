@@ -103,13 +103,17 @@ function template({ mode, first, l, pp, result, place }) {
   if (l) {
     const label = shape.clientLabel(l);
     const hooks = (result && result.factors || []).filter((f) => f.polarity === 'match').map((f) => f.key);
-    const why = [];
-    if (hooks.includes('waterfront') && V.canonicalWaterfront(l.waterfront) && V.canonicalWaterfront(l.waterfront) !== 'none') why.push(V.WATERFRONT_LABEL[V.canonicalWaterfront(l.waterfront)].toLowerCase());
-    if (hooks.includes('beds') && l.beds) why.push(`${l.beds} bedrooms`);
-    if (hooks.includes('livingArea') && l.livingAreaSqft) why.push(`${Number(l.livingAreaSqft).toLocaleString('en-US')} sq ft`);
-    if (hooks.includes('view') && (l.views || []).length) why.push(`${l.views[0]} views`);
+    const wf = V.canonicalWaterfront(l.waterfront);
+    const water = hooks.includes('waterfront') && wf && wf !== 'none' ? V.WATERFRONT_LABEL[wf].toLowerCase() : null;
+    const details = [];
+    if (hooks.includes('beds') && l.beds) details.push(`${l.beds} bedrooms`);
+    if (hooks.includes('livingArea') && l.livingAreaSqft) details.push(`${Number(l.livingAreaSqft).toLocaleString('en-US')} sq ft`);
+    if (hooks.includes('view') && (l.views || []).length) details.push(`${l.views[0]} views`);
+    const list = details.length > 1 ? `${details.slice(0, -1).join(', ')} and ${details[details.length - 1]}` : details[0];
     const opener = isFresh(l) ? `${label} just came on` : `I came across ${label}`;
-    const reason = why.length ? ` It has the ${why.slice(0, 3).join(', ')} you mentioned.` : ' It made me think of you.';
+    const reason = water
+      ? ` It's ${water}${list ? ` with ${list}` : ''}, right in line with what you described.`
+      : list ? ` It has ${list}, right in line with what you described.` : ' It made me think of you.';
     return `${hi} ${opener}.${reason} Want me to set up a private showing?`;
   }
   return `${hi} I came across a home I think you'd love. Want me to send you the details?`;

@@ -161,6 +161,10 @@ then `npm run ios:open` and Run.
   foreground, and provides haptics.
 - Sign-in screen (native only): shows which server the app points at, warns when it
   can't reach it, and lets a tester switch servers at runtime.
+- Settings → Account → **Delete account** permanently erases the account and its workspace
+  data. App Store review requires this for apps that offer sign-up. The shared demo account
+  is protected and can't be deleted.
+- The status bar and keyboard follow the in-app light or dark theme.
 - `web/ios/App/App/Info.plist`: portrait iPhone app with a dark UI, usage strings for
   camera, photos, mic and speech, and `tel:`/`sms:`/`facetime:`/`maps:` link schemes.
 - `PrivacyInfo.xcprivacy`: required-reason API declarations (UserDefaults, file

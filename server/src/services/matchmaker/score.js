@@ -153,25 +153,29 @@ function marketQ(l, s) {
     V.nameSim(l.neighborhood, hoods) || 0,
     V.nameSim(l.buildingName, hoods) || 0,
   ) >= 0.9 : false;
-  if (!markets.length) return hoodHit ? { q: 1, detail: `${l.neighborhood || l.buildingName} is on their list` } : null;
-  const places = [l.market, l.city, l.neighborhood].filter(Boolean);
-  if (!places.length) return null;
+  const hoodDetail = { q: 1, detail: `${l.neighborhood || l.buildingName} is on their list` };
+  if (!markets.length) return hoodHit ? hoodDetail : null;
+  const places = [l.market, l.city].filter(Boolean); // market-level places only
+  if (!places.length) return hoodHit ? hoodDetail : null;
+  const placeTokens = [...places, l.neighborhood].filter(Boolean).map((p) => V.nameTokens(p));
+  let overlap = false;
   for (const m of markets) {
     const want = V.nameTokens(m);
     if (!want.size) continue;
-    for (const p of places) {
-      const have = V.nameTokens(p);
+    for (const have of placeTokens) {
       if (!have.size) continue;
       // equal, or the listing's place is MORE specific than the market they named
       // ("Miami" search ⊇ a "Miami Beach" city) — never the other way round.
       const inter = [...want].filter((x) => have.has(x));
+      if (inter.some((x) => !V.WEAK.has(x))) overlap = true;
       if (inter.length === want.size && [...want].some((x) => !V.WEAK.has(x))) {
-        return { q: 1, detail: `In ${l.market || l.city || p}` };
+        return { q: 1, detail: `In ${l.market || l.city}` };
       }
     }
   }
-  if (hoodHit) return { q: 1, detail: `${l.neighborhood || l.buildingName} is on their list` };
-  return { q: 0, detail: `Searching ${markets.slice(0, 2).join(' / ')} — not ${l.market || l.city || 'this market'}` };
+  if (hoodHit) return hoodDetail;
+  // "foreign": nothing in common at all (an Aspen search vs a Miami home) → hard gate
+  return { q: 0, foreign: !overlap, detail: `Searching ${markets.slice(0, 2).join(' / ')} — not ${l.market || l.city}` };
 }
 
 function neighborhoodQ(l, s, ctx) {
@@ -491,7 +495,9 @@ function scoreListingForSearch(listing, search, ctx = {}) {
     factors.push({ key, label: LABELS[key], weight, quality: Math.round(q * 1000) / 1000, polarity, detail, ...(extra || {}) });
   };
 
-  const mk = marketQ(l, s); if (mk) add('market', mk.q, mk.detail);
+  const mk = marketQ(l, s);
+  if (mk && mk.foreign && ctx.hardMarket !== false) return gated('market', mk.detail);
+  if (mk) add('market', mk.q, mk.detail);
   const nb = neighborhoodQ(l, s, ctx); if (nb) add('neighborhood', nb.q, nb.detail);
   const pr = priceQ(l, s); if (pr) add('priceRange', pr.q, pr.detail, pr.crossed ? { crossedBudget: true } : null);
   const bd = bedsQ(l, s); if (bd) add('beds', bd.q, bd.detail);

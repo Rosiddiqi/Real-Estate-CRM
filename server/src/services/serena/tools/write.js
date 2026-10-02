@@ -47,7 +47,7 @@ def({
     const due = dueAt ? U.fmtWhen(dueAt, ctx.tz) : dueDate ? U.fmtDayKey(dueDate, ctx.tz) : null;
     return {
       ok: true, task_id: task.id, title: task.title, due_local: due,
-      __card: { category: 'todo', label: 'To-do · added', title: task.title, meta: [due ? `Due ${due}` : 'No due date', input.client_id ? who(ctx, input.client_id, null) : null].filter(Boolean).join(' · '), open: { type: 'todo', id: task.id }, undo },
+      __card: { category: 'todo', label: 'To-do · added', title: task.title, meta: [due ? `Due ${due.replace(' · ', ', ').replace(/^(Today|Tomorrow)/, (m) => m.toLowerCase())}` : 'No due date', input.client_id ? who(ctx, input.client_id, null) : null].filter(Boolean).join(' · '), open: { type: 'todo', id: task.id, clientId: input.client_id || null }, undo },
     };
   },
 });
