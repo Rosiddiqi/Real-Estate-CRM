@@ -12,10 +12,10 @@ const DEFAULT_WEEKLY = {
 };
 
 const DEFAULT_SOURCES = [
-  { name: 'My Listings', kind: 'own', color: '#2E8BFF' },
+  { name: 'My Listings', kind: 'own', color: '#F2A93B' },
   { name: 'Pocket & Coming Soon', kind: 'pocket', color: '#9A4DFF' },
-  { name: 'Whispers', kind: 'whisper', color: '#F2A93B' },
-  { name: 'MLS Feed', kind: 'mls', color: '#30D27A' },
+  { name: 'Whispers', kind: 'whisper', color: '#30D27A' },
+  { name: 'MLS Feed', kind: 'mls', color: '#2E8BFF' },
 ];
 
 async function bootstrapWorkspace(workspaceId, userId) {
