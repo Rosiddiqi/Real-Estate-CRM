@@ -1,0 +1,1335 @@
+// KeyMatch — luxury real estate CRM data model.
+//
+// Mirrors RevMatch's structure (contacts · messaging · pipeline · inventory ·
+// matchmaker · battle plan · AI · calls · campaigns) re-geared to real estate:
+//   RevMatch Customer        → Client
+//   Garage (CustomerVehicle) → PortfolioProperty (owns / rents / sold / watching)
+//   Dream / Hunting intent   → BuyerSearch (active / dream / inferred)
+//   Vehicle / Inventory      → Listing (+ ListingSource, ListingPriceEvent)
+//   Deal (cars)              → Deal (side, rates, splits, contingencies, closing)
+//   dailyPlanCache JSON      → PlanDay / PlanMove / PlanSuppression / PlanHandled
+//
+// Conventions: every row carries workspaceId and every query filters by it.
+// Money is whole US dollars (Int). Rates are fractions (0.025 = 2.5%).
+// Date-only values (birthdays, plan days) are stored as 'YYYY-MM-DD' strings
+// or DateTime at 12:00 UTC so time zones can't shift the day.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════ Identity ═══════════════════════════
+
+model Workspace {
+  id            String   @id @default(uuid())
+  name          String
+  brokerageName String?
+  officeName    String?
+  market        String?
+  timezone      String   @default("America/New_York")
+  logoUrl       String?
+  /// goals, whale rule, specialty tiers, sender-guard state, feature flags
+  settings      Json     @default("{}")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users User[]
+}
+
+model User {
+  id            String    @id @default(uuid())
+  workspaceId   String
+  email         String    @unique
+  passwordHash  String?
+  firstName     String
+  lastName      String    @default("")
+  phone         String?
+  title         String?
+  licenseNumber String?
+  avatarUrl     String?
+  role          String    @default("owner")
+  timezone      String?
+  /// theme, notification prefs, dashboard page, etc.
+  preferences   Json      @default("{}")
+  /// onboarding checklist progress
+  onboarding    Json      @default("{}")
+  /// assistant personality / tone / voice samples
+  aiPreferences Json      @default("{}")
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
+
+  @@index([workspaceId])
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  userAgent String?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AiUsage {
+  id              String   @id @default(uuid())
+  workspaceId     String
+  feature         String
+  model           String
+  inputTokens     Int      @default(0)
+  outputTokens    Int      @default(0)
+  cacheReadTokens Int      @default(0)
+  costUsd         Float    @default(0)
+  createdAt       DateTime @default(now())
+
+  @@index([workspaceId, createdAt])
+}
+
+// ═══════════════════════════ Clients ═══════════════════════════
+
+model Client {
+  id                 String    @id @default(uuid())
+  workspaceId        String
+  firstName          String    @default("")
+  lastName           String    @default("")
+  displayName        String?
+  /// 10-digit normalized US number (or raw intl digits)
+  phone              String?
+  phoneAlt           String?
+  email              String?
+  emailAlt           String?
+  company            String?
+  jobTitle           String?
+  avatarUrl          String?
+  /// buyer | seller | buyer_seller | investor | renter | landlord | developer | sphere
+  type               String    @default("buyer")
+  /// client | partner (co-op agents, referral partners) | vendor (lender, attorney, inspector, stager…)
+  contactKind        String    @default("client")
+  /// for partners/vendors: lender, attorney, inspector, title, stager, photographer, agent…
+  vendorRole         String?
+  /// lead | active | past_client | sphere | inactive
+  status             String    @default("lead")
+  rating             Int       @default(0)
+  isWhale            Boolean   @default(false)
+  leadSource         String?
+  referredById       String?
+  tags               String[]  @default([])
+  street             String?
+  unit               String?
+  city               String?
+  state              String?
+  zip                String?
+  neighborhood       String?
+  birthday           String?
+  /// spouse, kids, pets, hobbies, schools, clubs, favorite restaurants, wine…
+  personal           Json      @default("{}")
+  preferredChannel   String?
+  /// imessage | sms — evidence-based device routing
+  deviceMode         String?
+  deviceModeReason   String?
+  /// cash_pof | preapproved | prequalified | contingent | unknown
+  financing          String?
+  preApprovalAmount  Int?
+  preApprovalExpires DateTime?
+  lenderName         String?
+  /// asap | 30d | 90d | 6mo | 12mo | someday
+  timeline           String?
+  motivation         String?
+  purchasePower      Int?
+  notes              String?
+  aiSummary          String?
+  aiSummaryAt        DateTime?
+  /// distilled preferences, must-haves, sell signals, touch points
+  aiFacts            Json?
+  lastContactedAt    DateTime?
+  lastInboundAt      DateTime?
+  lastOutboundAt     DateTime?
+  lifetimeVolume     Int       @default(0)
+  lifetimeGci        Int       @default(0)
+  transactionsCount  Float     @default(0)
+  lastClosedAt       DateTime?
+  textOptOut         Boolean   @default(false)
+  textOptOutAt       DateTime?
+  textOptOutReason   String?
+  blocked            Boolean   @default(false)
+  archivedAt         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  referredBy    Client?             @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals     Client[]            @relation("Referrals")
+  properties    PortfolioProperty[]
+  searches      BuyerSearch[]
+  conversations Conversation[]
+  deals         Deal[]
+  notesList     Note[]
+  tasks         Task[]
+  appointments  Appointment[]
+  activities    Activity[]
+  calls         PhoneCall[]
+  matches       Match[]
+  links         ClientLink[]        @relation("LinkFrom")
+  linkedFrom    ClientLink[]        @relation("LinkTo")
+  waitlists     WaitlistEntry[]
+
+  @@index([workspaceId, lastName])
+  @@index([workspaceId, phone])
+  @@index([workspaceId, email])
+  @@index([workspaceId, status])
+}
+
+/// Household / relationship links (spouse, partner, family office, assistant, attorney…).
+model ClientLink {
+  id              String   @id @default(uuid())
+  workspaceId     String
+  clientId        String
+  relatedClientId String
+  /// spouse | partner | parent | child | sibling | assistant | business_partner | family_office | attorney | other
+  relation        String
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  client        Client @relation("LinkFrom", fields: [clientId], references: [id], onDelete: Cascade)
+  relatedClient Client @relation("LinkTo", fields: [relatedClientId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, relatedClientId])
+}
+
+/// Waitlists (RevMatch "Allocation Requests"): buyers queued for a building, community or release.
+model Waitlist {
+  id           String          @id @default(uuid())
+  workspaceId  String
+  name         String
+  buildingName String?
+  neighborhood String?
+  description  String?
+  position     Int             @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  entries      WaitlistEntry[]
+
+  @@index([workspaceId])
+}
+
+model WaitlistEntry {
+  id         String    @id @default(uuid())
+  waitlistId String
+  clientId   String
+  position   Float     @default(0)
+  /// waiting | got_one | removed
+  status     String    @default("waiting")
+  notes      String?
+  doneAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  waitlist Waitlist @relation(fields: [waitlistId], references: [id], onDelete: Cascade)
+  client   Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@unique([waitlistId, clientId])
+}
+
+/// The Garage, re-geared: every property a client owns, rents, sold, or is watching.
+model PortfolioProperty {
+  id                 String    @id @default(uuid())
+  workspaceId        String
+  clientId           String
+  /// owns | rents | sold | watching | leased_out
+  relationship       String    @default("owns")
+  /// primary | second_home | investment | vacation | rental
+  occupancy          String?
+  nickname           String?
+  listingId          String?
+  /// how it was captured: listing_link | document | mls | public_record | described | manual
+  source             String?
+  listingUrl         String?
+  mlsNumber          String?
+  parcelNumber       String?
+  street             String?
+  unit               String?
+  city               String?
+  state              String?
+  zip                String?
+  neighborhood       String?
+  subdivision        String?
+  buildingName       String?
+  market             String?
+  lat                Float?
+  lng                Float?
+  /// single_family | condo | townhouse | estate | penthouse | villa | land | co_op
+  propertyType       String?
+  architecturalStyle String?
+  styleFamily        String?
+  beds               Int?
+  baths              Float?
+  sqft               Int?
+  lotSqft            Int?
+  lotAcres           Float?
+  yearBuilt          Int?
+  stories            Int?
+  garageSpaces       Int?
+  waterfront         String?
+  waterFrontageFt    Int?
+  dockLengthFt       Int?
+  views              String[]  @default([])
+  amenities          String[]  @default([])
+  /// [{name, confirmed: bool, importance?: must|want|stated}]
+  features           Json?
+  purchasePrice      Int?
+  purchasedAt        DateTime?
+  purchasedDealId    String?
+  estValue           Int?
+  estValueAt         DateTime?
+  /// avm | cma | appraisal | manual | listing
+  valueSource        String?
+  /// individual | joint | trust | llc
+  titleHolding       String?
+  lenderName         String?
+  mortgageBalance    Int?
+  mortgageRate       Float?
+  /// fixed | arm | interest_only | balloon | cash
+  loanType           String?
+  loanResetAt        DateTime?
+  loanMaturesAt      DateTime?
+  rentAmount         Int?
+  leaseEndsAt        DateTime?
+  hoaMonthly         Int?
+  taxAnnual          Int?
+  boughtWithMe       Boolean   @default(false)
+  soldWithMe         Boolean   @default(false)
+  soldPrice          Int?
+  soldAt             DateTime?
+  thinkingOfSelling  Boolean   @default(false)
+  /// [{signal, strength 0..1, quote, source}]
+  sellSignals        Json?
+  photos             String[]  @default([])
+  heroPhoto          String?
+  /// scanned deeds, closing statements, floor plans: [{url, kind, name}]
+  documents          Json?
+  notes              String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, relationship])
+  @@index([clientId])
+}
+
+/// Dream home / active search criteria (RevMatch hunting + dream intents).
+model BuyerSearch {
+  id             String    @id @default(uuid())
+  workspaceId    String
+  clientId       String
+  name           String?
+  /// active | dream | inferred
+  bucket         String    @default("active")
+  /// active | paused | found
+  status         String    @default("active")
+  markets        String[]  @default([])
+  neighborhoods  String[]  @default([])
+  buildings      String[]  @default([])
+  propertyTypes  String[]  @default([])
+  priceMin       Int?
+  priceMax       Int?
+  budgetFlexible Boolean   @default(false)
+  bedsMin        Int?
+  bathsMin       Float?
+  sqftMin        Int?
+  sqftMax        Int?
+  lotSqftMin     Int?
+  yearBuiltMin   Int?
+  yearBuiltMax   Int?
+  styles         String[]  @default([])
+  /// oceanfront | bayfront | intracoastal | canal | lake | any
+  waterfront     String[]  @default([])
+  views          String[]  @default([])
+  /// [{feature, importance 0..1.2, source: search|text|call|note, min?: number}]
+  mustHaves      Json?
+  niceToHaves    String[]  @default([])
+  dealBreakers   String[]  @default([])
+  timeline       String?
+  financing      String?
+  notes          String?
+  criteriaRaw    Json?
+  lastMatchedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  matches Match[]
+
+  @@index([workspaceId, status])
+  @@index([clientId])
+}
+
+model Note {
+  id          String   @id @default(uuid())
+  workspaceId String
+  clientId    String?
+  dealId      String?
+  listingId   String?
+  body        String
+  pinned      Boolean  @default(false)
+  /// agent | serena | call | import
+  source      String   @default("agent")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  client Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, clientId])
+}
+
+/// One table for to-dos and client tasks. YOUR LIST = status pending (user/serena-approved);
+/// SERENA SUGGESTS = status suggested (AI-captured, needs Add).
+model Task {
+  id          String    @id @default(uuid())
+  workspaceId String
+  userId      String?
+  clientId    String?
+  dealId      String?
+  listingId   String?
+  title       String
+  notes       String?
+  /// pending | suggested | done | dismissed | cancelled
+  status      String    @default("pending")
+  /// user | serena | ai_capture | planner | call | campaign
+  source      String    @default("user")
+  /// call | text | email | showing | paperwork | follow_up | other
+  kind        String?
+  dueAt       DateTime?
+  /// YYYY-MM-DD for day to-dos with no time
+  dueDate     String?
+  durationMin Int?
+  priority    Int       @default(0)
+  isOngoing   Boolean   @default(false)
+  rolledFrom  String?
+  completedAt DateTime?
+  dismissedAt DateTime?
+  meta        Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  client Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, dueDate])
+  @@index([clientId])
+}
+
+/// Unified activity timeline per client (RevMatch ActivityTimeline).
+model Activity {
+  id          String   @id @default(uuid())
+  workspaceId String
+  clientId    String?
+  dealId      String?
+  listingId   String?
+  /// message_in | message_out | call_in | call_out | call_missed | voicemail | email | note |
+  /// task_created | task_done | appointment | showing | deal_created | deal_stage_change |
+  /// deal_closed | property_added | search_updated | match | ai_insight | campaign | system
+  type        String
+  title       String
+  body        String?
+  meta        Json?
+  /// agent | client | ai | system
+  actor       String   @default("system")
+  occurredAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  client Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, clientId, occurredAt])
+}
+
+// ═══════════════════════════ Messaging ═══════════════════════════
+
+model Conversation {
+  id                 String    @id @default(uuid())
+  workspaceId        String
+  clientId           String?
+  /// normalized phone, email, or chat GUID for groups
+  handle             String
+  /// imessage | sms | email
+  channel            String    @default("imessage")
+  displayName        String?
+  isGroup            Boolean   @default(false)
+  groupName          String?
+  /// [{handle, name, clientId}]
+  participants       Json?
+  lastMessageAt      DateTime?
+  lastMessagePreview String?
+  lastMessageFromMe  Boolean?
+  lastMessageStatus  String?
+  unreadCount        Int       @default(0)
+  pinned             Boolean   @default(false)
+  muted              Boolean   @default(false)
+  archived           Boolean   @default(false)
+  blocked            Boolean   @default(false)
+  /// active | automations — campaign-only threads live in Automations until the client replies
+  lane               String    @default("active")
+  deliveryMode       String?
+  deliveryModeReason String?
+  aiSummary          String?
+  aiSummaryAt        DateTime?
+  externalId         String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  client   Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  messages Message[]
+
+  @@unique([workspaceId, channel, handle])
+  @@index([workspaceId, lastMessageAt])
+  @@index([clientId])
+}
+
+model Message {
+  id                  String    @id @default(uuid())
+  workspaceId         String
+  conversationId      String
+  clientId            String?
+  isFromMe            Boolean
+  body                String?
+  /// text | attachment | system | call | listing | note
+  kind                String    @default("text")
+  /// imessage | sms | email | note
+  service             String    @default("imessage")
+  /// queued | sending | sent | delivered | read | failed | scheduled | received | cancelled
+  status              String    @default("sent")
+  error               String?
+  sentAt              DateTime  @default(now())
+  deliveredAt         DateTime?
+  readAt              DateTime?
+  scheduledFor        DateTime?
+  /// bridge GUID / Twilio SID / provider id
+  externalId          String?
+  /// composer's optimistic id, echoed back so the client can reconcile
+  clientTempId        String?
+  replyToId           String?
+  subject             String?
+  senderName          String?
+  senderHandle        String?
+  campaignId          String?
+  campaignRecipientId String?
+  aiGenerated         Boolean   @default(false)
+  /// link preview, listing card payload, call info, effects
+  meta                Json?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  attachments  Attachment[]
+  reactions    Reaction[]
+
+  @@unique([workspaceId, externalId])
+  @@index([conversationId, sentAt])
+  @@index([workspaceId, status])
+  @@index([workspaceId, scheduledFor])
+}
+
+model Attachment {
+  id           String   @id @default(uuid())
+  workspaceId  String
+  messageId    String
+  url          String
+  mimeType     String?
+  fileName     String?
+  size         Int?
+  width        Int?
+  height       Int?
+  durationMs   Int?
+  thumbnailUrl String?
+  /// image | video | audio | file
+  kind         String   @default("file")
+  createdAt    DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+}
+
+model Reaction {
+  id           String   @id @default(uuid())
+  workspaceId  String
+  messageId    String
+  /// love | like | dislike | laugh | emphasize | question | emoji
+  type         String
+  emoji        String?
+  isFromMe     Boolean
+  senderHandle String?
+  createdAt    DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+}
+
+/// Outbound send queue (bridge / Twilio / demo). Fire-once: failures stay failed.
+model OutboundQueue {
+  id             String    @id @default(uuid())
+  workspaceId    String
+  messageId      String?
+  conversationId String?
+  toHandle       String
+  body           String?
+  attachments    Json?
+  /// imessage | sms
+  service        String    @default("imessage")
+  /// bridge | twilio | demo
+  provider       String    @default("demo")
+  /// pending | sending | sent | failed | rate_deferred | cancelled
+  status         String    @default("pending")
+  attempts       Int       @default(0)
+  error          String?
+  notBefore      DateTime?
+  sentAt         DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([workspaceId, status])
+}
+
+/// A paired iMessage bridge (Mac). Token is shown once, stored hashed.
+model Bridge {
+  id              String    @id @default(uuid())
+  workspaceId     String
+  name            String    @default("Mac Bridge")
+  tokenHash       String
+  tokenPrefix     String
+  /// online | offline | never_connected
+  status          String    @default("never_connected")
+  version         String?
+  lastSeenAt      DateTime?
+  lastConnectedAt DateTime?
+  sendEnabled     Boolean   @default(true)
+  meta            Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([tokenPrefix])
+  @@index([workspaceId])
+}
+
+// ═══════════════════════════ Pipeline ═══════════════════════════
+
+model Deal {
+  id                  String    @id @default(uuid())
+  workspaceId         String
+  clientId            String
+  title               String?
+  /// buyer | listing | dual | lease_tenant | lease_landlord | referral_out | referral_in
+  side                String    @default("buyer")
+  /// resale | new_construction | pre_construction | off_market
+  inventoryType       String    @default("resale")
+  /// main | new_dev
+  track               String    @default("main")
+  /// canonical stage key (see services/pipeline/stages.js)
+  stage               String    @default("new_lead")
+  subStatus           String?
+  stageChangedAt      DateTime  @default(now())
+  position            Float     @default(0)
+  listingId           String?
+  portfolioPropertyId String?
+  propertyAddress     String?
+  propertyLabel       String?
+  /// shortlisted candidate properties [{listingId?, label, price}]
+  shortlist           Json?
+  price               Int?
+  listPrice           Int?
+  contractPrice       Int?
+  salePrice           Int?
+  sideRate            Float?
+  listRate            Float?
+  buyRate             Float?
+  commissionFlat      Int?
+  splitShare          Float     @default(1)
+  referralOutPct      Float?
+  coopBonus           Int?
+  monthlyRent         Int?
+  estimatedGci        Int?
+  estimatedNet        Int?
+  /// booked GCI (typed at close)
+  grossCommission     Int?
+  /// booked net actually received — wins everywhere, never re-split
+  commission          Int?
+  probability         Float?
+  contractDate        DateTime?
+  closingDate         DateTime?
+  inspectionDeadline  DateTime?
+  appraisalDeadline   DateTime?
+  financingDeadline   DateTime?
+  /// {inspection: open|cleared, appraisal, financing, clear_to_close}
+  contingencies       Json?
+  finishSelectionDue  DateTime?
+  estCompletion       DateTime?
+  depositSchedule     Json?
+  linkedDealId        String?
+  lenderName          String?
+  titleCompany        String?
+  coAgentName         String?
+  coAgentBrokerage    String?
+  leadSource          String?
+  lostReason          String?
+  lostNote            String?
+  lostAt              DateTime?
+  closedAt            DateTime?
+  closeProcessedAt    DateTime?
+  archivedAt          DateTime?
+  notes               String?
+  extras              Json?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  client Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  events DealEvent[]
+
+  @@index([workspaceId, stage])
+  @@index([workspaceId, closedAt])
+  @@index([clientId])
+}
+
+model DealEvent {
+  id          String   @id @default(uuid())
+  workspaceId String
+  dealId      String
+  /// created | stage | closed | reopened | lost | field | commission
+  type        String
+  fromStage   String?
+  toStage     String?
+  meta        Json?
+  createdAt   DateTime @default(now())
+
+  deal Deal @relation(fields: [dealId], references: [id], onDelete: Cascade)
+
+  @@index([dealId, createdAt])
+}
+
+/// Agent pay plan (independent-contractor agreement terms).
+model PayPlan {
+  id                    String    @id @default(uuid())
+  workspaceId           String
+  userId                String?
+  name                  String    @default("My plan")
+  /// split_cap | tiered | flat_fee | 100pct
+  planType              String    @default("split_cap")
+  defaultBuyerRate      Float     @default(0.025)
+  defaultListingRate    Float     @default(0.03)
+  agentSplit            Float     @default(0.7)
+  capAmount             Int?
+  /// MM-DD anniversary that resets the cap year
+  capAnniversary        String?
+  postCapSplit          Float     @default(1)
+  transactionFee        Int       @default(0)
+  postCapTransactionFee Int       @default(0)
+  franchisePct          Float     @default(0)
+  franchiseCap          Int?
+  teamLeadPct           Float     @default(0)
+  /// [{fromGci, agentSplit}]
+  tiers                 Json?
+  /// {annualGci, annualSides, annualVolume, monthlySides, focusSides}
+  goals                 Json?
+  effectiveFrom         DateTime  @default(now())
+  effectiveTo           DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([workspaceId])
+}
+
+// ═══════════════════════════ Listings ═══════════════════════════
+
+model ListingSource {
+  id           String    @id @default(uuid())
+  workspaceId  String
+  name         String
+  /// own | mls | idx | brokerage_site | csv | development | pocket | whisper
+  kind         String    @default("own")
+  url          String?
+  color        String    @default("#2E8BFF")
+  lastSyncedAt DateTime?
+  lastSyncOkAt DateTime?
+  meta         Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  listings Listing[]
+
+  @@index([workspaceId])
+}
+
+model Listing {
+  id                 String    @id @default(uuid())
+  workspaceId        String
+  sourceId           String?
+  /// own | feed | pocket | whisper | csv | development | manual
+  origin             String    @default("manual")
+  isOwnListing       Boolean   @default(false)
+  mlsNumber          String?
+  parcelNumber       String?
+  title              String?
+  headline           String?
+  description        String?
+  street             String?
+  unitNumber         String?
+  city               String?
+  state              String?
+  postalCode         String?
+  neighborhood       String?
+  buildingName       String?
+  market             String?
+  lat                Float?
+  lng                Float?
+  hideAddress        Boolean   @default(false)
+  /// coming_soon | active | under_contract | pending | sold | withdrawn | expired | off_market
+  status             String    @default("active")
+  propertyType       String?
+  propertySubType    String?
+  listPrice          Int?
+  originalListPrice  Int?
+  previousPrice      Int?
+  priceDroppedAt     DateTime?
+  closePrice         Int?
+  beds               Int?
+  bathsFull          Int?
+  bathsHalf          Int?
+  bathsTotal         Float?
+  livingAreaSqft     Int?
+  lotSqft            Int?
+  lotAcres           Float?
+  yearBuilt          Int?
+  yearRenovated      Int?
+  stories            Int?
+  garageSpaces       Int?
+  architecturalStyle String?
+  styleFamily        String?
+  waterfront         String?
+  waterFrontageFt    Int?
+  dockLengthFt       Int?
+  views              String[]  @default([])
+  amenities          String[]  @default([])
+  /// tri-state verified amenities {pool:true, gated:null, elevator:false}
+  amenityFlags       Json?
+  hoaFee             Int?
+  hoaFrequency       String?
+  taxAnnual          Int?
+  listedAt           DateTime?
+  soldAt             DateTime?
+  photoUrls          String[]  @default([])
+  heroPhoto          String?
+  virtualTourUrl     String?
+  featureSheetUrl    String?
+  hasFeatureSheet    Boolean   @default(false)
+  listingUrl         String?
+  listAgentName      String?
+  listOfficeName     String?
+  ownerClientId      String?
+  developmentName    String?
+  floor              Int?
+  unitLine           String?
+  publicSlug         String?   @unique
+  promotedAt         DateTime?
+  /// whispers: price guide (never quoted), ETA ("spring"), source kind, per-field confidence
+  priceGuide         Int?
+  eta                String?
+  whisperSource      String?
+  confidence         Json?
+  firstSeenAt        DateTime  @default(now())
+  lastSeenAt         DateTime  @default(now())
+  missingSinceAt     DateTime?
+  droppedAt          DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  source      ListingSource?      @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  priceEvents ListingPriceEvent[]
+  matches     Match[]
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, priceDroppedAt])
+  @@index([sourceId, mlsNumber])
+}
+
+model ListingPriceEvent {
+  id        String   @id @default(uuid())
+  listingId String
+  fromPrice Int
+  toPrice   Int
+  changedAt DateTime @default(now())
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, changedAt])
+}
+
+/// A scored pairing of a buyer (search) with a listing or an off-market owned property.
+model Match {
+  id          String    @id @default(uuid())
+  workspaceId String
+  clientId    String
+  searchId    String?
+  listingId   String?
+  /// off-market pairing: the owner's PortfolioProperty
+  propertyId  String?
+  /// listing | offmarket | price_drop | whisper
+  kind        String    @default("listing")
+  /// listingId or "pp:<propertyId>" — one row per subject × client
+  subjectKey  String
+  score       Int
+  priority    Int?
+  factors     Json?
+  summary     String?
+  confidence  String?
+  /// new | seen | sent | dismissed | interested | toured
+  status      String    @default("new")
+  narrative   String?
+  draftText   String?
+  sentAt      DateTime?
+  dismissedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  client  Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  search  BuyerSearch? @relation(fields: [searchId], references: [id], onDelete: SetNull)
+  listing Listing?     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, subjectKey, clientId])
+  @@index([workspaceId, score])
+  @@index([clientId])
+}
+
+model MatchFeedback {
+  id          String   @id @default(uuid())
+  workspaceId String
+  matchId     String?
+  clientId    String?
+  listingId   String?
+  /// shown | opened | sent | dismissed | thumbs_up | thumbs_down
+  event       String
+  meta        Json?
+  createdAt   DateTime @default(now())
+
+  @@index([workspaceId, createdAt])
+}
+
+// ═══════════════════════════ Calendar ═══════════════════════════
+
+model Appointment {
+  id               String    @id @default(uuid())
+  workspaceId      String
+  userId           String?
+  clientId         String?
+  dealId           String?
+  listingId        String?
+  /// showing | private_tour | open_house | broker_open | listing_presentation | buyer_consult |
+  /// inspection | appraisal | final_walkthrough | closing | call | video | meeting | content |
+  /// personal | team | other
+  type             String    @default("showing")
+  title            String
+  notes            String?
+  location         String?
+  startAt          DateTime
+  endAt            DateTime
+  allDay           Boolean   @default(false)
+  /// scheduled | confirmed | completed | no_show | cancelled
+  status           String    @default("scheduled")
+  /// user | serena | import | booking
+  source           String    @default("user")
+  attendees        Json?
+  reminders        Json?
+  reminderSentAt   DateTime?
+  /// AI pre-appointment relationship briefing
+  briefing         Json?
+  briefingAt       DateTime?
+  outcome          String?
+  followUpLoggedAt DateTime?
+  imageUrl         String?
+  externalId       String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  client Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, startAt])
+  @@index([clientId])
+}
+
+/// Working hours, routine blocks, content/lunch preferences (one row per user).
+model WorkSchedule {
+  id           String   @id @default(uuid())
+  workspaceId  String
+  userId       String   @unique
+  /// {mon:{start:"09:00",end:"18:00",off:false}, …}
+  weekly       Json
+  /// {"2026-10-03": {start,end,off,bonus}}
+  overrides    Json     @default("{}")
+  /// [{id,title,start:"07:00",durationMin,days:[1..7],kind}]
+  routine      Json     @default("[]")
+  /// {durationMin:90, preferredStart:"10:00", enabled:true}
+  contentBlock Json     @default("{}")
+  /// {durationMin:45, preferredStart:"12:30", enabled:true}
+  lunch        Json     @default("{}")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ═══════════════════════════ Battle Plan ═══════════════════════════
+
+model PlanDay {
+  id          String     @id @default(uuid())
+  workspaceId String
+  userId      String
+  /// YYYY-MM-DD in the user's time zone
+  date        String
+  generatedAt DateTime   @default(now())
+  summary     String?
+  narrative   String?
+  meta        Json?
+  moves       PlanMove[]
+
+  @@unique([userId, date])
+  @@index([workspaceId, date])
+}
+
+model PlanMove {
+  id          String   @id @default(uuid())
+  workspaceId String
+  planDayId   String
+  /// stable key: `${contactId}:${kind}` — feeds handled/suppression cooldowns
+  key         String
+  /// e.g. respond.text | listing.match.call | anniversary.text | deal.unstick | content.block | personal.lunch
+  kind        String
+  /// call | text | email | prep | match | content | personal
+  channel     String
+  signalKind  String?
+  clientId    String?
+  dealId      String?
+  listingId   String?
+  startMin    Int?
+  durationMin Int      @default(15)
+  title       String
+  sub         String?
+  why         String?
+  src         String?
+  impact      Float    @default(0)
+  score       Float    @default(0)
+  tone        String?
+  action      String?
+  actionIcon  String?
+  /// open | done | dismissed | skipped
+  status      String   @default("open")
+  userPlaced  Boolean  @default(false)
+  mandatory   Boolean  @default(false)
+  meta        Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  planDay PlanDay @relation(fields: [planDayId], references: [id], onDelete: Cascade)
+
+  @@index([planDayId])
+  @@index([workspaceId, key])
+}
+
+model PlanSuppression {
+  id          String   @id @default(uuid())
+  workspaceId String
+  userId      String
+  clientId    String?
+  signalKind  String?
+  sourceKind  String?
+  reason      String?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([userId, expiresAt])
+}
+
+model PlanHandled {
+  id          String   @id @default(uuid())
+  workspaceId String
+  userId      String
+  key         String
+  handledAt   DateTime @default(now())
+
+  @@unique([userId, key])
+}
+
+model PlanBlockOverride {
+  id          String @id @default(uuid())
+  workspaceId String
+  userId      String
+  date        String
+  /// content | lunch
+  block       String
+  startMin    Int
+  durationMin Int
+
+  @@unique([userId, date, block])
+}
+
+model SelfRule {
+  id          String   @id @default(uuid())
+  workspaceId String
+  userId      String
+  text        String
+  parsed      Json?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model AiFeedback {
+  id          String   @id @default(uuid())
+  workspaceId String
+  userId      String?
+  /// move | reply_suggestion | match | draft | summary
+  kind        String
+  contextId   String?
+  isCorrect   Boolean
+  feedback    String?
+  meta        Json?
+  createdAt   DateTime @default(now())
+
+  @@index([workspaceId, kind, createdAt])
+}
+
+// ═══════════════════════════ AI / Serena ═══════════════════════════
+
+model SerenaThread {
+  id            String          @id @default(uuid())
+  workspaceId   String
+  userId        String
+  title         String?
+  lastMessageAt DateTime        @default(now())
+  createdAt     DateTime        @default(now())
+  messages      SerenaMessage[]
+
+  @@index([userId, lastMessageAt])
+}
+
+model SerenaMessage {
+  id          String   @id @default(uuid())
+  workspaceId String
+  threadId    String
+  /// user | assistant
+  role        String
+  content     String
+  /// proposed actions awaiting approval + receipts of executed actions
+  actions     Json?
+  audioUrl    String?
+  createdAt   DateTime @default(now())
+
+  thread SerenaThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, createdAt])
+}
+
+model SerenaMemory {
+  id          String   @id @default(uuid())
+  workspaceId String
+  userId      String
+  /// fact | preference | goal | block | style
+  kind        String   @default("fact")
+  text        String
+  source      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model AiInsight {
+  id             String    @id @default(uuid())
+  workspaceId    String
+  clientId       String?
+  dealId         String?
+  conversationId String?
+  listingId      String?
+  /// reply_suggestion | thread_summary | follow_up | briefing | coach | pipeline | campaign_reply_suggestion | contact_summary
+  type           String
+  title          String?
+  body           String?
+  data           Json?
+  /// new | seen | acted | dismissed
+  status         String    @default("new")
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([workspaceId, type, status])
+  @@index([conversationId])
+}
+
+// ═══════════════════════════ Calls ═══════════════════════════
+
+model PhoneCall {
+  id                  String    @id @default(uuid())
+  workspaceId         String
+  clientId            String?
+  conversationId      String?
+  /// inbound | outbound
+  direction           String
+  /// ringing | in_progress | completed | missed | no_answer | busy | failed | voicemail | cancelled
+  status              String    @default("completed")
+  fromNumber          String?
+  toNumber            String?
+  startedAt           DateTime  @default(now())
+  answeredAt          DateTime?
+  endedAt             DateTime?
+  durationSec         Int       @default(0)
+  recordingUrl        String?
+  /// [{speaker: agent|client, text, t}]
+  transcript          Json?
+  summary             String?
+  summaryBullets      Json?
+  /// post-call action cards [{id, kind, title, detail, status}]
+  aiSuggestions       Json?
+  sentiment           String?
+  voicemailUrl        String?
+  voicemailTranscript String?
+  voicemailHeard      Boolean   @default(false)
+  externalId          String?
+  meta                Json?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  client Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, startedAt])
+  @@index([clientId])
+}
+
+// ═══════════════════════════ Campaigns ═══════════════════════════
+
+model Campaign {
+  id          String              @id @default(uuid())
+  workspaceId String
+  name        String
+  /// blast | sequence | automation
+  kind        String              @default("blast")
+  /// home_anniversary | birthday | new_listing_match | price_drop | open_house_invite |
+  /// post_closing | lease_expiry | showing_followup | market_update | just_listed | just_sold
+  trigger     String?
+  /// draft | scheduled | running | paused | completed
+  status      String              @default("draft")
+  /// segment definition {types, statuses, tags, neighborhoods, minRating, clientIds…}
+  audience    Json?
+  /// the agent's own words to the drafting AI
+  brief       String?
+  /// [{dayOffset, text?, instructions?, includePhoto?}]
+  steps       Json?
+  /// traffic-light reply lanes {green:{…}, yellow:{…}, red:{…}, aiReply:{mode, instructions}, reminders:{…}}
+  lanes       Json?
+  /// open house / event details {title, address, startAt, endAt, rsvp}
+  event       Json?
+  /// all_now | safe | custom
+  pacing      String              @default("safe")
+  stats       Json?
+  launchedAt  DateTime?
+  completedAt DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  recipients  CampaignRecipient[]
+
+  @@index([workspaceId, status])
+}
+
+model CampaignRecipient {
+  id          String    @id @default(uuid())
+  workspaceId String
+  campaignId  String
+  clientId    String
+  /// pending | scheduled | sent | replied | taken_over | opted_out | failed | muted | rate_deferred
+  status      String    @default("pending")
+  /// none | green | yellow | red
+  lane        String    @default("none")
+  stepIndex   Int       @default(0)
+  nextSendAt  DateTime?
+  lastSentAt  DateTime?
+  repliedAt   DateTime?
+  draft       String?
+  error       String?
+  meta        Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, clientId])
+  @@index([workspaceId, status, nextSendAt])
+}
+
+// ═══════════════════════════ System ═══════════════════════════
+
+model Notification {
+  id          String    @id @default(uuid())
+  workspaceId String
+  userId      String?
+  /// message | call_missed | voicemail | appointment | match | price_drop | deal | ai | system
+  type        String
+  title       String
+  body        String?
+  data        Json?
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([workspaceId, readAt, createdAt])
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique
+  keys      Json?
+  /// web | ios | android
+  platform  String   @default("web")
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model MediaFile {
+  id          String   @id @default(uuid())
+  workspaceId String
+  url         String
+  mimeType    String?
+  fileName    String?
+  size        Int?
+  width       Int?
+  height      Int?
+  /// image | video | audio | file
+  kind        String   @default("file")
+  uploadedBy  String?
+  createdAt   DateTime @default(now())
+
+  @@index([workspaceId])
+}
+
+model ImportJob {
+  id          String   @id @default(uuid())
+  workspaceId String
+  /// clients | listings
+  kind        String
+  fileName    String?
+  /// mapping | importing | done | failed
+  status      String   @default("mapping")
+  mapping     Json?
+  stats       Json?
+  error       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([workspaceId])
+}

@@ -1,0 +1,141 @@
+/* ═══════════════════════════════════════════════════════════
+   Shared motion (ported from RevMatch animations.css).
+   Every keyframe two or more files use lives here. Motion
+   tokens (--km-*) are in tokens.css.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Overlay entrance/exit (vertical family). */
+@keyframes km-cc-in {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes km-cc-out {
+  from { transform: translateY(0);    opacity: 1; }
+  to   { transform: translateY(24px); opacity: 0; }
+}
+@keyframes km-sheet-in {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes km-sheet-out {
+  from { transform: translateY(0);    opacity: 1; }
+  to   { transform: translateY(110%); opacity: 0.7; }
+}
+@keyframes km-dim-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes km-fade-out-soft { from { opacity: 1; } to { opacity: 0; } }
+
+/* Navigation push family — page-like surfaces enter from the RIGHT and pop
+   back to the right (edge-swipe axis, iMessage-style). */
+@keyframes km-push-in {
+  from { transform: translate3d(100%, 0, 0); }
+  to   { transform: translate3d(0, 0, 0); }
+}
+@keyframes km-push-out {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(100%, 0, 0); }
+}
+.km-push-panel { animation: km-push-in var(--km-t-page) var(--km-nav-ease) both; }
+.km-push-panel--closing { animation: km-push-out var(--km-t-page-out) var(--km-nav-ease) both; }
+
+/* Dim scrim under a push panel; swipe-back drives its opacity inline. */
+.km-push-scrim {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--km-t-page) var(--km-nav-ease);
+}
+.km-push-scrim--on { opacity: 0.42; }
+
+/* Parallax dip on the surface underneath a push panel (iOS layered stack). */
+.km-push-dip { transition: transform var(--km-t-page) var(--km-nav-ease); }
+.km-push-dip--on { transform: translate3d(-24%, 0, 0); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes km-banner-slide {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes km-shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+@keyframes km-ctx-appear {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes km-pop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes km-spin { to { transform: rotate(360deg); } }
+
+/* Card that just landed (e.g. new deal in the kanban). */
+@keyframes km-deal-flash {
+  0%   { background-color: rgba(46, 139, 255, 0.45); box-shadow: 0 0 0 2px rgba(46, 139, 255, 0.6); }
+  100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; }
+}
+.km-deal-flash { animation: km-deal-flash 600ms ease-out; }
+
+/* Deep-link landing: two-beat electric-blue ring that fades out. */
+@keyframes km-focus-flash {
+  0%   { box-shadow: 0 0 0 0 rgba(46, 139, 255, 0); }
+  12%  { box-shadow: 0 0 0 3px rgba(46, 139, 255, 0.95), 0 0 22px 4px rgba(46, 139, 255, 0.55); }
+  45%  { box-shadow: 0 0 0 2px rgba(46, 139, 255, 0.35), 0 0 10px 2px rgba(46, 139, 255, 0.25); }
+  60%  { box-shadow: 0 0 0 3px rgba(46, 139, 255, 0.9), 0 0 22px 4px rgba(46, 139, 255, 0.5); }
+  100% { box-shadow: 0 0 0 0 rgba(46, 139, 255, 0); }
+}
+.km-focus-flash {
+  animation: km-focus-flash 2.2s cubic-bezier(0.22, 1, 0.36, 1) 1 !important;
+  border-radius: 13px;
+}
+
+/* Interactions feel physical: anything tappable presses down. */
+.km-pressable, button.km-btn, .km-press {
+  transition: transform 0.18s var(--km-ease);
+}
+.km-pressable:active, button.km-btn:active, .km-press:active { transform: scale(0.97); }
+
+/* List-row entrance: fade + 8px rise. Cap stagger delay in JSX (~12 rows). */
+@keyframes km-rowIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.km-row-in { animation: km-rowIn 0.26s var(--km-ease) backwards; }
+
+/* Skeletons instead of "Loading..." text. */
+@keyframes km-skelPulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.9; } }
+.km-skel {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  animation: km-skelPulse 1.2s ease-in-out infinite;
+}
+:root[data-theme="light"] .km-skel { background: rgba(0, 0, 0, 0.06); }
+
+/* Tab switch — opacity ONLY (a transform would break fixed children). */
+@keyframes km-tabIn { from { opacity: 0; } to { opacity: 1; } }
+.km-tab-slot { position: absolute; inset: 0; animation: km-tabIn 0.22s var(--km-ease); }
+
+@keyframes km-toastIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes km-toastFade { from { opacity: 0; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .km-push-dip--on { transform: none; }
+  .km-push-scrim--on { opacity: 0; }
+  .km-pressable:active, button.km-btn:active, .km-press:active { transform: none; }
+}

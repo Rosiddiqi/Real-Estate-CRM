@@ -1,0 +1,124 @@
+/* ===========================================================================
+   KeyMatch — design tokens (ported from RevMatch BRAND.md / revmatch-ui.css).
+   Electric iMessage-blue on a near-black floor, liquid-glass chrome, SF Pro.
+   Unlike RevMatch (which had to scope tokens under .rm-ui to protect a legacy
+   stylesheet), tokens here are GLOBAL — one system for every surface.
+
+   Theme: dark is primary. <html data-theme="light"> switches to light.
+   Functional KIND colors (call/text/email/showing/AI…) are signals, not
+   decoration — use them only to encode type.
+   =========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* ---- floor + surfaces ---- */
+  --bg: #06080C;
+  --bg2: #080B11;
+  --surface: #0E131C;
+  --surfaceHi: #131A26;
+  --surfaceTop: #182131;
+  --line: rgba(255, 255, 255, 0.07);
+  --lineHi: rgba(255, 255, 255, 0.12);
+  --scrim: rgba(0, 0, 0, 0.6);
+
+  /* ---- text ---- */
+  --text: #FFFFFF;
+  --dim: rgba(255, 255, 255, 0.56);
+  --faint: rgba(255, 255, 255, 0.34);
+  --ghost: rgba(255, 255, 255, 0.18);
+
+  /* ---- brand accent ---- */
+  --blue: #2E8BFF;
+  --bright: #4DA2FF;
+  --deep: #1567E0;
+  --glow: rgba(46, 139, 255, 0.45);
+  --tint: rgba(46, 139, 255, 0.12);
+  --tintHi: rgba(46, 139, 255, 0.22);
+
+  /* ---- status ---- */
+  --green: #30D27A;
+  --amber: #F2A93B;
+  --red: #FF5A5A;
+  --violet: #9A4DFF;
+  --cyan: #32D4F5;
+  --pink: #FF375F;
+
+  /* ---- messaging channels (signature rule) ----
+     iMessage / iPhone = BLUE, SMS / Android = GREEN. Everywhere a channel shows. */
+  --imsg: #2E8BFF;
+  --sms: #34D15B;
+  --bubble-in: #26262A;
+  --bubble-in-text: #FFFFFF;
+
+  /* ---- KIND colors (battle plan tiles, timeline dots, appointment types) ---- */
+  --kind-call: #FF453A;
+  --kind-text: #0A84FF;
+  --kind-email: #64D2FF;
+  --kind-match: #5856D6;
+  --kind-prep: #FF9500;
+  --kind-personal: #30D158;
+  --kind-content: #FF2D55;
+  --kind-showing: #2E8BFF;
+  --kind-openhouse: #BF5AF2;
+  --kind-closing: #30D27A;
+  --kind-listing: #F2A93B;
+
+  /* ---- type (SF Pro everywhere; Inter only as non-Apple fallback) ---- */
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Inter, system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Inter, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+
+  /* ---- radii ---- */
+  --r-pill: 999px;
+  --r-card: 16px;
+  --r-sheet: 24px;
+  --r-md: 12px;
+  --r-sm: 10px;
+  --r-xs: 8px;
+
+  /* ---- layout ---- */
+  --tabbar-clearance: 110px;           /* footer zone every sheet clears */
+  --page-pad: 16px;
+  --header-h: 54px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --keyboard-height: 0px;
+
+  /* ---- motion (global, one clock for every surface) ---- */
+  --km-nav-ease: cubic-bezier(0.32, 0.72, 0, 1);   /* page push/pop, drawers */
+  --km-ease: cubic-bezier(0.2, 0.8, 0.2, 1);       /* buttons, cards, chips */
+  --km-spring: cubic-bezier(0.5, 1.4, 0.4, 1);     /* puck, toggles, sheet rise */
+  --km-kb-ease: cubic-bezier(0.25, 0.1, 0.25, 1);  /* keyboard lockstep */
+  --km-t-page: 0.4s;
+  --km-t-page-out: 0.3s;
+  --km-t-sheet: 0.36s;
+  --km-t-sheet-out: 0.26s;
+  --km-t-fast: 0.18s;
+
+  /* ---- glow (glow, don't drop-shadow) ---- */
+  --glow-btn: 0 10px 24px -8px var(--glow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  --shadow-sheet: 0 24px 60px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #F2F2F7;
+  --bg2: #EBEBF0;
+  --surface: #FFFFFF;
+  --surfaceHi: #F7F7FA;
+  --surfaceTop: #FFFFFF;
+  --line: rgba(0, 0, 0, 0.08);
+  --lineHi: rgba(0, 0, 0, 0.14);
+  --scrim: rgba(0, 0, 0, 0.32);
+  --text: #0B0D12;
+  --dim: rgba(11, 13, 18, 0.58);
+  --faint: rgba(11, 13, 18, 0.38);
+  --ghost: rgba(11, 13, 18, 0.16);
+  --tint: rgba(46, 139, 255, 0.10);
+  --tintHi: rgba(46, 139, 255, 0.18);
+  --glow: rgba(46, 139, 255, 0.30);
+  --bubble-in: #E9E9EB;
+  --bubble-in-text: #0B0D12;
+  --shadow-sheet: 0 24px 60px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+}

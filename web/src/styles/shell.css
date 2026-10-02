@@ -1,0 +1,53 @@
+/* Shell chrome: tab bar motion, drawer, edge handle, login hero. */
+
+.km-tabbar-puck { transition: transform 0.34s var(--km-spring), opacity 0.2s ease; will-change: transform; }
+.km-tabbar-wrap { transition: transform 0.26s var(--km-ease), opacity 0.18s ease; }
+body.km-tabbar-hidden .km-tabbar-wrap,
+body.km-kb-open .km-tabbar-wrap {
+  transform: translateY(calc(100% + 28px));
+  opacity: 0;
+}
+body.km-tabbar-hidden .km-tabbar, body.km-kb-open .km-tabbar { pointer-events: none !important; }
+
+.km-drawer-item { transition: background 0.15s ease; }
+.km-drawer-item:active { background: rgba(255, 255, 255, 0.05); }
+@media (hover: hover) { .km-drawer-item:hover { background: rgba(255, 255, 255, 0.04); } }
+
+@keyframes km-edge-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+body.km-drawer-open .km-edge-tap { pointer-events: none; }
+
+/* Serena bubble steps aside while a sheet is open. */
+[data-serena-bubble] { transition: opacity 0.2s ease; }
+body.km-sheet-open [data-serena-bubble] { opacity: 0 !important; pointer-events: none !important; }
+
+/* Login hero — architectural light, not a photo. */
+.km-login-hero {
+  position: absolute; inset: 0 0 auto 0; height: 420px; pointer-events: none;
+  background:
+    radial-gradient(60% 70% at 50% 0%, var(--tintHi) 0%, transparent 70%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 28px);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
+}
+
+/* Fluted-glass hero material (replaces RevMatch's carbon fiber). */
+.km-fluted {
+  background:
+    linear-gradient(180deg, rgba(6, 8, 12, 0) 0%, var(--bg) 100%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 2px, rgba(255, 255, 255, 0) 2px 9px, rgba(0, 0, 0, 0.18) 9px 12px),
+    linear-gradient(160deg, var(--surfaceHi), var(--bg));
+}
+:root[data-theme="light"] .km-fluted {
+  background:
+    linear-gradient(180deg, rgba(242, 242, 247, 0) 0%, var(--bg) 100%),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.035) 0 2px, rgba(0, 0, 0, 0) 2px 9px, rgba(255, 255, 255, 0.6) 9px 12px),
+    linear-gradient(160deg, #FFFFFF, var(--bg));
+}
+
+/* Desktop: keep the mobile column comfortable and centered. */
+@media (min-width: 900px) {
+  .km-tab-slot > .km-screen, .km-panel { max-width: 100%; }
+}

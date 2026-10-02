@@ -1,0 +1,201 @@
+/* ===========================================================================
+   LIQUID GLASS — the app's ONE glass material (ported from RevMatch,
+   Apple HIG "Materials").
+   1. Glass is the FUNCTIONAL layer only — controls + navigation floating over
+      content (tab bar, composer, floating buttons, segmented tabs, search,
+      menus, toasts). Content (labels on photos, in-card buttons, bubbles) uses
+      the STANDARD MATERIAL `km-mat`.
+   2. Regular `km-lg` by default; clear `km-lg--clear km-lg--dim` ONLY over
+      photos/video.
+   3. Glass has no color of its own — selected segments + the tab-bar lens are
+      NEUTRAL; the accent goes on the label.
+   4. No glass on glass: things inside glass use vibrant FILLS (--lg-fill).
+   5. Top bars get no band: controls float as glass, content under the edge
+      gets the scroll edge effect (`km-scroll-edge`).
+   Never hand-roll a new glass recipe — extend this file.
+   =========================================================================== */
+
+:root {
+  --lg-tint: rgba(12, 14, 18, 0.30);
+  --lg-tint-solid: rgba(12, 14, 18, 0.46);
+  --lg-frost: blur(12px) saturate(180%) brightness(0.88);
+  --lg-tint-clear: rgba(255, 255, 255, 0.02);
+  --lg-frost-clear: blur(2px) saturate(160%);
+  --lg-dim: rgba(0, 0, 0, 0.35);
+  --lg-tint-blue: rgba(145, 213, 255, 0.07);
+  --lg-rim-glow: inset 0 0 6px rgba(255, 255, 255, 0.25);
+  --lg-fringe: inset 1px 0 0 -0.5px rgba(255, 96, 96, 0.10),
+               inset -1px 0 0 -0.5px rgba(96, 170, 255, 0.12);
+  --lg-drop: 0 2px 5px rgba(0, 0, 0, 0.25);
+  --lg-shadow: var(--lg-rim-glow), var(--lg-fringe), var(--lg-drop);
+  --lg-specular: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(255, 255, 255, 0.16) 22%,
+    rgba(255, 255, 255, 0.02) 45%,
+    rgba(255, 255, 255, 0.02) 60%,
+    rgba(255, 255, 255, 0.14) 82%,
+    rgba(255, 255, 255, 0.36) 100%
+  );
+  --lg-text: #FFFFFF;
+  --lg-text-idle: rgba(235, 235, 245, 0.6);
+  --lg-text-tertiary: rgba(235, 235, 245, 0.3);
+  --lg-fill: rgba(255, 255, 255, 0.12);
+  --lg-accent: #4DA2FF;
+  --mat-thin: rgba(22, 24, 30, 0.42);
+  --mat-regular: rgba(22, 24, 30, 0.62);
+  --mat-thick: rgba(22, 24, 30, 0.82);
+  --mat-blur: blur(20px) saturate(150%);
+}
+
+:root[data-theme="light"] {
+  --lg-tint: rgba(255, 255, 255, 0.42);
+  --lg-tint-solid: rgba(255, 255, 255, 0.68);
+  --lg-frost: blur(12px) saturate(180%) brightness(1.08);
+  --lg-text: #0B0D12;
+  --lg-text-idle: rgba(11, 13, 18, 0.55);
+  --lg-text-tertiary: rgba(11, 13, 18, 0.3);
+  --lg-fill: rgba(0, 0, 0, 0.06);
+  --lg-rim-glow: inset 0 0 6px rgba(255, 255, 255, 0.6);
+  --lg-drop: 0 2px 8px rgba(0, 0, 0, 0.10);
+  --mat-thin: rgba(255, 255, 255, 0.5);
+  --mat-regular: rgba(255, 255, 255, 0.7);
+  --mat-thick: rgba(255, 255, 255, 0.86);
+}
+
+/* ── Regular glass (default) ─────────────────────────────────────────── */
+:where(.km-lg) { position: relative; }
+.km-lg {
+  background: var(--lg-tint);
+  -webkit-backdrop-filter: var(--lg-frost);
+  backdrop-filter: var(--lg-frost);
+  box-shadow: var(--lg-shadow);
+  border-color: transparent;
+}
+.km-lg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--lg-specular);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+  z-index: 3;
+}
+.km-lg--solid { background: var(--lg-tint-solid); }
+.km-lg--menu {
+  background: rgba(20, 22, 26, 0.62);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+  box-shadow: var(--lg-shadow), 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+:root[data-theme="light"] .km-lg--menu { background: rgba(255, 255, 255, 0.78); }
+
+/* Light glass for controls on a near-black floor (call screen buttons). */
+.km-lg--light {
+  background: rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  box-shadow:
+    inset 0 0 10px rgba(255, 255, 255, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.30),
+    var(--lg-fringe),
+    0 8px 20px -8px rgba(0, 0, 0, 0.7);
+}
+.km-lg--light:is(button, [role="button"]):active { background: rgba(255, 255, 255, 0.22); }
+
+/* Clear glass — only over photos / video. */
+.km-lg--clear {
+  background: var(--lg-tint-clear);
+  -webkit-backdrop-filter: var(--lg-frost-clear);
+  backdrop-filter: var(--lg-frost-clear);
+}
+.km-lg--clear.km-lg--dim { background: var(--lg-dim); }
+
+.km-lg--tint-blue { background: var(--lg-tint-blue); }
+.km-lg--line { box-shadow: var(--lg-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.16); }
+:root[data-theme="light"] .km-lg--line { box-shadow: var(--lg-shadow), inset 0 0 0 1px rgba(0, 0, 0, 0.08); }
+
+/* Segmented controls: track = `km-lg km-lg--line`; selected segment =
+   `km-lg km-lg--flat km-lg-seg` — a neutral lens, no glass-on-glass blur. */
+.km-lg--flat { -webkit-backdrop-filter: none; backdrop-filter: none; }
+.km-lg-seg {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: var(--lg-rim-glow), var(--lg-fringe);
+  color: var(--lg-text);
+}
+:root[data-theme="light"] .km-lg-seg { background: #FFFFFF; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); }
+
+/* ── Scroll edge effect — top bars get no band ─────────────────────── */
+:where(.km-scroll-edge) { position: relative; }
+.km-scroll-edge {
+  background: transparent;
+  border-bottom-color: transparent;
+  isolation: isolate;
+}
+.km-scroll-edge::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  bottom: -18px;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(var(--lg-edge-rgb, 6, 8, 12), 0.72) 0%, rgba(var(--lg-edge-rgb, 6, 8, 12), 0.45) 65%, rgba(var(--lg-edge-rgb, 6, 8, 12), 0) 100%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
+  transition: opacity 0.2s ease;
+}
+:root[data-theme="light"] .km-scroll-edge::before { --lg-edge-rgb: 242, 242, 247; }
+.km-scroll-edge--idle::before { opacity: 0; }
+
+/* ── Standard materials (content layer — NOT glass) ─────────────────── */
+.km-mat {
+  background: var(--mat-regular);
+  -webkit-backdrop-filter: var(--mat-blur);
+  backdrop-filter: var(--mat-blur);
+  border-color: transparent;
+  box-shadow: none;
+}
+.km-mat--thin { background: var(--mat-thin); }
+.km-mat--thick { background: var(--mat-thick); }
+
+/* Press: glass flexes and the rim glow brightens. */
+.km-lg:is(button, [role="button"], a):active {
+  box-shadow: inset 0 0 9px rgba(255, 255, 255, 0.34), var(--lg-fringe), var(--lg-drop);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .km-lg, .km-mat { background: var(--mat-thick); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --lg-tint: rgba(28, 30, 36, 0.97);
+    --lg-tint-solid: rgba(28, 30, 36, 0.97);
+    --lg-tint-clear: rgba(28, 30, 36, 0.92);
+    --lg-dim: rgba(28, 30, 36, 0.92);
+    --mat-thin: rgba(28, 30, 36, 0.95);
+    --mat-regular: rgba(28, 30, 36, 0.97);
+  }
+  .km-lg, .km-lg--menu, .km-mat { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .km-scroll-edge::before {
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    background: var(--bg);
+    -webkit-mask-image: none; mask-image: none; bottom: 0;
+  }
+}
+@media (prefers-contrast: more) {
+  :root {
+    --lg-tint: rgba(20, 22, 28, 0.94);
+    --lg-tint-solid: rgba(20, 22, 28, 0.96);
+    --lg-dim: rgba(0, 0, 0, 0.8);
+    --lg-text-idle: rgba(235, 235, 245, 0.85);
+  }
+  .km-lg { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55), var(--lg-drop); }
+  .km-lg::after { display: none; }
+}

@@ -1,0 +1,116 @@
+/* Reset + global typography. Mobile-first (iPhone Safari is the primary
+   target; everything must work at 375px). */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  overflow: hidden;           /* each surface owns its own scroll container */
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+#root { position: fixed; inset: 0; overflow: hidden; }
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+button:disabled { cursor: default; }
+
+input, textarea, select {
+  font: inherit;
+  color: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
+  margin: 0;
+}
+/* iOS zooms inputs under 16px — keep form text at 16px. */
+input, textarea, select { font-size: 16px; }
+input::placeholder, textarea::placeholder { color: var(--faint); }
+textarea { resize: none; }
+
+a { color: var(--bright); text-decoration: none; }
+img { max-width: 100%; display: block; }
+svg { flex-shrink: 0; }
+h1, h2, h3, h4, p { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+
+::selection { background: var(--tintHi); }
+
+/* Scroll containers: momentum, no bars on touch, thin bars on desktop. */
+.km-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  min-height: 0;
+}
+.km-scroll-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.km-scroll-x::-webkit-scrollbar { display: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  .km-scroll::-webkit-scrollbar { width: 8px; }
+  .km-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 8px; }
+  .km-scroll::-webkit-scrollbar-track { background: transparent; }
+}
+@media (hover: none) {
+  .km-scroll { scrollbar-width: none; }
+  .km-scroll::-webkit-scrollbar { display: none; }
+}
+
+/* Typography helpers (SF Pro scale from CLAUDE.md) */
+.km-page-title { font-family: var(--font-display); font-size: 24px; font-weight: 600; letter-spacing: -0.01em; color: var(--text); }
+.km-large-title { font-family: var(--font-display); font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+.km-section-title { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.km-card-title { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.km-title { font-size: 15px; font-weight: 600; }
+.km-body { font-size: 15px; font-weight: 400; }
+.km-sub { font-size: 13px; color: var(--dim); }
+.km-caption { font-size: 12px; font-weight: 500; color: var(--dim); }
+.km-micro { font-size: 11px; color: var(--faint); }
+.km-eyebrow, .km-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.km-num { font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.km-dim { color: var(--dim); }
+.km-faint { color: var(--faint); }
+.km-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.km-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.km-visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
