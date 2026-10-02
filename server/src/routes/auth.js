@@ -34,7 +34,7 @@ router.post('/login', ah(async (req, res) => {
 // One-tap demo access (seeded demo agent). Disable in production with
 // DEMO_LOGIN_ENABLED=0.
 router.post('/demo', ah(async (req, res) => {
-  if (/^(0|false|no|off)$/i.test(process.env.DEMO_LOGIN_ENABLED || '')) throw new HttpError(403, 'Demo login is disabled');
+  if (!config.auth.demoLogin) throw new HttpError(403, 'Demo login is disabled');
   const email = process.env.DEMO_EMAIL || 'demo@keymatch.app';
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new HttpError(404, 'Demo workspace not seeded yet — run `npm run seed` in /server');

@@ -19,8 +19,8 @@ services:
       - "3200:3200"
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/estate_crm
-      JWT_SECRET: ${JWT_SECRET:-change-me}
-      REFRESH_SECRET: ${REFRESH_SECRET:-change-me-too}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env (openssl rand -hex 32)}
+      REFRESH_SECRET: ${REFRESH_SECRET:?set REFRESH_SECRET in .env (openssl rand -hex 32)}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       MESSAGING_PROVIDER: ${MESSAGING_PROVIDER:-demo}
       DEMO_LOGIN_ENABLED: ${DEMO_LOGIN_ENABLED:-1}

@@ -213,6 +213,8 @@ model Waitlist {
   id           String          @id @default(uuid())
   workspaceId  String
   name         String
+  /// building | community | release | off_market (clients builder)
+  kind         String          @default("building")
   buildingName String?
   neighborhood String?
   description  String?
@@ -318,6 +320,9 @@ model PortfolioProperty {
   heroPhoto          String?
   /// scanned deeds, closing statements, floor plans: [{url, kind, name}]
   documents          Json?
+  /// loan + carrying details the columns do not cover (clients builder):
+  /// {originatedAt, armFixedYears, loanTermMonths, monthlyPayment, insuranceAnnual, exact:{field:bool}, description}
+  meta               Json?
   notes              String?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt

@@ -2,7 +2,7 @@
   "name": "keymatch",
   "private": true,
   "version": "0.1.0",
-  "description": "KeyMatch — the personal CRM for luxury real estate agents (RevMatch, re-geared for real estate).",
+  "description": "KeyMatch \u2014 the personal CRM for luxury real estate agents (RevMatch, re-geared for real estate).",
   "scripts": {
     "install:all": "npm --prefix server install && npm --prefix web install",
     "db:push": "npm --prefix server run db:push",
@@ -11,7 +11,11 @@
     "dev:web": "npm --prefix web run dev",
     "build": "npm --prefix web run build",
     "start": "NODE_ENV=production node server/src/index.js",
-    "test": "npm --prefix server test"
+    "test": "npm --prefix server test",
+    "ios:testflight": "bash scripts/ios/deploy-testflight.sh",
+    "deploy:server": "bash scripts/server/deploy.sh"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  }
 }

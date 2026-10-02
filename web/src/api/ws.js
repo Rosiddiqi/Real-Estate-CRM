@@ -7,9 +7,7 @@
 // backoff, keeps a healthy socket across token refreshes, and emits a synthetic
 // `resync` event after any reconnect or when the app returns to the foreground
 // so data hooks can silently re-fetch (no manual sync UI anywhere).
-import { getAccessToken, onTokenChange } from './client';
-
-const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+import { getAccessToken, getApiBase, onTokenChange } from './client';
 
 class SocketManager {
   constructor() {
@@ -25,6 +23,7 @@ class SocketManager {
   url() {
     const token = getAccessToken() || '';
     let origin;
+    const BASE = getApiBase();
     if (BASE) origin = BASE.replace(/^http/, 'ws');
     else origin = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`;
     return `${origin}/ws?type=web&token=${encodeURIComponent(token)}`;

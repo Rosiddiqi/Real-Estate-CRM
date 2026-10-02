@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { applyTheme } from './hooks/useShellEffects';
+import { hydrateNativeStorage, initNative, hideSplash } from './lib/native';
 
 // Apply theme + accent before first paint (no flash).
 applyTheme();
@@ -16,8 +17,15 @@ window.addEventListener('vite:preloadError', (e) => {
   } catch { /* ignore */ }
 });
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+(async () => {
+  // Native: restore the durable session before anything reads storage.
+  await hydrateNativeStorage();
+  applyTheme();
+  initNative();
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  );
+  setTimeout(hideSplash, 350);
+})();

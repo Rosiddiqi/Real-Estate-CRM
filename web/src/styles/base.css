@@ -114,3 +114,16 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   position: absolute !important; width: 1px; height: 1px; overflow: hidden;
   clip: rect(0 0 0 0); white-space: nowrap;
 }
+
+/* Native app feel (Capacitor iOS): no text-selection / callouts on chrome.
+   Inputs, editable areas and .km-selectable keep normal selection. */
+.km-native body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.km-native input, .km-native textarea, .km-native [contenteditable="true"], .km-native .km-selectable {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}

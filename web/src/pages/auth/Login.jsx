@@ -1,9 +1,11 @@
 // Sign in / create account / one-tap demo.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { Button, TextInput } from '../../components/ui/kit';
 import Icon from '../../components/ui/Icon';
 import { BRAND } from '../../brand';
+import { getApiBase, setApiBase } from '../../api/client';
+import { isNative } from '../../lib/native';
 
 export default function Login() {
   const { login, demoLogin, register } = useAuth();
@@ -12,6 +14,20 @@ export default function Login() {
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState('');
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  // Public server info: whether the demo book is offered, and (on native)
+  // whether the configured server is reachable at all.
+  const [server, setServer] = useState({ checked: false, reachable: true, demoLogin: true });
+  useEffect(() => {
+    let alive = true;
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 8000);
+    fetch(`${getApiBase()}/api/health`, { signal: ctl.signal })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((h) => { if (alive) setServer({ checked: true, reachable: true, demoLogin: h.demoLogin !== false }); })
+      .catch(() => { if (alive) setServer({ checked: true, reachable: false, demoLogin: true }); })
+      .finally(() => clearTimeout(t));
+    return () => { alive = false; ctl.abort(); clearTimeout(t); };
+  }, []);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -65,13 +81,16 @@ export default function Login() {
           </Button>
         </form>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'var(--faint)', fontSize: 12 }}>
-          <div className="km-divider" style={{ flex: 1 }} /> OR <div className="km-divider" style={{ flex: 1 }} />
-        </div>
-
-        <Button variant="ghost" size="lg" block icon="sparkle" onClick={demo} loading={busy === 'demo'}>
-          Explore the demo book
-        </Button>
+        {server.demoLogin ? (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'var(--faint)', fontSize: 12 }}>
+              <div className="km-divider" style={{ flex: 1 }} /> OR <div className="km-divider" style={{ flex: 1 }} />
+            </div>
+            <Button variant="ghost" size="lg" block icon="sparkle" onClick={demo} loading={busy === 'demo'}>
+              Explore the demo book
+            </Button>
+          </>
+        ) : null}
 
         <button
           type="button"
@@ -80,7 +99,26 @@ export default function Login() {
         >
           {mode === 'signin' ? 'New here? Create an account' : 'Have an account? Sign in'}
         </button>
+        {isNative() ? <ServerAddress unreachable={server.checked && !server.reachable} /> : null}
       </div>
     </div>
+  );
+}
+
+// Native builds talk to an absolute server URL (baked in at build time). Testers
+// can point the app at another KeyMatch server here.
+function ServerAddress({ unreachable }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(getApiBase());
+  const current = getApiBase();
+  return editing ? (
+    <div style={{ display: 'flex', gap: 8 }}>
+      <input className="km-input" value={value} onChange={(e) => setValue(e.target.value)} placeholder="https://keymatch.yourdomain.com" autoCapitalize="none" autoCorrect="off" inputMode="url" />
+      <Button variant="ghost" onClick={() => { setApiBase(value.trim()); setEditing(false); window.location.reload(); }}>Save</Button>
+    </div>
+  ) : (
+    <button type="button" onClick={() => setEditing(true)} style={{ color: unreachable ? 'var(--amber)' : 'var(--faint)', fontSize: 12.5 }}>
+      {unreachable ? 'Can’t reach ' : 'Server: '}{current ? current.replace(/^https?:\/\//, '') : 'not set'} · Change
+    </button>
   );
 }

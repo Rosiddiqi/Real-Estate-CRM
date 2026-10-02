@@ -385,51 +385,18 @@ function PushPermissionHint() {
   );
 }
 
-// iMessage bridge pairing + SMS provider status (endpoints owned by the inbox builder:
-// GET /api/bridge → {bridges, provider, twilio}, POST /api/bridge {name} → {bridge, token}, DELETE /api/bridge/:id).
+// Messaging provider status (GET /api/bridge → {provider, twilio}). iMessage
+// bridge pairing is intentionally not part of this build — status only.
 function MessagingLine() {
   const [state, setState] = useState(null);
-  const [token, setToken] = useState(null);
-  const [busy, setBusy] = useState(false);
-  const load = () => api.get('/bridge').then(setState).catch(() => setState({ bridges: [], unavailable: true }));
-  useEffect(() => { load(); }, []);
-  const pair = async () => {
-    setBusy(true);
-    try {
-      const r = await api.post('/bridge', { name: 'Mac Bridge' });
-      setToken(r.token);
-      load();
-    } catch (e) { toast.error(e.message); } finally { setBusy(false); }
-  };
-  const revoke = async (b) => {
-    if (!(await confirm({ title: 'Unpair this Mac?', message: 'iMessage sending stops until you pair again.', confirmLabel: 'Unpair', destructive: true }))) return;
-    try { await api.del(`/bridge/${b.id}`); load(); } catch (e) { toast.error(e.message); }
-  };
-  const bridges = state?.bridges || [];
+  useEffect(() => { api.get('/bridge').then(setState).catch(() => setState({ provider: 'demo' })); }, []);
   const provider = state?.provider || 'demo';
+  const sub = !state ? 'Checking…'
+    : state.twilio ? 'Twilio connected — texts and calls go out from your business line'
+      : provider === 'demo' ? 'Demo mode — messages are simulated' : 'Not configured';
   return (
-    <>
-      <Group>
-        <Row
-          icon="message" iconColor="var(--imsg)"
-          title="iMessage bridge"
-          sub={bridges.length ? bridges.map((b) => `${b.name} · ${b.status === 'online' ? 'Online' : 'Offline'}`).join(', ') : 'Pair a Mac to send blue texts from your number'}
-          right={bridges.length ? null : <Button size="sm" onClick={pair} loading={busy}>Pair</Button>}
-        />
-        {bridges.map((b) => (
-          <Row key={b.id} title={b.name} sub={b.lastSeenAt ? `Last seen ${formatDate(b.lastSeenAt, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}` : 'Never connected'}
-            right={<Button variant="ghost" size="sm" onClick={() => revoke(b)}>Unpair</Button>} />
-        ))}
-        <Row icon="phone" iconColor="var(--sms)" iconBg="rgba(52,209,91,0.14)" title="SMS & calling"
-          sub={state?.twilio ? 'Twilio connected' : provider === 'demo' ? 'Demo mode — messages are simulated' : 'Not configured'} style={{ borderBottom: 0 }} />
-      </Group>
-      <Sheet open={!!token} onClose={() => setToken(null)} title="Pair your Mac" left={false} right={{ label: 'Done', onClick: () => setToken(null) }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14, color: 'var(--dim)', lineHeight: 1.5 }}>
-          <div>Open the bridge app on the Mac signed into your iMessage account, set the server to this app’s address, and paste this token. It’s shown once.</div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--text)', padding: 14, borderRadius: 12, background: 'var(--surfaceHi)', border: '1px solid var(--lineHi)', wordBreak: 'break-all' }}>{token}</div>
-          <Button variant="ghost" icon="copy" onClick={() => { try { navigator.clipboard.writeText(token); toast.success('Copied'); } catch { /* ignore */ } }}>Copy token</Button>
-        </div>
-      </Sheet>
-    </>
+    <Group>
+      <Row icon="message" iconColor="var(--sms)" iconBg="rgba(52,209,91,0.14)" title="SMS & calling" sub={sub} style={{ borderBottom: 0 }} />
+    </Group>
   );
 }

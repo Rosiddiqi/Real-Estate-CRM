@@ -27,6 +27,9 @@ const config = {
     // Local development convenience: when on, requests without a token are
     // treated as the seeded demo user. NEVER enable in production.
     devBypass: bool(env.DEV_AUTH_BYPASS, false),
+    // One-tap demo login (seeded demo agent). Turn off once real clients and a
+    // real messaging line are connected.
+    demoLogin: bool(env.DEMO_LOGIN_ENABLED, true),
   },
 
   ai: {
@@ -57,6 +60,21 @@ const config = {
   webDist: env.WEB_DIST || path.resolve(__dirname, '..', '..', 'web', 'dist'),
   timezone: env.APP_TIMEZONE || 'America/New_York',
   enableCrons: bool(env.ENABLE_CRONS, true),
+};
+
+// Refuse to run a public server with forgeable tokens or the auth bypass on.
+config.assertProductionSafe = function assertProductionSafe() {
+  if (!config.isProd || bool(env.ALLOW_INSECURE_SECRETS, false)) return;
+  const weak = (v) => !v || v.length < 24 || /change-me|dev-only/i.test(v);
+  const problems = [];
+  if (weak(config.auth.jwtSecret)) problems.push('JWT_SECRET is missing, short or a placeholder');
+  if (weak(config.auth.refreshSecret)) problems.push('REFRESH_SECRET is missing, short or a placeholder');
+  if (config.auth.devBypass) problems.push('DEV_AUTH_BYPASS is on');
+  if (problems.length) {
+    console.error(`[config] Refusing to start in production:\n  - ${problems.join('\n  - ')}\n` +
+      'Generate secrets with: openssl rand -hex 32   (or set ALLOW_INSECURE_SECRETS=1 for a throwaway test box)');
+    process.exit(1);
+  }
 };
 
 module.exports = config;

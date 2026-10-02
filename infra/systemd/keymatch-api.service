@@ -1,0 +1,30 @@
+# KeyMatch API as a systemd *user* service (same pattern as RevMatch).
+#
+#   mkdir -p ~/.config/systemd/user
+#   cp infra/systemd/keymatch-api.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now keymatch-api
+#   sudo loginctl enable-linger $USER      # keep it running after logout / across reboots
+#   journalctl --user -u keymatch-api -f   # logs
+#
+# Assumes the repo is cloned at ~/Real-Estate-CRM and server/.env exists
+# (NODE_ENV=production, PORT=3400, DATABASE_URL, JWT_SECRET, REFRESH_SECRET, ...).
+
+[Unit]
+Description=KeyMatch API (Express + WebSocket + background jobs)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Real-Estate-CRM/server
+EnvironmentFile=%h/Real-Estate-CRM/server/.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/env node src/index.js
+Restart=always
+RestartSec=3
+# Give in-flight requests and the WS hub a moment to wind down on restart.
+TimeoutStopSec=15
+
+[Install]
+WantedBy=default.target

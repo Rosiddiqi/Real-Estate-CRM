@@ -130,7 +130,7 @@ function isDetachedOrLand(l) {
 function amenityTrust(l) {
   if (l.hasFeatureSheet || l.isOwnListing) return 'authoritative';
   const o = V.lc(l.origin);
-  if (o === 'feed' || o === 'own' || o === 'csv' || o === 'mls' || o === 'portfolio') return 'authoritative';
+  if (o === 'feed' || o === 'own' || o === 'csv' || o === 'mls') return 'authoritative';
   if (o === 'whisper') return 'hearsay';
   return 'trusted';
 }

@@ -77,7 +77,11 @@ function createApp() {
 
   const routeStatus = {};
   app.get('/api/health', (req, res) => {
-    res.json({ ok: true, brand: config.brand.name, time: new Date().toISOString(), ws: hub.stats(), routes: routeStatus });
+    // Public: production hides route error detail.
+    const routes = config.isProd
+      ? Object.fromEntries(Object.entries(routeStatus).map(([k, v]) => [k, v === 'ok' ? 'ok' : 'down']))
+      : routeStatus;
+    res.json({ ok: true, brand: config.brand.name, demoLogin: config.auth.demoLogin, time: new Date().toISOString(), ws: hub.stats(), routes });
   });
 
   fs.mkdirSync(config.uploadsDir, { recursive: true });
@@ -110,6 +114,7 @@ function createApp() {
 }
 
 function start() {
+  config.assertProductionSafe();
   const app = createApp();
   const server = http.createServer(app);
   hub.attach(server);

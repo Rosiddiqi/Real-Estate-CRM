@@ -5,8 +5,24 @@
 //   requests) via the httpOnly refresh cookie — or the stored refresh token on
 //   native shells — then retries the original request.
 // - A failed refresh emits `auth:logout` (useAuth listens and shows Login).
-const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 const AT_KEY = 'km_at';
+const BASE_KEY = 'km_api_base';
+
+// API origin. Same-origin ('') for the web/PWA; native (TestFlight) builds bake
+// VITE_API_URL, and a tester can override it at runtime (stored in km_api_base).
+export function getApiBase() {
+  let override = null;
+  try { override = localStorage.getItem(BASE_KEY); } catch { /* ignore */ }
+  return (override || import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+}
+export function setApiBase(url) {
+  let v = String(url || '').trim().replace(/\/+$/, '');
+  if (v && !/^https?:\/\//i.test(v)) v = `https://${v}`; // bare host → https
+  try {
+    if (v) localStorage.setItem(BASE_KEY, v);
+    else localStorage.removeItem(BASE_KEY);
+  } catch { /* ignore */ }
+}
 const RT_KEY = 'km_rt';
 
 let accessToken = safeGet(AT_KEY);
@@ -54,7 +70,7 @@ export async function refreshSession() {
   if (refreshPromise) return refreshPromise;
   refreshPromise = (async () => {
     try {
-      const res = await fetch(`${BASE}/api/auth/refresh`, {
+      const res = await fetch(`${getApiBase()}/api/auth/refresh`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -72,7 +88,7 @@ export async function refreshSession() {
 }
 
 function buildUrl(path, params) {
-  const url = path.startsWith('http') ? path : `${BASE}/api${path.startsWith('/') ? path : `/${path}`}`;
+  const url = path.startsWith('http') ? path : `${getApiBase()}/api${path.startsWith('/') ? path : `/${path}`}`;
   if (!params) return url;
   const qs = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
@@ -136,7 +152,7 @@ export const api = {
 export function mediaUrl(u) {
   if (!u) return u;
   if (/^(https?:|data:|blob:)/.test(u)) return u;
-  return `${BASE}${u.startsWith('/') ? '' : '/'}${u}`;
+  return `${getApiBase()}${u.startsWith('/') ? '' : '/'}${u}`;
 }
 
 export default api;
