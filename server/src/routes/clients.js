@@ -290,6 +290,7 @@ function serializeLinks(client) {
 }
 
 async function loadDetail(workspaceId, id) {
+  if (!workspaceId || !id) throw new HttpError(404, 'Client not found');
   const tz = await S.workspaceTz(workspaceId);
   const linkSel = { select: { ...S.MINI_SELECT, archivedAt: true } };
   const c = await prisma.client.findFirst({

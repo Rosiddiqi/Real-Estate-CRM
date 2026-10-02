@@ -202,7 +202,13 @@ function buildAppointments(S, appts) {
   });
   return placeFlex(S, timed).map(({ d, start: startAt, end: endAt }, i) => {
     const L = d.listing ? S.listingRow[d.listing] : null;
-    const status = d.status || (endAt < ctx.now ? 'completed' : (startAt - ctx.now < 2 * DAY ? 'confirmed' : 'scheduled'));
+    // Status is always derived against the seed's "now": nothing that hasn't
+    // ended yet may carry a final status, an outcome or a follow-up stamp.
+    const ended = endAt <= ctx.now;
+    const status = ended
+      ? (['completed', 'no_show', 'cancelled'].includes(d.status) ? d.status : 'completed')
+      : (startAt <= ctx.now || startAt - ctx.now < 2 * DAY ? 'confirmed' : 'scheduled');
+    if (!ended) { d.outcome = null; }
     const created = new Date(Math.min(startAt.getTime() - (3 + (i % 5)) * DAY, ctx.now.getTime() - (2 + (i % 7)) * 3600e3));
     return clean({
       id: uid(`appt:${i}`), workspaceId: WS, userId: USER, clientId: d.client ? S.clientId[d.client] : null, dealId: d.deal ? S.dealId[d.deal] : null, listingId: L ? L.id : null,
@@ -210,7 +216,7 @@ function buildAppointments(S, appts) {
       source: d.source || (d.briefing ? 'serena' : 'user'), attendees: d.attendees, reminders: [{ minutesBefore: d.type === 'closing' ? 1440 : 60 }],
       reminderSentAt: startAt < ctx.now ? new Date(startAt.getTime() - 3600e3) : null,
       briefing: d.briefing, briefingAt: d.briefing ? new Date(Math.min(startAt.getTime() - 3600e3, ctx.now.getTime() - 10 * 60000)) : null,
-      outcome: d.outcome, followUpLoggedAt: d.outcome && endAt < ctx.startOfToday ? new Date(endAt.getTime() + 40 * 60000) : null,
+      outcome: ended ? d.outcome : null, followUpLoggedAt: ended && d.outcome ? new Date(Math.min(endAt.getTime() + 40 * 60000, ctx.now.getTime() - 60000)) : null,
       imageUrl: L ? L.heroPhoto : null, createdAt: created,
     });
   });
