@@ -50,7 +50,7 @@ module.exports = function restClients(ctx) {
       key: 'beatriz', firstName: 'Beatriz', lastName: 'Alvarez', phone: '305-555-0177', email: 'beatriz.alvarez@alvarezarq.es', company: 'Alvarez Arquitectura', jobTitle: 'Architect',
       type: 'seller', status: 'active', rating: 4, leadSource: 'Referral', referredBy: 'theo', tags: ['listing', 'coconut-grove', 'under-contract'],
       street: '3417 Mangrove Point Road', neighborhood: 'Coconut Grove', birthday: bd(260, 1979),
-      personal: { spouse: { name: 'Tomás', note: 'Transferring to Madrid in January' }, kids: [{ name: 'Inés', age: 10 }], hobbies: ['Sailing dinghies at the Grove'] },
+      personal: { spouse: { name: 'Tomás', note: 'Transferring to Madrid in January' }, hobbies: ['Sailing dinghies at the Grove'] },
       timeline: '30d', since: 96,
     }),
     P({
@@ -69,7 +69,7 @@ module.exports = function restClients(ctx) {
     P({
       key: 'ava', firstName: 'Ava', lastName: 'Sinclair', phone: '212-555-0183', email: 'ava@sinclairpartners.com', company: 'Sinclair Partners', jobTitle: 'Managing partner',
       type: 'buyer', status: 'active', rating: 4, leadSource: 'Developer', referredBy: 'lorenzo', tags: ['pre-construction', 'casa-palmera', 'penthouse'],
-      city: 'New York', state: 'NY', birthday: bd(214, 1980), personal: { hobbies: ['Long-distance running', 'Sailing'], kids: [{ name: 'Theodora', age: 7 }] },
+      city: 'New York', state: 'NY', birthday: bd(214, 1980), personal: { hobbies: ['Long-distance running', 'Sailing'], },
       financing: 'cash_pof', timeline: '12mo', purchasePower: 13000000, since: 61,
     }),
     P({
@@ -91,7 +91,7 @@ module.exports = function restClients(ctx) {
     S({
       key: 'malik', firstName: 'Malik', lastName: 'Adeyemi', phone: '954-555-0116', email: 'malik@adeyemilogistics.com', company: 'Adeyemi Logistics', jobTitle: 'Founder',
       type: 'buyer', status: 'active', rating: 4, leadSource: 'Open house', tags: ['las-olas', 'deep-water', 'boater', 'sportfish'], city: 'Weston', state: 'FL', zip: '33327', birthday: bd(51, 1979),
-      personal: { spouse: { name: 'Kemi' }, kids: [{ name: 'Tobi', age: 14 }, { name: 'Ada', age: 11 }], boats: [{ name: 'Reel Patience', lengthFt: 62, kind: 'sportfish', note: 'Needs 8 ft at low tide, no fixed bridges to the inlet' }], hobbies: ['Offshore tournaments'] },
+      personal: { spouse: { name: 'Kemi' }, boats: [{ name: 'Reel Patience', lengthFt: 62, kind: 'sportfish', note: 'Needs 8 ft at low tide, no fixed bridges to the inlet' }], hobbies: ['Offshore tournaments'] },
       financing: 'preapproved', preApprovalAmount: 4200000, lenderName: 'Coastal Federal Jumbo Lending', timeline: '6mo', purchasePower: 7000000, since: 57,
       aiSummary: 'Weston owner who wants deep water off Las Olas for his 62-ft sportfish — no fixed bridges, 8 ft at low tide, 80+ ft of dock. Pre-approved for $4.2M; would sell Weston after buying. Asked yesterday for the dock-depth survey on the Las Olas Isles listing.',
     }),
@@ -112,8 +112,8 @@ module.exports = function restClients(ctx) {
     }),
     S({
       key: 'jamal', firstName: 'Jamal', lastName: 'Henderson', phone: '786-555-0165', email: 'jhenderson@hendersonortho.com', company: 'Henderson Orthodontics', jobTitle: 'Orthodontist',
-      type: 'buyer', status: 'lead', rating: 2, leadSource: 'Zillow', tags: ['pinecrest', 'pool', 'family'], city: 'Kendall', state: 'FL', birthday: bd(199, 1985),
-      personal: { kids: [{ name: 'Zoe', age: 6 }, { name: 'Miles', age: 3 }] }, financing: 'prequalified', preApprovalAmount: 3500000, timeline: '6mo', purchasePower: 4500000, since: 26,
+      type: 'buyer', status: 'lead', rating: 2, leadSource: 'Zillow', tags: ['pinecrest', 'pool'], city: 'Kendall', state: 'FL', birthday: bd(199, 1985),
+      personal: { }, financing: 'prequalified', preApprovalAmount: 3500000, timeline: '6mo', purchasePower: 4500000, since: 26,
     }),
     P({
       key: 'noah', firstName: 'Noah', lastName: 'Brandt', phone: '917-555-0179', email: 'nbrandt@brandtlitigation.com', company: 'Brandt Litigation', jobTitle: 'Partner',
@@ -136,7 +136,7 @@ module.exports = function restClients(ctx) {
 
     // ── Past clients (deal history lives in deals.js)
     P({ key: 'adrian', firstName: 'Adrian', lastName: 'Kessler', phone: '917-555-0144', email: 'adrian@kesslerfamilytrust.com', company: 'Kessler Family Trust', jobTitle: 'Trustee', type: 'seller', status: 'past_client', rating: 4, leadSource: 'Website', tags: ['past-client', 'surfside', 'just-sold'], city: 'New York', state: 'NY', birthday: bd(267, 1964), personal: { spouse: { name: 'Naomi' }, hobbies: ['Opera', 'Squash'] }, since: 140 }),
-    P({ key: 'sebastian', firstName: 'Sebastian', lastName: 'Duarte', phone: '305-555-0115', email: 'sebastian@duartestudio.com', company: 'Duarte Studio', jobTitle: 'Film producer', type: 'buyer', status: 'past_client', rating: 5, leadSource: 'Instagram', tags: ['past-client', 'coral-gables', 'just-closed'], street: '1215 Alhambra Vista Court', neighborhood: 'Coral Gables', birthday: bd(178, 1984), personal: { spouse: { name: 'Ana' }, kids: [{ name: 'Lucas', age: 2 }], pets: ['Taco — dachshund'], hobbies: ['Vinyl', 'Grilling'], notes: ['Housewarming Saturday'] }, since: 120 }),
+    P({ key: 'sebastian', firstName: 'Sebastian', lastName: 'Duarte', phone: '305-555-0115', email: 'sebastian@duartestudio.com', company: 'Duarte Studio', jobTitle: 'Film producer', type: 'buyer', status: 'past_client', rating: 5, leadSource: 'Instagram', tags: ['past-client', 'coral-gables', 'just-closed'], street: '1215 Alhambra Vista Court', neighborhood: 'Coral Gables', birthday: bd(178, 1984), personal: { spouse: { name: 'Ana' }, pets: ['Taco — dachshund'], hobbies: ['Vinyl', 'Grilling'], notes: ['Housewarming Saturday'] }, since: 120 }),
     P({ key: 'meredith', firstName: 'Meredith', lastName: 'Vance', phone: '617-555-0129', email: 'meredith@vancefoundation.org', company: 'Vance Foundation', jobTitle: 'Executive director', type: 'buyer', status: 'past_client', rating: 4, leadSource: 'Website', tags: ['past-client', 'bal-harbour', 'the-aria', 'just-closed'], street: '10 Harbour Crest Way', unit: '905', neighborhood: 'Bal Harbour', birthday: bd(352, 1958), personal: { hobbies: ['Bridge', 'Watercolor'], notes: ['Boston → full-time Florida'] }, since: 210 }),
     P({ key: 'henrik', firstName: 'Henrik', lastName: 'Larsen', phone: '305-555-0191', email: 'henrik@larsenmarine.dk', company: 'Larsen Marine', jobTitle: 'CEO', type: 'buyer', status: 'past_client', rating: 5, leadSource: 'Sphere', tags: ['past-client', 'key-biscayne', 'referrer'], neighborhood: 'Key Biscayne', birthday: bd(13, 1970), personal: { spouse: { name: 'Freja' }, hobbies: ['Sailing', 'Aquavit'] }, lastTouch: 33, since: 400 }),
     P({ key: 'olivia', firstName: 'Olivia', lastName: 'Marlow', phone: '305-555-0136', email: 'olivia@marlowpr.com', company: 'Marlow PR', jobTitle: 'Founder', type: 'seller', status: 'past_client', rating: 4, leadSource: 'Website', tags: ['past-client', 'brickell'], city: 'Austin', state: 'TX', birthday: bd(90, 1981), lastTouch: 120, since: 330 }),
@@ -146,8 +146,8 @@ module.exports = function restClients(ctx) {
     S({ key: 'preston', firstName: 'Preston', lastName: 'Hale', phone: '561-555-0172', email: 'preston@halemotors.com', company: 'Hale Motor Group', jobTitle: 'Owner', type: 'seller', status: 'past_client', rating: 3, leadSource: 'Website', tags: ['past-client', 'palm-beach'], city: 'Jupiter', state: 'FL', birthday: bd(282, 1965), since: 300 }),
     P({ key: 'grace', firstName: 'Grace', lastName: 'Whitmore', phone: '954-555-0125', email: 'grace@whitmorevet.com', company: 'Whitmore Veterinary', jobTitle: 'Veterinarian', type: 'buyer', status: 'past_client', rating: 4, leadSource: 'Instagram', tags: ['past-client', 'las-olas'], neighborhood: 'Las Olas', birthday: bd(115, 1983), personal: { pets: ['Three rescue greyhounds'] }, lastTouch: 40, since: 190 }),
     P({ key: 'kenji', firstName: 'Kenji', lastName: 'Watanabe', phone: '310-555-0163', email: 'kenji@watanabe.design', company: 'Lumina Cloud', jobTitle: 'Head of Design', type: 'buyer', status: 'past_client', rating: 5, leadSource: 'Referral', referredBy: 'henrik', tags: ['past-client', 'brickell', 'referrer', 'move-up'], neighborhood: 'Brickell', birthday: bd(160, 1989), personal: { hobbies: ['Film photography', 'Omakase'], notes: ['Dreams of Sunset Islands in 3–4 years'] }, since: 150 }),
-    P({ key: 'celeste', firstName: 'Celeste', lastName: 'Moreno', phone: '561-555-0157', email: 'celeste@morenodesign.co', type: 'buyer', status: 'past_client', rating: 4, leadSource: 'Zillow', tags: ['past-client', 'boca-raton', 'anniversary'], neighborhood: 'Boca Raton', birthday: bd(222, 1977), personal: { spouse: { name: 'Raúl' }, kids: [{ name: 'Mía', age: 13 }] }, lastTouch: 160, since: 470 }),
-    P({ key: 'joel', firstName: 'Joel', lastName: 'Ackerly', phone: '305-555-0185', email: 'joel@ackerlyortho.com', company: 'Ackerly Orthopedics', jobTitle: 'Surgeon', type: 'buyer', status: 'past_client', rating: 3, leadSource: 'Website', tags: ['past-client', 'pinecrest', 'anniversary'], neighborhood: 'Pinecrest', birthday: bd(71, 1979), personal: { spouse: { name: 'Hannah' }, kids: [{ name: 'Eli', age: 8 }, { name: 'Noa', age: 5 }] }, lastTouch: 210, since: 450 }),
+    P({ key: 'celeste', firstName: 'Celeste', lastName: 'Moreno', phone: '561-555-0157', email: 'celeste@morenodesign.co', type: 'buyer', status: 'past_client', rating: 4, leadSource: 'Zillow', tags: ['past-client', 'boca-raton', 'anniversary'], neighborhood: 'Boca Raton', birthday: bd(222, 1977), personal: { spouse: { name: 'Raúl' }, }, lastTouch: 160, since: 470 }),
+    P({ key: 'joel', firstName: 'Joel', lastName: 'Ackerly', phone: '305-555-0185', email: 'joel@ackerlyortho.com', company: 'Ackerly Orthopedics', jobTitle: 'Surgeon', type: 'buyer', status: 'past_client', rating: 3, leadSource: 'Website', tags: ['past-client', 'pinecrest', 'anniversary'], neighborhood: 'Pinecrest', birthday: bd(71, 1979), personal: { spouse: { name: 'Hannah' }, }, lastTouch: 210, since: 450 }),
     P({ key: 'dmitri', firstName: 'Dmitri', lastName: 'Volkov', phone: '305-555-0196', email: 'dmitri@volkovinvest.com', type: 'investor', status: 'past_client', rating: 3, leadSource: 'Zillow', tags: ['past-client', 'sunny-isles', 'investor'], birthday: bd(125, 1974), lastTouch: 300, since: 640 }),
     P({ key: 'frederick', firstName: 'Frederick', lastName: 'Ashby', phone: '305-555-0147', email: 'fred@ashbylaw.com', company: 'Ashby & Lane', jobTitle: 'Attorney (retired)', type: 'seller', status: 'past_client', rating: 3, leadSource: 'Sign call', tags: ['past-client', 'coral-gables'], city: 'Naples', state: 'FL', birthday: bd(343, 1950), since: 560 }),
     P({ key: 'sterling', firstName: 'Sterling', lastName: 'Hayes', phone: '305-555-0110', email: 'sterling@hayesbridge.com', company: 'Hayesbridge Capital', jobTitle: 'Managing partner', type: 'investor', status: 'past_client', rating: 5, isWhale: true, leadSource: 'Sphere', tags: ['past-client', 'whale', 'fisher-island', 'indian-creek', 'referrer'], neighborhood: 'Indian Creek', birthday: bd(12), personal: { spouse: { name: 'Celine' }, hobbies: ['Big-game fishing', 'Wine auctions'], wine: 'Old Barolo', boats: [{ name: 'Quiet Money', lengthFt: 110, kind: 'expedition yacht' }] }, financing: 'cash_pof', purchasePower: 60000000, lastTouch: 41, since: 1200 }),

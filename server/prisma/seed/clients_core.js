@@ -11,11 +11,10 @@ module.exports = function coreClients(ctx) {
       key: 'julien', firstName: 'Julien', lastName: 'Delacroix', phone: '305-555-0142', email: 'julien@delacroixmaritime.com',
       company: 'Delacroix Maritime Logistics', jobTitle: 'Founder & CEO',
       type: 'buyer', status: 'active', rating: 5, isWhale: true, leadSource: 'Referral', referredBy: 'marcus',
-      tags: ['waterfront', 'boater', 'relocation', 'schools', 'under-contract'],
+      tags: ['waterfront', 'boater', 'relocation', 'under-contract'],
       street: '2900 Bayshore Villas Court', unit: '4', neighborhood: 'Coconut Grove', birthday: bd(118, 1980),
       personal: {
         spouse: { name: 'Camille', birthday: ctx.mmdd(201) },
-        kids: [{ name: 'Léa', age: 11, school: 'Biscayne Prep' }, { name: 'Marius', age: 8, school: 'Biscayne Prep' }],
         pets: ['Otis — Bernese mountain dog'],
         hobbies: ['Offshore sailing', 'Saturday rides over the Rickenbacker', 'Cooking for friends'],
         clubs: ['Grove Harbour Yacht Club'],
@@ -40,10 +39,9 @@ module.exports = function coreClients(ctx) {
       key: 'camille', firstName: 'Camille', lastName: 'Delacroix', phone: '305-555-0143', email: 'camille@camilledelacroix.studio',
       company: 'Camille Delacroix Studio', jobTitle: 'Photographer',
       type: 'buyer', status: 'active', rating: 5, leadSource: 'Referral', referredBy: 'marcus',
-      tags: ['waterfront', 'schools', 'under-contract'], neighborhood: 'Coconut Grove', birthday: bd(201),
+      tags: ['waterfront', 'under-contract'], neighborhood: 'Coconut Grove', birthday: bd(201),
       personal: {
         spouse: { name: 'Julien' },
-        kids: [{ name: 'Léa', age: 11, school: 'Biscayne Prep' }, { name: 'Marius', age: 8, school: 'Biscayne Prep' }],
         hobbies: ['Large-format photography', 'Morning swims at Matheson Hammock', 'Farmers market Saturdays'],
         favoriteRestaurants: ['Le Petit Quai'], coffee: 'Cortado, oat milk',
       },
@@ -58,7 +56,6 @@ module.exports = function coreClients(ctx) {
       tags: ['whale', 'oceanfront', 'relocation', 'cash', 'privacy'],
       city: 'New York', state: 'NY', zip: '10013', birthday: bd(156, 1974),
       personal: {
-        kids: [{ name: 'Henry', age: 19, school: 'University (sophomore)' }, { name: 'Clementine', age: 16, school: 'Wexford School, Connecticut' }],
         pets: ['Pip & Juno — whippets'],
         hobbies: ['Open-water swimming', 'Reformer pilates at 6am', 'Mid-century Italian design'],
         favoriteRestaurants: ['Osteria Vela (Bal Harbour)', 'Casa Lumen'],
@@ -88,7 +85,6 @@ module.exports = function coreClients(ctx) {
       street: '128 Sunset Drive', neighborhood: 'Sunset Islands', birthday: bd(87, 1968),
       personal: {
         spouse: { name: 'Sloane' },
-        kids: [{ name: 'Oliver', age: 20, school: 'College junior' }, { name: 'Hazel', age: 20, school: 'College junior' }],
         pets: ['Biscuit — golden retriever'],
         hobbies: ['Tennis (4.0, plays doubles Tuesdays)', 'Inshore fishing'],
         boats: [{ name: 'Second Wind', lengthFt: 39, kind: 'center console' }],
@@ -119,8 +115,6 @@ module.exports = function coreClients(ctx) {
       street: '11 Coral Isle Way', neighborhood: 'Gables Estates', birthday: bd(301, 1959),
       personal: {
         spouse: { name: 'Margaret', note: 'Chairs the gala committee at Bayview Heart Institute' },
-        kids: [{ name: 'Catherine', age: 38 }, { name: 'Peter', age: 35 }, { name: 'Josh', age: 31 }],
-        grandkids: 5,
         hobbies: ['Golf with Harold Brennan', 'Summers in Highlands, NC'],
         clubs: ['Coral Bay Golf Club'],
         boats: [{ name: 'Margaret Rose', lengthFt: 64, kind: 'sportfish', note: 'Selling with the house' }],
@@ -146,7 +140,6 @@ module.exports = function coreClients(ctx) {
       street: '260 Harbor Palm Lane', neighborhood: 'Key Biscayne', birthday: bd(6, 1955),
       personal: {
         spouse: { name: 'June', note: 'Knee replacement in August — stairs are the issue' },
-        kids: [{ name: 'Kevin', age: 44 }, { name: 'Allison', age: 41 }], grandkids: 4,
         hobbies: ['Golf (Coral Bay, with Charles Lowell)', 'Small-batch bourbon', 'Summers in Highlands, NC'],
         clubs: ['Coral Bay Golf Club'], favoriteRestaurants: ['Rusty Anchor Grill (Key Biscayne)'],
         wine: 'Bourbon over wine — loves a wheated bourbon',
@@ -163,11 +156,10 @@ module.exports = function coreClients(ctx) {
       key: 'priya', firstName: 'Priya', lastName: 'Raman', phone: '415-555-0138', email: 'priya@ledgerline.io',
       company: 'Ledgerline', jobTitle: 'Co-founder & CEO',
       type: 'buyer', status: 'active', rating: 4, leadSource: 'Referral', referredBy: 'maya',
-      tags: ['relocation', 'schools', 'tech', 'coconut-grove', 'coral-gables'],
+      tags: ['relocation', 'tech', 'coconut-grove', 'coral-gables'],
       city: 'San Francisco', state: 'CA', zip: '94123', birthday: bd(173, 1987),
       personal: {
         spouse: { name: 'Dev', note: 'ML researcher, works remote; wants a real office with a door' },
-        kids: [{ name: 'Anaya', age: 9 }, { name: 'Rohan', age: 6 }],
         pets: ['Mochi — Ragdoll cat'],
         hobbies: ['Triathlon (training for Escape the Cape)', 'Tennis', 'Vegetarian cooking'],
         schools: ['Biscayne Prep (applied)', 'Gables Montessori Academy'],
@@ -175,7 +167,7 @@ module.exports = function coreClients(ctx) {
       preferredChannel: 'imessage', deviceMode: 'imessage',
       financing: 'preapproved', preApprovalAmount: 5200000, preApprovalExpires: exp(75), lenderName: 'Meridian Coast Private Bank',
       timeline: '90d', motivation: 'Moving the company’s HQ to Miami; wants the kids enrolled by January.', purchasePower: 7500000, since: 19,
-      aiSummary: 'Relocating Ledgerline from San Francisco with husband Dev and two kids (9 and 6). Pre-approved for $5.2M with SF sale proceeds behind it; schools drive the search — Coconut Grove or the Gables, walkable, with a real office for Dev. Buyer consult today at 9:30.',
+      aiSummary: 'Relocating Ledgerline from San Francisco with husband Dev. Pre-approved for $5.2M with SF sale proceeds behind it; schools drive the search — Coconut Grove or the Gables, walkable, with a real office for Dev. Buyer consult today at 9:30.',
       aiFacts: { mustHaves: ['Top school zone', 'Home office x2', 'Pool with fence', 'Walkable'], touchPoints: ['Training for a triathlon', 'Vegetarian'] },
     },
 
@@ -184,11 +176,10 @@ module.exports = function coreClients(ctx) {
       key: 'ethan', firstName: 'Ethan', lastName: 'Cole', phone: '786-555-0187', email: 'ethan@banyanspirits.com',
       company: 'Banyan Spirits', jobTitle: 'Co-founder',
       type: 'buyer', status: 'active', rating: 4, leadSource: 'Zillow',
-      tags: ['family', 'pool', 'pinecrest', 'under-contract'],
+      tags: ['pool', 'pinecrest', 'under-contract'],
       street: '7420 Sunrise Hammock Lane', city: 'South Miami', state: 'FL', zip: '33143', birthday: bd(212, 1982),
       personal: {
         spouse: { name: 'Mara' },
-        kids: [{ name: 'Jack', age: 12, school: 'Pinecrest Day' }, { name: 'Sadie', age: 9, school: 'Pinecrest Day' }, { name: 'Wren', age: 4 }],
         pets: ['Pepper — labradoodle'],
         hobbies: ['Smoking brisket', 'Youth baseball coach', 'Bourbon (makes it)'],
       },
@@ -200,7 +191,7 @@ module.exports = function coreClients(ctx) {
     {
       key: 'mara', firstName: 'Mara', lastName: 'Cole', phone: '786-555-0188', email: 'dr.mara@colepediatricdental.com',
       company: 'Cole Pediatric Dental', jobTitle: 'Pediatric dentist',
-      type: 'buyer', status: 'active', rating: 4, leadSource: 'Zillow', tags: ['family', 'pinecrest'], birthday: bd(3, 1984),
+      type: 'buyer', status: 'active', rating: 4, leadSource: 'Zillow', tags: ['pinecrest'], birthday: bd(3, 1984),
       personal: { spouse: { name: 'Ethan' }, hobbies: ['Peloton', 'Book club (first Thursday)'], favoriteRestaurants: ['Trattoria Sole'] },
       preferredChannel: 'imessage', deviceMode: 'imessage', since: 380,
     },
@@ -214,7 +205,6 @@ module.exports = function coreClients(ctx) {
       street: '1520 Alcazar Vista Way', neighborhood: 'Coral Gables', birthday: bd(64, 1977),
       personal: {
         spouse: { name: 'Lucía' },
-        kids: [{ name: 'Mateo', age: 15, school: 'Saint Aurelia Academy' }, { name: 'Valentina', age: 12, school: 'Saint Aurelia Academy' }],
         hobbies: ['Polo (Wellington in season)', 'Cigars', 'Salsa'],
         favoriteRestaurants: ['Brasa Norte'], languages: ['Spanish', 'English'],
       },
@@ -231,7 +221,6 @@ module.exports = function coreClients(ctx) {
       tags: ['international', 'cash', 'fisher-island', 'whale'],
       city: 'London', state: null, birthday: bd(229, 1985),
       personal: {
-        kids: [{ name: 'Timur', age: 7 }],
         hobbies: ['Tennis', 'Sound baths', 'Yacht charters in the Grenadines'],
         assistant: { name: 'Lukas Brenner', role: 'Chief of staff', note: 'Handles gate lists, POF and lawyers' },
         languages: ['Russian', 'English', 'French'], wine: 'Rosé Champagne',
