@@ -5,7 +5,12 @@
 // cards for objections, and the control dock (mute · keypad · speaker · add ·
 // hold · note · end). Hanging up turns the screen into the post-call recap.
 // Minimizing keeps the call alive in the CallPill.
+//
+// Device mode (the agent's own phone places the call): no call screen — the
+// dial hands `tel:` to the system dialer and the overlay closes at once; when
+// the agent comes back, this overlay re-opens on the log screen (DeviceCallLog).
 import { useCallback, useEffect, useRef, useState } from 'react';
+import DeviceCallLog from './DeviceCallLog';
 import { createPortal } from 'react-dom';
 import Icon from '../ui/Icon';
 import Avatar from '../ui/Avatar';
@@ -41,7 +46,35 @@ function useElapsed(since, running) {
   return since ? Math.max(0, Math.floor((now - new Date(since).getTime()) / 1000)) : 0;
 }
 
-export default function ActiveCall({ clientId, phone, name, callId, onClose }) {
+export default function ActiveCall(props) {
+  const { clientId, phone, callId } = props;
+  const [kind] = useState(() => {
+    const s = callStore.getState();
+    if (callId && s.device && s.device.call && s.device.call.id === callId) return 'log';
+    if (!callId && (clientId || phone) && s.mode === 'device' && !callStore.isLive(s.call)) return 'dial';
+    return 'live';
+  });
+  if (kind === 'log') return <DeviceCallLog onClose={props.onClose} />;
+  if (kind === 'dial') return <DeviceDial {...props} />;
+  return <LiveCall {...props} />;
+}
+
+// Device mode: dial (server logs the outbound call and returns tel:), hand off
+// to the phone, close. Nothing renders — the CallPill shows "Calling… on your phone".
+function DeviceDial({ clientId, phone, name, onClose }) {
+  const started = useRef(false);
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    haptic('medium');
+    callStore.start({ clientId, phone, name })
+      .catch((err) => toast.error(err.message || 'Couldn’t place the call'))
+      .finally(() => onClose?.());
+  }, [clientId, phone, name, onClose]);
+  return null;
+}
+
+function LiveCall({ clientId, phone, name, callId, onClose }) {
   const st = useCallState();
   const depth = useOverlayDepth();
   const [leaving, setLeaving] = useState(false);
@@ -88,9 +121,11 @@ export default function ActiveCall({ clientId, phone, name, callId, onClose }) {
     }
     if (!clientId && !phone) { close(); return; }
     haptic('medium');
-    callStore.start({ clientId, phone, name }).catch((err) => { toast.error(err.message || 'Couldn’t place the call'); close(); });
+    callStore.start({ clientId, phone, name })
+      .then(() => { if (callStore.getState().device && !callStore.getState().call) onClose?.(); }) // device mode: the phone has it
+      .catch((err) => { toast.error(err.message || 'Couldn’t place the call'); close(); });
     setAttached(true);
-  }, [callId, clientId, phone, name, close]);
+  }, [callId, clientId, phone, name, close, onClose]);
 
   // Collapse the briefing once the conversation is flowing (right away on short phones).
   const autoCollapsed = useRef(false);

@@ -106,6 +106,9 @@ compose refuses to start without the secrets. Point nginx at that port.
 
 `SIMULATE_MESSAGING` and `CALL_SIMULATOR` (`demo` | `all` | `off`) default to `demo` in
 production, so only the demo account is simulated, and to `all` in development.
+Simulation takes priority over Twilio, so the demo book never texts or calls a real
+number. To try Twilio on a development machine, set `SIMULATE_MESSAGING=demo` and
+`CALL_SIMULATOR=demo`.
 
 ## 2. Apple setup (one time)
 

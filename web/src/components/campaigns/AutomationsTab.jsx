@@ -29,7 +29,7 @@ const lsGet = (k) => { try { return localStorage.getItem(k); } catch { return nu
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch { /* per-viewer convenience only */ } };
 
 // The master switch for everything automated (campaigns + automations).
-function AiSwitch() {
+function AiSwitch({ needsLine = false }) {
   const st = useLoader(() => getAiPause(), [], { poll: 60000 });
   const [busy, setBusy] = useState(false);
   if (!st.data) {
@@ -61,7 +61,8 @@ function AiSwitch() {
         <span style={{ display: 'block', fontSize: 12, color: paused ? 'var(--amber)' : 'var(--dim)', marginTop: 1, lineHeight: 1.35 }}>
           {paused
             ? `Paused${st.data.pausedAt ? ` ${relativeTime(st.data.pausedAt)}` : ''}${st.data.heldCount ? ` · ${st.data.heldCount} held` : ''}. Nothing automated goes out`
-            : 'On. Campaigns and automations send through the Sender Guard'}
+            : needsLine ? 'On, but nothing sends until a business texting line is connected'
+              : 'On. Campaigns and automations send through the Sender Guard'}
         </span>
       </span>
       <Switch checked={!paused} disabled={busy} onChange={toggle} label={paused ? 'AI texting paused' : 'AI texting on'} />
@@ -156,7 +157,7 @@ export default function AutomationsTab({ showThreads, padded = true, style }) {
     <div ref={rootRef} style={{ padding: padded ? '0 16px' : 0, ...style }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 6 }}>
         {needsLine ? <NeedsLineBanner /> : null}
-        <AiSwitch />
+        <AiSwitch needsLine={needsLine} />
         <SenderGuardCard />
       </div>
 

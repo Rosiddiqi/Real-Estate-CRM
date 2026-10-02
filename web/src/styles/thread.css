@@ -785,6 +785,12 @@ body.km-thread-open [data-serena-bubble] { opacity: 0 !important; pointer-events
   background: #15171D; border: 0.5px solid rgba(255, 255, 255, 0.1);
 }
 .km-th-device > svg { flex-shrink: 0; margin-top: 1px; color: var(--bright); }
-.km-th-device button { color: var(--bright); font-weight: 600; font-size: inherit; padding: 0; }
+.km-th-device-link { color: var(--bright); font-weight: 600; cursor: pointer; text-decoration: none; }
 .km-th-device--dock { width: 100%; margin: 0 0 8px; }
 :root[data-theme="light"] .km-th-device { background: #FFFFFF; border-color: rgba(0, 0, 0, 0.08); }
+.km-th-device > span { flex: 1; min-width: 0; }
+.km-th-device .km-th-device-x {
+  flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; margin: -1px -3px 0 2px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--faint); background: var(--lg-fill);
+}

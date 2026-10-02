@@ -21,7 +21,7 @@ import {
   pauseCampaign, resumeCampaign, stopCampaign, duplicateCampaign, deleteCampaign, updateCampaign,
   setRecipientLane, muteRecipient,
 } from '../../api/campaigns';
-import { StatusPill, LaneDot, LANE_META, MonoLabel, Eyebrow, InfoNote, NeedsLineBanner, Progress, campaignPhase, fmtWhen, fmtIn } from './kit';
+import { StatusPill, LaneDot, LANE_META, MonoLabel, Eyebrow, InfoNote, NeedsLineBanner, Progress, campaignPhase, fmtWhen, fmtIn, fmtEta } from './kit';
 import SuggestionCard from './SuggestionCard';
 import TrafficLanes, { normalizeLanes } from './TrafficLanes';
 import { useCampaign, useMessagingMode } from './useCampaignsData';
@@ -68,7 +68,7 @@ function laneSummary(steps) {
 function Tile({ label, value, color, sub }) {
   return (
     <div className="kc-tile">
-      <div className="kc-tile-num" style={{ color }}>{value}</div>
+      <div className="kc-tile-num" style={{ color, fontSize: String(value).length > 3 ? 17 : undefined }}>{value}</div>
       <div className="kc-tile-label">{label}</div>
       {sub ? <div className="kc-tile-sub">{sub}</div> : null}
     </div>
@@ -292,7 +292,7 @@ export default function CampaignDetail({ id, onClose }) {
                   <Progress value={s.sent || 0} total={s.total || 0} />
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 7 }}>
                     <MonoLabel>{s.sent || 0}/{s.total} sent · {c.pacing === 'all_now' ? 'all at once' : 'safe pace'}</MonoLabel>
-                    {phase === 'sending' && s.eta ? <MonoLabel>Done ~{fmtWhen(s.eta)}</MonoLabel> : null}
+                    {phase === 'sending' && s.eta ? <MonoLabel style={{ flexShrink: 0 }}>{fmtEta(s.eta)}</MonoLabel> : null}
                   </div>
                 </div>
               ) : null}

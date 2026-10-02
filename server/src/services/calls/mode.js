@@ -7,7 +7,7 @@
 // CALL_SIMULATOR (env) decides who gets the demo line when Twilio isn't set up:
 //   all  — every workspace            (default outside production)
 //   demo — only the demo workspace    (default in production)
-//   off  — nobody; everyone dials from their own phone
+//   off  — nobody ("none" works too); everyone dials from their own phone
 const prisma = require('../../lib/prisma');
 const config = require('../../config');
 const twilio = require('./twilio');
@@ -15,6 +15,7 @@ const twilio = require('./twilio');
 function simulatorPolicy() {
   const v = String(process.env.CALL_SIMULATOR || '').trim().toLowerCase();
   if (v === 'all' || v === 'demo' || v === 'off') return v;
+  if (v === 'none') return 'off';
   return config.isProd ? 'demo' : 'all';
 }
 

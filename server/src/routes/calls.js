@@ -2,14 +2,16 @@
 //   GET  /api/calls?filter=all|missed|voicemail|outgoing&clientId=&q=&limit=&before=  → { calls, total, counts }
 //   GET  /api/calls/suggestions        → { source, suggestions }   ("Call now" hero)
 //   GET  /api/calls/active             → { call | null }            (restore the call pill)
-//   GET  /api/calls/mode               → { mode: 'twilio' | 'simulated' }
+//   GET  /api/calls/mode               → { mode: 'twilio' | 'simulated' | 'device' }  (per workspace — services/calls/mode.js)
 //   POST /api/calls                    → log a call manually        { clientId, direction, status, durationSec, summary, outcome }
-//   POST /api/calls/dial               → { clientId?, phone? } → { call, mode }
+//   POST /api/calls/dial               → { clientId?, phone? } → { call, mode } (+ tel: E.164 in 'device' mode)
 //   GET  /api/calls/:id                → { call } (with transcript)
-//   POST /api/calls/:id/hangup | /hold {held} | /notes {t,text} | /heard | /recap
+//   POST /api/calls/:id/log            → device calls: { outcome: talked|voicemail|no_answer, durationSec?, notes? } → { call }
+//   POST /api/calls/:id/hangup         → ends a live call; device calls: same body as /log (no outcome = stays 'dialed')
+//   POST /api/calls/:id/hold {held} | /notes {t,text} | /heard | /recap
 //   POST /api/calls/:id/suggestions/:sid  { status: yes|no|edit, fields? } → { suggestion, undoToken, draft }
 //   POST /api/calls/undo               → { undoToken } (5-minute window)
-//   POST /api/calls/twilio/{bridge,status,dial-status}  (Twilio webhooks; token in query)
+// Twilio voice callbacks live in the PUBLIC router routes/callWebhooks.js.
 // Realtime: call_updated (serialized call), call_transcript ({ callId, line, cue }).
 const express = require('express');
 const { z } = require('zod');
@@ -23,7 +25,9 @@ const fx = require('../services/serena/effects');
 const { serializeCall, MISSED } = require('../services/calls/serialize');
 const sim = require('../services/calls/simulator');
 const twilio = require('../services/calls/twilio');
+const device = require('../services/calls/device');
 const recap = require('../services/calls/recap');
+const { callModeFor } = require('../services/calls/mode');
 const { callSuggestions } = require('../services/calls/callNow');
 
 const router = express.Router();
@@ -86,7 +90,7 @@ router.get('/active', ah(async (req, res) => {
 }));
 
 router.get('/mode', ah(async (req, res) => {
-  res.json({ mode: twilio.enabled() ? 'twilio' : 'simulated' });
+  res.json({ mode: await callModeFor(req.workspaceId) });
 }));
 
 const LogBody = z.object({
@@ -120,9 +124,19 @@ router.post('/dial', ah(async (req, res) => {
   const live = await prisma.phoneCall.findFirst({ where: { workspaceId: req.workspaceId, status: { in: ['ringing', 'in_progress'] }, startedAt: { gte: new Date(Date.now() - 2 * 3600e3) } }, include });
   if (live && (live.meta?.mode !== 'simulated' || !sim.isOrphan(live))) return res.json({ call: serializeCall(live, { transcript: true }), mode: live.meta?.mode || 'phone', existing: true });
   if (live) await sim.hangup(live.id, { by: 'system' }).catch(() => {});
-  if (twilio.enabled()) {
+  const mode = await callModeFor(req.workspaceId);
+  if (mode === 'twilio') {
     const call = await twilio.dial({ workspaceId: req.workspaceId, userId: req.userId, clientId, phone });
     return res.json({ call: serializeCall(call, { transcript: true }), mode: 'twilio' });
+  }
+  if (mode === 'device') {
+    // The agent's own phone places it: the app hands `tel` to the system dialer.
+    try {
+      const { call, tel } = await device.dial({ workspaceId: req.workspaceId, userId: req.userId, clientId, phone });
+      return res.json({ call: serializeCall(call, { transcript: true }), mode: 'device', tel });
+    } catch (err) {
+      throw new HttpError(err.status || 400, err.message);
+    }
   }
   const call = await sim.start({ workspaceId: req.workspaceId, userId: req.userId, clientId, phone });
   res.json({ call: serializeCall(call, { transcript: true }), mode: 'simulated' });
@@ -152,21 +166,6 @@ router.post('/undo', ah(async (req, res) => {
   }
 }));
 
-// ── Twilio webhooks (dormant without TWILIO_* env) ────────────────────────
-router.post('/twilio/bridge', ah(async (req, res) => {
-  const xml = await twilio.bridgeTwiml({ workspaceId: req.workspaceId, callId: String(req.query.callId || ''), token: String(req.query.token || '') });
-  res.type('text/xml').send(xml);
-}));
-router.post('/twilio/status', ah(async (req, res) => {
-  const call = await twilio.statusUpdate({ workspaceId: req.workspaceId, callId: String(req.query.callId || ''), body: req.body || {} });
-  if (call && call.status === 'completed' && call.answeredAt) await sim.hangup(call.id, { by: 'client', workspaceId: req.workspaceId }).catch(() => {});
-  res.type('text/xml').send('<Response/>');
-}));
-router.post('/twilio/dial-status', ah(async (req, res) => {
-  await twilio.statusUpdate({ workspaceId: req.workspaceId, callId: String(req.query.callId || ''), body: req.body || {} });
-  res.type('text/xml').send('<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>');
-}));
-
 // ── single call ──────────────────────────────────────────────────────────
 async function own(req) {
   const call = await prisma.phoneCall.findFirst({ where: { id: req.params.id, workspaceId: req.workspaceId }, include });
@@ -179,8 +178,40 @@ router.get('/:id', ah(async (req, res) => {
   res.json({ call: serializeCall(call, { transcript: true }) });
 }));
 
+// Calls placed from the agent's own phone: log the outcome (or just close it out).
+const DeviceLogBody = z.object({
+  outcome: z.enum(device.OUTCOMES).optional().nullable(),
+  durationSec: z.number().min(0).max(6 * 3600).optional().nullable(),
+  notes: z.string().max(4000).optional().nullable(),
+});
+
+async function deviceLog(req, call, { requireOutcome }) {
+  const body = parse(DeviceLogBody, req.body || {});
+  try {
+    if (!body.outcome) {
+      if (requireOutcome) throw new HttpError(400, 'Pick how the call went: talked, voicemail or no answer.');
+      return await device.closeWithoutOutcome({ workspaceId: req.workspaceId, callId: call.id, durationSec: body.durationSec });
+    }
+    return await device.logOutcome({ workspaceId: req.workspaceId, userId: req.userId, callId: call.id, outcome: body.outcome, durationSec: body.durationSec, notes: body.notes });
+  } catch (err) {
+    if (err instanceof HttpError) throw err;
+    throw new HttpError(err.status || 400, err.message);
+  }
+}
+
+router.post('/:id/log', ah(async (req, res) => {
+  const call = await own(req);
+  if (!device.isDevice(call)) throw new HttpError(400, 'Only calls placed from your phone are logged this way.');
+  const updated = await deviceLog(req, call, { requireOutcome: true });
+  res.json({ call: serializeCall(updated, { transcript: true }) });
+}));
+
 router.post('/:id/hangup', ah(async (req, res) => {
   const call = await own(req);
+  if (device.isDevice(call)) {
+    const updated = await deviceLog(req, call, { requireOutcome: false });
+    return res.json({ call: serializeCall(updated, { transcript: true }) });
+  }
   await twilio.hangupLeg(call);
   const ended = await sim.hangup(call.id, { by: 'agent', workspaceId: req.workspaceId });
   res.json({ call: serializeCall(ended, { transcript: true }) });
@@ -209,7 +240,14 @@ router.post('/:id/heard', ah(async (req, res) => {
 
 router.post('/:id/recap', ah(async (req, res) => {
   const call = await own(req);
-  if (!['completed'].includes(call.status)) throw new HttpError(400, 'The call hasn’t ended yet.');
+  if (device.isDevice(call)) {
+    // Device calls recap from the agent's notes; optional { notes } replaces them first.
+    if (!call.meta || !call.meta.outcome) throw new HttpError(400, 'Log how the call went first.');
+    if (req.body && typeof req.body.notes === 'string') {
+      const text = req.body.notes.trim().slice(0, 4000);
+      await prisma.phoneCall.update({ where: { id: call.id }, data: { meta: { ...call.meta, notes: text ? [{ t: 0, text, at: new Date().toISOString() }] : [] } } });
+    }
+  } else if (!['completed'].includes(call.status)) throw new HttpError(400, 'The call hasn’t ended yet.');
   const updated = await recap.generate(call.id);
   hub.broadcast(req.workspaceId, 'call_updated', serializeCall(updated));
   res.json({ call: serializeCall(updated, { transcript: true }) });

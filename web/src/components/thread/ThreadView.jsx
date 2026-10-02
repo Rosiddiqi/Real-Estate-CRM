@@ -84,6 +84,7 @@ export default function ThreadView({
   const [boxFull, setBoxFull] = useState(false); // composer has content → chips step aside
   const touch = useMemo(() => isTouchDevice(), []);
   const deviceMode = useMessagingMode() === 'device';
+  const [noteHidden, setNoteHidden] = useState(() => { try { return localStorage.getItem('km_device_note_hidden') === '1'; } catch { return false; } });
   useThreadBodyClass();
 
   const conv = t.conversation;
@@ -119,7 +120,7 @@ export default function ThreadView({
     if (dockRef.current) ro.observe(dockRef.current);
     measure();
     return () => ro.disconnect();
-  }, [!!headerNode, briefingOn, deviceMode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [!!headerNode, briefingOn, deviceMode, noteHidden]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── message actions ─────────────────────────────────────────────────────
   const onCopy = useCallback(async (m) => {
@@ -178,21 +179,26 @@ export default function ThreadView({
 
   const kbAware = mode === 'panel' || mode === 'embedded';
   // No business line: every text is handed to the phone's Messages app.
-  const deviceNote = deviceMode ? (
+  const openLineSettings = () => nav.openSettings('messaging');
+  const hideNote = () => { setNoteHidden(true); try { localStorage.setItem('km_device_note_hidden', '1'); } catch { /* ignore */ } };
+  const deviceNote = deviceMode && !noteHidden ? (
     <div className={`km-th-device ${headerNode ? '' : 'km-th-device--dock'}`} role="note">
       <Icon name="info" size={13} stroke={2.2} />
       {headerNode ? (
         <span>
           Texts go out from your Messages app. Replies stay on your phone —{' '}
-          <button type="button" onClick={() => nav.openSettings('messaging')}>connect a business line in Settings</button>
+          <a className="km-th-device-link" role="button" tabIndex={0} onClick={openLineSettings} onKeyDown={(e) => { if (e.key === 'Enter') openLineSettings(); }}>connect a business line in Settings</a>
           {' '}to text from KeyMatch.
         </span>
       ) : (
         <span>
           Sends from your phone’s Messages app ·{' '}
-          <button type="button" onClick={() => nav.openSettings('messaging')}>Business line</button>
+          <a className="km-th-device-link" role="button" tabIndex={0} onClick={openLineSettings} onKeyDown={(e) => { if (e.key === 'Enter') openLineSettings(); }}>Business line</a>
         </span>
       )}
+      <button type="button" className="km-th-device-x" aria-label="Got it — hide this note" onClick={hideNote}>
+        <Icon name="x" size={12} stroke={2.6} />
+      </button>
     </div>
   ) : null;
   const channel = t.defaultService === 'sms' ? 'sms' : 'imsg';

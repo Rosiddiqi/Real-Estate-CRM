@@ -562,7 +562,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
         {stage === 4 ? (
           <div>
             {needsLine ? <NeedsLineBanner style={{ marginBottom: 14 }} /> : null}
-            <Eyebrow blue icon="checkCircle">Review & launch</Eyebrow>
+            <Eyebrow blue icon="checkCircle">{needsLine ? 'Review' : 'Review & launch'}</Eyebrow>
             <SummaryCard icon="users" title={`${count} recipient${count === 1 ? '' : 's'}`} onEdit={() => hop(0)}>
               <span>{(preview && preview.summary) || 'Custom list'}{preview && preview.excluded && preview.excluded.manual ? ` · ${preview.excluded.manual} excluded` : ''}</span>
             </SummaryCard>
