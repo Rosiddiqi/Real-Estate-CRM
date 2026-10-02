@@ -167,7 +167,7 @@ module.exports = function coreClients(ctx) {
       preferredChannel: 'imessage', deviceMode: 'imessage',
       financing: 'preapproved', preApprovalAmount: 5200000, preApprovalExpires: exp(75), lenderName: 'Meridian Coast Private Bank',
       timeline: '90d', motivation: 'Moving the company’s HQ to Miami; wants the kids enrolled by January.', purchasePower: 7500000, since: 19,
-      aiSummary: 'Relocating Ledgerline from San Francisco with husband Dev. Pre-approved for $5.2M with SF sale proceeds behind it; schools drive the search — Coconut Grove or the Gables, walkable, with a real office for Dev. Buyer consult today at 9:30.',
+      aiSummary: 'Relocating Ledgerline from San Francisco with husband Dev. Pre-approved for $5.2M with SF sale proceeds behind it. Wants Coconut Grove or the Gables, walkable, with a real closed-door office for Dev. Buyer consult today at 9:30.',
       aiFacts: { mustHaves: ['Top school zone', 'Home office x2', 'Pool with fence', 'Walkable'], touchPoints: ['Training for a triathlon', 'Vegetarian'] },
     },
 
