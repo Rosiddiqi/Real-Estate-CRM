@@ -25,7 +25,7 @@ page.on('pageerror', (e) => problems.push(`pageerror: ${e.message.slice(0, 300)}
 page.on('response', (r) => { const u = r.url(); if (u.includes('/api/') && r.status() >= 400) problems.push(`HTTP ${r.status()} ${r.request().method()} ${u.replace(url, '')}`); });
 if (args.theme) await page.addInitScript((t) => { try { localStorage.setItem('km-theme', t); } catch { /* */ } }, args.theme);
 
-await page.goto(`${url}/#/home`, { waitUntil: 'domcontentloaded' });
+await page.goto(`${url}/${width >= 760 ? '?frame=0' : ''}#/home`, { waitUntil: 'domcontentloaded' });
 try { const d = page.getByText('Explore the demo book'); await d.waitFor({ timeout: 5000 }); await d.click(); } catch { /* signed in */ }
 await page.waitForSelector('.km-tabbar', { timeout: 20000 });
 

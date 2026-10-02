@@ -14,6 +14,8 @@ import { api } from '../../api/client';
 import { updateMe, updateWorkspace, uploadFiles } from '../../api/system';
 import { nav } from '../../lib/nav';
 import { ACCENTS, getStoredAccent, getStoredTheme, setAccent, setTheme } from '../../hooks/useShellEffects';
+import { setFullWidth } from '../../lib/desktopFrame';
+import { isNative } from '../../lib/native';
 import { fullName, formatPhone, formatPhoneInput, formatDate } from '../../lib/format';
 import { BRAND } from '../../brand';
 
@@ -124,6 +126,19 @@ export default function SettingsPage({ onClose }) {
               </button>
             ))}
           </div>
+          {!isNative() && (window.self !== window.top || window.innerWidth >= 760) ? (
+            <>
+              <div className="km-eyebrow" style={{ margin: '16px 2px 10px' }}>On a computer</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                {[['phone', 'iPhone view', window.self !== window.top], ['full', 'Full width', window.self === window.top]].map(([id, label, on]) => (
+                  <button key={id} type="button" onClick={() => { if (!on) setFullWidth(id === 'full'); }} className="km-press"
+                    style={{ height: 44, borderRadius: 12, border: `1px solid ${on ? 'var(--blue)' : 'var(--line)'}`, background: on ? 'var(--tint)' : 'var(--surfaceHi)', fontWeight: 600, fontSize: 14, color: on ? 'var(--bright)' : 'var(--text)' }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : null}
         </Group>
 
         <SectionHeading>Assistant</SectionHeading>

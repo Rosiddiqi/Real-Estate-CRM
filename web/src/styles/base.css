@@ -127,3 +127,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   user-select: text;
   -webkit-touch-callout: default;
 }
+
+/* Inside the desktop phone frame: no desktop scrollbars — it's a phone. */
+.km-framed .km-scroll, .km-framed .km-scroll-x { scrollbar-width: none; }
+.km-framed .km-scroll::-webkit-scrollbar, .km-framed .km-scroll-x::-webkit-scrollbar { display: none; }

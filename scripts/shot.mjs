@@ -39,7 +39,7 @@ if (args.theme) {
   await page.addInitScript((t) => { try { localStorage.setItem('km-theme', t); } catch { /* ignore */ } }, args.theme);
 }
 
-await page.goto(`${url}/${hash}`, { waitUntil: 'domcontentloaded' });
+await page.goto(`${url}/${width >= 760 ? '?frame=0' : ''}${hash}`, { waitUntil: 'domcontentloaded' });
 try {
   const demo = page.getByText('Explore the demo book');
   await demo.waitFor({ timeout: 4000 });
