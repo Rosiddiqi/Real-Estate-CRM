@@ -280,13 +280,18 @@ export default function ClientCard({ id, tab: tabProp, onClose }) {
           <div
             className="kc-content"
             onFocusCapture={(e) => { if (tab === 'Timeline' && /^(TEXTAREA|INPUT)$/.test(e.target.tagName)) setCollapsedLocked(true); }}
+            onWheelCapture={() => { threadScroll.current.userAt = Date.now(); }}
+            onTouchMoveCapture={() => { threadScroll.current.userAt = Date.now(); }}
             onScrollCapture={(e) => {
               if (tab !== 'Timeline') return;
-              // Reading the thread (either direction, past a small slop) folds the hero away.
+              // The reader scrolling the thread (either direction, past a small
+              // slop) folds the hero away. Programmatic scrolls — the thread
+              // pinning itself to the newest message — never count.
               const el = e.target;
               if (!el || typeof el.scrollTop !== 'number') return;
               const prev = threadScroll.current.get(el);
               threadScroll.current.set(el, el.scrollTop);
+              if (Date.now() - (threadScroll.current.userAt || 0) > 700) return;
               if (prev != null && Math.abs(el.scrollTop - prev) > 2) {
                 threadScroll.current.moved = (threadScroll.current.moved || 0) + Math.abs(el.scrollTop - prev);
                 if (threadScroll.current.moved > 36) setCollapsedLocked(true);

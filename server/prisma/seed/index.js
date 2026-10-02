@@ -47,7 +47,8 @@ async function wipe(wsIds) {
 }
 
 async function main() {
-  const ctx = createCtx(new Date());
+  // SEED_NOW (ISO) lets you preview the demo as of another moment; default is now.
+  const ctx = createCtx(process.env.SEED_NOW ? new Date(process.env.SEED_NOW) : new Date());
   const rng = makeRng(20261002);
   const S = { ctx, rng, WS, USER };
 

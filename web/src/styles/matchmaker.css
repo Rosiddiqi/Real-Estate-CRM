@@ -145,6 +145,7 @@
 .mm-swap-line { width: 1px; flex: 1; background: linear-gradient(180deg, transparent, var(--lineHi), transparent); }
 .mm-triggers { display: flex; flex-wrap: wrap; gap: 5px; }
 .mm-trigger { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; padding: 3px 7px; border-radius: 6px; border: 1px solid var(--line); color: var(--dim); white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.mm-trigger .t { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .mm-trigger--active { color: #C08BFF; border-color: rgba(154, 77, 255, 0.4); background: rgba(154, 77, 255, 0.1); }
 .mm-narr { margin: 10px 14px 0; font-size: 12.5px; color: var(--dim); line-height: 1.45; font-style: italic; }
 .mm-pair-btns { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; padding: 12px 14px 14px; }

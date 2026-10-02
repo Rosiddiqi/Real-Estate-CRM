@@ -1,9 +1,9 @@
 // MLS feed listings (origin 'feed'). All agents/brokerages are fictional.
 const AT = ['Nicole Strand', 'Atlantica Estates'];
 const GK = ['Tamsin Hollis', 'Gilded Key Real Estate'];
-const PP = ['Ricardo Salinas', 'Palmetto & Pine Realty'];
+const PP = ['Ricardo Salvat', 'Palmetto & Pine Realty'];
 const VM = ['Lucia Ferrante', 'Vista Mar Realty Group'];
-const LU = ['Marcel Dupré', 'Lumière International Realty'];
+const LU = ['Marcel Lavoie', 'Lumière International Realty'];
 const CL = ['Daphne Kowalski', 'Coastline Luxe Properties'];
 const SW = ['Brandon Achebe', 'Seaward Partners'];
 const OW = ['Grant Okimoto', 'Okimoto Waterfront Group'];
@@ -125,7 +125,7 @@ module.exports = function mlsListings() {
     },
     {
       key: 'mls_seaview1801', mls: 'A11607735', status: 'active', agent: VM, dom: 29,
-      street: '26 Harbour Crest Way', unitNumber: '1801', buildingName: 'Seaview Bal Harbour', neighborhood: 'Bal Harbour', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
+      street: '26 Harbour Crest Way', unitNumber: '1801', buildingName: 'Halcyon Bal Harbour', neighborhood: 'Bal Harbour', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
       listPrice: 4250000, beds: 3, bathsFull: 3, bathsHalf: 1, sqft: 2600, yearBuilt: 2014, waterfront: 'oceanfront', views: ['ocean', 'intracoastal'],
       amenities: [...CONDO_AM, 'private_beach'], hoaFee: 4700, taxAnnual: 63000, photos: 4,
       headline: 'Single-level oceanfront in Bal Harbour, no stairs anywhere',
@@ -133,7 +133,7 @@ module.exports = function mlsListings() {
     },
     {
       key: 'mls_oceanique5201', mls: 'A11561049', status: 'active', agent: SO, dom: 76,
-      street: '300 Oceanique Way', unitNumber: 'PH 5201', buildingName: 'Oceanique Sunny Isles', neighborhood: 'Sunny Isles', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
+      street: '300 Azurine Way', unitNumber: 'PH 5201', buildingName: 'Azurine Sunny Isles', neighborhood: 'Sunny Isles', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
       listPrice: 5650000, drop: { from: 5995000, daysAgo: 2 }, beds: 4, bathsFull: 4, bathsHalf: 1, sqft: 4000, yearBuilt: 2018, waterfront: 'oceanfront', views: ['ocean', 'intracoastal'],
       amenities: [...CONDO_AM, 'private_beach', 'rooftop_terrace'], hoaFee: 6900, taxAnnual: 86000, photos: 5,
       headline: 'Sunny Isles penthouse, 52 floors up — reduced',
@@ -198,7 +198,7 @@ module.exports = function mlsListings() {
     },
     {
       key: 'mls_aqua2908', mls: 'A11622406', status: 'active', agent: GK, dom: 9,
-      street: '2900 Lumen Bay Drive', unitNumber: '2908', buildingName: 'Aqua Lumen Edgewater', neighborhood: 'Edgewater', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
+      street: '2900 Lumen Bay Drive', unitNumber: '2908', buildingName: 'Lumen Bay Edgewater', neighborhood: 'Edgewater', propertyType: 'condo', style: 'Contemporary', family: 'Contemporary',
       listPrice: 2890000, beds: 3, bathsFull: 3, bathsHalf: 1, sqft: 2250, yearBuilt: 2021, waterfront: 'bayfront', views: ['bay'], amenities: CONDO_AM, hoaFee: 2900, taxAnnual: 42000, photos: 4,
       headline: 'Edgewater three-bedroom with a 40-ft gallery wall',
       description: 'A bayfront three-bedroom with an unusually long, uninterrupted wall in the living room and gallery lighting already wired. Walk to the Design District.',

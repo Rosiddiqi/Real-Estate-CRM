@@ -21,6 +21,7 @@ const { moneyShort } = require('./text');
 const ACTIVE_CLIENT = { archivedAt: null, blocked: false };
 
 function first(c) { return c.firstName || S.displayNameOf(c).split(' ')[0]; }
+function inDays(n) { return n === 0 ? 'today' : n === 1 ? 'tomorrow' : `in ${n} days`; }
 
 // ── birthdays ────────────────────────────────────────────────────────────
 async function upcomingBirthdays({ workspaceId, days = 14, now = new Date() } = {}) {
@@ -72,7 +73,7 @@ async function upcomingAnniversaries({ workspaceId, days = 30, now = new Date() 
     out.push({
       kind: 'home_anniversary', clientId: p.clientId, client: S.mini(p.client), propertyId: p.id, propertyTitle: p.title,
       days: d.anniversaryInDays, date: d.anniversaryDate, years: d.anniversaryYears,
-      title: d.anniversaryInDays === 0 ? `${first(p.client)}: ${d.anniversaryYears} years at ${p.title} today` : `${first(p.client)}’s ${d.anniversaryYears}-year home anniversary in ${d.anniversaryInDays} days`,
+      title: d.anniversaryInDays === 0 ? `${first(p.client)}: ${d.anniversaryYears} years at ${p.title} today` : `${first(p.client)}’s ${d.anniversaryYears}-year home anniversary ${inDays(d.anniversaryInDays)}`,
       sub: [p.title, d.appreciation ? `${d.appreciation >= 0 ? '+' : '−'}${moneyShort(Math.abs(d.appreciation))} est.` : null].filter(Boolean).join(' · '),
       urgency: (milestone ? 0.75 : 0.5) + (d.anniversaryInDays <= 7 ? 0.2 : 0),
       meta: { appreciation: d.appreciation ?? null, equity: d.equity ?? null, milestone },
@@ -96,7 +97,7 @@ async function armResets({ workspaceId, days = 180, maturityDays = 365 } = {}) {
       out.push({
         kind: 'arm_reset', clientId: p.clientId, client: S.mini(p.client), propertyId: p.id, propertyTitle: p.title,
         days: d.daysToReset, date: p.loanResetAt,
-        title: `${first(p.client)}’s ${armYears} resets in ${d.daysToReset} days`,
+        title: `${first(p.client)}’s ${armYears} resets ${inDays(d.daysToReset)}`,
         sub: [p.title, rate, p.mortgageBalance ? `${moneyShort(p.mortgageBalance)} balance` : null, p.lenderName].filter(Boolean).join(' · '),
         urgency: d.daysToReset <= 60 ? 1 : d.daysToReset <= 120 ? 0.75 : 0.55,
         meta: { rate: p.mortgageRate, balance: p.mortgageBalance, lender: p.lenderName, equity: d.equity ?? null, urgent: d.daysToReset <= 60 },
@@ -106,7 +107,7 @@ async function armResets({ workspaceId, days = 180, maturityDays = 365 } = {}) {
       out.push({
         kind: 'loan_maturity', clientId: p.clientId, client: S.mini(p.client), propertyId: p.id, propertyTitle: p.title,
         days: d.daysToMaturity, date: p.loanMaturesAt,
-        title: `${first(p.client)}’s ${p.loanType === 'balloon' ? 'balloon' : 'interest-only period'} ends in ${d.daysToMaturity >= 60 ? `${Math.round(d.daysToMaturity / 30.4)} months` : `${d.daysToMaturity} days`}`,
+        title: `${first(p.client)}’s ${p.loanType === 'balloon' ? 'balloon' : 'interest-only period'} ends ${d.daysToMaturity >= 60 ? `in ${Math.round(d.daysToMaturity / 30.4)} months` : inDays(d.daysToMaturity)}`,
         sub: [p.title, p.mortgageBalance ? `${moneyShort(p.mortgageBalance)} balance` : null].filter(Boolean).join(' · '),
         urgency: d.daysToMaturity <= 90 ? 0.9 : 0.5,
         meta: { loanType: p.loanType, balance: p.mortgageBalance },
@@ -127,7 +128,7 @@ async function leaseExpiries({ workspaceId, days = 120 } = {}) {
     out.push({
       kind: renter ? 'lease_expiry' : 'tenant_lease_expiry', clientId: p.clientId, client: S.mini(p.client), propertyId: p.id, propertyTitle: p.title,
       days: n, date: p.leaseEndsAt,
-      title: renter ? `${first(p.client)}’s lease ends in ${n} days` : `${first(p.client)}’s tenant lease at ${p.title} ends in ${n} days`,
+      title: renter ? `${first(p.client)}’s lease ends ${inDays(n)}` : `${first(p.client)}’s tenant lease at ${p.title} ends ${inDays(n)}`,
       sub: renter
         ? [p.title, p.rentAmount ? `${moneyShort(p.rentAmount)}/mo` : null, 'buy-vs-renew conversation'].filter(Boolean).join(' · ')
         : [p.rentAmount ? `${moneyShort(p.rentAmount)}/mo` : null, 're-lease or sell'].filter(Boolean).join(' · '),
@@ -192,4 +193,23 @@ async function allSignals({ workspaceId } = {}) {
   return parts.flat().sort((a, b) => b.urgency - a.urgency);
 }
 
-module.exports = { upcomingBirthdays, upcomingAnniversaries, armResets, leaseExpiries, equityMilestones, silentClients, allSignals };
+// Every export is workspace-scoped: it accepts `{ workspaceId, … }` or a bare
+// workspace id string, and returns [] (never another workspace's rows) when no
+// workspace is given.
+function scoped(fn) {
+  return (arg, more) => {
+    const opts = typeof arg === 'string' ? { ...(more || {}), workspaceId: arg } : { ...(arg || {}) };
+    if (!opts.workspaceId || typeof opts.workspaceId !== 'string') return Promise.resolve([]);
+    return fn(opts);
+  };
+}
+
+module.exports = {
+  upcomingBirthdays: scoped(upcomingBirthdays),
+  upcomingAnniversaries: scoped(upcomingAnniversaries),
+  armResets: scoped(armResets),
+  leaseExpiries: scoped(leaseExpiries),
+  equityMilestones: scoped(equityMilestones),
+  silentClients: scoped(silentClients),
+  allSignals: scoped(allSignals),
+};

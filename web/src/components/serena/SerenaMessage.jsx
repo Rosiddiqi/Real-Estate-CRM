@@ -140,7 +140,7 @@ export function AssistantMessage({ msg, grouped, isLast, onHandoff, onOpenCard }
         {(msg.cards || []).map((c) => <SerenaActionCard key={c.id} card={c} onOpen={onOpenCard} />)}
         {(msg.proposals || []).map((p) => <SerenaProposalCard key={p.id} proposal={p} onHandoff={onHandoff} />)}
         <Entities items={msg.entities} onHandoff={onHandoff} />
-        {isLast && !running && msg.suggestions && msg.suggestions.length ? (
+        {isLast && !running && msg.suggestions && msg.suggestions.length && !((msg.cards || []).length && msg.cards.every((c) => c.undone)) ? (
           <div className="km-srn-chips">
             {msg.suggestions.slice(0, 3).map((t) => (
               <button key={t} type="button" className="km-srn-chip" onClick={() => serena.send(t)}>

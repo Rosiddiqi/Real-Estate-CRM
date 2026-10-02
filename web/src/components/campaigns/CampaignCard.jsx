@@ -8,7 +8,7 @@ import { Switch } from '../ui/kit';
 import { relativeTime } from '../../lib/format';
 import { StatusPill, LaneBar, LaneTally, Progress, campaignPhase, fmtEta, fmtWhen } from './kit';
 
-const TEMPLATE_ICON = {
+export const TEMPLATE_ICON = {
   just_listed: 'sign', just_sold: 'key', open_house_invite: 'door', price_improvement: 'trendingDown',
   market_update: 'barChart', home_anniversary: 'cake', coming_soon: 'lock', custom: 'send',
 };

@@ -26,7 +26,7 @@ function Header({ client, onEdit }) {
   const { requestClose } = usePanel();
   return (
     <div className="km-scroll-edge" style={{ position: 'relative', zIndex: 5, flexShrink: 0, padding: 'calc(var(--safe-top) + 8px) 14px 8px', display: 'flex', justifyContent: 'space-between' }}>
-      <button type="button" className="km-lg km-lg--line km-press" onClick={requestClose} style={{ height: 36, padding: '0 14px 0 8px', borderRadius: 999, display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: 15, fontWeight: 600, color: 'var(--lg-text)' }}>
+      <button type="button" className="km-lg km-lg--line km-press kc-pd-back" aria-label={`Back to ${client.firstName || displayName(client)}`} onClick={requestClose} style={{ height: 36, padding: '0 14px 0 8px', borderRadius: 999, display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: 15, fontWeight: 600, color: 'var(--lg-text)' }}>
         <Icon name="chevronLeft" size={20} stroke={2.2} /> {client.firstName || displayName(client)}
       </button>
       <button type="button" className="km-lg km-lg--line km-press" onClick={onEdit} style={{ height: 36, padding: '0 16px', borderRadius: 999, fontSize: 15, fontWeight: 600, color: 'var(--lg-text)' }}>Edit</button>

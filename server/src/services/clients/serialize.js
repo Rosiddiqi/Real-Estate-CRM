@@ -9,6 +9,7 @@ const config = require('../../config');
 // ── Workspace time zone (cached) ─────────────────────────────────────────
 const tzCache = new Map(); // workspaceId -> { tz, at }
 async function workspaceTz(workspaceId) {
+  if (!workspaceId) return config.timezone || 'America/New_York';
   const hit = tzCache.get(workspaceId);
   if (hit && Date.now() - hit.at < 5 * 60e3) return hit.tz;
   let tz = config.timezone || 'America/New_York';

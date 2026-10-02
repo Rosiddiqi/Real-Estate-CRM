@@ -109,7 +109,7 @@ module.exports = function ownListings() {
     },
     {
       key: 'pk_aqua', src: 'pocket', origin: 'pocket', status: 'off_market', agent: ME, hideAddress: true, slug: true,
-      title: 'Edgewater penthouse · off-market', street: '2900 Lumen Bay Drive', unitNumber: 'PH-A', buildingName: 'Aqua Lumen Edgewater', neighborhood: 'Edgewater', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
+      title: 'Edgewater penthouse · off-market', street: '2900 Lumen Bay Drive', unitNumber: 'PH-A', buildingName: 'Lumen Bay Edgewater', neighborhood: 'Edgewater', propertyType: 'penthouse', style: 'Contemporary', family: 'Contemporary',
       listPrice: 4600000, beds: 3, bathsFull: 3, bathsHalf: 1, sqft: 3800, yearBuilt: 2021, views: ['bay', 'skyline'], amenities: ['rooftop_terrace', 'pool', 'gym', 'concierge', 'elevator'],
       hoaFee: 5200, taxAnnual: 69000, photos: 4,
       headline: 'Off-market Edgewater penthouse with private plunge pool',

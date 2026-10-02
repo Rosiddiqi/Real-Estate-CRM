@@ -10,13 +10,13 @@ import Icon from '../../components/ui/Icon';
 import { EmptyState, SkeletonRows, Button } from '../../components/ui/kit';
 import { toast, confirm } from '../../components/ui/toast';
 import { nav } from '../../lib/nav';
-import { deleteCampaign, updateAutomation } from '../../api/campaigns';
+import { deleteCampaign } from '../../api/campaigns';
 import { SectionRule } from '../../components/campaigns/kit';
 import { CampaignCard, AutomationRow, SwipeRow } from '../../components/campaigns/CampaignCard';
 import SenderGuardCard from '../../components/campaigns/SenderGuardCard';
 import SuggestionCard from '../../components/campaigns/SuggestionCard';
 import AutomationEditor from '../../components/campaigns/AutomationEditor';
-import { useAutomations, useCampaignList, useSuggestions } from '../../components/campaigns/useCampaignsData';
+import { useAutomations, useAutomationToggle, useCampaignList, useSuggestions } from '../../components/campaigns/useCampaignsData';
 
 const BUCKETS = [
   { id: 'running', label: 'Running', match: (c) => ['running', 'paused'].includes(c.status) },
@@ -31,7 +31,6 @@ export default function CampaignsPage({ onClose }) {
   const sugg = useSuggestions();
   const [swipeOpen, setSwipeOpen] = useState(null);
   const [editing, setEditing] = useState(null);
-  const [busyAuto, setBusyAuto] = useState(null);
   const [showAllDone, setShowAllDone] = useState(false);
   const [autosCollapsed, setAutosCollapsed] = useState(false);
 
@@ -53,21 +52,7 @@ export default function CampaignsPage({ onClose }) {
     try { await deleteCampaign(c.id); toast('Campaign deleted'); } catch (e) { list.setData(prev); toast.error(e.message || 'Could not delete'); }
   };
 
-  const toggleAuto = async (a, next) => {
-    if (next && !String(a.brief || '').trim() && a.trigger !== 'post_closing') { setEditing(a); return; }
-    const prev = autos.data;
-    autos.setData((d) => (d ? { ...d, automations: d.automations.map((x) => (x.id === a.id ? { ...x, enabled: next } : x)) } : d));
-    setBusyAuto(a.id);
-    try {
-      await updateAutomation(a.id, { enabled: next });
-      toast.success(next ? `${a.name} is on` : `${a.name} is off`);
-    } catch (e) {
-      autos.setData(prev);
-      toast.error(e.message || 'Could not update');
-    } finally {
-      setBusyAuto(null);
-    }
-  };
+  const { busyId: busyAuto, toggle: toggleAuto } = useAutomationToggle(autos, setEditing);
 
   const loading = list.loading && !list.data;
 

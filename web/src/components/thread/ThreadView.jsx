@@ -16,6 +16,7 @@
 //   initialDraft / initialListing   seed the composer once (AI drafts, matchmaker)
 //   draftKey        override the per-thread draft key
 //   onConversation  (conversation) => void when resolved / created by a first send
+//   composerRef     ref → { focus, setText, setListing, hasContent } (AI drafts, async seeds)
 //   showBriefing / showSuggestions
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { nav } from '../../lib/nav';
@@ -62,6 +63,7 @@ export default function ThreadView({
   draftKey,
   autoFocus = false,
   onConversation,
+  composerRef: externalComposerRef,
   active = true,
   className = '',
   style,
@@ -72,7 +74,8 @@ export default function ThreadView({
   const rootRef = useRef(null);
   const headerRef = useRef(null);
   const dockRef = useRef(null);
-  const composerRef = useRef(null);
+  const ownComposerRef = useRef(null);
+  const composerRef = externalComposerRef || ownComposerRef;
   const [replyTo, setReplyTo] = useState(null);
   const [viewer, setViewer] = useState(null);
   const [manage, setManage] = useState(null); // { item, action }

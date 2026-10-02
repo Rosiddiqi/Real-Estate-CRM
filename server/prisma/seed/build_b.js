@@ -174,12 +174,33 @@ function buildTasks(S, tasks) {
   });
 }
 
+// Flexible appointments (e.g. this month's closings, whose dates move with the
+// run date) are dropped unless clearly in the past, then nudged off overlaps.
+function placeFlex(S, list) {
+  const { ctx } = S;
+  const busy = (a, b) => a.start < b.end && b.start < a.end;
+  const placed = list.filter((x) => !x.d.flex);
+  for (const x of list.filter((y) => y.d.flex)) {
+    if (x.end > new Date(ctx.now.getTime() - 3600e3)) { x.skip = true; continue; }
+    const day = dayKey(x.start, ctx.TZ);
+    const dur = x.end - x.start;
+    const slots = [x.start, ...[9, 10, 11, 12, 13, 14, 15, 16, 17, 8, 18].map((h) => zonedTime(day, h, 0, ctx.TZ))];
+    const free = slots.find((st) => st.getTime() + dur <= ctx.now.getTime() - 3600e3 && !placed.some((p) => p.d.status !== 'cancelled' && busy({ start: st, end: new Date(st.getTime() + dur) }, p)));
+    if (!free) { x.skip = true; continue; }
+    x.start = free; x.end = new Date(free.getTime() + dur);
+    placed.push(x);
+  }
+  return list.filter((x) => !x.skip);
+}
+
 function buildAppointments(S, appts) {
   const { ctx, WS, USER } = S;
-  return appts.map((raw, i) => {
+  const timed = appts.map((raw) => {
     const d = deepT(ctx, raw);
-    const startAt = when(S, d.day, d.time);
-    const endAt = new Date(startAt.getTime() + d.dur * 60000);
+    const start = when(S, d.day, d.time);
+    return { d, start, end: new Date(start.getTime() + d.dur * 60000) };
+  });
+  return placeFlex(S, timed).map(({ d, start: startAt, end: endAt }, i) => {
     const L = d.listing ? S.listingRow[d.listing] : null;
     const status = d.status || (endAt < ctx.now ? 'completed' : (startAt - ctx.now < 2 * DAY ? 'confirmed' : 'scheduled'));
     const created = new Date(Math.min(startAt.getTime() - (3 + (i % 5)) * DAY, ctx.now.getTime() - (2 + (i % 7)) * 3600e3));

@@ -24,12 +24,13 @@ import { BuyersList, dismissMatch, draftModeFor } from '../matchmaker/MatchUI';
 import '../../styles/listings.css';
 import '../../styles/matchmaker.css';
 
-function Spec({ k, v, small }) {
+function Spec({ k, v, small, sub }) {
   if (v == null || v === '' || v === false) return null;
   return (
     <div className="kl-spec">
       <div className="kl-eyebrow">{k}</div>
       <div className="v">{v}{small ? <small> {small}</small> : null}</div>
+      {sub ? <div className="sub">{sub}</div> : null}
     </div>
   );
 }
@@ -333,7 +334,7 @@ export default function ListingDetail({ id, onClose }) {
               <div className="km-eyebrow" style={{ margin: '28px 2px 10px' }}>The home</div>
               <div className="kl-specs">
                 <Spec k="Beds" v={l.beds} />
-                <Spec k="Baths" v={l.baths} small={l.bathsHalf ? `${l.bathsFull || ''} full · ${l.bathsHalf} half` : null} />
+                <Spec k="Baths" v={l.baths} sub={l.bathsHalf ? `${l.bathsFull != null ? `${l.bathsFull} full · ` : ''}${l.bathsHalf} half` : null} />
                 <Spec k="Interior" v={l.sqft ? num(l.sqft) : null} small="sf" />
                 <Spec k="Lot" v={acresLabel(l)} />
                 <Spec k="Built" v={l.yearBuilt} small={l.yearRenovated ? `reno ${l.yearRenovated}` : null} />

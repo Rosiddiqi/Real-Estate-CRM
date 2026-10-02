@@ -21,7 +21,7 @@ function Triggers({ triggers }) {
     <div className="mm-triggers">
       {triggers.slice(0, 3).map((t) => (
         <span key={`${t.kind}-${t.label}`} className={`mm-trigger ${t.status === 'active' ? 'mm-trigger--active' : ''}`} title={t.quote || ''}>
-          <Icon name={TRIGGER_ICON[t.kind] || 'flag'} size={11} stroke={2.2} />{t.label}
+          <Icon name={TRIGGER_ICON[t.kind] || 'flag'} size={11} stroke={2.2} style={{ flexShrink: 0 }} /><span className="t">{t.label}</span>
         </span>
       ))}
     </div>

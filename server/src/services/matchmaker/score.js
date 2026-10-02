@@ -352,13 +352,22 @@ function viewQ(l, s) {
 }
 
 // ── must-haves (tri-state) ────────────────────────────────────────────────
+// Hearsay (a whisper without a feature sheet) can CONTRADICT a must-have —
+// "the dock is 60 ft" is worth knowing — but never confirm one: every "met"
+// becomes "verify", so a whisper tops out at 99* until the specs are seen.
 function evalMustHave(mh, l, trust, amenitySet) {
+  const r = evalMustHaveRaw(mh, l, trust, amenitySet);
+  if (trust === 'hearsay' && r.status === 'met') return { status: 'verify', detail: `${r.detail} — heard, verify` };
+  return r;
+}
+
+function evalMustHaveRaw(mh, l, trust, amenitySet) {
   const flags = (l.amenityFlags && typeof l.amenityFlags === 'object') ? l.amenityFlags : {};
   const flag = (k) => (Object.prototype.hasOwnProperty.call(flags, k) ? flags[k] : undefined);
   const out = (status, detail) => ({ status, detail });
   switch (mh.key) {
     case 'dock_length': {
-      if (flag('dock') === false) return out('missing', 'No dock');
+      if (flag('dock') === false && trust !== 'hearsay') return out('missing', 'No dock');
       const ft = n(l.dockLengthFt);
       if (ft != null) return ft >= mh.min ? out('met', `${ft}-ft dock`) : out('missing', `${ft}-ft dock (needs ${mh.min})`);
       return out('verify', `Dock length unknown (needs ${mh.min} ft)`);
@@ -432,7 +441,10 @@ function evalMustHave(mh, l, trust, amenitySet) {
   }
   const f = flag(mh.key);
   if (f === true) return out('met', V.amenityLabel(mh.key));
-  if (f === false) return out('missing', `No ${V.amenityLabel(mh.key).toLowerCase()}`);
+  if (f === false) {
+    // on hearsay an unmentioned amenity is just unknown
+    return trust === 'hearsay' ? out('verify', `${V.amenityLabel(mh.key)} — confirm`) : out('missing', `No ${V.amenityLabel(mh.key).toLowerCase()}`);
+  }
   // structural signals that confirm an amenity without a list entry
   if (mh.key === 'dock' && n(l.dockLengthFt) > 0) return out('met', `${n(l.dockLengthFt)}-ft dock`);
   if (mh.key === 'garage' && n(l.garageSpaces) > 0) return out('met', `${n(l.garageSpaces)}-car garage`);
@@ -585,14 +597,16 @@ function scoreListingForSearch(listing, search, ctx = {}) {
   score = Math.max(1, Math.min(100, Math.round(score)));
   if (!wsum) score = Math.min(score, 50); // nothing expressed → never a "hot" match
 
-  // 100-cap (HARD RULE): 100 only for a fully VERIFIED match.
-  const allConfirmed = factors.length > 0 && factors.every((f) => f.quality >= 0.999) && mustHaves.every((m) => m.status === 'met');
+  // 100-cap (HARD RULE): 100 only for a fully VERIFIED match — and hearsay
+  // (a whisper's specs) is never verified.
+  const hearsay = trust === 'hearsay';
+  const allConfirmed = !hearsay && factors.length > 0 && factors.every((f) => f.quality >= 0.999) && mustHaves.every((m) => m.status === 'met');
   if (!allConfirmed) score = Math.min(score, 99);
-  const verifyHold = !allConfirmed && mustHaves.some((m) => m.status === 'verify')
+  const verifyHold = !allConfirmed && (hearsay || mustHaves.some((m) => m.status === 'verify'))
     && !mustHaves.some((m) => m.status === 'missing') && factors.every((f) => f.key === 'mustHaves' || f.quality >= 0.999);
 
   const sigKinds = new Set((ctx.signals || []).map((x) => x.kind));
-  const confidence = mustHaves.some((m) => m.status === 'verify') ? 'needs verification'
+  const confidence = (hearsay || mustHaves.some((m) => m.status === 'verify')) ? 'needs verification'
     : (factors.length >= 6 || sigKinds.size >= 3) ? 'high' : 'medium';
 
   factors.sort((a, b) => (b.weight * b.quality) - (a.weight * a.quality));

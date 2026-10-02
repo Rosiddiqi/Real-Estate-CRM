@@ -671,3 +671,57 @@ body.km-thread-open [data-serena-bubble] { opacity: 0 !important; pointer-events
   .km-row-msg--arrive, .km-typing, .km-react-pop, .km-ctx-clone, .km-ctx-taps, .km-ctx-menu, .km-brief, .km-jump { animation: none !important; }
   .km-ctx-layer, .km-th-inner, .km-composer-dock { transition: none !important; }
 }
+
+/* ── New Message (ComposePanel) ───────────────────────────────────────── */
+:root { --km-compose-bg: #000; }
+:root[data-theme="light"] { --km-compose-bg: #FFFFFF; }
+.km-compose-to {
+  flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+  min-height: 52px; padding: 8px 16px;
+  border-top: 0.5px solid var(--lineHi); border-bottom: 0.5px solid var(--lineHi);
+}
+.km-compose-to-label { font-size: 16px; color: #8A8A8E; flex-shrink: 0; }
+.km-compose-input {
+  flex: 1; min-width: 0; height: 36px;
+  background: transparent; border: 0; outline: none;
+  color: var(--text); font: inherit; font-size: 16px;
+}
+.km-compose-input::placeholder { color: #8A8A8E; }
+.km-compose-chip {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 70%;
+  padding: 6px 10px; border-radius: 8px;
+  background: rgba(0, 122, 255, 0.15); color: #2E8BFF; font-size: 15px; font-weight: 500;
+}
+.km-compose-add {
+  margin-left: auto; flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
+  height: 30px; padding: 0 11px; border-radius: 999px;
+  background: var(--tint); color: var(--blue); font-size: 13px; font-weight: 600;
+}
+.km-compose-results { flex: 1; min-height: 0; padding-bottom: calc(var(--tabbar-clearance) + var(--safe-bottom)); }
+.km-compose-eyebrow { padding: 14px 16px 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: #8A8A8E; }
+.km-compose-row {
+  width: 100%; display: flex; align-items: center; gap: 12px;
+  padding: 9px 16px; text-align: left;
+  animation: km-rowIn 0.2s var(--km-ease) backwards;
+}
+.km-compose-row:active { background: rgba(255, 255, 255, 0.05); }
+:root[data-theme="light"] .km-compose-row:active { background: rgba(0, 0, 0, 0.04); }
+.km-compose-row:disabled { opacity: 0.45; }
+.km-compose-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.km-compose-row-name { font-size: 16px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.km-compose-row-sub { font-size: 14px; color: #8A8A8E; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.km-compose-kind { flex-shrink: 0; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--faint); }
+.km-compose-numtile { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; background: var(--blue); }
+.km-compose-empty { display: flex; justify-content: center; padding: 28px 24px; text-align: center; font-size: 14px; color: var(--faint); }
+
+/* ── Quick Text sheet ─────────────────────────────────────────────────── */
+.km-qt-wrap { display: flex; flex-direction: column; height: min(60vh, 560px, calc(100dvh - var(--keyboard-height) - 190px)); min-height: 280px; }
+.km-qt-bar { flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 2px 14px 8px; }
+.km-qt-about { flex: 1; min-width: 0; font-size: 12.5px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.km-qt-ai {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px;
+  height: 30px; padding: 0 12px; border-radius: 999px;
+  font-size: 13px; font-weight: 600; color: var(--blue);
+}
+.km-qt-ai:disabled { opacity: 0.55; }
+.km-qt-thread { position: relative; flex: 1; min-height: 0; border-top: 0.5px solid var(--line); }

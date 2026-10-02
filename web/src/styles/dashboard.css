@@ -93,6 +93,14 @@
   position: absolute; top: 0; left: 0; right: 0; z-index: 6; pointer-events: none;
   background: linear-gradient(180deg, rgba(var(--bp-chrome), 0.99) 0%, rgba(var(--bp-chrome), 0.95) 68%, rgba(var(--bp-chrome), 0) 100%);
 }
+/* Quote hero type — steps down on short screens so the rail keeps room. */
+.bp-quote-text { font-size: 20px; line-height: 28px; }
+.bp-quote-text--aff { font-size: 17px; line-height: 25px; }
+@media (max-height: 720px) {
+  .bp-quote-text { font-size: 17px; line-height: 23px; }
+  .bp-quote-text--aff { font-size: 15px; line-height: 21px; }
+}
+.bp-q-short { display: none; }
 .bp-quick {
   display: inline-flex; align-items: center; justify-content: center; gap: 4px;
   width: 112px; padding: 5px 8px; border-radius: 8px; white-space: nowrap;
@@ -295,3 +303,10 @@
   transition: transform 0.18s var(--km-ease), background 0.18s, border-color 0.18s, color 0.18s;
 }
 .cal-type-tile:active { transform: scale(0.95); }
+
+/* Narrow phones (SE-class): shorter quick-action labels. */
+@media (max-width: 380px) {
+  .bp-quick { width: 96px; }
+  .bp-q-long { display: none; }
+  .bp-q-short { display: inline; }
+}

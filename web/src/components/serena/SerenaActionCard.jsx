@@ -26,7 +26,7 @@ export default function SerenaActionCard({ card, onOpen }) {
     <div className={`km-srn-card ${undone ? 'is-undone' : ''}`} style={{ '--accent': cat.accent }}>
       <div className="km-srn-card-head">
         <span className="km-srn-card-chip"><Icon name={undone ? 'undo' : cat.icon} size={13} stroke={2.2} /></span>
-        <span className="km-srn-card-eyebrow km-truncate">{undone ? `Undone · ${card.label || card.category}` : (card.label || card.category)}</span>
+        <span className="km-srn-card-eyebrow km-truncate">{undone ? `Undone · ${String(card.label || card.category || '').split(' · ')[0]}` : (card.label || card.category)}</span>
         {!undone ? <Icon name="checkCircle" size={18} color="var(--accent)" stroke={2} /> : null}
       </div>
       <div className="km-srn-card-title km-selectable">{card.title}</div>

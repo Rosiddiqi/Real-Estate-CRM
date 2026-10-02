@@ -691,7 +691,7 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
               </div>
               <PageDots page={page} onSelectPage={onSelectPage} />
               <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                <button type="button" className="bp-quick bp-quick--sched" onClick={() => nav.openWorkSchedule()}><Icon name="plus" size={11} stroke={2.8} /> Work schedule</button>
+                <button type="button" className="bp-quick bp-quick--sched" onClick={() => nav.openWorkSchedule()}><Icon name="plus" size={11} stroke={2.8} /> <span className="bp-q-long">Work schedule</span><span className="bp-q-short">Schedule</span></button>
               </div>
             </div>
             <div style={{ margin: '10px 14px 10px' }}>

@@ -308,7 +308,9 @@ function moneyMentions(text) {
     const numStr = m[2];
     const unit = (m[3] || '').toLowerCase();
     const per = (m[4] || '').toLowerCase();
-    const preceding = text.slice(Math.max(0, m.index - 30), m.index).toLowerCase();
+    // Only the clause the number sits in decides its role ("bought 2018 for
+    // 6.2, worth about 11" → 6.2 purchase, 11 value).
+    const preceding = text.slice(Math.max(0, m.index - 30), m.index).toLowerCase().split(/[,;]|\.\s|\s(?:but|now)\s/).pop();
     const following = text.slice(m.index + m[0].length, m.index + m[0].length + 14).toLowerCase();
     // skip things that are clearly not money
     if (!unit && !m[0].includes('$') && !ctx) continue;

@@ -91,8 +91,9 @@ function relAgo(d) {
   if (days < 60) return `${w}w ago`;
   return `${Math.round(days / 30)}mo ago`;
 }
+// Whole days elapsed since `a` (never negative — a future-dated row reads as 0).
 function daysBetween(a, b = new Date()) {
-  return Math.floor((new Date(b).getTime() - new Date(a).getTime()) / 864e5);
+  return Math.max(0, Math.floor((new Date(b).getTime() - new Date(a).getTime()) / 864e5));
 }
 
 // ── strings ────────────────────────────────────────────────────────────────

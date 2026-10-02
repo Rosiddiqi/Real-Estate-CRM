@@ -55,15 +55,16 @@ function StepRow({ step, color, onLabel, onBrief, onRemove, index, locked }) {
       </div>
       <div style={{ flex: 1, minWidth: 0, paddingBottom: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <input
-            className="kc-steplabel"
-            size={Math.max(8, String(step.label || '').length + 1)}
-            value={step.label || ''}
-            disabled={locked}
-            onChange={(e) => onLabel(e.target.value.toUpperCase())}
-            aria-label="When"
-            style={{ color, background: `color-mix(in srgb, ${color} 10%, transparent)`, border: `1px solid color-mix(in srgb, ${color} 32%, transparent)` }}
-          />
+          {/* Auto-sizing pill: a hidden copy of the text sizes the grid cell. */}
+          <span className="kc-steplabel" data-value={`${step.label || ''} `} style={{ color, background: `color-mix(in srgb, ${color} 10%, transparent)`, border: `1px solid color-mix(in srgb, ${color} 32%, transparent)` }}>
+            <input
+              size={1}
+              value={step.label || ''}
+              disabled={locked}
+              onChange={(e) => onLabel(e.target.value.toUpperCase())}
+              aria-label="When"
+            />
+          </span>
           <button type="button" onClick={onRemove} disabled={locked} aria-label="Remove step" className="km-press" style={{ width: 26, height: 26, borderRadius: '50%', border: '1px solid var(--lineHi)', color: 'var(--faint)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Icon name="x" size={11} />
           </button>

@@ -2,7 +2,8 @@
 // `campaign_updated`), silent resync on reconnect/foreground.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useResync, useSocket } from '../../hooks/useSocket';
-import { listCampaigns, listAutomations, listSuggestions, liveThreads, getCampaign } from '../../api/campaigns';
+import { toast } from '../ui/toast';
+import { listCampaigns, listAutomations, listSuggestions, liveThreads, getCampaign, updateAutomation } from '../../api/campaigns';
 
 function useDebounced(fn, ms = 350) {
   const t = useRef(null);
@@ -61,4 +62,26 @@ export function useLiveThreads() {
 
 export function useCampaign(id) {
   return useLoader(() => getCampaign(id), [id], { events: ['campaign_updated', 'message_received'], poll: 20000 });
+}
+
+// Optimistic automation on/off with rollback. Turning one on without a brief
+// opens the editor instead (onNeedsBrief) — the brief IS the approval.
+export function useAutomationToggle(autos, onNeedsBrief) {
+  const [busyId, setBusyId] = useState(null);
+  const toggle = async (a, next) => {
+    if (next && !String(a.brief || '').trim() && a.trigger !== 'post_closing') { onNeedsBrief && onNeedsBrief(a); return; }
+    const prev = autos.data;
+    autos.setData((d) => (d ? { ...d, automations: d.automations.map((x) => (x.id === a.id ? { ...x, enabled: next } : x)) } : d));
+    setBusyId(a.id);
+    try {
+      await updateAutomation(a.id, { enabled: next });
+      toast.success(next ? `${a.name} is on` : `${a.name} is off`);
+    } catch (e) {
+      autos.setData(prev);
+      toast.error(e.message || 'Could not update');
+    } finally {
+      setBusyId(null);
+    }
+  };
+  return { busyId, toggle };
 }

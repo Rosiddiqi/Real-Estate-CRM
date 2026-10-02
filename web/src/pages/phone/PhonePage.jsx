@@ -71,6 +71,12 @@ export default function PhonePage() {
     try { localStorage.setItem(TAB_KEY, t); } catch { /* ignore */ }
     if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
   };
+  // Deep links (a missed-call / voicemail notification) while this tab is already up.
+  useEffect(() => {
+    const onTab = (e) => { const t = e && e.detail && e.detail.tab; if (TABS.includes(t)) setTabState(t); };
+    window.addEventListener('calls:tab', onTab);
+    return () => window.removeEventListener('calls:tab', onTab);
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -141,6 +147,7 @@ export default function PhonePage() {
       <PageHeader
         title="Phone"
         large
+        style={{ width: '100%', maxWidth: 784, margin: '0 auto' }}
         right={(
           <>
             <GlassButton icon="search" label="Search calls" onClick={() => setSearch(true)} />

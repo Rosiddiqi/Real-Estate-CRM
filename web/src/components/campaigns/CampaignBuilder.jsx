@@ -123,8 +123,8 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
 
   // Hide the floating tab bar while the builder owns the bottom edge.
   useEffect(() => {
-    document.body.classList.add('km-tabbar-hidden');
-    return () => document.body.classList.remove('km-tabbar-hidden');
+    document.body.classList.add('km-tabbar-hidden', 'kc-builder-open');
+    return () => document.body.classList.remove('km-tabbar-hidden', 'kc-builder-open');
   }, []);
 
   const hydrate = useCallback((c, { full = true } = {}) => {
@@ -172,10 +172,17 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
     return () => { alive = false; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Every save is tracked so reads that depend on the server's copy (previews,
+  // the launch plan, launch itself) wait for in-flight saves first.
+  const inflight = useRef(new Set());
   const persist = useCallback((patch) => {
     if (!latest.current.id) return Promise.resolve(null);
-    return updateCampaign(latest.current.id, patch).then((d) => d && d.campaign).catch((e) => { if (e.status !== 404) toast.error(e.message || 'Could not save'); return null; });
+    const p = updateCampaign(latest.current.id, patch).then((d) => d && d.campaign).catch((e) => { if (e.status !== 404) toast.error(e.message || 'Could not save'); return null; });
+    inflight.current.add(p);
+    p.then(() => inflight.current.delete(p));
+    return p;
   }, []);
+  const settled = () => Promise.allSettled([...inflight.current]);
 
   // Live audience preview + autosave.
   const [saveAudience, flushAudience] = useDebouncedSave((a) => persist({ audience: a }), 700);
@@ -282,6 +289,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
     flushAll();
     setWriting(true);
     try {
+      await settled();
       const r = await sampleDrafts(id, { brief, attempt });
       setSamples(r.samples || []);
       setSamplesStale(false);
@@ -298,9 +306,9 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
     if (stage !== 4 || !id) return;
     flushAll();
     setPlan(null);
-    planLaunch(id, { pacing }).then(setPlan).catch(() => setPlan({ error: true }));
+    settled().then(() => planLaunch(id, { pacing })).then(setPlan).catch(() => setPlan({ error: true }));
     if (samplesStale && brief.trim()) preview3();
-    if (event.enabled && event.calendarInvite && event.date && event.start) getInvite(id).then(setInvite).catch(() => {});
+    if (event.enabled && event.calendarInvite && event.date && event.start) settled().then(() => getInvite(id)).then(setInvite).catch(() => {});
   }, [stage, id, pacing]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const guardInfo = plan && plan.guard;
@@ -316,6 +324,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
     setLaunching(true);
     flushAll();
     try {
+      await settled();
       await updateCampaign(id, { name: name.trim() || (campaign && campaign.name) || 'Campaign', brief, lanes, pacing: allNowAllowed ? pacing : 'safe', event: eventPayload(event) });
       const r = await launchCampaign(id, { startAt: startAtIso, endAt: endAtIso });
       latest.current.launched = true;

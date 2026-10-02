@@ -35,6 +35,23 @@ test('unverified must-have caps at 99 and sets verifyHold', () => {
   assert.equal(r.confidence, 'needs verification');
 });
 
+test('whisper flags are hearsay: they can contradict a must-have but never confirm one', () => {
+  const flags = { pool: true, elevator: false, dock: true };
+  const w = { ...balHarbourCondo, origin: 'whisper', status: 'off_market', amenityFlags: flags, dockLengthFt: 60 };
+  const r = scoreListingForSearch(w, { ...search, mustHaves: [{ feature: 'pool' }, { feature: 'elevator' }] });
+  assert.deepEqual(r.mustHaves.map((m) => m.status), ['verify', 'verify']);
+  assert.ok(r.score <= 99 && r.verifyHold);
+  const dock = scoreListingForSearch(w, { ...search, mustHaves: [{ feature: 'dock for a 90-ft boat' }] });
+  assert.equal(dock.mustHaves[0].status, 'missing', '60-ft dock heard → still a contradiction');
+  // no must-haves at all: a perfect whisper is 99*, never 100
+  const plain = scoreListingForSearch(w, { markets: ['Miami'] });
+  assert.equal(plain.score, 99);
+  assert.equal(plain.verifyHold, true);
+  // once a feature sheet is on file the same flags are authoritative
+  const sheet = scoreListingForSearch({ ...w, hasFeatureSheet: true }, { ...search, mustHaves: [{ feature: 'pool' }, { feature: 'elevator' }] });
+  assert.deepEqual(sheet.mustHaves.map((m) => m.status), ['met', 'missing']);
+});
+
 test('a confirmed-missing must-have costs 24 points', () => {
   const noElevator = { ...balHarbourCondo, amenities: ['Concierge', 'Pool'] };
   const r = scoreListingForSearch(noElevator, search);

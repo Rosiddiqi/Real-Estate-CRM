@@ -10,6 +10,9 @@ module.exports = function buildDeals(ctx) {
   o.coleClose = ctx.bizOff(28); o.coleAppraisal = ctx.bizOff(6); o.coleInspEnd = ctx.bizOff(7);
   o.alvClose = ctx.bizOff(19); o.moClose = ctx.bizOff(16); o.sunday = ctx.sundayOff;
   o.brokerOpen = ctx.nextMondayOff + 1; o.rafaelDeposit = ctx.bizOff(9);
+  // "Next Monday" items never land on tomorrow (tomorrow already has its own five).
+  o.nextWeekMon = ctx.nextMondayOff >= 2 ? ctx.nextMondayOff : ctx.nextMondayOff + 7; o.lucasBoard = o.nextWeekMon;
+  o.elenaShow = (() => { let x = ctx.bizOff(5); while ([o.okClose, o.brokerOpen, o.nextWeekMon].includes(x)) x = ctx.bizOff(x + 1); return x; })();
 
   const d = (off, h = 10, m = 0) => (off <= 0 ? ctx.past(off, h, m) : ctx.at(off, h, m));
   const before = (base, days) => new Date(base.getTime() - days * DAY);
@@ -52,7 +55,7 @@ module.exports = function buildDeals(ctx) {
       contractDate: d(-3, 16), closingDate: ctx.at(o.coleClose, 11), inspectionDeadline: ctx.at(o.coleInspEnd, 17), appraisalDeadline: ctx.at(ctx.bizOff(12), 17), financingDeadline: ctx.at(ctx.bizOff(21), 17),
       contingencies: { inspection: 'open', appraisal: 'open', financing: 'open', clear_to_close: 'open' },
       lenderName: 'Coastal Federal Jumbo Lending', titleCompany: 'Bayline Title & Escrow', leadSource: 'Zillow',
-      extras: { listAgent: 'Ricardo Salinas · Palmetto & Pine Realty', inspector: 'Hank Morrow', concerns: ['Roof flashing', 'Pool fence for Wren'] },
+      extras: { listAgent: 'Ricardo Salvat · Palmetto & Pine Realty', inspector: 'Hank Morrow', concerns: ['Roof flashing', 'Pool fence for Wren'] },
       path: [['new_lead', d(-46)], ['consultation', d(-44)], ['touring', d(-31)], ['offer_submitted', d(-6, 18)], ['under_contract', d(-3, 16)]],
     },
     {
@@ -94,7 +97,7 @@ module.exports = function buildDeals(ctx) {
     { key: 'ferraro', client: 'isabella', title: 'Ferraro · first purchase', side: 'buyer', propertyLabel: 'Edgewater / Design District condo', price: 2800000, sideRate: 0.025, probability: 0.35, leadSource: 'Instagram', path: [['new_lead', d(-16)]] },
     {
       key: 'rossi', client: 'bianca', title: 'Rossi · The Mariner Surfside PH 2', side: 'buyer', listing: 'mls_mariner', price: 6850000, listPrice: 7100000, sideRate: 0.025, probability: 0.55, leadSource: 'Instagram',
-      extras: { offerAmount: 6850000, offerTerms: 'Cash · 10-day inspection · 30-day close', responseDue: 'Tonight 9pm', listAgent: 'Marcel Dupré · Lumière International Realty' },
+      extras: { offerAmount: 6850000, offerTerms: 'Cash · 10-day inspection · 30-day close', responseDue: 'Tonight 9pm', listAgent: 'Marcel Lavoie · Lumière International Realty' },
       path: [['new_lead', d(-44)], ['consultation', d(-40)], ['touring', d(-29)], ['offer_submitted', d(-1, 17)]],
     },
     {
@@ -130,7 +133,7 @@ module.exports = function buildDeals(ctx) {
 
     // ── Lost
     { key: 'brooks', client: 'natalie', title: 'Brooks · Miami Beach condo', side: 'buyer', propertyLabel: 'Miami Beach 3BR condo', price: 3600000, sideRate: 0.025, leadSource: 'Website', lostReason: 'Went with another agent', lostNote: 'Her college roommate got licensed in the spring. No hard feelings — keep her on the market update list.', path: [['new_lead', d(-160)], ['consultation', d(-151)], ['touring', d(-122)], ['lost', d(-45)]] },
-    { key: 'wells', client: 'carter', title: 'Wells · Aqua Lumen 1806', side: 'buyer', propertyAddress: 'Aqua Lumen Edgewater, Residence 1806', price: 2950000, contractPrice: 2950000, sideRate: 0.025, leadSource: 'Instagram', lostReason: 'Financing fell through', lostNote: 'Appraisal came in $310K short and the jumbo lender would not bridge it; he would not bring more cash.', path: [['new_lead', d(-200)], ['consultation', d(-191)], ['touring', d(-150)], ['offer_submitted', d(-95)], ['under_contract', d(-90)], ['lost', d(-60)]] },
+    { key: 'wells', client: 'carter', title: 'Wells · Lumen Bay 1806', side: 'buyer', propertyAddress: 'Lumen Bay Edgewater, Residence 1806', price: 2950000, contractPrice: 2950000, sideRate: 0.025, leadSource: 'Instagram', lostReason: 'Financing fell through', lostNote: 'Appraisal came in $310K short and the jumbo lender would not bridge it; he would not bring more cash.', path: [['new_lead', d(-200)], ['consultation', d(-191)], ['touring', d(-150)], ['offer_submitted', d(-95)], ['under_contract', d(-90)], ['lost', d(-60)]] },
     { key: 'price', client: 'imogen', title: 'Price · 4 Sabal Cay', side: 'listing', listing: 'own_sabal', price: 5950000, listPrice: 5950000, sideRate: 0.03, listRate: 0.03, leadSource: 'Sign call', lostReason: 'Seller withdrew — leasing instead', lostNote: 'Two offers at $5.1M. She leased it for a year at $28K/month. Check back next summer.', path: [['seller_lead', d(-180)], ['listing_appt', d(-152)], ['active', d(-140)], ['lost', d(-38)]] },
   ];
 
@@ -151,13 +154,13 @@ module.exports = function buildDeals(ctx) {
     { key: 'marlow', client: 'olivia', title: 'Marlow · Aurelia Brickell PH5', side: 'listing', listing: 'own_aurelia', property: 'pp_marlow_aurelia', salePrice: 4100000, listPrice: 4350000, sideRate: 0.03, at: ytd[1], leadSource: 'Website' },
     { key: 'grant', client: 'theo', title: 'Grant · 3611 Avocado Grove Ln', side: 'buyer', property: 'pp_grant_grove', propertyAddress: '3611 Avocado Grove Lane, Miami, FL 33133', salePrice: 3200000, listPrice: 3350000, sideRate: 0.025, at: ytd[2], leadSource: 'Referral' },
     { key: 'reyes', client: 'amara', title: 'Reyes · Bayside Lofts 1204 (dual)', side: 'dual', property: 'pp_reyes_edgewater', propertyAddress: 'Bayside Lofts Edgewater, Residence 1204', salePrice: 2900000, listPrice: 2995000, sideRate: 0.05, listRate: 0.03, buyRate: 0.02, at: ytd[3], leadSource: 'Open house', extras: { sellerName: 'Estate of R. Delmonte', dual: true } },
-    { key: 'thornton', client: 'william', title: 'Thornton · 3 Heron Point Rd', side: 'listing', property: 'pp_thornton_ge', propertyAddress: '3 Heron Point Road, Gables Estates', salePrice: 11800000, listPrice: 12500000, sideRate: 0.03, at: ytd[4], leadSource: 'Sphere' },
+    { key: 'thornton', client: 'william', title: 'Hartwell · 3 Heron Point Rd', side: 'listing', property: 'pp_thornton_ge', propertyAddress: '3 Heron Point Road, Gables Estates', salePrice: 11800000, listPrice: 12500000, sideRate: 0.03, at: ytd[4], leadSource: 'Sphere' },
     { key: 'hale', client: 'preston', title: 'Hale · 118 Coral Vine Way', side: 'listing', property: 'pp_hale_pb', propertyAddress: '118 Coral Vine Way, Palm Beach, FL 33480', salePrice: 8400000, listPrice: 8950000, sideRate: 0.03, at: ytd[5], leadSource: 'Website' },
     { key: 'whitmore', client: 'grace', title: 'Whitmore · 612 Royal Plaza Isle', side: 'buyer', property: 'pp_whitmore_lasolas', propertyAddress: '612 Royal Plaza Isle, Fort Lauderdale, FL 33301', salePrice: 4400000, listPrice: 4650000, sideRate: 0.025, at: ytd[6], leadSource: 'Instagram' },
     { key: 'watanabe', client: 'kenji', title: 'Watanabe · Vela Brickell 3306', side: 'buyer', property: 'pp_watanabe_vela', propertyAddress: 'Vela Brickell, Residence 3306', salePrice: 2600000, listPrice: 2695000, sideRate: 0.025, at: ytd[7], leadSource: 'Referral' },
     { key: 'moreno', client: 'celeste', title: 'Moreno · 2240 Royal Egret Lane', side: 'buyer', property: 'pp_moreno_boca', propertyAddress: '2240 Royal Egret Lane, Boca Raton, FL 33432', salePrice: 3650000, listPrice: 3800000, sideRate: 0.025, at: ly1.date, leadSource: 'Zillow' },
-    { key: 'stein', client: 'joel', title: 'Stein · 7311 Kendall Oaks Dr', side: 'buyer', property: 'pp_stein_pinecrest', propertyAddress: '7311 Kendall Oaks Drive, Pinecrest, FL 33156', salePrice: 4150000, listPrice: 4295000, sideRate: 0.025, at: ly2.date, leadSource: 'Website' },
-    { key: 'volkov', client: 'dmitri', title: 'Volkov · Oceanique 2108', side: 'buyer', property: 'pp_volkov_sunny', propertyAddress: 'Oceanique Sunny Isles, Residence 2108', salePrice: 2350000, listPrice: 2450000, sideRate: 0.025, at: ctx.lastYearAt(0.21), leadSource: 'Zillow' },
+    { key: 'stein', client: 'joel', title: 'Ackerly · 7311 Kendall Oaks Dr', side: 'buyer', property: 'pp_stein_pinecrest', propertyAddress: '7311 Kendall Oaks Drive, Pinecrest, FL 33156', salePrice: 4150000, listPrice: 4295000, sideRate: 0.025, at: ly2.date, leadSource: 'Website' },
+    { key: 'volkov', client: 'dmitri', title: 'Volkov · Azurine 2108', side: 'buyer', property: 'pp_volkov_sunny', propertyAddress: 'Azurine Sunny Isles, Residence 2108', salePrice: 2350000, listPrice: 2450000, sideRate: 0.025, at: ctx.lastYearAt(0.21), leadSource: 'Zillow' },
     { key: 'ashby', client: 'frederick', title: 'Ashby · 925 Sevilla Arch Ave', side: 'listing', property: 'pp_ashby_gables', propertyAddress: '925 Sevilla Arch Avenue, Coral Gables, FL 33134', salePrice: 3900000, listPrice: 4100000, sideRate: 0.03, at: ctx.lastYearAt(0.46), leadSource: 'Sign call' },
     { key: 'brennan2021', client: 'harold', title: 'Brennan · 260 Harbor Palm Ln (purchase)', side: 'buyer', property: 'pp_brennan_kb', propertyAddress: '260 Harbor Palm Lane, Key Biscayne, FL 33149', salePrice: 4200000, listPrice: 4400000, sideRate: 0.025, at: harold.date, leadSource: 'Open house', lenderName: 'Meridian Coast Private Bank' },
     { key: 'monroe2022', client: 'wes', title: 'Monroe · 2985 Coral Shade Ln', side: 'buyer', property: 'pp_monroe_grove', propertyAddress: '2985 Coral Shade Lane, Miami, FL 33133', salePrice: 2750000, listPrice: 2850000, sideRate: 0.025, at: wes.date, leadSource: 'Open house' },

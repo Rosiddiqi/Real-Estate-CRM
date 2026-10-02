@@ -83,11 +83,8 @@ export default function QuoteHero({ progress = 0, onTap, affirmation: customAffi
           <div style={{ width: 14, height: 1, background: 'var(--blue)' }} />
         </div>
         <div
-          style={{
-            fontFamily: 'var(--font-display)', fontWeight: 300,
-            fontSize: showAffirmation ? 17 : 20, lineHeight: showAffirmation ? '25px' : '28px',
-            letterSpacing: -0.4, color: 'var(--bp-t1)', textWrap: 'balance',
-          }}
+          className={`bp-quote-text ${showAffirmation ? 'bp-quote-text--aff' : ''}`}
+          style={{ fontFamily: 'var(--font-display)', fontWeight: 300, letterSpacing: -0.4, color: 'var(--bp-t1)', textWrap: 'balance' }}
         >
           <span style={{ color: 'var(--blue)' }}>&ldquo;</span>{display.text}<span style={{ color: 'var(--blue)' }}>&rdquo;</span>
         </div>

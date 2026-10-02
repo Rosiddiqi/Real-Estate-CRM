@@ -113,9 +113,12 @@ const Composer = forwardRef(function Composer({
     const prev = prevKey.current;
     prevKey.current = draftKey;
     if (prev === draftKey) return;
-    if (prev == null) {
-      // A thread resolved late — whatever was typed belongs to it.
-      if (latest.current.text.trim() || latest.current.attachments.length || latest.current.listing) return;
+    const cur = latest.current;
+    const hasCur = !!(cur.text.trim() || cur.attachments.length || cur.listing);
+    if (prev == null || /^(client:|handle:|new-message)/.test(prev)) {
+      // A thread resolved late (or a first send created it) — whatever is in
+      // the box (typed, or seeded by QuickText / New Message) belongs to it.
+      if (hasCur) { if (prev) clearDraft(prev); return; }
     }
     const d = loadDraft(draftKey);
     setText(d.text); setAttachments(d.attachments); setListing(d.listing); setService(d.service);

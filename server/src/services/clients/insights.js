@@ -12,6 +12,9 @@ const FAIR_HOUSING = `FAIR HOUSING (non-negotiable): never state, infer, or spec
 
 // ── bundle ───────────────────────────────────────────────────────────────
 async function bundleFor(workspaceId, clientId) {
+  // Never resolve a client without its workspace (an undefined filter would
+  // let Prisma match any workspace's row).
+  if (!workspaceId || !clientId) throw new HttpError(404, 'Client not found');
   const tz = await S.workspaceTz(workspaceId);
   const client = await prisma.client.findFirst({
     where: { id: clientId, workspaceId },

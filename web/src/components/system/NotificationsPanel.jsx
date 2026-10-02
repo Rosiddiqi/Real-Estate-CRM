@@ -44,8 +44,10 @@ function deepLink(n) {
   }
   if (type === 'call_missed' || type === 'missed_call' || type === 'voicemail') {
     return () => {
-      try { localStorage.setItem('km_calls_tab', type === 'voicemail' ? 'voicemail' : 'missed'); } catch { /* ignore */ }
+      const tab = type === 'voicemail' ? 'voicemail' : 'missed';
+      try { localStorage.setItem('km_calls_tab', tab); } catch { /* ignore */ }
       nav.go('phone');
+      window.dispatchEvent(new CustomEvent('calls:tab', { detail: { tab } }));
     };
   }
   if (d.appointmentId) return () => nav.openAppointment(d.appointmentId);

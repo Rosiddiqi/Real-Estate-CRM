@@ -127,6 +127,9 @@
   position: absolute; top: 52px; right: 10px; z-index: 30; width: 236px; border-radius: 16px; overflow: hidden;
   animation: km-ctx-appear 0.18s var(--km-ease) both; transform-origin: top right;
 }
+/* Sits over busy chat content inside a glass popup: keep it near-opaque so it always reads. */
+.km-srn-menu.km-lg--menu { background: rgba(24, 26, 32, 0.96); }
+:root[data-theme="light"] .km-srn-menu.km-lg--menu { background: rgba(255, 255, 255, 0.97); }
 .km-srn-menu-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; font-size: 14.5px; text-align: left; border-bottom: 1px solid var(--srn-hair); }
 .km-srn-menu-row:last-child { border-bottom: 0; }
 .km-srn-menu-note { padding: 11px 14px; font-size: 12px; line-height: 1.4; color: var(--dim); border-bottom: 1px solid var(--srn-hair); }
