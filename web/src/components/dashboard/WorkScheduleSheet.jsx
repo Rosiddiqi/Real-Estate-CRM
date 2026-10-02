@@ -6,7 +6,7 @@
 //   • planner rules in plain English ("no calls before 9am") and the opt-in
 //     sphere check-ins
 // Saving re-plans today + tomorrow on the server (deterministic, instant).
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Sheet from '../ui/Sheet';
 import Icon from '../ui/Icon';
 import { Switch, Spinner } from '../ui/kit';
@@ -104,6 +104,7 @@ export default function WorkScheduleSheet({ onClose }) {
   const [rules, setRules] = useState([]);
   const [ruleText, setRuleText] = useState('');
   const [ruleBusy, setRuleBusy] = useState(false);
+  const closeRef = useRef(null);
 
   useEffect(() => {
     getWorkSchedule().then((r) => { setS(r.schedule); setStatus('ready'); }).catch(() => setStatus('error'));
@@ -158,8 +159,9 @@ export default function WorkScheduleSheet({ onClose }) {
   };
 
   return (
-    <Sheet open onClose={onClose} title="Work schedule" subtitle="Your plan works around this" right={{ label: saving ? 'Saving…' : 'Save', onClick: () => save(), disabled: !dirty || saving }} maxHeight="92%" maxWidth={600}>
+    <Sheet open onClose={onClose} title="Work schedule" subtitle="Your plan works around this" right={{ label: saving ? 'Saving…' : 'Save', onClick: () => save(closeRef.current), disabled: !dirty || saving }} maxHeight="92%" maxWidth={600}>
       {({ close }) => {
+        closeRef.current = close;
         if (status === 'loading') return <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}><Spinner size={22} /></div>;
         if (status === 'error' || !s) return <div className="km-empty"><div className="km-empty-title">Couldn’t load your schedule</div></div>;
         return (

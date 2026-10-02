@@ -269,8 +269,20 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
     if (alignNow(smooth)) setTimeout(() => setLineVisible(true), smooth ? 450 : 60);
     else setLineVisible(true);
   }, [alignNow]);
+  // Only the agent's own scrolling stops the follow — layout-driven scroll
+  // events (content swaps on day change, runway resizes) are ignored.
+  const userInputAt = useRef(0);
+  useEffect(() => {
+    const wrap = scrollRef.current; if (!wrap) return undefined;
+    const mark = () => { userInputAt.current = Date.now(); };
+    const types = ['touchstart', 'touchmove', 'wheel', 'pointerdown'];
+    for (const t of types) wrap.addEventListener(t, mark, { passive: true });
+    window.addEventListener('keydown', mark);
+    return () => { for (const t of types) wrap.removeEventListener(t, mark); window.removeEventListener('keydown', mark); };
+  }, []);
   const onScroll = useCallback(() => {
     if (Date.now() < programmaticUntil.current) return;
+    if (Date.now() - userInputAt.current > 1500) return;
     setLineVisible(false);
     userScrolledRef.current = true;
   }, []);
@@ -400,7 +412,7 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
 
   // ── actions ────────────────────────────────────────────────────────────
   const shiftDay = (delta) => setOverride(shiftKey(selectedKey, delta));
-  const goToday = () => setOverride(todayK);
+  const goToday = () => { userScrolledRef.current = false; setOverride(todayK); };
   const newEvent = () => {
     // Next half hour today (agent's zone), else 10 AM on the viewed day.
     const startMin = isToday ? Math.min(23 * 60 + 30, Math.ceil((minuteOfDay(new Date()) + 1) / 30) * 30) : 600;

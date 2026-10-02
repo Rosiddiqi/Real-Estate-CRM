@@ -219,6 +219,14 @@ export default function ThreadView({
 
       {headerNode || briefingOn ? (
         <div ref={headerRef} className={headerNode ? 'km-th-header' : ''} style={headerNode ? undefined : { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 25, pointerEvents: 'none' }}>
+          {headerNode ? (
+            <>
+              {/* Scroll-edge: blur + fade behind the floating controls so bubbles
+                  passing under the name pill never read as crisp text. */}
+              <div className="km-th-blur" aria-hidden="true" />
+              <div className="km-th-scrim" aria-hidden="true" />
+            </>
+          ) : null}
           {headerNode}
           {briefingOn ? (
             <div style={{ pointerEvents: 'auto' }}>
