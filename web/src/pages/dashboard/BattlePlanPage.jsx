@@ -287,6 +287,8 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
     userScrolledRef.current = true;
   }, []);
 
+  // A new day starts following again (declared before the centering effect).
+  useLayoutEffect(() => { userScrolledRef.current = false; }, [selectedKey]);
   // Open already centered on NOW (pre-paint, not gated on data).
   useLayoutEffect(() => {
     if (isToday && !userScrolledRef.current) snapToNow(false);

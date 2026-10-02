@@ -87,12 +87,14 @@ export function priceLabel(l) {
   if (l.lane === 'whisper' && l.priceGuide) return `Guide ~${moneyCompact(l.priceGuide)}`;
   return 'Price on request';
 }
-export function listedLine(l) {
+export function listedLine(l, { compact = false } = {}) {
   const parts = [];
   if (l.lane === 'whisper') {
     parts.push(l.eta ? `Heard · ${l.eta}` : 'Heard');
     return parts.join('');
   }
+  // compact (a struck "was" price shares the row): DOM alone says enough
+  if (compact && l.dom != null && l.status !== 'coming_soon') return `${l.dom} DOM`;
   const listed = fmtListed(l.listedAt || l.createdAt);
   if (listed) parts.push(l.status === 'coming_soon' ? `Added ${listed}` : `Listed ${listed}`);
   if (l.dom != null && l.status !== 'coming_soon') parts.push(`${l.dom} DOM`);
@@ -329,7 +331,7 @@ export function ListingTile({ l, onOpen, index = 0 }) {
         <div className="kl-tile-price">
           <span className="km-num">{priceLabel(l)}</span>
           {l.dropAmount && l.previousPrice ? <span className="kl-was">{moneyCompact(l.previousPrice)}</span> : null}
-          <span className="kl-listed">{listedLine(l)}</span>
+          <span className="kl-listed">{listedLine(l, { compact: !!(l.dropAmount && l.previousPrice) })}</span>
         </div>
         {statsLine(l) ? <div className="kl-stats">{statsLine(l)}</div> : null}
         {chips.length ? (

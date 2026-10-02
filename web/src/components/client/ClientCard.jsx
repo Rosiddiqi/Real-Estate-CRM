@@ -137,10 +137,18 @@ export default function ClientCard({ id, tab: tabProp, onClose }) {
   const refreshSoon = useCallback(() => { clearTimeout(soonT.current); soonT.current = setTimeout(refresh, 300); }, [refresh]);
   const actT = useRef(null);
   const activitySoon = useCallback(() => { clearTimeout(actT.current); actT.current = setTimeout(loadActivity, 300); }, [loadActivity]);
-  useEffect(() => () => { clearTimeout(soonT.current); clearTimeout(actT.current); }, []);
+  // The status line / next move follow the record: anything that lands on the
+  // timeline (a call, a property, a deal move) re-reads the briefing — the
+  // server answers from cache unless something newer invalidated it.
+  const brT = useRef(null);
+  const briefingSoon = useCallback(() => {
+    clearTimeout(brT.current);
+    brT.current = setTimeout(() => { pollRef.current.n = 0; loadBriefing(false); }, 1500);
+  }, [loadBriefing]);
+  useEffect(() => () => { clearTimeout(soonT.current); clearTimeout(actT.current); clearTimeout(brT.current); }, []);
   useSocket('client_updated', (p) => { if (p && p.id === id) refreshSoon(); });
-  useSocket('activity_created', (p) => { if (p && p.clientId === id) { activitySoon(); if (/^(deal|property|search)/.test(p.type || '')) refreshSoon(); } });
-  useSocket(['deal_created', 'deal_updated', 'deal_deleted'], (p) => { if (p && p.clientId === id) { refreshSoon(); activitySoon(); } });
+  useSocket('activity_created', (p) => { if (p && p.clientId === id) { activitySoon(); briefingSoon(); if (/^(deal|property|search)/.test(p.type || '')) refreshSoon(); } });
+  useSocket(['deal_created', 'deal_updated', 'deal_deleted'], (p) => { if (p && p.clientId === id) { refreshSoon(); activitySoon(); briefingSoon(); } });
   useResync(() => { refresh(); loadActivity(); });
 
   useLayoutEffect(() => {

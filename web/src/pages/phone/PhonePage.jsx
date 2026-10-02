@@ -4,13 +4,14 @@
 // keypad + search sheets, save-contact for unknown numbers. Opening the tab
 // clears the missed-call badge.
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import PageHeader from '../../components/ui/PageHeader';
 import GlassButton from '../../components/ui/GlassButton';
+import Icon from '../../components/ui/Icon';
 import PillTabs from '../../components/ui/PillTabs';
 import Avatar from '../../components/ui/Avatar';
 import { EmptyState, SkeletonRows } from '../../components/ui/kit';
 import { toast } from '../../components/ui/toast';
 import { nav } from '../../lib/nav';
+import { BRAND } from '../../brand';
 import { firstName } from '../../lib/format';
 import { markSeen, bumpBadges } from '../../api/system';
 import { listCalls, markHeard } from '../../api/calls';
@@ -141,20 +142,40 @@ export default function PhonePage() {
   };
 
   const unheard = (calls || []).filter((c) => classify(c) === 'voicemail' && !c.voicemailHeard);
+  const stats = useMemo(() => {
+    const start = new Date(); start.setHours(0, 0, 0, 0);
+    let today = 0; let missedToday = 0;
+    for (const c of calls || []) {
+      if (!c.startedAt || new Date(c.startedAt) < start) continue;
+      today += 1;
+      const k = classify(c);
+      if (k === 'missed' || k === 'voicemail') missedToday += 1;
+    }
+    return { today, missedToday };
+  }, [calls]);
 
   return (
     <div className="km-screen">
-      <PageHeader
-        title="Phone"
-        large
-        style={{ width: '100%', maxWidth: 784, margin: '0 auto' }}
-        right={(
-          <>
-            <GlassButton icon="search" label="Search calls" onClick={() => setSearch(true)} />
-            <GlassButton icon="keypad" label="Keypad" onClick={() => setKeypad(true)} accent />
-          </>
-        )}
-      />
+      <header className="km-ph-head">
+        <div className="km-ph-head-row">
+          <span className="km-ph-eyebrow">{String(BRAND.name || 'KeyMatch').toUpperCase()}</span>
+          <GlassButton icon="search" label="Search calls" onClick={() => setSearch(true)} />
+        </div>
+        <div>
+          <h1 className="km-ph-title">Phone</h1>
+          <div className="km-ph-stats">
+            {calls === null ? null : stats.today ? (
+              <>
+                <span><b>{stats.today}</b> {stats.today === 1 ? 'call' : 'calls'} today</span>
+                {stats.missedToday ? <><span className="km-ph-dotsep">·</span><span><b style={{ color: 'var(--red)' }}>{stats.missedToday}</b> missed</span></> : null}
+                {counts.unheard ? <><span className="km-ph-dotsep">·</span><span><b style={{ color: 'var(--violet)' }}>{counts.unheard}</b> new {counts.unheard === 1 ? 'voicemail' : 'voicemails'}</span></> : null}
+              </>
+            ) : (
+              <span>{counts.unheard ? <><b style={{ color: 'var(--violet)' }}>{counts.unheard}</b> new {counts.unheard === 1 ? 'voicemail' : 'voicemails'} · </> : null}No calls yet today</span>
+            )}
+          </div>
+        </div>
+      </header>
       <div className="km-scroll km-ph-body" ref={scrollRef}>
         <div className="km-ph-wrap">
           <CallNowHero />
@@ -200,6 +221,10 @@ export default function PhonePage() {
           )}
         </div>
       </div>
+
+      <button type="button" className="km-ph-fab" aria-label="Keypad" onClick={() => setKeypad(true)}>
+        <Icon name="keypad" size={26} stroke={2} />
+      </button>
 
       <KeypadSheet open={keypad} onClose={() => setKeypad(false)} recents={calls || []}
         onDial={({ phone, clientId, name }) => { setKeypad(false); setTimeout(() => nav.call({ phone, clientId, name }), 260); }} />
