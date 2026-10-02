@@ -41,7 +41,7 @@ const ids = await page.evaluate(async () => {
 
 const stops = [
   ['home', '#/home'],
-  ['stats', '#/home', async () => { await page.mouse.move(width * 0.8, height * 0.5); await page.evaluate(() => { const el = document.querySelector('[data-page="stats"], [data-dashboard-page="1"]'); if (el) el.scrollIntoView({ inline: 'start' }); }); }],
+  ['stats', '#/home', async () => { try { await page.getByText('STATS', { exact: true }).first().click({ timeout: 3000 }); } catch { await page.evaluate(() => { const el = document.querySelector('[data-page="stats"], [data-dashboard-page="1"]'); if (el) el.scrollIntoView({ inline: 'start' }); }); } }],
   ['inbox', '#/inbox'],
   ['thread', ids.conversation ? `#/inbox?o=thread:${ids.conversation}` : null],
   ['phone', '#/phone'],
