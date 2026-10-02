@@ -267,8 +267,8 @@
 @media (min-width: 900px) {
   .kc-wide { max-width: 760px; margin: 0 auto; }
   /* Builder chrome lines up with the 760px column on wide screens. */
-  .kc-stepper { max-width: 760px; margin: 0 auto; width: 100%; box-sizing: border-box; padding-left: 0; padding-right: 0; }
-  .kc-footer { padding-left: max(16px, calc((100% - 760px) / 2)); padding-right: max(16px, calc((100% - 760px) / 2)); }
+  .kc-stepper { max-width: 728px; margin: 0 auto; width: 100%; box-sizing: border-box; padding-left: 0; padding-right: 0; }
+  .kc-footer { padding-left: max(16px, calc((100% - 728px) / 2)); padding-right: max(16px, calc((100% - 728px) / 2)); }
 }
 
 /* The builder owns the bottom of the screen (its CTA bar): the floating
