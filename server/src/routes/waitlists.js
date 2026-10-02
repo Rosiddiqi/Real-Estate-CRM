@@ -58,6 +58,18 @@ function criteriaLine(searches, wl) {
   return { text: parts.join(' · ') || S.searchTitle(s), searchId: s.id, title: S.searchTitle(s) };
 }
 
+// Lists created before `kind` existed (or seeded without it) carry the
+// default 'building' — read the real kind off the list itself.
+function effectiveKind(wl) {
+  if (wl.kind && wl.kind !== 'building') return wl.kind;
+  const text = `${wl.name || ''} ${wl.description || ''}`;
+  if (/\b(off[- ]market|pocket|whisper|quiet list)/i.test(text)) return 'off_market';
+  if (/\b(phase|release|launch|pre-?construction|pre-?sale|tower [ivx\d]+)\b/i.test(text)) return 'release';
+  if (wl.buildingName) return 'building';
+  if (wl.neighborhood) return 'community';
+  return 'building';
+}
+
 function tier(c) {
   if (c.isWhale || c.rating >= 5) return 'whale';
   if (c.rating >= 4) return 'hot';
@@ -86,7 +98,7 @@ async function loadWaitlist(workspaceId, id) {
     };
   });
   const waiting = entries.filter((e) => e.status === 'waiting').length;
-  return { ...wl, entries, count: entries.length, waitingCount: waiting, gotCount: entries.length - waiting };
+  return { ...wl, kind: effectiveKind(wl), entries, count: entries.length, waitingCount: waiting, gotCount: entries.length - waiting };
 }
 
 function emit(workspaceId, waitlistId, clientId) {
@@ -108,7 +120,7 @@ router.get('/', ah(async (req, res) => {
     const waitingCount = entries.filter((e) => e.status === 'waiting').length;
     totalWaiting += waitingCount;
     return {
-      ...wl, count: entries.length, waitingCount, gotCount: entries.length - waitingCount,
+      ...wl, kind: effectiveKind(wl), count: entries.length, waitingCount, gotCount: entries.length - waitingCount,
       faces: entries.slice(0, 4).map((e) => ({ id: e.client.id, name: S.displayNameOf(e.client), avatarUrl: e.client.avatarUrl, isWhale: e.client.isWhale })),
     };
   });
@@ -119,12 +131,12 @@ router.get('/client/:clientId', ah(async (req, res) => {
   const wid = req.workspaceId;
   const entries = await prisma.waitlistEntry.findMany({
     where: { clientId: req.params.clientId, status: { not: 'removed' }, waitlist: { workspaceId: wid } },
-    include: { waitlist: { select: { id: true, name: true, kind: true, buildingName: true, neighborhood: true } } },
+    include: { waitlist: { select: { id: true, name: true, kind: true, buildingName: true, neighborhood: true, description: true } } },
   });
   const out = [];
   for (const e of entries) {
     const ahead = await prisma.waitlistEntry.count({ where: { waitlistId: e.waitlistId, status: { not: 'removed' }, client: { archivedAt: null }, OR: [{ position: { lt: e.position } }, { position: e.position, createdAt: { lt: e.createdAt } }] } });
-    out.push({ id: e.id, status: e.status, rank: ahead + 1, notes: e.notes, waitlist: e.waitlist });
+    out.push({ id: e.id, status: e.status, rank: ahead + 1, notes: e.notes, waitlist: { ...e.waitlist, kind: effectiveKind(e.waitlist) } });
   }
   res.json({ entries: out, total: out.length });
 }));

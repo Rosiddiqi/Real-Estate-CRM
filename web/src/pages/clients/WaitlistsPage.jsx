@@ -280,7 +280,7 @@ export default function WaitlistsPage({ onClose }) {
                   <div key={w.id}>
                     <button type="button" className="kc-wl-row km-press" onClick={() => setOpenId(open ? null : w.id)} aria-expanded={open}>
                       <span style={{ flex: 1, minWidth: 0 }}>
-                        <span className="kc-wl-name km-truncate" style={{ display: 'block' }}>{w.name}</span>
+                        <span className="kc-wl-name kc-clamp2" style={{ display: 'block' }}>{w.name}</span>
                         <span className="km-truncate" style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)', marginTop: 3 }}>
                           {[w.buildingName && w.buildingName !== w.name ? w.buildingName : null, w.neighborhood].filter(Boolean).join(' · ') || KIND_ONE[w.kind || 'building']}
                         </span>

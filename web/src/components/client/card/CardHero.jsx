@@ -190,10 +190,10 @@ export default function CardHero({ client, briefing, onWhale, onRate, onCall, on
       <div className="kc-chiprow">
         {status ? <span className={`kc-chip kc-chip--${status.tone}`}>{status.label}</span> : null}
         {isPerson && TYPE_LABEL[client.type] ? <span className="kc-chip kc-chip--gray">{TYPE_LABEL[client.type]}</span> : null}
-        {client.leadSource ? (
+        {client.referredBy || (client.leadSource && ![status?.label, TYPE_LABEL[client.type]].some((l) => l && l.toLowerCase() === humanize(client.leadSource).toLowerCase())) ? (
           <button type="button" className="kc-chip kc-chip--gray" onClick={client.referredBy ? onReferrer : undefined}>
             {client.referredBy ? <Icon name="handshake" size={11} stroke={2} /> : null}
-            {client.referredBy ? `Referral · ${client.referredBy.firstName || displayName(client.referredBy)}` : client.leadSource}
+            {client.referredBy ? `Referral · ${client.referredBy.firstName || displayName(client.referredBy)}` : humanize(client.leadSource)}
           </button>
         ) : null}
         {client.blocked ? <span className="kc-chip kc-chip--orange"><Icon name="lock" size={10} stroke={2.2} /> Blocked</span> : null}
