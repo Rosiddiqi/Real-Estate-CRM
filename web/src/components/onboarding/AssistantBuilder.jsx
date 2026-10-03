@@ -12,7 +12,7 @@ import { PERSONALITY_PRESETS as PRESETS, NAME_SUGGESTIONS as NAMES } from './per
 function Orb({ size = 72 }) {
   return (
     <div style={{ width: size, height: size, borderRadius: '50%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="km-lg">
-      <div style={{ width: size * 0.22, height: size * 0.22, borderRadius: '50%', background: 'var(--bright)', boxShadow: '0 0 24px 6px var(--glow)', animation: 'pulseDot 2.4s ease-in-out infinite' }} />
+      <div style={{ width: size * 0.22, height: size * 0.22, borderRadius: '50%', background: 'radial-gradient(circle at 35% 30%, rgba(255,255,255,0.85) 0%, var(--hl) 48%, var(--hl) 100%)', boxShadow: '0 0 24px 6px rgba(var(--hl-rgb), 0.3)', animation: 'pulseDot 2.4s ease-in-out infinite' }} />
     </div>
   );
 }
@@ -90,7 +90,7 @@ export default function AssistantBuilder({ onDone }) {
               <div style={{ fontSize: 28, fontWeight: 500, letterSpacing: '-0.02em' }}>Meet {displayName}</div>
               <div style={{ fontSize: 15, color: 'var(--dim)', lineHeight: 1.5 }}>Tap the bubble any time to talk to {displayName} — from any screen. Your To-Do lives there too: swipe left in the chat.</div>
               <div className="km-ai-card">
-                <div className="km-eyebrow" style={{ color: 'var(--bright)' }}>{displayName.toUpperCase()} CAN</div>
+                <div className="km-eyebrow" style={{ color: 'var(--hl-ink)' }}>{displayName.toUpperCase()} CAN</div>
                 {['Draft texts to clients in your voice', 'Tell you who has gone quiet — and who to call first', 'Pull up a deal, a listing, a client’s portfolio', 'Book showings and closings on your calendar', 'Keep your To-Do — including what it catches in your texts and calls'].map((t) => (
                   <div key={t} style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 10, fontSize: 14.5 }}>
                     <Icon name="check" size={15} color="var(--bright)" stroke={2.4} /> {t}

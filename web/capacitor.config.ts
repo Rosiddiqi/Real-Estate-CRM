@@ -13,7 +13,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   ios: {
     contentInset: 'never',
-    backgroundColor: '#06080C',
+    backgroundColor: '#0D0D0D',
     // Inner containers scroll; the WebView itself never rubber-bands.
     scrollEnabled: false,
     limitsNavigationsToAppBoundDomains: false,
@@ -33,7 +33,7 @@ const config: CapacitorConfig = {
     },
     SplashScreen: {
       launchAutoHide: false,
-      backgroundColor: '#06080C',
+      backgroundColor: '#0D0D0D',
       showSpinner: false,
       launchFadeOutDuration: 250,
     },

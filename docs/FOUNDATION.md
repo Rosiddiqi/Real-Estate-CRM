@@ -65,15 +65,17 @@ fix every one. Check 390×844 (primary), 375×667 (small), and 1280×860 (deskto
 
 ## 3. Product & UX rules (non-negotiable — inherited from RevMatch's CLAUDE.md)
 
-- **Apple-level feel.** iOS 26-inspired, premium, dark-first, SF Pro (`var(--font)`). Never a generic
-  SaaS dashboard. Every transition animated; buttons press (`scale(.97)`); sheets slide; lists have
+- **Apple-level feel, Soul look.** Premium, dark-first, quiet: the Soul design language in
+  `docs/BRAND.md` (Poppins `var(--font)` + Inter `var(--font-num)`, hairline glass, white pills, one
+  Volt highlight). Never a generic SaaS dashboard. Every transition animated; buttons press (`scale(.97)`); sheets slide; lists have
   momentum. If two similar elements look different, that's a bug.
 - **Mobile-first**: works at 375px; iPhone Safari/PWA is primary; desktop must still look intentional.
 - **Fixed chrome never scrolls**; each surface owns its scroll container (`.km-scroll`).
-- **Tab bar is a floating pill**; every page leaves `calc(var(--tabbar-clearance) + var(--safe-bottom))`
-  (110px) of bottom space so content clears it.
-- **Page titles**: use `<PageHeader>` (24px/600 centered; glass circle controls). Tab roots may use
-  `large` titles.
+- **Tab bar is a floating pill** (Soul nav: icon-only, active dot, raised Volt Phone button); every
+  page leaves `calc(var(--tabbar-clearance) + var(--safe-bottom))` (112px) of bottom space so content
+  clears it.
+- **Page titles**: use `<PageHeader>` (12px UPPERCASE tracked title centered between hairline circle
+  controls). Tab roots may use `large` titles (Poppins 400, 34px).
 - **Page-like surfaces** (cards, threads, detail pages, menus pages) = `<PushPanel>` (slide in from
   right, edge-swipe back). **Pop-ups** = `<Sheet>` (floats above the footer, clears the keyboard,
   scrolls internally, rounded all corners). Never hand-roll either.
@@ -81,11 +83,12 @@ fix every one. Check 390×844 (primary), 375×667 (small), and 1280×860 (deskto
   agent's approval (Preview → Edit/Approve → Send). Campaign launches approve sends at campaign level.
   Every AI feature MUST work without AI (`ai.available()` false → deterministic fallback copy/logic).
   AI never blocks the UI (async + loading/skeleton states).
-- **Channel colors**: iMessage = blue (`--imsg`), SMS/Android = green (`--sms`) — everywhere a
-  channel appears.
+- **Channel colors** are monochrome: iMessage = white bubble with ink text (`--imsg`/`--imsg-text`),
+  SMS/Android = graphite (`--sms`/`--sms-text`) — everywhere a channel appears.
 - **No manual sync UI**: realtime via WebSocket; silent refetch on reconnect/foreground (`useResync`).
 - **Empty states**: centered 64px icon tile + 17px title + 14px sub (`<EmptyState>`).
-- Hairlines + space over boxes. Glow, don't drop-shadow. No emoji as UI icons (use `<Icon>`).
+- Hairlines + space over boxes. No glows; the one colour is the Volt highlight (`--hl`), used for
+  live/active/progress/AI moments only — see `docs/BRAND.md`. No emoji as UI icons (use `<Icon>`).
 - Fair Housing: never store or infer protected-class info (race, religion, national origin,
   familial status, disability, sex…) or demographic neighborhood preferences — only property
   attributes and explicitly named locations. Applies to every AI prompt.
@@ -127,15 +130,20 @@ fix every one. Check 390×844 (primary), 375×667 (small), and 1280×860 (deskto
 - React 19 + Vite, plain CSS with tokens (no Tailwind). Inline styles referencing CSS vars are fine
   (`style={{ color: 'var(--dim)' }}`); put larger feature CSS in `src/styles/<feature>.css` and import
   it from your feature's entry component.
-- **Tokens** (`styles/tokens.css`): `--bg #06080C`, `--surface #0E131C`, `--surfaceHi #131A26`, `--line`,
-  `--lineHi`, `--text`, `--dim`, `--faint`, `--blue`, `--bright`, `--deep`, `--glow`, `--tint`, `--green`,
-  `--amber`, `--red`, `--violet`, `--imsg`, `--sms`, KIND colors `--kind-call/text/email/match/prep/
-  personal/content/showing/openhouse/closing/listing`, radii `--r-card 16 / --r-sheet 24 / --r-md 12`,
-  motion `--km-ease`, `--km-nav-ease`, `--km-spring`. Light theme via `data-theme="light"` — use vars,
-  never hard-code dark colors. Accent palettes swap `--blue/--bright/--deep/--glow/--tint`.
-- **Liquid glass** (`styles/liquid-glass.css`): `km-lg` (+`--solid`, `--menu`, `--line`, `--flat`,
-  `km-lg-seg`, `--clear km-lg--dim` over photos), `km-mat` for content-layer frost, `km-scroll-edge`
-  for top bars. Glass = functional layer only (floating controls/nav), never content cards.
+- **Tokens** (`styles/tokens.css`, full guide in `docs/BRAND.md`): `--bg #0D0D0D`, `--surface #151515`,
+  `--surfaceHi`, `--surfaceTop`, `--glass-fill`, `--glass-line`, `--hairline`, `--line`, `--lineHi`,
+  `--text`, `--dim`, `--faint`, `--ghost`, `--meta`; emphasis `--blue/--bright/--deep` (white on dark,
+  ink on light) with `--on-accent`; the highlight `--hl`, `--hl-soft`, `--hl-line`, `--hl-ink`,
+  `--on-hl`, `--hl-rgb`; status `--green`, `--amber`, `--red`, `--cyan`; `--imsg(-text)`, `--sms(-text)`,
+  KIND colors; radii `--r-card 20 / --r-img 15 / --r-sheet 32 / --r-pill`; fonts `--font` (Poppins),
+  `--font-num` (Inter); motion `--km-ease`, `--km-nav-ease`, `--km-spring`. Light theme via
+  `data-theme="light"` — use vars, never hard-code dark colors. Settings › Accent swaps only the
+  `--hl*` variables (Volt · Amber · Mist). Data colours from the server go through
+  `lib/palette.js` (`tone()`, `tint()`); never append hex alpha to a colour string.
+- **Glass** (`styles/liquid-glass.css`, Soul recipe): `km-lg` (+`--solid`, `--menu`, `--line`, `--flat`,
+  `km-lg-seg` = the white selected pill, `--clear km-lg--dim` over photos), `km-mat` for content-layer
+  frost, `km-scroll-edge` for top bars. Content tiles use `km-tile`/`km-card` (glass fill + hairline,
+  no blur).
 - **Kit** (`components/ui`):
   - `Icon` (`<Icon name="house" size={20} />` — names in `Icon.jsx`; add none, use what exists),
   - `Avatar` (`name`, `seed`=client.id, `src`, `size`, `channel`, `badge`),
@@ -153,7 +161,8 @@ fix every one. Check 390×844 (primary), 375×667 (small), and 1280×860 (deskto
 - CSS classes: `km-screen` + `km-screen-body` (tab roots), `km-scroll`, `km-scroll-x`, `km-card`,
   `km-ai-card`, `km-row`, `km-list`, `km-pill(--on)`, `km-badge`, `km-input`, `km-eyebrow`, `km-num`,
   `km-truncate`, `km-clamp-2`, `km-press`, `km-row-in` (stagger ≤12 rows), `km-skel`, `km-fab`,
-  `km-fluted` (architectural hero material — replaces RevMatch's carbon fiber).
+  `km-tile`, `km-value` (Inter Light numbers), `km-end-session`, `km-fluted` (quiet header lift).
+  Brand: `components/ui/BrandMark.jsx` (`BrandMark`, `Wordmark`, `BrandLockup`).
 - **Navigation** (`lib/nav.js`): never route any other way.
   `nav.go(tab)`; `nav.openClient(id)`, `nav.newClient(prefill)`, `nav.openWaitlists()`, `nav.openImport()`,
   `nav.openThread({conversationId|clientId|handle, draft})`, `nav.compose({to, clientId, body, listingId})`,

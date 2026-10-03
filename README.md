@@ -29,7 +29,7 @@ protected-class details out of AI prompts, out of matching and out of campaigns.
 
 | Layer | Tech |
 |---|---|
-| Web | React 19 · Vite · plain CSS design tokens + Liquid Glass · @dnd-kit · recharts |
+| Web | React 19 · Vite · plain CSS design tokens (Soul look, Volt highlight — see `docs/BRAND.md`) · @dnd-kit · recharts |
 | API | Node 20+ · Express 4 · Prisma 5 · PostgreSQL · `ws` WebSocket hub |
 | AI | Anthropic Claude (`claude-opus-5-5`) via `@anthropic-ai/sdk` — every feature has a deterministic fallback |
 | Messaging | Provider abstraction: demo simulator · Twilio SMS |
@@ -67,5 +67,6 @@ App Store Connect app record) are in **`docs/DEPLOY.md`**.
 ## Docs
 
 - `docs/FOUNDATION.md` — architecture, conventions, design system, navigation contract, ownership map.
+- `docs/BRAND.md` — the look and feel: colour, type, components, the KeyMatch mark, icon generator.
 - `docs/DEPLOY.md` — server deploy (nginx/systemd/Docker) and the TestFlight pipeline.
 - `.env.example` — every configuration option.
