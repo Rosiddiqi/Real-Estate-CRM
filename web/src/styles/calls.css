@@ -183,6 +183,9 @@ body.km-kb-open .km-ph-fab, body.km-tabbar-hidden .km-ph-fab { opacity: 0; point
 .km-call-tx-head { display: flex; align-items: center; gap: 8px; padding: 6px 6px 0; font-size: 10.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); flex-shrink: 0; }
 /* the live focus list (voice.css): the newest line sits ~60% down, earlier lines recede above it */
 .km-call-lines { flex: 1; min-height: 110px; padding: 0 18px; }
+/* a co-pilot cue takes room — set the transcript a size smaller so the line still fits */
+.km-call-mid.has-cue .km-call-lines .km-vt-text { font-size: 16px; }
+.km-call-mid.has-cue .km-call-lines .km-vt-line.is-focus .km-vt-text { font-size: 19px; line-height: 1.28; }
 
 /* co-pilot cue card */
 .km-cue {

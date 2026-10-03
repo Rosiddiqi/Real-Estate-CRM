@@ -190,7 +190,7 @@ function LiveCall({ clientId, phone, name, callId, onClose }) {
           </div>
         ) : null}
 
-        <div className="km-call-mid">
+        <div className={`km-call-mid ${cue ? 'has-cue' : ''}`}>
           {brief && (brief.recommendedMove || (brief.touchPoints && brief.touchPoints.length) || (brief.iceBreakers && brief.iceBreakers.length)) ? (
             <div className={`km-call-brief km-lg km-lg--light ${briefOpen ? 'is-open' : ''}`}>
               <button type="button" className="km-call-brief-head" onClick={() => setBriefOpen((v) => !v)} aria-expanded={briefOpen}>
