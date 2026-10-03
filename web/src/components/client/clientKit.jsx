@@ -233,7 +233,7 @@ export function SwipeRow({ id, openId, setOpenId, actions, width = 88, fullSwipe
         {actions.map((a) => (
           <button key={a.label} type="button" onClick={() => { setOpenId(null); a.onClick(); }} style={{ width, background: a.bg || 'transparent', color: a.color || '#fff' }}>
             {a.icon ? <Icon name={a.icon} size={20} stroke={2} /> : null}
-            <span style={{ fontSize: a.icon ? 11 : 13.5, fontWeight: a.icon ? 700 : 600 }}>{a.label}</span>
+            <span style={{ fontSize: a.icon ? 11 : 13.5, fontWeight: a.icon ? 500 : 400 }}>{a.label}</span>
           </button>
         ))}
       </div>

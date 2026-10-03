@@ -250,8 +250,8 @@ body.km-kb-open .km-thread--kb { --km-th-bottom: calc(var(--keyboard-height) + 6
   width: 48px; height: 48px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   background: rgba(22, 24, 30, 0.42);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   pointer-events: none;
 }
 .km-save-btn {
@@ -399,8 +399,8 @@ body.km-kb-open .km-thread--kb { --km-th-bottom: calc(var(--keyboard-height) + 6
 .km-th-header > .km-th-blur, .km-th-header > .km-th-scrim { pointer-events: none; }
 .km-th-blur, .km-th-scrim { position: absolute; left: 0; right: 0; top: 0; height: 100%; z-index: -1; }
 .km-th-blur {
-  -webkit-backdrop-filter: blur(14px) saturate(150%);
-  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 34px), transparent 100%);
   mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 34px), transparent 100%);
 }
@@ -434,8 +434,8 @@ body.km-kb-open .km-thread--kb { --km-th-bottom: calc(var(--keyboard-height) + 6
 .km-th-footer-tint {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 20; pointer-events: none;
   height: calc(var(--km-th-composer-h) + var(--km-th-bottom) + 14px);
-  -webkit-backdrop-filter: blur(10px) saturate(140%);
-  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   -webkit-mask-image: linear-gradient(to top, #000 0, #000 calc(100% - 30px), transparent 100%);
   mask-image: linear-gradient(to top, #000 0, #000 calc(100% - 30px), transparent 100%);
   background: linear-gradient(to top, rgba(var(--km-th-edge), 0.9) 0%, rgba(var(--km-th-edge), 0.8) 35%, rgba(var(--km-th-edge), 0.5) 60%, rgba(var(--km-th-edge), 0.18) 82%, rgba(var(--km-th-edge), 0) 100%);
@@ -624,8 +624,8 @@ body.km-thread-open [data-serena-bubble] { opacity: 0 !important; pointer-events
 .km-ctx-backdrop {
   position: absolute; inset: 0;
   background: rgba(0, 0, 0, 0.44);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
-  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
   touch-action: none;
   animation: km-ctx-fade 0.28s cubic-bezier(0.25, 0.1, 0.25, 1) both;
 }
@@ -649,8 +649,8 @@ body.km-thread-open [data-serena-bubble] { opacity: 0 !important; pointer-events
   display: flex; align-items: center; padding: 4px;
   max-width: calc(100vw - 32px);
   background: rgba(37, 37, 39, 0.78);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(40px);
   border-radius: 999px;
   box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.12), 0 8px 32px rgba(0, 0, 0, 0.4);
   pointer-events: auto;
@@ -679,8 +679,8 @@ body.km-thread-open [data-serena-bubble] { opacity: 0 !important; pointer-events
   width: 250px; max-width: calc(100vw - 32px);
   border-radius: 14px; overflow: hidden;
   background: rgba(37, 37, 39, 0.78);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(40px);
   box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.1), 0 12px 40px rgba(0, 0, 0, 0.45);
   pointer-events: auto;
   animation: km-ctx-menu-in 0.3s cubic-bezier(0.3, 1.2, 0.4, 1) 0.02s both;

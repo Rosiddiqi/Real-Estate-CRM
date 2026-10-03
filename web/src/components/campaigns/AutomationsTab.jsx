@@ -110,7 +110,7 @@ function ThreadGroups({ groups }) {
             <Avatar name={t.name} seed={t.clientId || t.conversationId} src={t.avatarUrl} size={38} channel={t.channel} />
             <span style={{ flex: 1, minWidth: 0 }}>
               <span style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                <span className="km-truncate" style={{ flex: 1, minWidth: 0, fontSize: 14.5, fontWeight: t.unreadCount ? 700 : 600 }}>{t.name}</span>
+                <span className="km-truncate" style={{ flex: 1, minWidth: 0, fontSize: 14.5, fontWeight: t.unreadCount ? 500 : 400 }}>{t.name}</span>
                 <span style={{ fontSize: 11.5, color: 'var(--faint)', flexShrink: 0 }}>{relativeTime(t.lastMessageAt)}</span>
               </span>
               <span className="km-truncate" style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>{t.preview || 'Campaign text'}</span>

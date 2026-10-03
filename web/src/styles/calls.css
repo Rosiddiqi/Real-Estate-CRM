@@ -260,7 +260,7 @@ body.km-kb-open .km-ph-fab, body.km-tabbar-hidden .km-ph-fab { opacity: 0; point
   position: fixed; z-index: 9995; left: 50%; top: calc(var(--safe-top) + 8px); transform: translateX(-50%);
   width: min(440px, calc(100vw - 24px)); display: flex; align-items: center; gap: 8px; padding: 7px 8px 7px 14px; border-radius: 999px;
   background: rgba(22, 22, 22, 0.95); border: var(--hairline) solid rgba(255, 255, 255, 0.14); color: #fff;
-  -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.5); animation: km-pill-in 0.42s var(--km-spring) both;
 }
 @keyframes km-pill-in { from { opacity: 0; transform: translate(-50%, -16px) scale(0.96); } to { opacity: 1; transform: translateX(-50%); } }

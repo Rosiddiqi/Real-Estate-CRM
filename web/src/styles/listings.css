@@ -33,6 +33,8 @@
   padding: 3px 7px; border-radius: 7px; color: #fff; font-size: 10px; font-weight: 500; letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums;
 }
+/* Over photos (and light placeholders) the chips stay dark glass. */
+:root[data-theme="light"] .kl-count.km-mat, :root[data-theme="light"] .kl-private.km-mat { background: rgba(13, 13, 13, 0.45); }
 .kl-private {
   position: absolute; top: 9px; left: 9px; z-index: 2; display: inline-flex; align-items: center; gap: 4px;
   padding: 3px 8px; border-radius: 7px; color: #fff; font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
@@ -260,7 +262,7 @@
 .kl-error { margin-top: 10px; padding: 11px 13px; border-radius: 11px; background: rgba(255, 107, 94, 0.08); border: 1px solid rgba(255, 107, 94, 0.3); color: var(--red); font-size: 12.5px; display: flex; align-items: center; gap: 10px; }
 .kl-error button { margin-left: auto; color: var(--text); font-weight: 500; }
 .kl-count--bottom { top: auto; bottom: 9px; right: 12px; }
-.kl-detail-top-bg { background: linear-gradient(180deg, rgba(13, 13, 13, 0.94) 0%, rgba(13, 13, 13, 0.82) 72%, rgba(13, 13, 13, 0) 100%); -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
+.kl-detail-top-bg { background: linear-gradient(180deg, rgba(13, 13, 13, 0.94) 0%, rgba(13, 13, 13, 0.82) 72%, rgba(13, 13, 13, 0) 100%); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
   -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%); mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%); }
 :root[data-theme="light"] .kl-detail-top-bg { background: linear-gradient(180deg, rgba(242, 242, 242, 0.95) 0%, rgba(242, 242, 242, 0.85) 72%, rgba(242, 242, 242, 0) 100%); }
 .kl-detail-top-bg.km-scroll-edge::before { display: none; }

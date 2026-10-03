@@ -40,7 +40,7 @@ export default function StageDropdown({ deal, cfg, onChange, onLost, direction =
               onClick={() => { setOpen(false); if (s.key !== deal.stage) onChange(s.key); }}
             >
               <StageDot color={s.color} />
-              <span style={{ fontWeight: s.key === deal.stage ? 700 : 500 }}>{s.label}</span>
+              <span style={{ fontWeight: s.key === deal.stage ? 500 : 400 }}>{s.label}</span>
               <span className="km-truncate" style={{ color: 'var(--faint)', fontSize: 11, marginLeft: 'auto' }}>{s.sub}</span>
               {s.key === 'closed' ? <Icon name="key" size={12} color="var(--green)" /> : null}
             </button>

@@ -102,7 +102,7 @@ function SortSheet({ open, value, onPick, onClose }) {
       <div className="km-pl-optlist">
         {SORTS.map(([id, l]) => (
           <button key={id} type="button" className={`km-pl-opt ${value === id ? 'km-pl-opt--on' : ''}`} onClick={() => { onPick(id); onClose(); }}>
-            <span style={{ flex: 1, fontSize: 15, fontWeight: value === id ? 600 : 500 }}>{l}</span>
+            <span style={{ flex: 1, fontSize: 15, fontWeight: value === id ? 500 : 400 }}>{l}</span>
             {value === id ? <Icon name="check" size={16} color="var(--blue)" stroke={2.6} /> : null}
           </button>
         ))}

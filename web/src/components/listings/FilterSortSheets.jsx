@@ -264,7 +264,7 @@ export function SortSheet({ open, onClose, value, onChange }) {
           {SORT_OPTIONS.map((o) => (
             <button key={o.id} type="button" className="kl-sort-row km-press" onClick={() => { onChange(o.id); close(); }}>
               <span style={{ flex: 1 }}>
-                <span style={{ display: 'block', fontWeight: value === o.id ? 600 : 400, color: value === o.id ? 'var(--bright)' : 'var(--text)' }}>{o.label}</span>
+                <span style={{ display: 'block', fontWeight: value === o.id ? 500 : 400, color: value === o.id ? 'var(--bright)' : 'var(--text)' }}>{o.label}</span>
                 {o.sub ? <span className="s">{o.sub}</span> : null}
               </span>
               {value === o.id ? <Icon name="check" size={18} color="var(--bright)" stroke={2.4} /> : null}

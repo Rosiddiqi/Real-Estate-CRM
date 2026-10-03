@@ -115,7 +115,7 @@ function CapCard({ cap, onPlan }) {
           </div>
           <div className="km-cm-ticklabels">
             {tiers.map((t, i) => (
-              <span key={t.fromGci} style={{ left: `${(t.fromGci / tierMax) * 100}%`, color: t.reached ? 'var(--blue)' : 'var(--faint)', fontWeight: t.reached ? 700 : 500, ...(i === 0 ? {} : {}) }}>
+              <span key={t.fromGci} style={{ left: `${(t.fromGci / tierMax) * 100}%`, color: t.reached ? 'var(--blue)' : 'var(--faint)', fontWeight: t.reached ? 500 : 400, ...(i === 0 ? {} : {}) }}>
                 {t.fromGci ? `${moneyCompact(t.fromGci)}+` : 'Start'} {Math.round(t.agentSplit * 100)}%
               </span>
             ))}
