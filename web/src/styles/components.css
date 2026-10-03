@@ -1,29 +1,34 @@
 /* ===========================================================================
-   Core component classes (BRAND.md "CORE COMPONENTS", ported from RevMatch's
-   revmatch-ui.css). React wrappers live in src/components/ui/*. Prefer the
-   wrappers; use these classes directly only for one-off markup.
+   Core component classes — the Soul system (docs/BRAND.md). React wrappers
+   live in src/components/ui/*. Prefer the wrappers; use these classes
+   directly only for one-off markup.
+   Emphasis is white on dark / ink on light (--bright, --on-accent); the one
+   colour is the highlight (--hl, text on it --on-hl).
    =========================================================================== */
 
-/* ---- buttons ---- */
+/* ---- buttons: Soul pill CTA ---- */
 .km-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 44px; padding: 0 20px;
-  font-family: var(--font); font-weight: 600; font-size: 15px; color: #fff;
+  min-height: 48px; padding: 0 22px;
+  font-family: var(--font); font-weight: 400; font-size: 15px; letter-spacing: 0;
+  color: var(--on-accent);
   border: 0; border-radius: var(--r-pill); cursor: pointer; white-space: nowrap;
-  background: linear-gradient(180deg, var(--bright), var(--deep));
-  box-shadow: var(--glow-btn);
+  background: var(--bright);
+  box-shadow: none;
+  transition: transform 0.18s var(--km-ease), opacity 0.18s, background 0.18s;
   -webkit-tap-highlight-color: transparent;
 }
-.km-btn:disabled { opacity: 0.4; }
-.km-btn--ghost { background: var(--surfaceHi); border: 1px solid var(--lineHi); box-shadow: none; color: var(--text); }
-.km-btn--plain { background: transparent; box-shadow: none; color: var(--bright); padding: 0 8px; }
-.km-btn--danger { background: linear-gradient(180deg, #ff7a7a, var(--red)); box-shadow: 0 10px 24px -8px rgba(255, 90, 90, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25); }
-.km-btn--success { background: linear-gradient(180deg, #4BE38F, #1FB463); box-shadow: 0 10px 24px -8px rgba(48, 210, 122, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25); }
-.km-btn--sm { min-height: 34px; padding: 0 14px; font-size: 13.5px; }
-.km-btn--lg { min-height: 52px; padding: 0 24px; font-size: 16px; }
+.km-btn:active { opacity: 0.88; }
+.km-btn:disabled { opacity: 0.35; }
+.km-btn--ghost { background: var(--glass-fill); color: var(--text); box-shadow: inset 0 0 0 var(--hairline) var(--lineHi); }
+.km-btn--plain { background: transparent; color: var(--text); padding: 0 8px; }
+.km-btn--danger { background: rgba(255, 107, 94, 0.14); color: var(--red); box-shadow: inset 0 0 0 var(--hairline) rgba(255, 107, 94, 0.32); }
+.km-btn--success, .km-btn--hl { background: var(--hl); color: var(--on-hl); }
+.km-btn--sm { min-height: 36px; padding: 0 16px; font-size: 13.5px; }
+.km-btn--lg { min-height: 56px; padding: 0 26px; font-size: 16px; }
 .km-btn--block { width: 100%; }
 
-/* round icon button (44px touch target) */
+/* round icon button (Soul: 40px circle, hairline) */
 .km-icon-btn {
   width: 40px; height: 40px; border-radius: 50%;
   display: inline-flex; align-items: center; justify-content: center;
@@ -33,99 +38,106 @@
 .km-icon-btn:active { transform: scale(0.92); }
 .km-icon-btn--sm { width: 32px; height: 32px; }
 
-/* ---- surfaces ---- */
-.km-card {
-  background: var(--surface);
-  border: 1px solid var(--line);
+/* ---- surfaces: Soul glass tile ---- */
+.km-tile, .km-card {
+  background: var(--glass-fill);
+  box-shadow: inset 0 0 0 var(--hairline) var(--glass-line);
   border-radius: var(--r-card);
-  padding: 16px;
 }
+.km-card { padding: 16px; }
 .km-card--flush { padding: 0; overflow: hidden; }
-.km-card--raised { background: var(--surfaceHi); }
+.km-card--raised { background: var(--glass-fill-hi); }
 .km-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-.km-card-action { font-size: 13px; font-weight: 600; color: var(--bright); background: none; border: 0; padding: 4px 0; cursor: pointer; }
+.km-card-action {
+  font-size: 12.5px; font-weight: 500; color: var(--dim); background: none; border: 0; padding: 4px 0; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--ghost);
+}
 
 .km-divider { height: 1px; background: var(--line); border: 0; margin: 0; }
 
-/* AI suggestion card — blue-tinted, left accent border */
+/* AI suggestion card — glass with a highlight spark (no side border) */
 .km-ai-card {
-  background: rgba(46, 139, 255, 0.08);
-  border: 1px solid rgba(46, 139, 255, 0.18);
-  border-left: 3px solid var(--blue);
-  border-radius: var(--r-md);
+  background: var(--glass-fill);
+  box-shadow: inset 0 0 0 var(--hairline) var(--glass-line);
+  border: 0;
+  border-radius: var(--r-card);
   padding: 14px 16px;
 }
 
 /* ---- chips / pills ---- */
 .km-chip {
   display: inline-flex; align-items: center; gap: 5px;
-  font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
-  padding: 4px 9px; border-radius: 6px; white-space: nowrap;
-  background: var(--tint); border: 1px solid rgba(46, 139, 255, 0.3); color: var(--bright);
+  font-size: 10.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 4px 10px; border-radius: var(--r-pill); white-space: nowrap;
+  background: var(--tint); border: 0; box-shadow: inset 0 0 0 var(--hairline) var(--line); color: var(--text);
 }
-.km-chip--danger { background: rgba(255, 90, 90, 0.12); border-color: rgba(255, 90, 90, 0.32); color: var(--red); }
-.km-chip--ai { background: rgba(154, 77, 255, 0.12); border-color: rgba(154, 77, 255, 0.32); color: #B78AFF; }
-.km-chip--success { background: rgba(48, 210, 122, 0.12); border-color: rgba(48, 210, 122, 0.32); color: var(--green); }
-.km-chip--caution { background: rgba(242, 169, 59, 0.12); border-color: rgba(242, 169, 59, 0.32); color: var(--amber); }
-.km-chip--neutral { background: rgba(255, 255, 255, 0.06); border-color: var(--lineHi); color: var(--dim); }
-:root[data-theme="light"] .km-chip--neutral { background: rgba(0, 0, 0, 0.04); }
+.km-chip--danger { background: rgba(255, 107, 94, 0.12); color: var(--red); box-shadow: none; }
+.km-chip--ai, .km-chip--success { background: var(--hl-soft); color: var(--hl-ink); box-shadow: none; }
+.km-chip--caution { background: rgba(255, 180, 64, 0.12); color: var(--amber); box-shadow: none; }
+.km-chip--neutral { background: var(--tint); color: var(--dim); }
 
-/* filter pill (toggle) */
+/* filter pill (toggle) — selected is the highlight */
 .km-pill {
   display: inline-flex; align-items: center; gap: 6px;
-  height: 32px; padding: 0 14px; border-radius: var(--r-pill);
-  font-size: 13.5px; font-weight: 500; color: var(--dim); white-space: nowrap;
-  background: var(--surface); border: 1px solid var(--line);
-  transition: background 0.18s var(--km-ease), color 0.18s, border-color 0.18s;
+  height: 36px; padding: 0 16px; border-radius: var(--r-pill);
+  font-size: 13px; font-weight: 500; color: var(--dim); white-space: nowrap;
+  background: var(--glass-fill); border: 0; box-shadow: inset 0 0 0 var(--hairline) var(--glass-line);
+  transition: background 0.18s var(--km-ease), color 0.18s, box-shadow 0.18s;
 }
-.km-pill--on { background: var(--tint); color: var(--bright); border-color: rgba(46, 139, 255, 0.4); }
+.km-pill--on { background: var(--hl); color: var(--on-hl); box-shadow: none; }
 
 /* numeric badge */
 .km-badge {
   min-width: 18px; height: 18px; padding: 0 5px; border-radius: var(--r-pill);
-  background: var(--blue); color: #fff; font-size: 11px; font-weight: 700;
+  background: var(--hl); color: var(--on-hl); font-family: var(--font-num); font-size: 11px; font-weight: 500;
   display: inline-flex; align-items: center; justify-content: center;
   font-variant-numeric: tabular-nums;
 }
-.km-badge--red { background: var(--red); }
+.km-badge--red { background: var(--red); color: #0D0D0D; }
 
-/* ---- list rows ---- */
+/* ---- list rows (Soul: icon + label, generous rhythm) ---- */
 .km-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 13px 0; border-bottom: 1px solid var(--line);
-  min-height: 44px;
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 0; border-bottom: 1px solid rgba(var(--accent-rgb), 0.05);
+  min-height: 48px;
 }
 .km-row:last-child { border-bottom: 0; }
-.km-list { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: 0 16px; }
+.km-list {
+  background: var(--glass-fill); box-shadow: inset 0 0 0 var(--hairline) var(--glass-line);
+  border-radius: var(--r-card); padding: 0 16px;
+}
 
-/* ---- avatar ---- */
+/* ---- avatar (monochrome initials, hairline ring) ---- */
 .km-avatar {
   width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
   display: inline-flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 15px; letter-spacing: -0.02em; color: #fff;
-  background: linear-gradient(135deg, var(--blue), var(--deep));
+  font-family: var(--font-num); font-weight: 400; font-size: 15px; letter-spacing: -0.01em; color: var(--text);
+  background: var(--surfaceTop);
+  box-shadow: inset 0 0 0 var(--hairline) var(--lineHi);
   overflow: hidden; position: relative; user-select: none;
 }
 .km-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-/* ---- inputs ---- */
+/* ---- inputs (Soul: tiny uppercase label, hairline field, light value) ---- */
 .km-input {
-  width: 100%; min-height: 46px;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid var(--lineHi); border-radius: var(--r-md);
-  padding: 12px 14px; color: var(--text); font-size: 16px; outline: none;
-  transition: border-color 0.18s, box-shadow 0.18s;
+  width: 100%; min-height: 48px;
+  background: transparent;
+  border: 0; box-shadow: inset 0 0 0 var(--hairline) var(--lineHi); border-radius: 6px;
+  padding: 12px 14px; color: var(--text);
+  font-family: var(--font-num); font-weight: 300; font-size: 17px; outline: none;
+  transition: box-shadow 0.18s;
 }
-:root[data-theme="light"] .km-input { background: #fff; }
-.km-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--tint); }
+:root[data-theme="light"] .km-input { background: rgba(255, 255, 255, 0.6); }
+.km-input:focus { box-shadow: inset 0 0 0 1px var(--hl); }
+:root[data-theme="light"] .km-input:focus { box-shadow: inset 0 0 0 1px var(--text); }
 textarea.km-input { min-height: 96px; line-height: 1.45; }
-.km-field { display: flex; flex-direction: column; gap: 6px; }
-.km-field-label { font-size: 12px; font-weight: 600; color: var(--dim); letter-spacing: 0.02em; }
+.km-field { display: flex; flex-direction: column; gap: 8px; }
+.km-field-label { font-size: 10px; font-weight: 400; color: var(--faint); letter-spacing: 0.04em; text-transform: uppercase; }
 .km-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
 .km-search {
-  display: flex; align-items: center; gap: 8px;
-  height: 38px; padding: 0 12px; border-radius: var(--r-pill);
+  display: flex; align-items: center; gap: 10px;
+  height: 44px; padding: 0 16px; border-radius: var(--r-pill);
   color: var(--dim);
 }
 .km-search input {
@@ -133,32 +145,35 @@ textarea.km-input { min-height: 96px; line-height: 1.45; }
   color: var(--text); font-size: 16px;
 }
 
-/* toggle switch (iOS) */
+/* toggle (Soul: hairline pill, highlight knob when on) */
 .km-switch {
-  position: relative; width: 51px; height: 31px; border-radius: 999px; flex-shrink: 0;
-  background: rgba(120, 120, 128, 0.32); transition: background 0.25s var(--km-ease);
+  position: relative; width: 50px; height: 28px; border-radius: 999px; flex-shrink: 0;
+  background: var(--glass-fill); box-shadow: inset 0 0 0 var(--hairline) var(--lineHi);
+  transition: background 0.25s var(--km-ease);
 }
 .km-switch::after {
-  content: ''; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%;
-  background: #fff; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 3px 1px rgba(0, 0, 0, 0.06);
-  transition: transform 0.25s var(--km-spring);
+  content: ''; position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; border-radius: 50%;
+  background: #6B6B6B;
+  transition: transform 0.25s var(--km-spring), background 0.2s;
 }
-.km-switch--on { background: var(--green); }
-.km-switch--on::after { transform: translateX(20px); }
+:root[data-theme="light"] .km-switch::after { background: #B5B5B5; }
+.km-switch--on { background: var(--hl-soft); }
+.km-switch--on::after { transform: translateX(22px); background: var(--hl); }
+:root[data-theme="light"] .km-switch--on { background: var(--text); }
 
 /* ---- score dial + live indicator ---- */
 .km-dial { position: relative; display: inline-flex; align-items: center; justify-content: center; }
-.km-dial-num { position: absolute; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-.km-dial-arc { filter: drop-shadow(0 0 6px var(--glow)); }
-.km-score-90 { color: var(--bright); }
-.km-score-80 { color: var(--blue); }
+.km-dial-num { position: absolute; font-family: var(--font-num); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.km-dial-arc { filter: none; }
+.km-score-90 { color: var(--hl-ink); }
+.km-score-80 { color: var(--text); }
 .km-score-60 { color: var(--amber); }
 .km-score-lo { color: var(--faint); }
 
-.km-live { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); }
+.km-live { display: inline-flex; align-items: center; gap: 7px; font-size: 10.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hl-ink); }
 .km-live::before {
-  content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green);
-  box-shadow: 0 0 8px var(--green); animation: pulseDot 1.8s ease-in-out infinite;
+  content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--hl);
+  box-shadow: 0 0 0 3px var(--hl-soft); animation: pulseDot 1.8s ease-in-out infinite;
 }
 
 /* ---- empty state ---- */
@@ -166,8 +181,8 @@ textarea.km-input { min-height: 96px; line-height: 1.45; }
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 12px; padding: 48px 24px; text-align: center; color: var(--faint);
 }
-.km-empty-title { font-size: 17px; font-weight: 600; color: var(--dim); }
-.km-empty-sub { font-size: 14px; color: var(--faint); max-width: 280px; }
+.km-empty-title { font-size: 17px; font-weight: 500; letter-spacing: -0.02em; color: var(--text); }
+.km-empty-sub { font-size: 13.5px; color: var(--faint); max-width: 280px; }
 
 /* ---- screen shell ---- */
 .km-screen {
@@ -180,13 +195,13 @@ textarea.km-input { min-height: 96px; line-height: 1.45; }
   padding: 0 var(--page-pad) calc(var(--tabbar-clearance) + var(--safe-bottom) + 16px);
 }
 
-/* ---- floating action button ---- */
+/* ---- floating action button (Soul white circle) ---- */
 .km-fab {
-  position: fixed; right: 18px; bottom: calc(96px + var(--safe-bottom)); z-index: 60;
-  width: 54px; height: 54px; border-radius: 50%; color: #fff;
+  position: fixed; right: 20px; bottom: calc(112px + var(--safe-bottom)); z-index: 60;
+  width: 56px; height: 56px; border-radius: 50%; color: var(--on-accent);
   display: inline-flex; align-items: center; justify-content: center;
-  background: linear-gradient(180deg, var(--bright), var(--deep));
-  box-shadow: 0 12px 28px -8px var(--glow), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  background: var(--bright);
+  box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.7);
   transition: transform 0.18s var(--km-ease);
 }
 .km-fab:active { transform: scale(0.94); }
@@ -205,10 +220,10 @@ textarea.km-input { min-height: 96px; line-height: 1.45; }
 /* ---- section header inside scroll lists ---- */
 .km-section-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 20px 4px 8px;
+  padding: 24px 2px 10px;
 }
 
-/* ---- toasts ---- */
+/* ---- toasts (glass pill) ---- */
 .km-toast-wrap {
   position: fixed; left: 0; right: 0; top: calc(var(--safe-top) + 10px); z-index: 1000;
   display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none;
@@ -216,12 +231,12 @@ textarea.km-input { min-height: 96px; line-height: 1.45; }
 .km-toast {
   pointer-events: auto; max-width: min(420px, calc(100vw - 32px));
   display: flex; align-items: center; gap: 10px;
-  padding: 11px 16px; border-radius: 18px; color: var(--lg-text);
-  font-size: 14px; font-weight: 500;
+  padding: 12px 18px; border-radius: var(--r-pill); color: var(--lg-text);
+  font-size: 13.5px; font-weight: 500;
   animation: km-toastIn 0.28s var(--km-ease);
 }
 
-/* desktop: center the phone-width column and give the app a framed feel */
+/* desktop: a little more breathing room */
 @media (min-width: 1024px) {
   :root { --page-pad: 24px; }
 }

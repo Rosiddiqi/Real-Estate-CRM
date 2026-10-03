@@ -52,13 +52,13 @@ input, textarea, select { font-size: 16px; }
 input::placeholder, textarea::placeholder { color: var(--faint); }
 textarea { resize: none; }
 
-a { color: var(--bright); text-decoration: none; }
+a { color: var(--text); text-decoration: none; }
 img { max-width: 100%; display: block; }
 svg { flex-shrink: 0; }
 h1, h2, h3, h4, p { margin: 0; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
 
-::selection { background: var(--tintHi); }
+::selection { background: var(--hl-soft); }
 
 /* Scroll containers: momentum, no bars on touch, thin bars on desktop. */
 .km-scroll {
@@ -79,7 +79,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 
 @media (hover: hover) and (pointer: fine) {
   .km-scroll::-webkit-scrollbar { width: 8px; }
-  .km-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 8px; }
+  .km-scroll::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), 0.12); border-radius: 8px; }
   .km-scroll::-webkit-scrollbar-track { background: transparent; }
 }
 @media (hover: none) {
@@ -87,24 +87,28 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   .km-scroll::-webkit-scrollbar { display: none; }
 }
 
-/* Typography helpers (SF Pro scale from CLAUDE.md) */
-.km-page-title { font-family: var(--font-display); font-size: 24px; font-weight: 600; letter-spacing: -0.01em; color: var(--text); }
-.km-large-title { font-family: var(--font-display); font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
-.km-section-title { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
-.km-card-title { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
-.km-title { font-size: 15px; font-weight: 600; }
+/* Typography helpers — the Soul scale. Poppins: Regular for big greetings,
+   Medium for UI and titles (tight tracking), Light for display; small
+   UPPERCASE section labels at 46%. Inter carries numbers and values. */
+.km-page-title { font-family: var(--font); font-size: 12px; font-weight: 500; letter-spacing: 0.17em; text-transform: uppercase; color: var(--faint); }
+.km-large-title { font-family: var(--font-display); font-size: 36px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.05; }
+.km-display { font-family: var(--font-display); font-weight: 300; letter-spacing: -0.025em; line-height: 1.15; }
+.km-section-title { font-size: 20px; font-weight: 500; letter-spacing: -0.035em; line-height: 1.1; }
+.km-card-title { font-size: 17px; font-weight: 500; letter-spacing: -0.02em; }
+.km-title { font-size: 15px; font-weight: 500; }
 .km-body { font-size: 15px; font-weight: 400; }
 .km-sub { font-size: 13px; color: var(--dim); }
 .km-caption { font-size: 12px; font-weight: 500; color: var(--dim); }
 .km-micro { font-size: 11px; color: var(--faint); }
 .km-eyebrow, .km-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--faint);
 }
-.km-num { font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.km-num { font-family: var(--font-num); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.km-value { font-family: var(--font-num); font-weight: 300; letter-spacing: -0.01em; }
 .km-dim { color: var(--dim); }
 .km-faint { color: var(--faint); }
 .km-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }

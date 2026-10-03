@@ -120,9 +120,9 @@ export default function SettingsPage({ onClose }) {
           <div style={{ display: 'flex', gap: 12 }}>
             {Object.entries(ACCENTS).map(([id, a]) => (
               <button key={id} type="button" onClick={() => chooseAccent(id)} className="km-press"
-                style={{ flex: 1, padding: '10px 6px', borderRadius: 14, border: `1px solid ${accent === id ? a.blue : 'var(--line)'}`, background: accent === id ? a.tint : 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                <span style={{ width: 28, height: 28, borderRadius: 14, background: `linear-gradient(180deg, ${a.bright}, ${a.deep})`, boxShadow: `0 6px 16px -6px ${a.glow}` }} />
-                <span style={{ fontSize: 12.5, fontWeight: 600, color: accent === id ? a.bright : 'var(--dim)' }}>{a.label}</span>
+                style={{ flex: 1, padding: '12px 6px', borderRadius: 16, boxShadow: accent === id ? 'inset 0 0 0 1px var(--text)' : 'inset 0 0 0 var(--hairline) var(--glass-line)', background: accent === id ? 'var(--glass-fill-hi)' : 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 28, height: 28, borderRadius: 14, background: a.swatch, boxShadow: 'inset 0 0 0 var(--hairline) rgba(0, 0, 0, 0.25)' }} />
+                <span style={{ fontSize: 12.5, fontWeight: 500, color: accent === id ? 'var(--text)' : 'var(--dim)' }}>{a.label}</span>
               </button>
             ))}
           </div>

@@ -34,38 +34,58 @@ export function useKeyboardInset() {
 const THEME_KEY = 'km-theme';
 const ACCENT_KEY = 'km-accent';
 
-// Accent palettes (one electric accent + near-black floor + liquid glass).
-// "electric" is RevMatch's iMessage blue; the other two are the luxury-real-
-// estate options from the design spec. iMessage blue / SMS green bubbles never
-// change — they're channel signals, not brand.
+// Highlight palettes. The app is monochrome (white emphasis on a near-black
+// floor); the highlight is the one color, used for live / active / AI /
+// progress moments. Each highlight has a per-theme ink for any small text
+// that must sit on a light surface, and the color text takes on top of it.
 export const ACCENTS = {
-  electric: { label: 'Electric', blue: '#2E8BFF', bright: '#4DA2FF', deep: '#1567E0', glow: 'rgba(46,139,255,0.45)', tint: 'rgba(46,139,255,0.12)', tintHi: 'rgba(46,139,255,0.22)' },
-  gallery: { label: 'Gallery', blue: '#3D5CFF', bright: '#6B83FF', deep: '#2A3FD6', glow: 'rgba(61,92,255,0.45)', tint: 'rgba(61,92,255,0.13)', tintHi: 'rgba(61,92,255,0.24)' },
-  riviera: { label: 'Riviera', blue: '#19C2D6', bright: '#4FD8E8', deep: '#0E8FA0', glow: 'rgba(25,194,214,0.40)', tint: 'rgba(25,194,214,0.12)', tintHi: 'rgba(25,194,214,0.22)' },
+  volt: {
+    label: 'Volt', swatch: '#D4FF3F',
+    dark: { hl: '#D4FF3F', rgb: '212, 255, 63', ink: '#D4FF3F', on: '#0D0D0D' },
+    light: { hl: '#D4FF3F', rgb: '212, 255, 63', ink: '#4E6B00', on: '#0D0D0D' },
+  },
+  amber: {
+    label: 'Amber', swatch: '#FFB440',
+    dark: { hl: '#FFB440', rgb: '255, 180, 64', ink: '#FFB440', on: '#0D0D0D' },
+    light: { hl: '#FFB440', rgb: '255, 180, 64', ink: '#A35F00', on: '#0D0D0D' },
+  },
+  mist: {
+    label: 'Mist', swatch: '#E8E8E8',
+    dark: { hl: '#FFFFFF', rgb: '255, 255, 255', ink: '#FFFFFF', on: '#0D0D0D' },
+    light: { hl: '#0D0D0D', rgb: '13, 13, 13', ink: '#0D0D0D', on: '#FFFFFF' },
+  },
 };
+export const DEFAULT_ACCENT = 'volt';
+const THEME_BG = { dark: '#0D0D0D', light: '#F2F2F2' };
 
 export function getStoredTheme() {
   try { return localStorage.getItem(THEME_KEY) || 'dark'; } catch { return 'dark'; }
 }
 export function getStoredAccent() {
-  try { return localStorage.getItem(ACCENT_KEY) || 'electric'; } catch { return 'electric'; }
+  try {
+    const a = localStorage.getItem(ACCENT_KEY);
+    return ACCENTS[a] ? a : DEFAULT_ACCENT; // older palettes (electric, gallery, riviera) fall back to Volt
+  } catch { return DEFAULT_ACCENT; }
 }
 
 export function applyTheme(theme = getStoredTheme(), accent = getStoredAccent()) {
   const root = document.documentElement;
-  root.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
-  const a = ACCENTS[accent] || ACCENTS.electric;
-  root.style.setProperty('--blue', a.blue);
-  root.style.setProperty('--bright', a.bright);
-  root.style.setProperty('--deep', a.deep);
-  root.style.setProperty('--glow', a.glow);
-  root.style.setProperty('--tint', a.tint);
-  root.style.setProperty('--tintHi', a.tintHi);
-  root.style.setProperty('--lg-accent', a.bright);
+  const mode = theme === 'light' ? 'light' : 'dark';
+  root.setAttribute('data-theme', mode);
+  // Only the highlight is written inline; every other color comes from the
+  // theme blocks in tokens.css, so light and dark values both apply.
+  const h = (ACCENTS[accent] || ACCENTS[DEFAULT_ACCENT])[mode];
+  root.style.setProperty('--hl', h.hl);
+  root.style.setProperty('--hl-rgb', h.rgb);
+  root.style.setProperty('--hl-soft', `rgba(${h.rgb}, ${mode === 'light' ? 0.22 : 0.14})`);
+  root.style.setProperty('--hl-line', `rgba(${h.rgb}, 0.38)`);
+  root.style.setProperty('--hl-ink', h.ink);
+  root.style.setProperty('--on-hl', h.on);
+  root.style.setProperty('--lg-accent', h.hl);
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', theme === 'light' ? '#F2F2F7' : '#06080C');
-  document.body.style.background = theme === 'light' ? '#F2F2F7' : '#06080C';
-  syncNativeTheme(theme === 'light' ? 'light' : 'dark');
+  if (meta) meta.setAttribute('content', THEME_BG[mode]);
+  document.body.style.background = THEME_BG[mode];
+  syncNativeTheme(mode);
 }
 
 export function setTheme(theme) {

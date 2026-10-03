@@ -1,66 +1,59 @@
 /* ===========================================================================
-   LIQUID GLASS — the app's ONE glass material (ported from RevMatch,
-   Apple HIG "Materials").
-   1. Glass is the FUNCTIONAL layer only — controls + navigation floating over
-      content (tab bar, composer, floating buttons, segmented tabs, search,
-      menus, toasts). Content (labels on photos, in-card buttons, bubbles) uses
-      the STANDARD MATERIAL `km-mat`.
-   2. Regular `km-lg` by default; clear `km-lg--clear km-lg--dim` ONLY over
-      photos/video.
-   3. Glass has no color of its own — selected segments + the tab-bar lens are
-      NEUTRAL; the accent goes on the label.
-   4. No glass on glass: things inside glass use vibrant FILLS (--lg-fill).
-   5. Top bars get no band: controls float as glass, content under the edge
-      gets the scroll edge effect (`km-scroll-edge`).
-   Never hand-roll a new glass recipe — extend this file.
+   GLASS — the Soul material. Quiet and flat: a whisper of fill, a 0.67px
+   hairline, and a backdrop blur only where something floats over content.
+   No specular rims, no colour fringes, no saturation boosts.
+   1. Floating controls (tab bar, circle buttons, segmented tracks, toasts,
+      menus, composer) use `km-lg`.
+   2. Content surfaces (cards, tiles, inputs) use the tile recipe in
+      components.css (`km-tile`) — glass fill + hairline, no blur.
+   3. Over photos use `km-lg--clear` (+ `km-lg--dim` for legibility).
+   4. Selected segments are SOLID emphasis (white on dark, ink on light).
+   Extend this file rather than hand-rolling a new recipe.
    =========================================================================== */
 
 :root {
-  --lg-tint: rgba(12, 14, 18, 0.30);
-  --lg-tint-solid: rgba(12, 14, 18, 0.46);
-  --lg-frost: blur(12px) saturate(180%) brightness(0.88);
-  --lg-tint-clear: rgba(255, 255, 255, 0.02);
-  --lg-frost-clear: blur(2px) saturate(160%);
-  --lg-dim: rgba(0, 0, 0, 0.35);
-  --lg-tint-blue: rgba(145, 213, 255, 0.07);
-  --lg-rim-glow: inset 0 0 6px rgba(255, 255, 255, 0.25);
-  --lg-fringe: inset 1px 0 0 -0.5px rgba(255, 96, 96, 0.10),
-               inset -1px 0 0 -0.5px rgba(96, 170, 255, 0.12);
-  --lg-drop: 0 2px 5px rgba(0, 0, 0, 0.25);
-  --lg-shadow: var(--lg-rim-glow), var(--lg-fringe), var(--lg-drop);
-  --lg-specular: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.62) 0%,
-    rgba(255, 255, 255, 0.16) 22%,
-    rgba(255, 255, 255, 0.02) 45%,
-    rgba(255, 255, 255, 0.02) 60%,
-    rgba(255, 255, 255, 0.14) 82%,
-    rgba(255, 255, 255, 0.36) 100%
-  );
+  --lg-tint: rgba(255, 255, 255, 0.04);
+  --lg-tint-solid: rgba(24, 24, 24, 0.86);
+  --lg-frost: blur(24px);
+  --lg-tint-clear: rgba(255, 255, 255, 0.03);
+  --lg-frost-clear: blur(24px);
+  --lg-dim: rgba(13, 13, 13, 0.42);
+  --lg-hairline: inset 0 0 0 var(--hairline) rgba(255, 255, 255, 0.10);
+  --lg-rim-glow: var(--lg-hairline);
+  --lg-fringe: 0 0 0 0 transparent;
+  --lg-drop: 0 10px 28px -14px rgba(0, 0, 0, 0.7);
+  --lg-shadow: var(--lg-hairline), var(--lg-drop);
   --lg-text: #FFFFFF;
-  --lg-text-idle: rgba(235, 235, 245, 0.6);
-  --lg-text-tertiary: rgba(235, 235, 245, 0.3);
-  --lg-fill: rgba(255, 255, 255, 0.12);
-  --lg-accent: #4DA2FF;
-  --mat-thin: rgba(22, 24, 30, 0.42);
-  --mat-regular: rgba(22, 24, 30, 0.62);
-  --mat-thick: rgba(22, 24, 30, 0.82);
-  --mat-blur: blur(20px) saturate(150%);
+  --lg-text-idle: rgba(255, 255, 255, 0.46);
+  --lg-text-tertiary: rgba(255, 255, 255, 0.3);
+  --lg-fill: rgba(255, 255, 255, 0.08);
+  --lg-accent: var(--hl);
+  --mat-thin: rgba(13, 13, 13, 0.40);
+  --mat-regular: rgba(13, 13, 13, 0.62);
+  --mat-thick: rgba(13, 13, 13, 0.84);
+  --mat-blur: blur(24px);
+  --nav-fill: rgba(175, 175, 174, 0.94);
+  --nav-icon: #0D0D0D;
+  --nav-bump: #D9D9D9;
 }
 
 :root[data-theme="light"] {
-  --lg-tint: rgba(255, 255, 255, 0.42);
-  --lg-tint-solid: rgba(255, 255, 255, 0.68);
-  --lg-frost: blur(12px) saturate(180%) brightness(1.08);
-  --lg-text: #0B0D12;
-  --lg-text-idle: rgba(11, 13, 18, 0.55);
-  --lg-text-tertiary: rgba(11, 13, 18, 0.3);
-  --lg-fill: rgba(0, 0, 0, 0.06);
-  --lg-rim-glow: inset 0 0 6px rgba(255, 255, 255, 0.6);
-  --lg-drop: 0 2px 8px rgba(0, 0, 0, 0.10);
+  --lg-tint: rgba(255, 255, 255, 0.55);
+  --lg-tint-solid: rgba(255, 255, 255, 0.90);
+  --lg-tint-clear: rgba(255, 255, 255, 0.10);
+  --lg-dim: rgba(13, 13, 13, 0.30);
+  --lg-hairline: inset 0 0 0 var(--hairline) rgba(13, 13, 13, 0.10);
+  --lg-drop: 0 10px 28px -16px rgba(0, 0, 0, 0.25);
+  --lg-text: #0D0D0D;
+  --lg-text-idle: rgba(13, 13, 13, 0.55);
+  --lg-text-tertiary: rgba(13, 13, 13, 0.3);
+  --lg-fill: rgba(13, 13, 13, 0.06);
   --mat-thin: rgba(255, 255, 255, 0.5);
-  --mat-regular: rgba(255, 255, 255, 0.7);
-  --mat-thick: rgba(255, 255, 255, 0.86);
+  --mat-regular: rgba(255, 255, 255, 0.72);
+  --mat-thick: rgba(255, 255, 255, 0.88);
+  --nav-fill: rgba(13, 13, 13, 0.92);
+  --nav-icon: #FFFFFF;
+  --nav-bump: #2A2A2A;
 }
 
 /* ── Regular glass (default) ─────────────────────────────────────────── */
@@ -72,62 +65,44 @@
   box-shadow: var(--lg-shadow);
   border-color: transparent;
 }
-.km-lg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: var(--lg-specular);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-  pointer-events: none;
-  z-index: 3;
-}
 .km-lg--solid { background: var(--lg-tint-solid); }
 .km-lg--menu {
-  background: rgba(20, 22, 26, 0.62);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  backdrop-filter: blur(30px) saturate(180%);
-  box-shadow: var(--lg-shadow), 0 12px 40px rgba(0, 0, 0, 0.4);
+  background: rgba(22, 22, 22, 0.94);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  box-shadow: var(--lg-hairline), 0 18px 48px rgba(0, 0, 0, 0.55);
 }
-:root[data-theme="light"] .km-lg--menu { background: rgba(255, 255, 255, 0.78); }
+:root[data-theme="light"] .km-lg--menu { background: rgba(255, 255, 255, 0.96); box-shadow: var(--lg-hairline), 0 18px 48px rgba(0, 0, 0, 0.14); }
 
-/* Light glass for controls on a near-black floor (call screen buttons). */
+/* Light glass for controls on a dark floor (call screen buttons). */
 .km-lg--light {
-  background: rgba(255, 255, 255, 0.14);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  backdrop-filter: blur(16px) saturate(180%);
-  box-shadow:
-    inset 0 0 10px rgba(255, 255, 255, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.30),
-    var(--lg-fringe),
-    0 8px 20px -8px rgba(0, 0, 0, 0.7);
+  background: rgba(255, 255, 255, 0.07);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  box-shadow: inset 0 0 0 var(--hairline) rgba(255, 255, 255, 0.14), 0 10px 24px -12px rgba(0, 0, 0, 0.7);
 }
-.km-lg--light:is(button, [role="button"]):active { background: rgba(255, 255, 255, 0.22); }
+.km-lg--light:is(button, [role="button"]):active { background: rgba(255, 255, 255, 0.16); }
 
 /* Clear glass — only over photos / video. */
 .km-lg--clear {
   background: var(--lg-tint-clear);
   -webkit-backdrop-filter: var(--lg-frost-clear);
   backdrop-filter: var(--lg-frost-clear);
+  box-shadow: inset 0 0 0 var(--hairline) rgba(255, 255, 255, 0.30);
 }
 .km-lg--clear.km-lg--dim { background: var(--lg-dim); }
 
-.km-lg--tint-blue { background: var(--lg-tint-blue); }
-.km-lg--line { box-shadow: var(--lg-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.16); }
-:root[data-theme="light"] .km-lg--line { box-shadow: var(--lg-shadow), inset 0 0 0 1px rgba(0, 0, 0, 0.08); }
+.km-lg--tint-blue { background: var(--hl-soft); }
+.km-lg--line { box-shadow: var(--lg-hairline), var(--lg-drop); }
 
 /* Segmented controls: track = `km-lg km-lg--line`; selected segment =
-   `km-lg km-lg--flat km-lg-seg` — a neutral lens, no glass-on-glass blur. */
+   `km-lg km-lg--flat km-lg-seg` — solid emphasis, Soul's white pill. */
 .km-lg--flat { -webkit-backdrop-filter: none; backdrop-filter: none; }
 .km-lg-seg {
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: var(--lg-rim-glow), var(--lg-fringe);
-  color: var(--lg-text);
+  background: var(--bright);
+  box-shadow: none;
+  color: var(--on-accent);
 }
-:root[data-theme="light"] .km-lg-seg { background: #FFFFFF; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); }
 
 /* ── Scroll edge effect — top bars get no band ─────────────────────── */
 :where(.km-scroll-edge) { position: relative; }
@@ -143,17 +118,17 @@
   bottom: -18px;
   z-index: -1;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(var(--lg-edge-rgb, 6, 8, 12), 0.72) 0%, rgba(var(--lg-edge-rgb, 6, 8, 12), 0.45) 65%, rgba(var(--lg-edge-rgb, 6, 8, 12), 0) 100%);
-  -webkit-backdrop-filter: blur(10px) saturate(160%);
-  backdrop-filter: blur(10px) saturate(160%);
+  background: linear-gradient(180deg, rgba(var(--lg-edge-rgb, 13, 13, 13), 0.86) 0%, rgba(var(--lg-edge-rgb, 13, 13, 13), 0.55) 65%, rgba(var(--lg-edge-rgb, 13, 13, 13), 0) 100%);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
   mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
   transition: opacity 0.2s ease;
 }
-:root[data-theme="light"] .km-scroll-edge::before { --lg-edge-rgb: 242, 242, 247; }
+:root[data-theme="light"] .km-scroll-edge::before { --lg-edge-rgb: 242, 242, 242; }
 .km-scroll-edge--idle::before { opacity: 0; }
 
-/* ── Standard materials (content layer — NOT glass) ─────────────────── */
+/* ── Standard materials (content layer over photos) ─────────────────── */
 .km-mat {
   background: var(--mat-regular);
   -webkit-backdrop-filter: var(--mat-blur);
@@ -164,10 +139,8 @@
 .km-mat--thin { background: var(--mat-thin); }
 .km-mat--thick { background: var(--mat-thick); }
 
-/* Press: glass flexes and the rim glow brightens. */
-.km-lg:is(button, [role="button"], a):active {
-  box-shadow: inset 0 0 9px rgba(255, 255, 255, 0.34), var(--lg-fringe), var(--lg-drop);
-}
+/* Press: glass brightens slightly. */
+.km-lg:is(button, [role="button"], a):active { background: var(--lg-fill); }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .km-lg, .km-mat { background: var(--mat-thick); }
@@ -175,12 +148,12 @@
 
 @media (prefers-reduced-transparency: reduce) {
   :root {
-    --lg-tint: rgba(28, 30, 36, 0.97);
-    --lg-tint-solid: rgba(28, 30, 36, 0.97);
-    --lg-tint-clear: rgba(28, 30, 36, 0.92);
-    --lg-dim: rgba(28, 30, 36, 0.92);
-    --mat-thin: rgba(28, 30, 36, 0.95);
-    --mat-regular: rgba(28, 30, 36, 0.97);
+    --lg-tint: rgba(28, 28, 28, 0.97);
+    --lg-tint-solid: rgba(28, 28, 28, 0.97);
+    --lg-tint-clear: rgba(28, 28, 28, 0.92);
+    --lg-dim: rgba(28, 28, 28, 0.92);
+    --mat-thin: rgba(28, 28, 28, 0.95);
+    --mat-regular: rgba(28, 28, 28, 0.97);
   }
   .km-lg, .km-lg--menu, .km-mat { -webkit-backdrop-filter: none; backdrop-filter: none; }
   .km-scroll-edge::before {
@@ -191,11 +164,10 @@
 }
 @media (prefers-contrast: more) {
   :root {
-    --lg-tint: rgba(20, 22, 28, 0.94);
-    --lg-tint-solid: rgba(20, 22, 28, 0.96);
+    --lg-tint: rgba(20, 20, 20, 0.94);
+    --lg-tint-solid: rgba(20, 20, 20, 0.96);
     --lg-dim: rgba(0, 0, 0, 0.8);
-    --lg-text-idle: rgba(235, 235, 245, 0.85);
+    --lg-text-idle: rgba(255, 255, 255, 0.85);
   }
   .km-lg { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55), var(--lg-drop); }
-  .km-lg::after { display: none; }
 }
