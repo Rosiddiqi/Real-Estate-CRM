@@ -310,7 +310,7 @@ export default function AppointmentSheet({ id, onClose }) {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span className="km-truncate" style={{ fontSize: 16, fontWeight: 600 }}>{appt.client.name}</span>
-                    {appt.client.isWhale ? <Icon name="crown" size={13} color="var(--amber)" /> : null}
+                    {appt.client.isWhale ? <Icon name="crown" size={13} color="var(--text)" /> : null}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
                     {appt.client.rating ? <Stars value={appt.client.rating} size={10} gap={1} /> : null}

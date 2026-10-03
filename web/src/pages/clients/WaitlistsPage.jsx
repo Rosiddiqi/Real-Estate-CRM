@@ -88,7 +88,7 @@ function QueueRow({ e, idx, wl, lifted, shift, onGrip, onToggle, onRemove, openS
           <Avatar name={displayName(c)} seed={c.id} src={c.avatarUrl} size={34} />
           <span style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span className="km-truncate" style={{ fontSize: 16, fontWeight: 600, textDecoration: done ? 'none' : 'none' }}>{displayName(c)}</span>
+              <span className="km-truncate" style={{ fontSize: 16, fontWeight: 500, textDecoration: done ? 'none' : 'none' }}>{displayName(c)}</span>
               {e.tier ? <span className="kc-dot" style={{ width: 5, height: 5, background: TIER[e.tier] }} title={e.tier} /> : null}
               {done ? <span className="kc-tag kc-tag--mono kc-tag--green" style={{ height: 17 }}>Got one</span> : null}
             </span>
@@ -290,7 +290,7 @@ export default function WaitlistsPage({ onClose }) {
                           {w.faces.slice(0, 3).map((f, i) => <Avatar key={f.id} name={f.name} seed={f.id} src={f.avatarUrl} size={26} style={{ marginLeft: i ? -9 : 0, boxShadow: '0 0 0 2px var(--bg)', zIndex: 3 - i }} />)}
                         </span>
                       ) : null}
-                      <span className="kc-wl-count" style={{ color: w.count === 0 ? 'var(--faint)' : allPlaced ? 'var(--red)' : 'var(--green)', textShadow: w.count ? `0 0 8px ${allPlaced ? 'rgba(255,90,90,0.5)' : 'rgba(48,210,122,0.5)'}` : 'none' }}>{pad(w.waitingCount)}</span>
+                      <span className="kc-wl-count" style={{ color: w.count === 0 ? 'var(--faint)' : allPlaced ? 'var(--red)' : 'var(--green)', textShadow: 'none' }}>{pad(w.waitingCount)}</span>
                       <Icon name="chevronRight" size={15} color="var(--faint)" style={{ transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .28s var(--km-ease)' }} />
                     </button>
                     <div className={`kc-acc ${open ? 'kc-acc--open' : ''}`}>

@@ -257,7 +257,7 @@ export default function PropertyForm({ open, client, property, prefill, relation
                     <MoneyInput label="Balance" value={f.mortgageBalance} onChange={(v) => set({ mortgageBalance: v })} placeholder="3.1" />
                   </div>
                   {f.loanType === 'arm' ? (
-                    <div style={{ padding: '10px 12px', borderRadius: 12, background: 'var(--tint)', border: '1px solid rgba(46,139,255,0.3)', fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ padding: '10px 12px', borderRadius: 12, background: 'var(--tint)', border: '1px solid rgba(var(--accent-rgb), 0.3)', fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <Icon name="percent" size={15} color="var(--bright)" />
                       {reset ? <span>Rate resets <b>{reset.label}</b> · {reset.days >= 0 ? `in ${reset.days} days` : `${-reset.days} days ago`}</span> : <span style={{ color: 'var(--dim)' }}>Enter the origination month to see the reset date</span>}
                     </div>
@@ -316,7 +316,7 @@ export default function PropertyForm({ open, client, property, prefill, relation
 
           <button type="button" className="km-btn km-btn--block km-btn--lg" style={{ marginTop: 20 }} disabled={saving} onClick={save}>{saving ? 'Saving…' : editing ? 'Save changes' : 'Add to portfolio'}</button>
           {editing ? (
-            <button type="button" className="km-btn km-btn--block" style={{ marginTop: 10, background: 'transparent', boxShadow: 'none', border: '1px solid rgba(255,90,90,0.45)', color: 'var(--red)' }} onClick={remove}>
+            <button type="button" className="km-btn km-btn--block" style={{ marginTop: 10, background: 'transparent', boxShadow: 'none', border: '1px solid rgba(255, 107, 94, 0.45)', color: 'var(--red)' }} onClick={remove}>
               Delete property
             </button>
           ) : null}

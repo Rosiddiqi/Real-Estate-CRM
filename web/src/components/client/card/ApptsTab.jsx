@@ -26,7 +26,7 @@ function ApptRow({ a, past }) {
         <div>{a.allDay ? 'All day' : formatTime(a.startAt)}</div>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div className="km-truncate" style={{ fontSize: 14.5, fontWeight: 600 }}>{a.title}</div>
+        <div className="km-truncate" style={{ fontSize: 14.5, fontWeight: 500 }}>{a.title}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
           <span className="kc-dot" style={{ background: TYPE_COLOR[a.type] || 'var(--blue)' }} />
           <span style={{ fontSize: 11.5, color: 'var(--dim)' }}>{humanize(a.type)}{a.status && a.status !== 'scheduled' ? ` · ${humanize(a.status)}` : ''}</span>

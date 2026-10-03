@@ -522,7 +522,7 @@ export default function BattlePlanPage({ page, onSelectPage, active, topInset = 
                   <Icon name="alert" size={16} color="var(--bp-amber)" stroke={1.7} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="km-truncate" style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--bp-t1)' }}>
-                      {e.whale ? <Icon name="crown" size={11} color="var(--amber)" style={{ marginRight: 4, verticalAlign: '-1px' }} /> : null}{e.title}
+                      {e.whale ? <Icon name="crown" size={11} color="var(--text)" style={{ marginRight: 4, verticalAlign: '-1px' }} /> : null}{e.title}
                     </div>
                     <div className="bp-num" style={{ fontSize: 11, color: 'var(--bp-amber)', marginTop: 2 }}>{fmtMin(e.start)} · tap to reschedule or complete</div>
                   </div>
@@ -658,7 +658,7 @@ export default function BattlePlanPage({ page, onSelectPage, active, topInset = 
                           {beat ? <span className="bp-beat-dot" style={{ flexShrink: 0, width: 7, height: 7, borderRadius: '50%', background: c, display: 'inline-block' }} /> : null}
                           {done ? <Icon name="check" size={12} color="var(--bp-done)" stroke={2} /> : null}
                           <span className="km-truncate" style={{ flex: 1, fontSize: 13.5, fontWeight: 500, color: 'var(--bp-t1)' }}>
-                            {e.whale ? <Icon name="crown" size={11} color="var(--amber)" style={{ marginRight: 4, verticalAlign: '-1px' }} /> : null}{e.title}
+                            {e.whale ? <Icon name="crown" size={11} color="var(--text)" style={{ marginRight: 4, verticalAlign: '-1px' }} /> : null}{e.title}
                           </span>
                           {!narrow ? (
                             <span className="bp-num" style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 400, color: 'var(--bp-t2)', whiteSpace: 'nowrap' }}>

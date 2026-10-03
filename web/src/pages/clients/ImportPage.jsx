@@ -182,7 +182,7 @@ export default function ImportPage({ onClose }) {
               <span style={{ width: 56, height: 56, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--tint)', color: 'var(--bright)' }}>
                 {busy ? <Spinner size={24} /> : <Icon name="upload" size={26} stroke={2} />}
               </span>
-              <span style={{ fontSize: 17, fontWeight: 600 }}>{busy ? 'Reading your file…' : 'Choose a file'}</span>
+              <span style={{ fontSize: 17, fontWeight: 500 }}>{busy ? 'Reading your file…' : 'Choose a file'}</span>
               <span style={{ fontSize: 13.5, color: 'var(--dim)', maxWidth: 300 }}>CSV or vCard (.vcf). We’ll map the columns for you — nothing is imported until you confirm.</span>
             </button>
             <input ref={input} type="file" hidden accept=".csv,.tsv,.txt,.vcf,text/csv,text/vcard,text/x-vcard" onChange={(e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; readFile(f); }} />
@@ -216,7 +216,7 @@ export default function ImportPage({ onClose }) {
                 <div key={`${h}${i}`} className="kc-maprow">
                   <span className="kc-dot" style={{ background: mapping[i] ? (conf >= 0.9 ? 'var(--green)' : conf >= 0.5 ? 'var(--amber)' : 'var(--blue)') : 'var(--ghost)' }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="km-truncate" style={{ fontSize: 14.5, fontWeight: 600 }}>{h}</div>
+                    <div className="km-truncate" style={{ fontSize: 14.5, fontWeight: 500 }}>{h}</div>
                     <div className="km-truncate" style={{ fontSize: 12, color: 'var(--faint)', marginTop: 2 }}>{sample || '—'}</div>
                   </div>
                   <select className="km-input" style={{ minHeight: 38, padding: '6px 30px 6px 10px', fontSize: 14 }} value={mapping[i] || ''} onChange={(e) => setMapping((m) => ({ ...m, [i]: e.target.value || null }))}>
@@ -247,7 +247,7 @@ export default function ImportPage({ onClose }) {
             {mappedRows.filter((m) => nameOf(m)).slice(0, 6).map((m, i) => (
               <div key={i} className="kc-info">
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="kc-info-v km-truncate" style={{ marginTop: 0, fontWeight: 600 }}>{nameOf(m)}</div>
+                  <div className="kc-info-v km-truncate" style={{ marginTop: 0, fontWeight: 500 }}>{nameOf(m)}</div>
                   <div className="kc-info-l km-truncate" style={{ marginTop: 3, fontSize: 12.5 }}>{[m.phone ? formatPhone(m.phone) : null, m.email, m.company, m.tags].filter(Boolean).join(' · ') || 'Name only'}</div>
                 </div>
               </div>
@@ -263,10 +263,10 @@ export default function ImportPage({ onClose }) {
           summary ? (
             <>
               <div style={{ textAlign: 'center', margin: '8px 0 18px' }}>
-                <div style={{ width: 64, height: 64, borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: summary.fatal ? 'rgba(255,90,90,0.12)' : 'rgba(48,210,122,0.12)', color: summary.fatal ? 'var(--red)' : 'var(--green)', animation: 'km-pop .4s var(--km-spring)' }}>
+                <div style={{ width: 64, height: 64, borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: summary.fatal ? 'rgba(255, 107, 94, 0.12)' : 'rgba(var(--hl-rgb), 0.12)', color: summary.fatal ? 'var(--red)' : 'var(--green)', animation: 'km-pop .4s var(--km-spring)' }}>
                   <Icon name={summary.fatal ? 'alert' : 'check'} size={30} stroke={2.6} />
                 </div>
-                <div style={{ fontSize: 20, fontWeight: 700, marginTop: 12 }}>{summary.fatal ? 'Import stopped' : 'Import complete'}</div>
+                <div style={{ fontSize: 20, fontWeight: 500, marginTop: 12 }}>{summary.fatal ? 'Import stopped' : 'Import complete'}</div>
                 {summary.fatal ? <div style={{ fontSize: 13.5, color: 'var(--red)', marginTop: 4 }}>{summary.fatal}</div> : null}
               </div>
               <div style={{ display: 'flex', gap: 10 }}>
@@ -287,7 +287,7 @@ export default function ImportPage({ onClose }) {
             </>
           ) : (
             <div style={{ padding: '30px 6px', textAlign: 'center' }}>
-              <div style={{ fontSize: 17, fontWeight: 600 }}>Importing…</div>
+              <div style={{ fontSize: 17, fontWeight: 500 }}>Importing…</div>
               <div style={{ fontSize: 13.5, color: 'var(--dim)', margin: '6px 0 16px' }}>{progress ? `${progress.done} of ${progress.total}` : 'Starting'}</div>
               <div className="kc-progress"><div style={{ width: progress ? `${Math.round((progress.done / Math.max(1, progress.total)) * 100)}%` : '4%' }} /></div>
             </div>

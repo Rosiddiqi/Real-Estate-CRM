@@ -182,9 +182,9 @@ export default function AddClientSheet({ prefill = {}, onClose }) {
           <div className="kc-form-sec">
             <span className="kc-eyebrow">Referred by</span>
             {referredBy ? (
-              <div className="kc-dupe" style={{ background: 'var(--tint)', borderColor: 'rgba(46,139,255,0.35)' }}>
+              <div className="kc-dupe" style={{ background: 'var(--tint)', borderColor: 'rgba(var(--accent-rgb), 0.35)' }}>
                 <Avatar name={displayName(referredBy)} seed={referredBy.id} src={referredBy.avatarUrl} size={28} />
-                <span style={{ flex: 1, fontWeight: 600 }}>{displayName(referredBy)}</span>
+                <span style={{ flex: 1, fontWeight: 500 }}>{displayName(referredBy)}</span>
                 <button type="button" onClick={() => setReferredBy(null)} aria-label="Clear referral" style={{ display: 'flex', color: 'var(--faint)' }}><Icon name="x" size={16} /></button>
               </div>
             ) : (
@@ -198,7 +198,7 @@ export default function AddClientSheet({ prefill = {}, onClose }) {
               <Stars value={f.rating} onChange={(v) => set({ rating: v })} size={22} gap={4} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Icon name="crown" size={15} color="var(--amber)" /> Whale</span>
+              <span style={{ fontSize: 14, fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Icon name="crown" size={15} color="var(--text)" /> Whale</span>
               <Switch checked={f.isWhale} onChange={(v) => set({ isWhale: v })} label="Whale" />
             </div>
           </div>
@@ -225,10 +225,10 @@ export default function AddClientSheet({ prefill = {}, onClose }) {
             </div>
           ) : null}
 
-          <div style={{ marginTop: 16, borderRadius: 12, padding: 12, background: 'rgba(154,77,255,0.08)', border: '1px solid rgba(154,77,255,0.30)' }}>
+          <div style={{ marginTop: 16, borderRadius: 'var(--r-card)', padding: 14, background: 'var(--glass-fill)', border: 'var(--hairline) solid var(--hl-line)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <Icon name="sparkle" size={14} color="var(--violet)" stroke={2.2} />
-              <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 1.3, color: 'var(--violet)' }}>ASK SERENA</span>
+              <span style={{ fontSize: 10.5, fontWeight: 500, letterSpacing: 1.2, color: 'var(--hl-ink)' }}>ASK {String(assistant || 'your assistant').toUpperCase()}</span>
               <span style={{ fontSize: 11, color: 'var(--faint)' }}>— optional</span>
             </div>
             <div style={{ fontSize: 12.5, color: 'var(--dim)', margin: '5px 0 8px' }}>Hand {assistant} something to do the second you save.</div>

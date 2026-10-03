@@ -46,7 +46,7 @@ function Briefing({ client, briefing, loading, onRefresh, refreshing }) {
           {refreshing ? <Spinner size={14} /> : <Icon name="refresh" size={15} />}
         </button>
       </div>
-      {heroLine(client, briefing) !== briefing.statusLine ? <div style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.35, marginTop: 8 }}>{briefing.statusLine}</div> : null}
+      {heroLine(client, briefing) !== briefing.statusLine ? <div style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.35, marginTop: 8 }}>{briefing.statusLine}</div> : null}
       {briefing.recommendedMove ? (
         <div className="kc-brief-move">
           <div className="kc-eyebrow" style={{ color: 'var(--bright)', marginBottom: 4 }}>Next move</div>
@@ -82,18 +82,18 @@ function StatCluster({ client }) {
     <div className="kc-statcluster">
       <div className="kc-statcluster-band">
         <div>
-          <div style={{ fontSize: 27, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1, color: 'var(--green)', textShadow: '0 0 16px rgba(48,210,122,0.3)' }}>{s.lifetimeVolume ? moneyCompact(s.lifetimeVolume) : '$0'}</div>
+          <div style={{ fontFamily: 'var(--font-num)', fontSize: 28, fontWeight: 300, letterSpacing: '-0.02em', lineHeight: 1, color: 'var(--text)' }}>{s.lifetimeVolume ? moneyCompact(s.lifetimeVolume) : '$0'}</div>
           <div className="kc-mono" style={{ fontSize: 8, letterSpacing: '0.18em', color: 'var(--faint)', marginTop: 5 }}>LIFETIME VOLUME</div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 17, fontWeight: 700, color: right.color }}>{right.value}</div>
+          <div style={{ fontSize: 17, fontWeight: 500, color: right.color }}>{right.value}</div>
           <div className="kc-mono" style={{ fontSize: 8, letterSpacing: '0.16em', color: 'var(--faint)', marginTop: 4 }}>{right.label}</div>
         </div>
       </div>
       <div className="kc-statcluster-rail">
         {[['BOUGHT', s.bought ?? 0], ['SOLD', s.sold ?? 0], ['LAST CLOSE', lastClose], ['CLIENT', yr(s.clientSince || client.createdAt)]].map(([l, v]) => (
           <div key={l}>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>{v}</div>
+            <div style={{ fontSize: 14, fontWeight: 500 }}>{v}</div>
             <div className="kc-mono" style={{ fontSize: 6.5, letterSpacing: '0.12em', color: 'var(--faint)', marginTop: 3, whiteSpace: 'nowrap' }}>{l}</div>
           </div>
         ))}
@@ -123,10 +123,10 @@ function Deals({ client }) {
               <button key={d.id} type="button" className="kc-dealrow km-press" onClick={() => nav.openDeal(d.id)}>
                 <span className="kc-dot" style={{ width: 8, height: 8, background: color, boxShadow: `0 0 8px ${color}` }} />
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 600 }}>{d.propertyLabel || d.propertyAddress || d.title || (d.side === 'listing' ? 'Listing' : 'Purchase')}</span>
+                  <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{d.propertyLabel || d.propertyAddress || d.title || (d.side === 'listing' ? 'Listing' : 'Purchase')}</span>
                   <span style={{ display: 'block', fontSize: 12, color: 'var(--dim)', marginTop: 2 }}>{label} · {cap(d.side === 'buyer' ? 'Buy side' : d.side === 'listing' ? 'List side' : humanize(d.side))}{d.closedAt ? ` · ${formatDate(d.closedAt, { month: 'short', year: 'numeric' })}` : ''}</span>
                 </span>
-                {price ? <span className="kc-mono" style={{ fontSize: 13, fontWeight: 600, color: d.stage === 'closed' ? 'var(--green)' : 'var(--text)' }}>{moneyCompact(price)}</span> : null}
+                {price ? <span className="kc-mono" style={{ fontSize: 13, fontWeight: 500, color: d.stage === 'closed' ? 'var(--green)' : 'var(--text)' }}>{moneyCompact(price)}</span> : null}
                 <Icon name="chevronRight" size={14} color="var(--faint)" />
               </button>
             );
@@ -155,10 +155,10 @@ function Household({ client, onAddLink, onChanged }) {
               <button type="button" className="km-press" onClick={() => nav.openClient(l.client.id)} style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 14, background: 'var(--surface)', border: '1px solid var(--line)', textAlign: 'left' }}>
                 <Avatar name={displayName(l.client)} seed={l.client.id} src={l.client.avatarUrl} size={32} channel={l.client.deviceMode || undefined} />
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 600 }}>{displayName(l.client)}</span>
+                  <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{displayName(l.client)}</span>
                   <span style={{ display: 'block', fontSize: 12, color: 'var(--dim)' }}>{RELATION_LABEL[l.relation] || humanize(l.relation)}{l.notes ? ` · ${l.notes}` : ''}</span>
                 </span>
-                {l.client.isWhale ? <Icon name="crown" size={13} color="var(--amber)" /> : null}
+                {l.client.isWhale ? <Icon name="crown" size={13} color="var(--text)" /> : null}
               </button>
               <button type="button" onClick={() => remove(l)} aria-label="Remove link" style={{ display: 'flex', color: 'var(--faint)', padding: 6 }}><Icon name="x" size={15} /></button>
             </div>

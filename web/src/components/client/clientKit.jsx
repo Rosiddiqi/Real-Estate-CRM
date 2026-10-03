@@ -174,7 +174,7 @@ export function ActionSheet({ open, title, actions = [], onClose }) {
           ))}
         </div>
         <div className="kc-as-group km-lg km-lg--menu">
-          <button type="button" className="kc-as-row" style={{ fontWeight: 600 }} onClick={() => close()}>Cancel</button>
+          <button type="button" className="kc-as-row" style={{ fontWeight: 500 }} onClick={() => close()}>Cancel</button>
         </div>
       </div>
     </div>,
@@ -339,7 +339,7 @@ export function MoneyInput({ value, onChange, placeholder = '$', style, inputSty
           onBlur={() => setFocused(false)}
         />
         {focused && parsed ? (
-          <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12.5, fontWeight: 600, color: 'var(--bright)', pointerEvents: 'none' }}>{moneyCompact(parsed)}</span>
+          <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12.5, fontWeight: 500, color: 'var(--bright)', pointerEvents: 'none' }}>{moneyCompact(parsed)}</span>
         ) : null}
       </span>
     </label>

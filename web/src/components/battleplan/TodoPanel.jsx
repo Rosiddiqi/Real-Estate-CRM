@@ -143,7 +143,7 @@ function MyRow({ task, onDone, onRemove, onOpen }) {
           />
           <div onClick={onOpen || undefined} style={{ flex: 1, minWidth: 0, cursor: onOpen ? 'pointer' : 'default' }}>
             <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--bp-t1)', lineHeight: 1.35, overflowWrap: 'anywhere' }}>
-              {whale ? <Icon name="crown" size={12} color="var(--amber)" style={{ marginRight: 5, verticalAlign: '-1px' }} /> : null}
+              {whale ? <Icon name="crown" size={12} color="var(--text)" style={{ marginRight: 5, verticalAlign: '-1px' }} /> : null}
               {task.title}
             </div>
             {meta.text ? (
@@ -184,7 +184,7 @@ function MoveRow({ m, flash, onAdd, onGood, onBad, onOpen, onCall, onText }) {
       <div onClick={onOpen} style={{ cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5, minWidth: 0 }}>
           <span className="td-reason" style={{ color: rc, background: alpha(rc, 13), border: `1px solid ${alpha(rc, 28)}` }}>{m.reasonLabel || 'FOLLOW-UP'}</span>
-          {m.whale ? <Icon name="crown" size={12} color="var(--amber)" /> : null}
+          {m.whale ? <Icon name="crown" size={12} color="var(--text)" /> : null}
           {m.date && m.date !== dateKey() ? <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 0.8, color: 'var(--bp-t3)' }}>TOMORROW</span> : null}
           <span style={{ flex: 1 }} />
           {flash === 'trained' ? <span className="td-trained">✓ TRAINED</span> : null}

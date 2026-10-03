@@ -123,7 +123,7 @@ export default function EditClientSheet({ client, section, open, onClose, onSave
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 4 }} ref={(el) => { refs.current.identity = el; }}>
             <button type="button" onClick={() => fileRef.current?.click()} className="km-press" style={{ position: 'relative' }} aria-label="Change photo">
               <Avatar name={displayName({ ...client, firstName: f.firstName, lastName: f.lastName })} seed={client.id} src={f.avatarUrl ? mediaUrl(f.avatarUrl) : undefined} size={64} />
-              <span style={{ position: 'absolute', right: -2, bottom: -2, width: 24, height: 24, borderRadius: '50%', background: 'var(--blue)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--surface)' }}>
+              <span style={{ position: 'absolute', right: -2, bottom: -2, width: 24, height: 24, borderRadius: '50%', background: 'var(--hl)', color: 'var(--on-hl)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--surface)' }}>
                 <Icon name={uploading ? 'refresh' : 'camera'} size={12} stroke={2.2} />
               </span>
             </button>
@@ -219,8 +219,8 @@ export default function EditClientSheet({ client, section, open, onClose, onSave
             <ChipSelect multi={false} options={STATUSES} value={[f.status]} onChange={(v) => set({ status: v[0] || f.status })} />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Stars value={f.rating} onChange={(v) => set({ rating: v })} size={22} gap={4} />
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 600 }}>
-                <Icon name="crown" size={15} color="var(--amber)" /> Whale <Switch checked={f.isWhale} onChange={(v) => set({ isWhale: v })} label="Whale" />
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 500 }}>
+                <Icon name="crown" size={15} color="var(--text)" /> Whale <Switch checked={f.isWhale} onChange={(v) => set({ isWhale: v })} label="Whale" />
               </span>
             </div>
             <div>
@@ -230,9 +230,9 @@ export default function EditClientSheet({ client, section, open, onClose, onSave
             <div>
               <span className="km-field-label" style={{ display: 'block', marginBottom: 6 }}>Referred by</span>
               {f.referredBy ? (
-                <div className="kc-dupe" style={{ background: 'var(--tint)', borderColor: 'rgba(46,139,255,0.35)', marginTop: 0 }}>
+                <div className="kc-dupe" style={{ background: 'var(--tint)', borderColor: 'rgba(var(--accent-rgb), 0.35)', marginTop: 0 }}>
                   <Avatar name={displayName(f.referredBy)} seed={f.referredBy.id} src={f.referredBy.avatarUrl} size={28} />
-                  <span style={{ flex: 1, fontWeight: 600 }}>{displayName(f.referredBy)}</span>
+                  <span style={{ flex: 1, fontWeight: 500 }}>{displayName(f.referredBy)}</span>
                   <button type="button" onClick={() => set({ referredBy: null })} aria-label="Clear" style={{ display: 'flex', color: 'var(--faint)' }}><Icon name="x" size={16} /></button>
                 </div>
               ) : <button type="button" className="km-pill km-press" onClick={() => setPickRef(true)}><Icon name="userPlus" size={14} /> Choose</button>}

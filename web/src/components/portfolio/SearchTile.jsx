@@ -35,7 +35,7 @@ export default function SearchTile({ s, client, matches, matchesState, onEdit })
             <span className="kc-dot" style={{ background: b.dot, boxShadow: `0 0 6px ${b.dot}` }} />{paused ? s.status.toUpperCase() : b.label}
           </span>
         </div>
-        <div className="kc-br"><span className="kc-blurpill" style={{ fontWeight: 700 }}>{searchBudget(s)}{s.budgetFlexible ? ' · flexible' : ''}</span></div>
+        <div className="kc-br"><span className="kc-blurpill" style={{ fontWeight: 500 }}>{searchBudget(s)}{s.budgetFlexible ? ' · flexible' : ''}</span></div>
         {top && top.score ? <div className="kc-bl"><span className="kc-blurpill">TOP MATCH <b style={{ marginLeft: 2 }}>{top.score}</b></span></div> : null}
       </button>
       <div className="kc-tile-body">
@@ -56,11 +56,11 @@ export default function SearchTile({ s, client, matches, matchesState, onEdit })
           {!searchChips(s).length ? <span style={{ fontSize: 12.5, color: 'var(--faint)' }}>No criteria yet — describe what they want.</span> : null}
         </div>
         <div className="kc-tile-foot">
-          <button type="button" onClick={() => list.length && setOpen((o) => !o)} style={{ color: list.length ? 'var(--text)' : 'var(--faint)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <button type="button" onClick={() => list.length && setOpen((o) => !o)} style={{ color: list.length ? 'var(--text)' : 'var(--faint)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             {matchesState === 'loading' ? 'Matching…' : matchesState === 'error' ? 'Matching runs nightly' : list.length ? `${list.length} live match${list.length === 1 ? '' : 'es'}` : 'No live matches yet'}
             {list.length ? <Icon name="chevronDown" size={13} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} /> : null}
           </button>
-          <button type="button" onClick={() => onEdit(s)} style={{ color: 'var(--bright)', fontWeight: 600 }}>Edit ›</button>
+          <button type="button" onClick={() => onEdit(s)} style={{ color: 'var(--bright)', fontWeight: 500 }}>Edit ›</button>
         </div>
         {open ? (
           <div style={{ marginTop: 6 }}>
@@ -69,7 +69,7 @@ export default function SearchTile({ s, client, matches, matchesState, onEdit })
                 <button type="button" className="km-press" onClick={() => m.listingId && nav.openListing(m.listingId)} style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0, textAlign: 'left' }}>
                   <PropertyPhoto src={m.photo} seed={m.id} height={40} radius={9} style={{ width: 52, flexShrink: 0 }} />
                   <span style={{ flex: 1, minWidth: 0 }}>
-                    <span className="km-truncate" style={{ display: 'block', fontSize: 13.5, fontWeight: 600 }}>{m.title}</span>
+                    <span className="km-truncate" style={{ display: 'block', fontSize: 13.5, fontWeight: 500 }}>{m.title}</span>
                     <span className="km-truncate" style={{ display: 'block', fontSize: 11.5, color: 'var(--dim)' }}>{[m.price ? money(m.price) : null, m.beds ? `${m.beds} bd` : null, m.neighborhood].filter(Boolean).join(' · ')}</span>
                   </span>
                   {m.score ? <ScoreDial value={m.score} size={34} stroke={3} /> : null}

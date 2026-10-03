@@ -46,7 +46,7 @@ export function PhotoStrip({ photos = [], onChange, label = 'Photos', hint }) {
             <button type="button" onClick={() => i && onChange([u, ...photos.filter((x) => x !== u)])} aria-label={i ? 'Make cover photo' : 'Cover photo'} style={{ width: '100%', height: '100%', display: 'block' }}>
               <SafeImg src={mediaUrl(u)} loading="lazy" />
             </button>
-            <span style={{ position: 'absolute', left: 4, bottom: 4, fontSize: 8, fontWeight: 800, letterSpacing: '0.1em', padding: '2px 5px', borderRadius: 5, background: i === 0 ? 'var(--blue)' : 'rgba(0,0,0,0.55)', color: '#fff', pointerEvents: 'none' }}>{i === 0 ? 'COVER' : 'TAP = COVER'}</span>
+            <span style={{ position: 'absolute', left: 4, bottom: 4, fontSize: 8, fontWeight: 500, letterSpacing: '0.1em', padding: '2px 5px', borderRadius: 5, background: i === 0 ? 'var(--hl)' : 'rgba(0,0,0,0.55)', color: i === 0 ? 'var(--on-hl)' : '#fff', pointerEvents: 'none' }}>{i === 0 ? 'COVER' : 'TAP = COVER'}</span>
             <button type="button" className="kc-thumb-x" onClick={() => onChange(photos.filter((x) => x !== u))} aria-label="Remove photo"><Icon name="x" size={11} stroke={2.6} /></button>
           </div>
         ))}

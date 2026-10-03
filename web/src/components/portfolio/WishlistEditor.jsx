@@ -164,10 +164,10 @@ export default function WishlistEditor({ open, client, search, prefillText, matc
     <Sheet open={open} onClose={onClose} title={editing ? 'Edit search' : 'New search'} subtitle={`${first}’s wishlist`} zIndex={440} maxHeight="92%" right={{ label: saving ? 'Saving…' : 'Save', onClick: save, disabled: saving }}>
       {({ close }) => { closeRef.current = close; return (
         <div style={{ paddingBottom: 12 }}>
-          <div style={{ padding: 12, borderRadius: 14, background: 'rgba(154,77,255,0.08)', border: '1px solid rgba(154,77,255,0.28)' }}>
+          <div style={{ padding: 14, borderRadius: 'var(--r-card)', background: 'var(--glass-fill)', border: 'var(--hairline) solid var(--hl-line)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <Icon name="sparkle" size={14} color="var(--violet)" stroke={2.2} />
-              <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 1.3, color: 'var(--violet)' }}>DESCRIBE IT</span>
+              <span style={{ fontSize: 9.5, fontWeight: 500, letterSpacing: 1.3, color: 'var(--violet)' }}>DESCRIBE IT</span>
               {parsedFrom ? <span className="kc-tag kc-tag--mono kc-tag--violet" style={{ height: 18, marginLeft: 'auto' }}>Filled · {parsedFrom}</span> : null}
             </div>
             <textarea className="km-input" rows={3} style={{ marginTop: 8, minHeight: 84 }} value={describe} onChange={(e) => setDescribe(e.target.value)}
@@ -294,7 +294,7 @@ export default function WishlistEditor({ open, client, search, prefillText, matc
                 <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderTop: '1px solid var(--kc-hair)' }}>
                   <PropertyPhoto src={m.photo} seed={m.id} height={44} radius={10} style={{ width: 58, flexShrink: 0 }} />
                   <span style={{ flex: 1, minWidth: 0 }}>
-                    <span className="km-truncate" style={{ display: 'block', fontSize: 13.5, fontWeight: 600 }}>{m.title}</span>
+                    <span className="km-truncate" style={{ display: 'block', fontSize: 13.5, fontWeight: 500 }}>{m.title}</span>
                     <span className="km-truncate" style={{ display: 'block', fontSize: 11.5, color: 'var(--dim)' }}>{[m.price ? money(m.price) : null, m.summary].filter(Boolean).join(' · ')}</span>
                   </span>
                   {m.score ? <ScoreDial value={m.score} size={34} stroke={3} /> : null}
@@ -305,7 +305,7 @@ export default function WishlistEditor({ open, client, search, prefillText, matc
           ) : null}
 
           <button type="button" className="km-btn km-btn--block km-btn--lg" style={{ marginTop: 22 }} disabled={saving} onClick={save}>{saving ? 'Saving…' : editing ? 'Save search' : f.bucket === 'dream' ? 'Add to wishlist' : 'Start searching'}</button>
-          {editing ? <button type="button" className="km-btn km-btn--block" style={{ marginTop: 10, background: 'transparent', boxShadow: 'none', border: '1px solid rgba(255,90,90,0.45)', color: 'var(--red)' }} onClick={remove}>Delete search</button> : null}
+          {editing ? <button type="button" className="km-btn km-btn--block" style={{ marginTop: 10, background: 'transparent', boxShadow: 'none', border: '1px solid rgba(255, 107, 94, 0.45)', color: 'var(--red)' }} onClick={remove}>Delete search</button> : null}
         </div>
       ); }}
     </Sheet>

@@ -150,7 +150,7 @@ export default function TileDetailSheet({ open, item, onClose, onComplete, onRet
             ) : null}
           </div>
           <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--bp-t1)', letterSpacing: -0.3, lineHeight: '22px' }}>
-            {item.whale ? <Icon name="crown" size={14} color="var(--amber)" style={{ marginRight: 6, verticalAlign: '-1px' }} /> : null}
+            {item.whale ? <Icon name="crown" size={14} color="var(--text)" style={{ marginRight: 6, verticalAlign: '-1px' }} /> : null}
             {item.title}
           </div>
           {item.sub ? <div className="km-selectable" style={{ fontSize: 13, color: 'var(--bp-t2)', marginTop: 4, lineHeight: '18px' }}>{item.sub}</div> : null}

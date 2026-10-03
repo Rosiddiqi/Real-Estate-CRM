@@ -84,7 +84,7 @@ function NoteItem({ n, clientId, onChanged }) {
       {editing ? (
         <>
           <textarea className="km-input" rows={4} value={text} onChange={(e) => setText(e.target.value)} autoFocus />
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, marginTop: 8, fontSize: 14, fontWeight: 600 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, marginTop: 8, fontSize: 14, fontWeight: 500 }}>
             <button type="button" onClick={() => setEditing(false)} style={{ color: 'var(--dim)' }}>Cancel</button>
             <button type="button" onClick={save} style={{ color: 'var(--green)' }}>{saving ? 'Saving…' : 'Save'}</button>
           </div>

@@ -259,7 +259,7 @@ export default function ClientCard({ id, tab: tabProp, onClose }) {
       ) : (
         <>
           {c.archivedAt ? (
-            <div style={{ margin: '0 16px 6px', padding: '10px 12px', borderRadius: 12, background: 'rgba(255,90,90,0.1)', border: '1px solid rgba(255,90,90,0.3)', display: 'flex', alignItems: 'center', gap: 10, fontSize: 13.5 }}>
+            <div style={{ margin: '0 16px 6px', padding: '10px 12px', borderRadius: 12, background: 'rgba(255, 107, 94, 0.1)', border: '1px solid rgba(255, 107, 94, 0.3)', display: 'flex', alignItems: 'center', gap: 10, fontSize: 13.5 }}>
               <Icon name="trash" size={15} color="var(--red)" />
               <span style={{ flex: 1 }}>This client was deleted.</span>
               <Button size="sm" variant="ghost" onClick={async () => { try { const r = await restoreClient(id); clientStore.commit(r.client); refresh(); } catch (e) { toast.error(e.message); } }}>Restore</Button>

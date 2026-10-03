@@ -67,7 +67,7 @@ function Row({ c, i, az, animate, withKind }) {
       <span style={{ flex: 1, minWidth: 0 }}>
         <span className="kc-row-name">
           <Name c={c} az={az} />
-          {c.isWhale ? <Icon name="crown" size={13} color="var(--amber)" stroke={2.2} /> : null}
+          {c.isWhale ? <Icon name="crown" size={13} color="var(--text)" stroke={2.2} /> : null}
           {c.blocked ? <Icon name="lock" size={12} color="var(--faint)" /> : null}
         </span>
         <span className="kc-row-sub km-truncate" style={{ display: 'block' }}>{subLine(c, { withKind }) || ' '}</span>

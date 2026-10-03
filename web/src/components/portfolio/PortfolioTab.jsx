@@ -75,7 +75,7 @@ export default function PortfolioTab({ client, loaded, bucket, onBucket, onOpenP
       radius={16}
       bg="transparent"
       actions={[
-        { label: 'Deal', icon: 'plus', bg: 'linear-gradient(135deg, #2E8BFF, #1567E0)', onClick: () => nav.newDeal({ clientId: client.id, side: p.relationship === 'rents' || p.relationship === 'watching' ? 'buyer' : 'listing', portfolioPropertyId: p.id, price: p.estValue || undefined }) },
+        { label: 'Deal', icon: 'plus', bg: 'var(--hl)', color: '#0D0D0D', onClick: () => nav.newDeal({ clientId: client.id, side: p.relationship === 'rents' || p.relationship === 'watching' ? 'buyer' : 'listing', portfolioPropertyId: p.id, price: p.estValue || undefined }) },
         { label: 'Edit', icon: 'edit', bg: '#3A3A3C', onClick: () => setEditing(p) },
       ]}
     >

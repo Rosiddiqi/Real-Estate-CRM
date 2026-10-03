@@ -46,7 +46,7 @@ export default function PropertyTile({ p, onOpen }) {
           <span className="kc-blurpill"><span className="kc-dot" style={{ background: rel.dot, boxShadow: `0 0 6px ${rel.dot}` }} />{relLabel(p)}</span>
           {p.boughtWithMe || p.soldWithMe ? <span className="kc-blurpill" style={{ fontFamily: 'var(--kc-mono)', fontSize: 9.5, letterSpacing: '0.12em' }}>{p.soldWithMe ? 'SOLD WITH YOU' : 'BOUGHT WITH YOU'}</span> : null}
         </div>
-        {vp ? <div className="kc-br"><span className="kc-blurpill" style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700 }}>{vp}</span></div> : null}
+        {vp ? <div className="kc-br"><span className="kc-blurpill" style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 500 }}>{vp}</span></div> : null}
       </div>
       <div className="kc-tile-body">
         <div className="kc-tile-title km-truncate">{propTitle(p)}</div>

@@ -39,9 +39,9 @@ export default function LinkSheet({ client, open, onClose, onLinked }) {
           <ChipSelect multi={false} options={RELATIONS} value={[relation]} onChange={(v) => setRelation(v[0] || relation)} />
           <span className="kc-eyebrow" style={{ display: 'block', margin: '18px 2px 8px' }}>Who</span>
           {other ? (
-            <div className="kc-dupe" style={{ background: 'var(--tint)', borderColor: 'rgba(46,139,255,0.35)', marginTop: 0 }}>
+            <div className="kc-dupe" style={{ background: 'var(--tint)', borderColor: 'rgba(var(--accent-rgb), 0.35)', marginTop: 0 }}>
               <Avatar name={displayName(other)} seed={other.id} src={other.avatarUrl} size={30} />
-              <span style={{ flex: 1, fontWeight: 600 }}>{displayName(other)}</span>
+              <span style={{ flex: 1, fontWeight: 500 }}>{displayName(other)}</span>
               <button type="button" className="kc-link" onClick={() => setPick(true)}>Change</button>
             </div>
           ) : (

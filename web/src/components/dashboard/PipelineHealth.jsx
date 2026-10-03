@@ -52,7 +52,7 @@ export default function PipelineHealth({ deals = [], trapped = 0 }) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3, minWidth: 0 }}>
                 <TierChip price={d.price} />
-                {d.whale ? <Icon name="crown" size={12} color="var(--amber)" /> : null}
+                {d.whale ? <Icon name="crown" size={12} color="var(--text)" /> : null}
                 {d.stars ? <Stars value={d.stars} size={9} gap={1} /> : null}
               </div>
               <div className="km-truncate" style={{ fontSize: 13.5, fontWeight: 600, letterSpacing: -0.2 }}>{d.clientName}</div>

@@ -122,18 +122,18 @@ export function ActivityPill({ item, clientId, onChanged, onOpenProperty, onOpen
         {open ? (
           editing ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 6 }}>
-              <textarea className="km-input" rows={3} value={text} onChange={(e) => setText(e.target.value)} style={{ minHeight: 80, background: 'rgba(0,0,0,0.25)', color: '#fff', borderColor: 'rgba(255,255,255,0.3)' }} />
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 14, fontSize: 13.5, fontWeight: 600 }}>
+              <textarea className="km-input" rows={3} value={text} onChange={(e) => setText(e.target.value)} style={{ minHeight: 80, background: 'rgba(var(--accent-rgb), 0.06)', color: 'var(--text)', borderColor: 'var(--lineHi)' }} />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 14, fontSize: 13.5, fontWeight: 500 }}>
                 <button type="button" onClick={() => { setEditing(false); setText(item.body || ''); }} style={{ color: 'rgba(255,255,255,0.8)' }}>Cancel</button>
-                <button type="button" onClick={saveNote} style={{ color: '#fff' }}>{busy ? 'Saving…' : 'Save'}</button>
+                <button type="button" onClick={saveNote} style={{ color: 'var(--text)' }}>{busy ? 'Saving…' : 'Save'}</button>
               </div>
             </div>
           ) : (
             <>
               {item.body ? <div className="kc-apill-body km-selectable">{item.body}</div> : null}
               {noteId ? (
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, fontSize: 13, fontWeight: 600, paddingTop: 2 }}>
-                  <button type="button" onClick={() => setEditing(true)} style={{ color: '#fff' }}>Edit</button>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16, fontSize: 13, fontWeight: 500, paddingTop: 2 }}>
+                  <button type="button" onClick={() => setEditing(true)} style={{ color: 'var(--text)' }}>Edit</button>
                   <button type="button" onClick={removeNote} style={{ color: '#FFE1E1' }}>Delete</button>
                 </div>
               ) : null}
@@ -162,7 +162,7 @@ export default function TimelineTab({ client, activity, loading, onChanged, onOp
           <button type="button" className="kc-strip-toggle" onClick={() => setStripOpen((o) => !o)} aria-expanded={stripOpen}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
               <span className="kc-dot" style={{ background: 'var(--kc-pill)', boxShadow: '0 0 6px var(--kc-pill)' }} />
-              <b style={{ color: 'var(--text)', fontWeight: 600 }}>Activity</b>
+              <b style={{ color: 'var(--text)', fontWeight: 500 }}>Activity</b>
               <span className="km-truncate">{loading && !activity ? 'Loading…' : latest ? `${latest.title}` : 'Nothing logged yet'}</span>
             </span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>

@@ -1,8 +1,9 @@
-// CardHero — RevMatch "Ignition" hero, re-geared: HUD rings, relationship
-// halo (arc = real touch strength over 90 days), name (tap to copy),
+// CardHero — RevMatch "Ignition" hero, re-geared and dressed in Soul: faint
+// HUD rings, relationship halo (highlight arc = real touch strength over 90
+// days), Inter Light name, name (tap to copy),
 // company/role, tap-to-copy phone/email, money instrument cluster
 // (LIFETIME VOLUME · CLOSINGS · AVG PRICE), WHALE toggle + tap stars,
-// status/source/type chips, AI status line, five action circles.
+// status/source/type chips, AI status line, five square glass action tiles.
 import { useState } from 'react';
 import Icon from '../../ui/Icon';
 import { mediaUrl } from '../../../api/client';
@@ -44,8 +45,8 @@ function Halo({ client, strength }) {
       <svg width="84" height="84" viewBox="0 0 84 84" aria-hidden="true">
         <defs>
           <linearGradient id="kcArc" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#2E8BFF" />
-            <stop offset="1" stopColor="#8FC6FF" />
+            <stop offset="0" stopColor="var(--hl)" />
+            <stop offset="1" stopColor="var(--hl)" />
           </linearGradient>
         </defs>
         {Array.from({ length: 36 }).map((_, i) => {
@@ -56,11 +57,11 @@ function Halo({ client, strength }) {
         <circle
           cx="42" cy="42" r={R} fill="none" stroke="url(#kcArc)" strokeWidth="3" strokeLinecap="round"
           strokeDasharray={`${CIRC * pct} ${CIRC}`} transform="rotate(-90 42 42)"
-          style={{ filter: 'drop-shadow(0 0 5px rgba(46,139,255,0.85))', transition: 'stroke-dasharray .8s var(--km-ease)' }}
+          style={{ transition: 'stroke-dasharray .8s var(--km-ease)' }}
         />
       </svg>
       <span className="kc-puck">
-        {client.avatarUrl && badAvatar !== client.avatarUrl ? <img src={mediaUrl(client.avatarUrl)} alt="" onError={() => setBadAvatar(client.avatarUrl)} /> : initials ? <span className="kc-puck-initials">{initials}</span> : <Icon name="user" size={24} color="var(--bright)" />}
+        {client.avatarUrl && badAvatar !== client.avatarUrl ? <img src={mediaUrl(client.avatarUrl)} alt="" onError={() => setBadAvatar(client.avatarUrl)} /> : initials ? <span className="kc-puck-initials">{initials}</span> : <Icon name="user" size={24} color="var(--text)" />}
       </span>
     </div>
   );
@@ -77,7 +78,7 @@ function ContactLine({ icon, value, copy }) {
     >
       <Icon name={icon} size={12} color="var(--faint)" />
       <span className="km-selectable" style={{ maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</span>
-      <Icon name={done ? 'check' : 'copy'} size={11} color={done ? 'var(--green)' : 'var(--ghost)'} stroke={done ? 2.2 : 1.6} />
+      <Icon name={done ? 'check' : 'copy'} size={11} color={done ? 'var(--hl-ink)' : 'var(--ghost)'} stroke={done ? 2 : 1.5} />
     </button>
   );
 }
@@ -88,7 +89,7 @@ function StarRow({ value, onSet }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <button key={i} type="button" onClick={() => onSet(i === value ? 0 : i)} aria-label={`${i} star${i > 1 ? 's' : ''}`} style={{ width: 22, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 2.5l2.95 5.98 6.6.96-4.78 4.65 1.13 6.58L12 17.57l-5.9 3.1 1.13-6.58L2.45 9.44l6.6-.96L12 2.5z" fill={i <= value ? 'var(--bright)' : 'none'} stroke={i <= value ? 'var(--bright)' : 'var(--ghost)'} strokeWidth="1.4" strokeLinejoin="round" />
+            <path d="M12 2.5l2.95 5.98 6.6.96-4.78 4.65 1.13 6.58L12 17.57l-5.9 3.1 1.13-6.58L2.45 9.44l6.6-.96L12 2.5z" fill={i <= value ? 'var(--text)' : 'none'} stroke={i <= value ? 'var(--text)' : 'var(--ghost)'} strokeWidth="1.3" strokeLinejoin="round" />
           </svg>
         </button>
       ))}
@@ -98,9 +99,9 @@ function StarRow({ value, onSet }) {
 
 function Act({ icon, label, primary, onTap, disabled }) {
   return (
-    <button type="button" className="kc-act" onClick={onTap} aria-label={label} disabled={disabled} style={{ opacity: disabled ? 0.4 : 1 }}>
-      <span className={`kc-act-c ${primary ? 'kc-act-c--primary' : 'km-mat'}`}>
-        <Icon name={icon} size={16} stroke={1.9} color={primary ? '#fff' : 'var(--bright)'} />
+    <button type="button" className={`kc-act ${primary ? 'kc-act--primary' : ''}`} onClick={onTap} aria-label={label} disabled={disabled} style={{ opacity: disabled ? 0.4 : 1 }}>
+      <span className="kc-act-c">
+        <Icon name={icon} size={20} stroke={1.5} color="currentColor" />
       </span>
       <span>{label}</span>
     </button>
@@ -150,8 +151,8 @@ export default function CardHero({ client, briefing, onWhale, onRate, onCall, on
         aria-label={`Copy name ${name}`}
       >
         <span className="km-truncate km-selectable">{name}</span>
-        {client.isWhale ? <Icon name="crown" size={16} color="var(--amber)" stroke={2.1} /> : null}
-        {nameCopied ? <Icon name="check" size={14} color="var(--green)" stroke={2.4} /> : null}
+        {client.isWhale ? <Icon name="crown" size={16} color="var(--text)" stroke={1.5} /> : null}
+        {nameCopied ? <Icon name="check" size={14} color="var(--hl-ink)" stroke={2} /> : null}
       </button>
       {role ? <div className="kc-role km-truncate" style={{ maxWidth: '100%' }}>{role}</div> : null}
 
@@ -167,8 +168,8 @@ export default function CardHero({ client, briefing, onWhale, onRate, onCall, on
           {[
             // Nothing closed yet but money in motion → show what's in the pipeline.
             !volume && pipeline > 0
-              ? ['IN PIPELINE', moneyCompact(pipeline), 'var(--amber)', '0 0 14px rgba(255,176,32,0.38)']
-              : ['LIFETIME VOLUME', volume ? moneyCompact(volume) : '—', 'var(--green)', '0 0 14px rgba(48,210,122,0.4)'],
+              ? ['IN PIPELINE', moneyCompact(pipeline), 'var(--text)', 'none']
+              : ['LIFETIME VOLUME', volume ? moneyCompact(volume) : '—', 'var(--text)', 'none'],
             ['CLOSINGS', fmtClosings(closings), 'var(--text)', 'none'],
             ['AVG PRICE', avg ? moneyCompact(avg) : '—', 'var(--text)', 'none'],
           ].map(([label, val, color, glow]) => (
@@ -182,7 +183,7 @@ export default function CardHero({ client, briefing, onWhale, onRate, onCall, on
 
       <div className="kc-pills">
         <button type="button" className={`kc-whale ${client.isWhale ? 'kc-whale--on' : ''}`} onClick={() => onWhale(!client.isWhale)} aria-pressed={!!client.isWhale}>
-          <Icon name="diamond" size={9} stroke={2.4} /> WHALE
+          <Icon name="diamond" size={10} stroke={1.8} /> WHALE
         </button>
         <StarRow value={client.rating || 0} onSet={onRate} />
       </div>
@@ -201,7 +202,7 @@ export default function CardHero({ client, briefing, onWhale, onRate, onCall, on
 
       {summary ? (
         <button type="button" className="kc-summary" onClick={onSummary}>
-          <Icon name="sparkle" size={13} color="var(--violet)" stroke={2.1} />
+          <Icon name="sparkle" size={14} color="var(--hl-ink)" stroke={1.7} />
           <span className="km-clamp-2">{summary}</span>
         </button>
       ) : null}

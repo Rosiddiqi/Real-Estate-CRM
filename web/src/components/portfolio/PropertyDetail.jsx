@@ -26,10 +26,10 @@ function Header({ client, onEdit }) {
   const { requestClose } = usePanel();
   return (
     <div className="km-scroll-edge" style={{ position: 'relative', zIndex: 5, flexShrink: 0, padding: 'calc(var(--safe-top) + 8px) 14px 8px', display: 'flex', justifyContent: 'space-between' }}>
-      <button type="button" className="km-lg km-lg--line km-press kc-pd-back" aria-label={`Back to ${client.firstName || displayName(client)}`} onClick={requestClose} style={{ height: 36, padding: '0 14px 0 8px', borderRadius: 999, display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: 15, fontWeight: 600, color: 'var(--lg-text)' }}>
+      <button type="button" className="km-lg km-lg--line km-press kc-pd-back" aria-label={`Back to ${client.firstName || displayName(client)}`} onClick={requestClose} style={{ height: 36, padding: '0 14px 0 8px', borderRadius: 999, display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: 15, fontWeight: 500, color: 'var(--lg-text)' }}>
         <Icon name="chevronLeft" size={20} stroke={2.2} /> {client.firstName || displayName(client)}
       </button>
-      <button type="button" className="km-lg km-lg--line km-press" onClick={onEdit} style={{ height: 36, padding: '0 16px', borderRadius: 999, fontSize: 15, fontWeight: 600, color: 'var(--lg-text)' }}>Edit</button>
+      <button type="button" className="km-lg km-lg--line km-press" onClick={onEdit} style={{ height: 36, padding: '0 16px', borderRadius: 999, fontSize: 15, fontWeight: 500, color: 'var(--lg-text)' }}>Edit</button>
     </div>
   );
 }
@@ -63,7 +63,7 @@ function Ownership({ p, client }) {
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10 }}>
               <div>
                 <div className="kc-mono" style={{ fontSize: 9.5, letterSpacing: '0.18em', color: 'var(--faint)' }}>EST. EQUITY</div>
-                <div style={{ fontSize: 26, fontWeight: 750, letterSpacing: '-0.02em', marginTop: 4, color: 'var(--green)', textShadow: '0 0 14px rgba(48,210,122,0.3)' }}>{d.equity != null ? money(d.equity) : '—'}</div>
+                <div style={{ fontFamily: 'var(--font-num)', fontSize: 28, fontWeight: 300, letterSpacing: '-0.02em', marginTop: 4, color: 'var(--text)' }}>{d.equity != null ? money(d.equity) : '—'}</div>
               </div>
               {d.daysToReset != null && d.daysToReset >= 0 ? (
                 <span className={`kc-tag ${resetSoon ? 'kc-tag--amber' : 'kc-tag--blue'}`}>{d.daysToReset} days to rate reset</span>
@@ -84,7 +84,7 @@ function Ownership({ p, client }) {
         ) : (
           <>
             <div className="kc-mono" style={{ fontSize: 9.5, letterSpacing: '0.18em', color: 'var(--faint)' }}>OWNED OUTRIGHT</div>
-            <div style={{ fontSize: 26, fontWeight: 750, letterSpacing: '-0.02em', marginTop: 4 }}>{p.estValue ? `${money(p.estValue)} est.` : 'Value not captured'}</div>
+            <div style={{ fontSize: 26, fontWeight: 500, letterSpacing: '-0.02em', marginTop: 4 }}>{p.estValue ? `${money(p.estValue)} est.` : 'Value not captured'}</div>
           </>
         )}
       </div>
@@ -120,7 +120,7 @@ function LeaseHero({ p }) {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10 }}>
           <div>
             <div className="kc-mono" style={{ fontSize: 9.5, letterSpacing: '0.18em', color: 'var(--faint)' }}>LEASE ENDS</div>
-            <div style={{ fontSize: 22, fontWeight: 700, marginTop: 4 }}>{p.leaseEndsAt ? new Date(p.leaseEndsAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }) : 'Not captured'}</div>
+            <div style={{ fontSize: 22, fontWeight: 500, marginTop: 4 }}>{p.leaseEndsAt ? new Date(p.leaseEndsAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }) : 'Not captured'}</div>
           </div>
           {days != null && days >= 0 ? <span className={`kc-tag ${days < 90 ? 'kc-tag--amber' : 'kc-tag--blue'}`}>{days} days left</span> : null}
         </div>
@@ -138,7 +138,7 @@ function SaleHero({ p }) {
       <SectionTitle action={p.soldWithMe ? <span className="kc-tag kc-tag--mono kc-tag--blue">Sold with you</span> : null}>Sale</SectionTitle>
       <div className="kc-own-hero">
         <div className="kc-mono" style={{ fontSize: 9.5, letterSpacing: '0.18em', color: 'var(--faint)' }}>SOLD{p.soldAt ? ` · ${fmtMonthYear(p.soldAt).toUpperCase()}` : ''}</div>
-        <div style={{ fontSize: 26, fontWeight: 750, letterSpacing: '-0.02em', marginTop: 4 }}>{p.soldPrice ? money(p.soldPrice) : '—'}</div>
+        <div style={{ fontSize: 26, fontWeight: 500, letterSpacing: '-0.02em', marginTop: 4 }}>{p.soldPrice ? money(p.soldPrice) : '—'}</div>
         <div style={{ fontSize: 13, color: 'var(--dim)', marginTop: 6 }}>
           {[p.purchasePrice ? `Bought ${money(p.purchasePrice)}${p.purchasedAt ? ` in ${new Date(p.purchasedAt).getFullYear()}` : ''}` : null, d.heldYears ? `held ${d.heldYears} yrs` : null, d.appreciation != null ? `${d.appreciation >= 0 ? '+' : '−'}${money(Math.abs(d.appreciation))}` : null].filter(Boolean).join(' · ') || 'Purchase details not captured'}
         </div>
@@ -272,7 +272,7 @@ export default function PropertyDetail({ id, seed, client, onClose, onChanged })
             <Spec label="MLS #" value={p.mlsNumber} copy={p.mlsNumber} mono />
             <Spec label="Parcel" value={p.parcelNumber} copy={p.parcelNumber} mono />
             {p.listingUrl ? (
-              <a className="kc-spec" href={p.listingUrl} target="_blank" rel="noreferrer" style={{ background: 'rgba(46,139,255,0.06)', color: 'var(--bright)', fontWeight: 600, fontSize: 13.5, justifyContent: 'center', gap: 6 }}>
+              <a className="kc-spec" href={p.listingUrl} target="_blank" rel="noreferrer" style={{ background: 'rgba(var(--accent-rgb), 0.06)', color: 'var(--bright)', fontWeight: 500, fontSize: 13.5, justifyContent: 'center', gap: 6 }}>
                 Open this listing <Icon name="arrowUpRight" size={14} stroke={2.2} />
               </a>
             ) : null}
@@ -300,7 +300,7 @@ export default function PropertyDetail({ id, seed, client, onClose, onChanged })
             <div className="kc-spec">
               <span className="kc-method-ico" style={{ width: 32, height: 32 }}><Icon name={p.source === 'listing_link' ? 'link' : p.source === 'described' ? 'sparkle' : p.source === 'document' ? 'file' : 'edit'} size={15} /></span>
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: 'block', fontSize: 14, fontWeight: 600 }}>{SOURCE_LABEL[p.source] || 'Entered by hand'}</span>
+                <span style={{ display: 'block', fontSize: 14, fontWeight: 500 }}>{SOURCE_LABEL[p.source] || 'Entered by hand'}</span>
                 <span style={{ display: 'block', fontSize: 12, color: 'var(--dim)', marginTop: 1 }}>{({ described: 'AI-parsed from your words — verify on a match', listing_link: 'Exact — parsed from the listing link', document: 'Confirmed — parsed from a document', public_record: 'From county records', mls: 'Pulled from the MLS', import: 'Imported with your book' })[p.source] || 'Your record'}{p.boughtWithMe ? ' · bought with you' : ''}</span>
               </span>
               <button type="button" className="km-btn km-btn--sm km-btn--ghost" style={{ minHeight: 30 }} onClick={() => docInput.current?.click()}>{docBusy ? <Spinner size={13} /> : 'Add doc'}</button>
@@ -338,7 +338,7 @@ export default function PropertyDetail({ id, seed, client, onClose, onChanged })
                     <button key={b.client.id} type="button" className="km-row km-press" style={{ width: '100%', textAlign: 'left' }} onClick={() => nav.openClient(b.client.id)}>
                       <Avatar name={displayName(b.client)} seed={b.client.id} src={b.client.avatarUrl} size={38} channel={b.client.deviceMode || undefined} />
                       <span style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14.5, fontWeight: 600 }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14.5, fontWeight: 500 }}>
                           <span className="km-truncate">{displayName(b.client)}</span>
                           {i === 0 ? <span className="kc-tag kc-tag--mono kc-tag--blue" style={{ height: 18 }}>Call first</span> : null}
                           {b.client.isWhale ? <span className="kc-tag kc-tag--mono kc-tag--amber" style={{ height: 18 }}>Whale</span> : null}

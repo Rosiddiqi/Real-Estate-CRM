@@ -120,7 +120,7 @@ export function Stars({ value = 0, onChange, size = 14, gap = 2 }) {
         const on = n <= value;
         const el = (
           <svg key={n} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill={on ? 'var(--hl-ink)' : 'none'} stroke={on ? 'var(--hl-ink)' : 'var(--faint)'} strokeWidth="1.6" strokeLinejoin="round" />
+            <path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill={on ? 'var(--text)' : 'none'} stroke={on ? 'var(--text)' : 'var(--ghost)'} strokeWidth="1.4" strokeLinejoin="round" />
           </svg>
         );
         return onChange ? (

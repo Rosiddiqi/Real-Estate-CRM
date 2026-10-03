@@ -22,7 +22,7 @@ function Method({ icon, ai, title, sub, on, onClick }) {
     <button type="button" className={`kc-method km-press ${on ? 'kc-method--on' : ''}`} onClick={onClick} aria-expanded={on}>
       <span className={`kc-method-ico ${ai ? 'kc-method-ico--ai' : ''}`}><Icon name={icon} size={17} stroke={2} /></span>
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: 'block', fontSize: 14.5, fontWeight: 600 }}>{title}</span>
+        <span style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{title}</span>
         <span style={{ display: 'block', fontSize: 12, color: 'var(--dim)', marginTop: 2 }}>{sub}</span>
       </span>
       <Icon name="chevronRight" size={15} color="var(--faint)" style={{ transform: on ? 'rotate(90deg)' : 'none', transition: 'transform .25s var(--km-ease)' }} />
@@ -43,7 +43,7 @@ function Preview({ result, onAdd, onEdit, saving, onWishlist }) {
     );
   }
   return (
-    <div style={{ marginTop: 12, padding: 12, borderRadius: 14, background: 'rgba(154,77,255,0.08)', border: '1px solid rgba(154,77,255,0.28)' }}>
+    <div style={{ marginTop: 12, padding: 14, borderRadius: 'var(--r-card)', background: 'var(--glass-fill)', border: 'var(--hairline) solid var(--hl-line)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <span className="kc-tag kc-tag--mono kc-tag--violet" style={{ height: 19 }}>{result.source === 'ai' ? 'AI' : 'PARSED'}</span>
         <span className="kc-eyebrow" style={{ color: 'var(--dim)' }}>{result.portal ? `From ${result.portal}` : 'From your words'}</span>

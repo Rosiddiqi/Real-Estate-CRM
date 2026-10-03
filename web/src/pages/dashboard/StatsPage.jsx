@@ -98,7 +98,7 @@ function HotDeals({ deals }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
                   <span className="km-truncate" style={{ fontSize: 13.5, fontWeight: 600 }}>{d.clientName}</span>
-                  {d.whale ? <Icon name="crown" size={12} color="var(--amber)" /> : null}
+                  {d.whale ? <Icon name="crown" size={12} color="var(--text)" /> : null}
                 </div>
                 <div className="km-truncate" style={{ fontSize: 11, color: 'var(--dim)', marginTop: 1 }}>{[d.stageLabel, d.property].filter(Boolean).join(' · ')}</div>
               </div>
@@ -163,7 +163,7 @@ function FollowUps({ f }) {
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
                   <span className="km-truncate" style={{ fontSize: 13.5, fontWeight: 600 }}>{it.title}</span>
-                  {it.whale ? <Icon name="crown" size={12} color="var(--amber)" /> : null}
+                  {it.whale ? <Icon name="crown" size={12} color="var(--text)" /> : null}
                   {it.stars ? <Stars value={it.stars} size={9} gap={1} /> : null}
                 </span>
                 <span className="km-truncate" style={{ display: 'block', fontSize: 11, color: 'var(--dim)', marginTop: 1 }}>{it.sub}</span>

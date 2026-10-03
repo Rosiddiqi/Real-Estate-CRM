@@ -41,7 +41,7 @@ export default function CallNowHero() {
               <span style={{ minWidth: 0, flex: 1 }}>
                 <span className="km-ph-now-name km-truncate" style={{ display: 'block' }}>
                   {s.name}
-                  {s.whale ? <Icon name="crown" size={12} color="var(--amber)" stroke={2} style={{ marginLeft: 5, verticalAlign: '-1px' }} /> : null}
+                  {s.whale ? <Icon name="crown" size={12} color="var(--text)" stroke={2} style={{ marginLeft: 5, verticalAlign: '-1px' }} /> : null}
                 </span>
                 <span style={{ fontSize: 11.5, color: 'var(--faint)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                   <Icon name={KIND_ICON[s.kind] || (s.kind && s.kind.includes('match') ? 'rings' : 'sparkle')} size={11} stroke={2} />

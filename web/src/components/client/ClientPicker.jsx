@@ -98,7 +98,7 @@ export default function ClientPicker({ open, onClose, onPick, kind, title = 'Cho
               <span style={{ width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--tint)', color: 'var(--bright)', flexShrink: 0 }}>
                 {creating ? <Spinner size={16} /> : <Icon name="userPlus" size={17} stroke={2} />}
               </span>
-              <span className="km-truncate" style={{ flex: 1, fontSize: 15, fontWeight: 600, color: 'var(--bright)' }}>
+              <span className="km-truncate" style={{ flex: 1, fontSize: 15, fontWeight: 500, color: 'var(--bright)' }}>
                 New {kind && kind !== 'all' && kind !== 'client' ? kind : 'client'} “{q.trim()}”
               </span>
             </button>
@@ -121,9 +121,9 @@ export default function ClientPicker({ open, onClose, onPick, kind, title = 'Cho
               >
                 <Avatar name={fullName(c)} seed={c.id} src={c.avatarUrl} size={38} channel={c.deviceMode || undefined} />
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span className="km-truncate" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 15, fontWeight: 600 }}>
+                  <span className="km-truncate" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 15, fontWeight: 500 }}>
                     <span className="km-truncate">{fullName(c)}</span>
-                    {c.isWhale ? <Icon name="crown" size={13} color="var(--amber)" stroke={2.2} /> : null}
+                    {c.isWhale ? <Icon name="crown" size={13} color="var(--text)" stroke={2.2} /> : null}
                   </span>
                   <span className="km-truncate" style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)', marginTop: 1 }}>
                     {reason || subLine(c) || ' '}

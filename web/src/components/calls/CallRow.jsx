@@ -22,7 +22,7 @@ export default function CallRow({ call, onCall, onInfo, onSave, index = 0 }) {
         <span style={{ minWidth: 0, flex: 1 }}>
           <span className={`km-ph-name km-truncate ${missed ? 'km-ph-name--missed' : ''}`} style={{ display: 'block' }}>
             {name}
-            {call.client?.isWhale ? <Icon name="crown" size={12} color="var(--amber)" stroke={2} style={{ marginLeft: 6, verticalAlign: '-1px' }} /> : null}
+            {call.client?.isWhale ? <Icon name="crown" size={12} color="var(--text)" stroke={2} style={{ marginLeft: 6, verticalAlign: '-1px' }} /> : null}
           </span>
           <span className="km-ph-meta">
             <DirectionGlyph kind={kind} />

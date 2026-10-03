@@ -102,7 +102,7 @@ export default function GlobalSearch({ onClose, q: initialQ }) {
     if ((res.clients || []).length) out.push({ key: 'clients', title: 'Clients', rows: res.clients.map((c, i) => (
       <Row key={c.id} index={i} onClick={() => go(() => nav.openClient(c.id))}
         left={<Avatar name={fullName(c)} seed={c.id} src={c.avatarUrl} size={40} />}
-        title={<><Hi text={fullName(c)} q={q} />{c.isWhale ? <Icon name="crown" size={12} color="var(--amber)" stroke={2} style={{ marginLeft: 6, verticalAlign: '-1px' }} /> : null}</>}
+        title={<><Hi text={fullName(c)} q={q} />{c.isWhale ? <Icon name="crown" size={12} color="var(--text)" stroke={2} style={{ marginLeft: 6, verticalAlign: '-1px' }} /> : null}</>}
         sub={[c.contactKind && c.contactKind !== 'client' ? (c.vendorRole || c.contactKind).replace(/_/g, ' ') : TYPE[c.type], c.neighborhood || c.city || c.company, c.phone ? formatPhone(c.phone) : c.email].filter(Boolean).join(' · ')}
         right={c.rating ? <span style={{ fontSize: 12, color: 'var(--amber)' }}>{'★'.repeat(c.rating)}</span> : null} />
     )) });
