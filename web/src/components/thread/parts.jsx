@@ -142,7 +142,7 @@ export function CallCard({ call, at }) {
           <Icon name={missed ? 'phoneMissed' : out ? 'phoneOutgoing' : 'phoneIncoming'} size={15} stroke={2.1} />
         </span>
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: 'block', fontSize: 14, fontWeight: 600 }}>
+          <span style={{ display: 'block', fontSize: 14, fontWeight: 500 }}>
             {label}{!missed && call.durationSec ? <span style={{ color: 'var(--dim)', fontWeight: 500 }}>{` · ${fmtDuration(call.durationSec)}`}</span> : null}
           </span>
           <span style={{ display: 'block', fontSize: 12, color: 'var(--faint)', marginTop: 1 }}>{formatTime(at)}{call.hasRecording ? ' · Recorded' : ''}</span>

@@ -20,12 +20,12 @@ export default function NewDevLane({
       <button type="button" className="km-pl-lane-head" onClick={onToggle} aria-expanded={open}>
         <Icon name="building" size={15} color="var(--dim)" />
         <span className="km-pl-lane-title">New Development</span>
-        <span className="km-mono" style={{ fontSize: 10.5, fontWeight: 700, color: deals.length ? 'var(--blue)' : 'var(--faint)' }}>{deals.length}</span>
+        <span className="km-mono" style={{ fontSize: 10.5, fontWeight: 500, color: deals.length ? 'var(--blue)' : 'var(--faint)' }}>{deals.length}</span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 5, marginLeft: 2, minWidth: 0, overflow: 'hidden' }}>
           {stages.filter((s) => groups[s.key].length).map((s) => (
             <span key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
               <StageDot color={s.color} size={6} />
-              <span className="km-mono" style={{ fontSize: 9, fontWeight: 700, color: 'var(--faint)' }}>{groups[s.key].length}</span>
+              <span className="km-mono" style={{ fontSize: 9, fontWeight: 500, color: 'var(--faint)' }}>{groups[s.key].length}</span>
             </span>
           ))}
         </span>
@@ -46,8 +46,8 @@ export default function NewDevLane({
               <div key={s.key} className="km-pl-lane-group">
                 <div className="km-pl-lane-grouphead">
                   <StageDot color={s.color} glow />
-                  <span style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: -0.2 }}>{s.label}</span>
-                  <span className="km-mono" style={{ fontSize: 10, fontWeight: 600, color: 'var(--faint)' }}>{list.length}</span>
+                  <span style={{ fontSize: 12.5, fontWeight: 500, letterSpacing: -0.2 }}>{s.label}</span>
+                  <span className="km-mono" style={{ fontSize: 10, fontWeight: 500, color: 'var(--faint)' }}>{list.length}</span>
                   <span className="km-pl-col-sub">{s.sub}</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

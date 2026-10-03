@@ -74,7 +74,7 @@ function Composer({ onSubmit, busy }) {
               {uploading ? <div className="km-skel" style={{ position: 'absolute', inset: 0 }} /> : <PropertyPhoto src={photo.url} seed={photo.url} style={{ position: 'absolute', inset: 0, height: '100%' }} />}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 700 }}>{uploading ? 'Uploading…' : 'Photo attached'}</div>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>{uploading ? 'Uploading…' : 'Photo attached'}</div>
               <div className="mm-eyebrow" style={{ fontSize: 8.5, marginTop: 2 }}>Brochure · floor plan · price sheet</div>
             </div>
             {!uploading ? <button type="button" className="mm-icon-btn" style={{ width: 32, height: 32 }} onClick={() => setPhoto(null)} aria-label="Remove photo"><Icon name="x" size={15} stroke={2.2} /></button> : null}
@@ -85,7 +85,7 @@ function Composer({ onSubmit, busy }) {
           <button type="button" className="mm-chipbtn" onClick={() => pick(false)} aria-label="Upload a photo"><Icon name="image" size={18} stroke={1.8} /></button>
           <span style={{ flex: 1 }} />
           <button type="button" className="mm-cta" disabled={!can} onClick={submit}>
-            {busy ? <Spinner size={15} color="#fff" /> : <Icon name="sparkle" size={15} stroke={2} />} Find who wants it
+            {busy ? <Spinner size={15} color="currentColor" /> : <Icon name="sparkle" size={15} stroke={2} />} Find who wants it
           </button>
         </div>
       </div>
@@ -163,7 +163,7 @@ function WhisperSheet({ item, open, onClose }) {
               <ListingThumb src={l.photos && l.photos[0]} seed={l.id} w={64} h={48} radius={10} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="mm-eyebrow" style={{ color: 'var(--green)' }}>Whisper · {relativeTime(l.createdAt) === 'now' ? 'just now' : relativeTime(l.createdAt)}</div>
-                <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.015em', marginTop: 3 }} className="km-clamp-2">{l.title}</div>
+                <div style={{ fontSize: 17, fontWeight: 500, letterSpacing: '-0.015em', marginTop: 3 }} className="km-clamp-2">{l.title}</div>
               </div>
             </div>
             <SpecChips l={l} />

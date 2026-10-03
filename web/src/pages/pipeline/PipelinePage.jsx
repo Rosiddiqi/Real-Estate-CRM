@@ -192,7 +192,7 @@ export default function PipelinePage({ focus, onClose }) {
             <button type="button" className="km-pl-jump km-press" onClick={scrollToLane}>
               <Icon name="building" size={13} />
               <span>New Development</span>
-              <span className="km-mono" style={{ fontSize: 10, fontWeight: 700, color: 'var(--blue)' }}>{lane.length}</span>
+              <span className="km-mono" style={{ fontSize: 10, fontWeight: 500, color: 'var(--blue)' }}>{lane.length}</span>
               {delivered ? <span className="km-pl-greenpill">{delivered} delivered</span> : null}
               <Icon name="chevronDown" size={12} color="var(--faint)" />
             </button>

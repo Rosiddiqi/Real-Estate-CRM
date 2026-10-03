@@ -89,7 +89,7 @@ export function ListingSearch({ value, onPick, onClear }) {
       <div className="bp-tile" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 8, borderRadius: 14 }}>
         <PropertyPhoto src={listingPhoto(value)} seed={value.id} height={44} radius={10} style={{ width: 60, flexShrink: 0 }} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="km-truncate" style={{ fontSize: 14, fontWeight: 600 }}>{[value.street, value.unitNumber].filter(Boolean).join(' ') || value.title || 'Listing'}</div>
+          <div className="km-truncate" style={{ fontSize: 14, fontWeight: 500 }}>{[value.street, value.unitNumber].filter(Boolean).join(' ') || value.title || 'Listing'}</div>
           <div className="km-truncate" style={{ fontSize: 12, color: 'var(--dim)' }}>{[value.city, value.listPrice ? moneyCompact(value.listPrice) : null].filter(Boolean).join(' · ')}</div>
         </div>
         <button type="button" className="km-icon-btn km-icon-btn--sm" onClick={onClear} aria-label="Remove listing" style={{ background: 'var(--bp-fill)' }}><Icon name="x" size={15} /></button>
@@ -109,7 +109,7 @@ export function ListingSearch({ value, onPick, onClear }) {
             <button key={l.id} type="button" className="km-row km-press" style={{ width: '100%', textAlign: 'left', gap: 10, padding: '8px 0' }} onClick={() => { onPick(l); setQ(''); setRows([]); }}>
               <PropertyPhoto src={listingPhoto(l)} seed={l.id} height={36} radius={8} style={{ width: 48, flexShrink: 0 }} />
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 600 }}>{[l.street, l.unitNumber].filter(Boolean).join(' ') || l.title || 'Listing'}</span>
+                <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 500 }}>{[l.street, l.unitNumber].filter(Boolean).join(' ') || l.title || 'Listing'}</span>
                 <span className="km-truncate" style={{ display: 'block', fontSize: 12, color: 'var(--dim)' }}>{[l.neighborhood || l.city, l.listPrice ? moneyCompact(l.listPrice) : null, l.mlsNumber ? `MLS ${l.mlsNumber}` : null].filter(Boolean).join(' · ')}</span>
               </span>
             </button>
@@ -211,7 +211,7 @@ export default function AddAppointmentSheet({ prefill = {}, onClose }) {
                   <div className="bp-tile" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 14 }}>
                     <Avatar name={fullName(client)} seed={client.id} src={client.avatarUrl} size={36} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div className="km-truncate" style={{ fontSize: 15, fontWeight: 600 }}>{fullName(client)}</div>
+                      <div className="km-truncate" style={{ fontSize: 15, fontWeight: 500 }}>{fullName(client)}</div>
                       <div className="km-truncate" style={{ fontSize: 12, color: 'var(--dim)' }}>{client.phone || client.email || client.type || ''}</div>
                     </div>
                     <button type="button" className="km-btn km-btn--plain km-btn--sm" onClick={() => setPicker(true)}>Change</button>
@@ -255,12 +255,12 @@ export default function AddAppointmentSheet({ prefill = {}, onClose }) {
               </div>
 
               {offDay || outside || conflicts.length ? (
-                <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,149,0,0.10)', border: '1px solid rgba(242,169,59,0.35)' }}>
-                  {offDay ? <div style={{ fontSize: 12.5, color: 'var(--amber)', fontWeight: 600 }}>Heads up — you’re off this day per your schedule.</div> : null}
-                  {outside ? <div style={{ fontSize: 12.5, color: 'var(--amber)', fontWeight: 600 }}>Outside your working hours ({fmtMin(win.start)}–{fmtMin(win.end)}).</div> : null}
+                <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255, 180, 64, 0.10)', border: '1px solid rgba(255, 180, 64, 0.35)' }}>
+                  {offDay ? <div style={{ fontSize: 12.5, color: 'var(--amber)', fontWeight: 500 }}>Heads up — you’re off this day per your schedule.</div> : null}
+                  {outside ? <div style={{ fontSize: 12.5, color: 'var(--amber)', fontWeight: 500 }}>Outside your working hours ({fmtMin(win.start)}–{fmtMin(win.end)}).</div> : null}
                   {conflicts.length ? (
                     <div style={{ marginTop: offDay || outside ? 6 : 0 }}>
-                      <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.2, color: 'var(--amber)', marginBottom: 3 }}>! OVERLAPS WITH</div>
+                      <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: 1.2, color: 'var(--amber)', marginBottom: 3 }}>! OVERLAPS WITH</div>
                       {conflicts.slice(0, 3).map((a) => (
                         <div key={a.id} className="km-truncate" style={{ fontSize: 12.5, color: 'var(--dim)' }}>
                           {fmtMin(minuteOfDay(a.startAt))} · {a.title}

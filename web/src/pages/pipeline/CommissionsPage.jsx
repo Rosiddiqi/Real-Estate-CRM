@@ -44,7 +44,7 @@ function ChartTip({ active, payload }) {
   const p = payload[0].payload;
   return (
     <div className="km-lg km-lg--menu" style={{ padding: '8px 11px', borderRadius: 10, fontSize: 12 }}>
-      <div style={{ fontSize: 15, fontWeight: 700 }}>{money0(p.net)}</div>
+      <div style={{ fontSize: 15, fontWeight: 500 }}>{money0(p.net)}</div>
       <div style={{ color: 'var(--dim)', marginTop: 1 }}>{p.label} {p.year} · {plural(p.sides, 'side')} · {moneyCompact(p.volume)} vol</div>
     </div>
   );
@@ -63,7 +63,7 @@ function MonthChart({ series }) {
           <CartesianGrid vertical={false} stroke={c['--line']} />
           <XAxis dataKey="label" tickLine={false} axisLine={false} interval={0} tick={{ fill: c['--faint'], fontSize: 10 }} />
           <YAxis width={42} tickLine={false} axisLine={false} tick={{ fill: c['--faint'], fontSize: 10 }} tickFormatter={(v) => (v ? moneyCompact(v) : '0')} allowDecimals={false} />
-          <Tooltip cursor={{ fill: 'rgba(46,139,255,0.08)' }} content={<ChartTip />} isAnimationActive={false} />
+          <Tooltip cursor={{ fill: 'rgba(var(--accent-rgb), 0.08)' }} content={<ChartTip />} isAnimationActive={false} />
           <Bar dataKey="net" radius={[4, 4, 0, 0]} maxBarSize={22} isAnimationActive>
             {series.map((s) => <Cell key={s.key} fill={c['--blue']} fillOpacity={s.current ? 1 : 0.38} />)}
           </Bar>
@@ -87,10 +87,10 @@ function CapCard({ cap, onPlan }) {
       {hasCap ? (
         <>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8 }}>
-            <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.6 }}>{money0(cap.paid)}</div>
+            <div style={{ fontSize: 24, fontWeight: 500, letterSpacing: -0.6 }}>{money0(cap.paid)}</div>
             <div style={{ fontSize: 12.5, color: 'var(--dim)' }}>of {money0(cap.amount)} company dollar</div>
           </div>
-          <div className="km-cm-bar" style={{ marginTop: 12, background: 'rgba(46,139,255,0.14)' }} role="meter" aria-valuemin={0} aria-valuemax={cap.amount} aria-valuenow={cap.paid} aria-label="Cap progress">
+          <div className="km-cm-bar" style={{ marginTop: 12, background: 'rgba(var(--accent-rgb), 0.14)' }} role="meter" aria-valuemin={0} aria-valuemax={cap.amount} aria-valuenow={cap.paid} aria-label="Cap progress">
             <div className={`km-cm-fill ${cap.capped ? 'km-cm-fill--green' : ''}`} style={{ width: `${Math.max(2, (cap.pct || 0) * 100)}%` }} />
             {[0.25, 0.5, 0.75].map((t) => <div key={t} className="km-cm-tick" style={{ left: `${t * 100}%` }} />)}
           </div>
@@ -107,9 +107,9 @@ function CapCard({ cap, onPlan }) {
         <div style={{ marginTop: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, color: 'var(--dim)', marginBottom: 7 }}>
             <span>Split tier · {moneyCompact(cap.gciYtd)} GCI this cap year</span>
-            <span style={{ color: 'var(--text)', fontWeight: 600 }}>{Math.round(cap.currentSplit * 100)}% now</span>
+            <span style={{ color: 'var(--text)', fontWeight: 500 }}>{Math.round(cap.currentSplit * 100)}% now</span>
           </div>
-          <div className="km-cm-bar" style={{ background: 'rgba(46,139,255,0.14)' }}>
+          <div className="km-cm-bar" style={{ background: 'rgba(var(--accent-rgb), 0.14)' }}>
             <div className="km-cm-fill" style={{ width: `${Math.min(1, cap.gciYtd / tierMax) * 100}%` }} />
             {tiers.filter((t) => t.fromGci > 0).map((t) => <div key={t.fromGci} className="km-cm-tick" style={{ left: `${(t.fromGci / tierMax) * 100}%` }} />)}
           </div>
@@ -183,7 +183,7 @@ export default function CommissionsPage({ onClose }) {
           <div className="km-cm-hero">
             <div className="km-cm-eyebrow">{data.month.label} · month to date</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 8 }}>
-              <div style={{ fontSize: 48, fontWeight: 700, letterSpacing: -1.6, lineHeight: 1 }}>{money0(data.mtd.net)}</div>
+              <div style={{ fontSize: 48, fontWeight: 500, letterSpacing: -1.6, lineHeight: 1 }}>{money0(data.mtd.net)}</div>
               <div style={{ fontSize: 12.5, color: 'var(--dim)' }}>net</div>
             </div>
             <div className="km-cm-heroline">
@@ -208,14 +208,14 @@ export default function CommissionsPage({ onClose }) {
                   sub={[d.address, shortDate(d.closedAt)].filter(Boolean).join(' · ')}
                   right={(
                     <div style={{ textAlign: 'right' }}>
-                      <div className="km-cm-amt" style={{ color: d.booked ? 'var(--green)' : 'var(--dim)' }}>{money0(d.net)}</div>
-                      <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 0.8, color: 'var(--faint)' }}>{d.booked ? 'BOOKED' : 'EST.'}</div>
+                      <div className="km-cm-amt" style={{ color: d.booked ? 'var(--text)' : 'var(--dim)' }}>{money0(d.net)}</div>
+                      <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: 0.8, color: 'var(--faint)' }}>{d.booked ? 'BOOKED' : 'EST.'}</div>
                     </div>
                   )}
                 />
               )) : (
                 <div style={{ textAlign: 'center', padding: '6px 8px' }}>
-                  <div style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--dim)' }}>No closings yet this month</div>
+                  <div style={{ fontSize: 14.5, fontWeight: 500, color: 'var(--dim)' }}>No closings yet this month</div>
                   <div style={{ fontSize: 12.5, color: 'var(--faint)', marginTop: 4 }}>Move a deal to Closed in the Pipeline and the money lands here.</div>
                 </div>
               )}
@@ -230,7 +230,7 @@ export default function CommissionsPage({ onClose }) {
               </div>
               {data.pending.length ? data.pending.map((p) => (
                 <div key={p.key} style={{ marginTop: 10 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, fontWeight: 600, color: 'var(--dim)', padding: '4px 0', borderBottom: '1px solid var(--line)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, fontWeight: 500, color: 'var(--dim)', padding: '4px 0', borderBottom: '1px solid var(--line)' }}>
                     <span>{p.label} · {p.count}</span>
                     <span className="km-mono">{money0(p.net)}</span>
                   </div>
@@ -249,7 +249,7 @@ export default function CommissionsPage({ onClose }) {
             <Card>
               <div className="km-cm-eye">Forecast · stage-weighted</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8 }}>
-                <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.6 }}>{money0(data.projected.weighted)}</div>
+                <div style={{ fontSize: 24, fontWeight: 500, letterSpacing: -0.6 }}>{money0(data.projected.weighted)}</div>
                 <div style={{ fontSize: 12.5, color: 'var(--dim)' }}>of {moneyCompact(data.projected.unweighted)} open</div>
               </div>
               <div className="km-cm-caption">
@@ -294,9 +294,9 @@ export default function CommissionsPage({ onClose }) {
                       <div key={label}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, color: 'var(--dim)', marginBottom: 6 }}>
                           <span>{label} goal · {f(val)} of {f(goal)}</span>
-                          <span style={{ color: ahead ? 'var(--green)' : 'var(--amber)', fontWeight: 700 }}>{ahead ? 'ON PACE' : `${f(Math.max(0, pace - val))} BEHIND`}</span>
+                          <span style={{ color: ahead ? 'var(--green)' : 'var(--amber)', fontWeight: 500 }}>{ahead ? 'ON PACE' : `${f(Math.max(0, pace - val))} BEHIND`}</span>
                         </div>
-                        <div className="km-cm-bar" style={{ height: 6, overflow: 'visible', background: 'rgba(46,139,255,0.14)' }}>
+                        <div className="km-cm-bar" style={{ height: 6, overflow: 'visible', background: 'rgba(var(--accent-rgb), 0.14)' }}>
                           <div className={`km-cm-fill ${ahead ? 'km-cm-fill--green' : ''}`} style={{ width: `${Math.min(1, val / goal) * 100}%` }} />
                           {pace ? <div className="km-cm-pace" style={{ left: `${Math.min(1, pace / goal) * 100}%` }} title="Pace for today" /> : null}
                         </div>
@@ -324,7 +324,7 @@ export default function CommissionsPage({ onClose }) {
                 return (
                   <div key={m.key}>
                     <button type="button" className="km-cm-monthhead km-press" onClick={() => toggleMonth(m.key)} aria-expanded={open}>
-                      <span style={{ flex: 1, fontSize: 14, fontWeight: 600 }}>{m.label}</span>
+                      <span style={{ flex: 1, fontSize: 14, fontWeight: 500 }}>{m.label}</span>
                       <span className="km-mono" style={{ fontSize: 11, color: 'var(--dim)' }}>{plural(m.sides, 'side')}</span>
                       <span className="km-cm-amt" style={{ minWidth: 78 }}>{money0(m.net)}</span>
                       <Icon name="chevronRight" size={14} color="var(--faint)" style={{ transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .28s cubic-bezier(.3,.7,.3,1)' }} />
@@ -339,7 +339,7 @@ export default function CommissionsPage({ onClose }) {
                             right={(
                               <div style={{ textAlign: 'right' }}>
                                 <div className="km-cm-amt">{money0(d.net)}</div>
-                                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 0.8, color: 'var(--faint)' }}>{d.booked ? 'BOOKED' : 'EST.'}</div>
+                                <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: 0.8, color: 'var(--faint)' }}>{d.booked ? 'BOOKED' : 'EST.'}</div>
                               </div>
                             )}
                           />
@@ -379,7 +379,7 @@ export default function CommissionsPage({ onClose }) {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                 <div>
                   <div className="km-cm-eye">Pay plan</div>
-                  <div style={{ fontSize: 15, fontWeight: 600, marginTop: 4 }}>{data.plan.name || 'My plan'}</div>
+                  <div style={{ fontSize: 15, fontWeight: 500, marginTop: 4 }}>{data.plan.name || 'My plan'}</div>
                 </div>
                 <button type="button" className="km-cm-planbtn km-press" onClick={() => nav.openPayPlan()}>Edit pay plan</button>
               </div>

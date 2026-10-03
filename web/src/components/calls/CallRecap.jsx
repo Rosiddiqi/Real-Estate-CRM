@@ -178,7 +178,7 @@ export default function CallRecap({ call, lines, onDone, onHandoff }) {
                     ? <button type="button" className="km-sg-btn km-lg km-lg--light" onClick={() => setEditing(null)}>Cancel</button>
                     : <button type="button" className="km-sg-btn km-lg km-lg--light" onClick={() => startEdit(current)} disabled={!!busy}>Edit</button>}
                   <button type="button" className="km-sg-btn km-sg-btn--yes" onClick={() => decide(current, 'yes')} disabled={!!busy || ((current.kind === 'appointment' || current.kind === 'note') && !call.clientId && !saved)}>
-                    {busy === current.id ? <Spinner size={16} color="#fff" /> : null}{editing === current.id ? 'Save' : (KIND[current.kind] || KIND.task).yes}
+                    {busy === current.id ? <Spinner size={16} color="currentColor" /> : null}{editing === current.id ? 'Save' : (KIND[current.kind] || KIND.task).yes}
                   </button>
                 </div>
                 <div className="km-sg-dots">{sorted.map((c) => <span key={c.id} className={c.id === current.id ? 'is-on' : c.status && c.status !== 'pending' ? 'is-done' : ''} />)}</div>

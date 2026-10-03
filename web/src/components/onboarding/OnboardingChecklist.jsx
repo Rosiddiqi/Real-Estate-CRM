@@ -62,7 +62,7 @@ export default function OnboardingChecklist({ state, act, showBanner }) {
         >
           <Ring done={state.doneCount} total={state.total} />
           <span style={{ flex: 1, textAlign: 'left' }}>
-            <span style={{ display: 'block', fontSize: 15.5, fontWeight: 600 }}>Finish setting up</span>
+            <span style={{ display: 'block', fontSize: 15.5, fontWeight: 500 }}>Finish setting up</span>
             <span style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)' }}>{state.doneCount} of {state.total} done</span>
           </span>
           <Icon name="chevronRight" size={18} color="var(--faint)" />
@@ -82,11 +82,11 @@ export default function OnboardingChecklist({ state, act, showBanner }) {
               onClick={() => { setOpen(false); setTimeout(() => go(t.target), 200); }}
               style={{
                 minHeight: 56, padding: '10px 12px', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left',
-                background: i === nextIdx ? 'var(--tint)' : 'transparent', border: `1px solid ${i === nextIdx ? 'rgba(46,139,255,0.3)' : 'transparent'}`,
+                background: i === nextIdx ? 'var(--tint)' : 'transparent', border: `1px solid ${i === nextIdx ? 'rgba(var(--accent-rgb), 0.3)' : 'transparent'}`,
               }}
             >
-              <span style={{ width: 24, height: 24, borderRadius: 12, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.done ? 'var(--green)' : 'transparent', border: t.done ? 'none' : '1.5px solid var(--faint)' }}>
-                {t.done ? <Icon name="check" size={14} color="#fff" stroke={3} /> : null}
+              <span style={{ width: 24, height: 24, borderRadius: 12, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.done ? 'var(--hl)' : 'transparent', border: t.done ? 'none' : '1.2px solid var(--faint)' }}>
+                {t.done ? <Icon name="check" size={14} color="var(--on-hl)" stroke={2.6} /> : null}
               </span>
               <span style={{ flex: 1 }}>
                 <span style={{ display: 'block', fontSize: 16, fontWeight: t.done ? 400 : 600, textDecoration: t.done ? 'line-through' : 'none', color: t.done ? 'var(--dim)' : 'var(--text)' }}>{t.label}</span>

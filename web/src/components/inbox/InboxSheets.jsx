@@ -25,12 +25,12 @@ export function RowActionsSheet({ conv, onClose, onOpen, onOpenCard, onDelete })
         <Row icon="message" title="Open Conversation" onClick={act(() => onOpen(c))} />
         <Row icon={unread ? 'checkCircle' : 'circle'} title={unread ? 'Mark as Read' : 'Mark as Unread'} onClick={act(() => (unread ? inbox.markRead(c.id) : inbox.markUnread(c.id)))} />
         <Row icon="pin" title={c.pinned ? 'Unpin' : 'Pin'} onClick={act(() => inbox.setPinned(c.id, !c.pinned))} />
-        <Row icon="bell" iconBg="rgba(242,169,59,0.16)" iconColor="var(--amber)" title={c.muted ? 'Show Alerts' : 'Hide Alerts'} onClick={act(() => inbox.setMuted(c.id, !c.muted))} />
+        <Row icon="bell" iconBg="rgba(255, 180, 64, 0.16)" iconColor="var(--amber)" title={c.muted ? 'Show Alerts' : 'Hide Alerts'} onClick={act(() => inbox.setMuted(c.id, !c.muted))} />
         {c.clientId ? <Row icon="user" title="Client Card" chevron onClick={act(() => onOpenCard(c))} style={{ borderBottom: 0 }} /> : null}
       </Group>
       <Group style={{ marginTop: 14 }}>
-        <Row icon="shield" iconBg="rgba(255,90,90,0.14)" iconColor="var(--red)" danger title="Block" onClick={act(() => inbox.block(c))} />
-        <Row icon="trash" iconBg="rgba(255,90,90,0.14)" iconColor="var(--red)" danger title="Delete Conversation" onClick={act(() => onDelete(c))} style={{ borderBottom: 0 }} />
+        <Row icon="shield" iconBg="rgba(255, 107, 94, 0.14)" iconColor="var(--red)" danger title="Block" onClick={act(() => inbox.block(c))} />
+        <Row icon="trash" iconBg="rgba(255, 107, 94, 0.14)" iconColor="var(--red)" danger title="Delete Conversation" onClick={act(() => onDelete(c))} style={{ borderBottom: 0 }} />
       </Group>
     </Sheet>
   );
@@ -125,7 +125,7 @@ export function ConversationListSheet({ kind, onClose, onOpen }) {
               <button type="button" className="km-ilist-main km-press" onClick={() => kind === 'archived' && onOpen ? (onClose(), setTimeout(() => onOpen(c), 160)) : null}>
                 <Avatar name={isUnnamed(c) ? '' : convName(c)} seed={c.clientId || c.handle} src={c.client && c.client.avatarUrl} size={40} />
                 <span style={{ minWidth: 0, flex: 1 }}>
-                  <span className="km-truncate" style={{ display: 'block', fontSize: 15, fontWeight: 600 }}>{convName(c)}</span>
+                  <span className="km-truncate" style={{ display: 'block', fontSize: 15, fontWeight: 500 }}>{convName(c)}</span>
                   <span className="km-truncate" style={{ display: 'block', fontSize: 12.5, color: 'var(--faint)', marginTop: 2 }}>
                     {kind === 'blocked' ? `Blocked · ${fmtInboxTime(c.updatedAt)}` : `${fmtInboxTime(c.lastMessageAt)} · ${previewOf(c)}`}
                   </span>

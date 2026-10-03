@@ -17,7 +17,7 @@ import { first, todayInput, toDateInput } from './bits';
 import '../../styles/pipeline.css';
 
 const DURATION = 5000;
-const COLORS = ['#2E8BFF', '#FF5A5A', '#30D27A', '#4DA2FF', '#9A4DFF', '#F2A93B', '#FFFFFF'];
+const COLORS = ['#D4FF3F', '#FFFFFF', '#D4FF3F', '#BDBDBD', '#FFB440', '#E6E6E6', '#D4FF3F'];
 const FIREWORKS = 12;
 const SPARKS = 16;
 const DROPS = 50;
@@ -119,7 +119,7 @@ export function NetPrompt({ deal, open, onDone }) {
   return (
     <Sheet open={open} onClose={() => onDone(null)} title={title} left={false} zIndex={10010}>
       <div style={{ padding: '2px 2px 6px' }}>
-          <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em', marginBottom: 6 }}>
+          <div style={{ fontSize: 17, fontWeight: 500, letterSpacing: '-0.01em', marginBottom: 6 }}>
             What did you net on {first(deal.name)}’s closing?
           </div>
           <div style={{ fontSize: 13, color: 'var(--dim)', lineHeight: 1.45, marginBottom: 14 }}>

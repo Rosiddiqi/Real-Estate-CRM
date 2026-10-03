@@ -1,6 +1,6 @@
 // Campaigns kit — small primitives shared by the Campaigns page, builder,
 // detail and the Inbox's Automations tab (RevMatch automations/kit.jsx,
-// re-skinned on KeyMatch tokens). No emoji: lanes are glowing dots.
+// re-skinned on KeyMatch tokens). No emoji: lanes are quiet dots.
 import '../../styles/campaigns.css';
 import Icon from '../ui/Icon';
 import { Spinner } from '../ui/kit';
@@ -8,29 +8,29 @@ import { dayKeyIn, fmtTz, zonedInput } from './tz';
 import { nav } from '../../lib/nav';
 
 export const LANE_META = {
-  green: { color: 'var(--kp-green)', hex: '#30D27A', title: "They're in", tag: 'WANTS TO SEE IT', sub: 'Interested, wants a showing or the details', short: 'Green' },
-  yellow: { color: 'var(--kp-yellow)', hex: '#F2C94C', title: 'They might', tag: 'MAYBE / QUESTIONS', sub: 'Curious, unsure, or asking questions', short: 'Yellow' },
-  red: { color: 'var(--kp-red)', hex: '#FF5A56', title: "They're out", tag: 'NOT INTERESTED', sub: 'Close out politely, then stop', short: 'Red' },
-  gray: { color: 'var(--kp-gray)', hex: '#9AA7B8', title: 'They go quiet', tag: 'NO REPLY', sub: 'Wait it out, then reach back once', short: 'No reply' },
-  waiting: { color: 'var(--bright)', hex: '#4DA2FF', title: 'Waiting', tag: 'NOT SENT YET', sub: 'Queued or held for a safe slot', short: 'Waiting' },
+  green: { color: 'var(--kp-green)', hex: '#D4FF3F', title: "They're in", tag: 'WANTS TO SEE IT', sub: 'Interested, wants a showing or the details', short: 'Green' },
+  yellow: { color: 'var(--kp-yellow)', hex: '#FFB440', title: 'They might', tag: 'MAYBE / QUESTIONS', sub: 'Curious, unsure, or asking questions', short: 'Yellow' },
+  red: { color: 'var(--kp-red)', hex: '#FF6B5E', title: "They're out", tag: 'NOT INTERESTED', sub: 'Close out politely, then stop', short: 'Red' },
+  gray: { color: 'var(--kp-gray)', hex: '#8A8A89', title: 'They go quiet', tag: 'NO REPLY', sub: 'Wait it out, then reach back once', short: 'No reply' },
+  waiting: { color: 'var(--text)', hex: '#E6E6E6', title: 'Waiting', tag: 'NOT SENT YET', sub: 'Queued or held for a safe slot', short: 'Waiting' },
 };
 
 export const STATUS_META = {
-  sending: { label: 'Sending', color: '#2E8BFF', dot: true },
-  listening: { label: 'Listening', color: '#30D27A', dot: true },
-  running: { label: 'Running', color: '#30D27A', dot: true },
-  scheduled: { label: 'Scheduled', color: '#F2A93B', dot: false },
+  sending: { label: 'Sending', color: 'var(--text)', dot: true },
+  listening: { label: 'Listening', color: 'var(--green)', dot: true },
+  running: { label: 'Running', color: 'var(--green)', dot: true },
+  scheduled: { label: 'Scheduled', color: 'var(--amber)', dot: false },
   draft: { label: 'Draft', color: null, dot: false },
-  paused: { label: 'Paused', color: '#F2A93B', dot: false },
+  paused: { label: 'Paused', color: 'var(--amber)', dot: false },
   completed: { label: 'Done', color: null, dot: false },
   stopped: { label: 'Stopped', color: null, dot: false },
-  on: { label: 'On', color: '#30D27A', dot: true },
+  on: { label: 'On', color: 'var(--green)', dot: true },
   off: { label: 'Off', color: null, dot: false },
 };
 
 export function LaneDot({ lane, size = 8, glow = true, style }) {
   const m = LANE_META[lane] || LANE_META.gray;
-  return <span className="kp-dot" style={{ width: size, height: size, background: m.color, boxShadow: glow ? `0 0 ${Math.round(size * 0.9)}px ${m.hex}99` : 'none', ...style }} aria-hidden="true" />;
+  return <span className="kp-dot" style={{ width: size, height: size, background: m.color, boxShadow: 'none', ...style }} aria-hidden="true" />;
 }
 
 export function LaneTally({ lanes, size = 7, keys = ['green', 'yellow', 'red'] }) {
@@ -55,7 +55,7 @@ export function LaneBar({ lanes, height = 4, style }) {
         const n = (lanes && lanes[k]) || 0;
         if (!n) return null;
         const m = LANE_META[k];
-        return <i key={k} style={{ width: `${(n / total) * 100}%`, background: k === 'waiting' ? 'rgba(77,162,255,0.35)' : m.color, animationDelay: `${i * 60}ms` }} />;
+        return <i key={k} style={{ width: `${(n / total) * 100}%`, background: k === 'waiting' ? 'rgba(var(--accent-rgb), 0.35)' : m.color, animationDelay: `${i * 60}ms` }} />;
       })}
     </div>
   );
@@ -77,8 +77,8 @@ export function StatusPill({ status, style }) {
       className="kp-status"
       style={{
         color,
-        background: m.color ? `${m.color}17` : 'rgba(127,127,127,0.10)',
-        border: `1px solid ${m.color ? `${m.color}48` : 'var(--lineHi)'}`,
+        background: m.color ? `color-mix(in srgb, ${m.color} 9%, transparent)` : 'rgba(127,127,127,0.10)',
+        border: `1px solid ${m.color ? `color-mix(in srgb, ${m.color} 28%, transparent)` : 'var(--lineHi)'}`,
         ...style,
       }}
     >
@@ -139,7 +139,7 @@ export function NeedsLineBanner({ style }) {
     <div className="kp-note kp-note--calm" role="status" style={style}>
       <Icon name="phone" size={15} color="var(--dim)" style={{ marginTop: 1 }} />
       <div style={{ flex: 1, minWidth: 0 }}>{NEEDS_LINE_COPY}</div>
-      <button type="button" onClick={() => nav.openSettings()} style={{ alignSelf: 'center', fontSize: 12.5, fontWeight: 600, color: 'var(--bright)', flexShrink: 0 }}>Settings</button>
+      <button type="button" onClick={() => nav.openSettings()} style={{ alignSelf: 'center', fontSize: 12.5, fontWeight: 500, color: 'var(--bright)', flexShrink: 0 }}>Settings</button>
     </div>
   );
 }

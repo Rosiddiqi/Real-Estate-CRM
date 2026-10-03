@@ -272,7 +272,7 @@ export default function ListingDetail({ id, onClose }) {
                       <div key={e.id || e.changedAt} className="kl-history-row">
                         <span className="d">{formatDate(e.changedAt, { month: 'short', day: 'numeric' })}</span>
                         <span className="p">{moneyCompact(e.fromPrice)} → <b>{moneyCompact(e.toPrice)}</b></span>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: pct < 0 ? '#34C759' : 'var(--amber)' }}>{pct > 0 ? '+' : ''}{pct}%</span>
+                        <span style={{ fontSize: 12, fontWeight: 500, color: pct < 0 ? 'var(--green)' : 'var(--amber)' }}>{pct > 0 ? '+' : ''}{pct}%</span>
                       </div>
                     );
                   })}
@@ -297,7 +297,7 @@ export default function ListingDetail({ id, onClose }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Icon name={l.hideAddress ? 'lock' : 'globe'} size={14} color="#B98AFF" stroke={2} />
                     <span className="kl-eyebrow" style={{ color: '#B98AFF' }}>Private showcase{l.hideAddress ? ' · address hidden' : ''}</span>
-                    <button type="button" style={{ marginLeft: 'auto', color: 'var(--bright)', fontSize: 13, fontWeight: 600 }} onClick={() => copy(showcaseUrl(l.publicSlug), 'Private link copied')}>Copy</button>
+                    <button type="button" style={{ marginLeft: 'auto', color: 'var(--bright)', fontSize: 13, fontWeight: 500 }} onClick={() => copy(showcaseUrl(l.publicSlug), 'Private link copied')}>Copy</button>
                   </div>
                   <div className="kl-share-url km-selectable">{showcaseUrl(l.publicSlug)}</div>
                 </div>
@@ -393,14 +393,14 @@ export default function ListingDetail({ id, onClose }) {
                 <>
                   <div className="km-eyebrow" style={{ margin: '24px 2px 10px' }}>{l.lane === 'whisper' ? 'What you heard' : 'About the home'}</div>
                   <div className={`kl-desc km-selectable ${!descOpen && desc.length > 320 ? 'clamped' : ''}`}>{desc}</div>
-                  {desc.length > 320 ? <button type="button" style={{ marginTop: 6, color: 'var(--bright)', fontSize: 14, fontWeight: 600 }} onClick={() => setDescOpen((v) => !v)}>{descOpen ? 'Less' : 'More'}</button> : null}
+                  {desc.length > 320 ? <button type="button" style={{ marginTop: 6, color: 'var(--bright)', fontSize: 14, fontWeight: 500 }} onClick={() => setDescOpen((v) => !v)}>{descOpen ? 'Less' : 'More'}</button> : null}
                 </>
               ) : null}
 
               <div className="km-eyebrow" style={{ margin: '24px 2px 10px' }}>Location</div>
               <div className="kl-map">
                 <svg className="kl-map-coast" viewBox="0 0 400 150" preserveAspectRatio="none" aria-hidden="true">
-                  <path d="M300 0 C 280 40, 320 70, 296 110 S 310 150, 300 150 L 400 150 L 400 0 Z" fill="rgba(46,139,255,0.16)" />
+                  <path d="M300 0 C 280 40, 320 70, 296 110 S 310 150, 300 150 L 400 150 L 400 0 Z" fill="rgba(var(--accent-rgb), 0.16)" />
                   <path d="M300 0 C 280 40, 320 70, 296 110 S 310 150, 300 150" fill="none" stroke="rgba(127,184,214,0.5)" strokeWidth="1.5" />
                   <path d="M20 96 L 150 70 L 240 88" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="3" strokeLinecap="round" />
                 </svg>
@@ -421,7 +421,7 @@ export default function ListingDetail({ id, onClose }) {
                       <Avatar name={l.listAgentName || l.listOfficeName} seed={l.listAgentName || l.listOfficeName} size={38} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div className="kl-eyebrow">Listing agent</div>
-                        <div style={{ fontSize: 15, fontWeight: 600, marginTop: 2 }}>{l.listAgentName || '—'}</div>
+                        <div style={{ fontSize: 15, fontWeight: 500, marginTop: 2 }}>{l.listAgentName || '—'}</div>
                         {l.listOfficeName ? <div style={{ fontSize: 12.5, color: 'var(--dim)' }}>{l.listOfficeName}</div> : null}
                       </div>
                     </div>
@@ -431,7 +431,7 @@ export default function ListingDetail({ id, onClose }) {
                       <Avatar name={l.owner.name} seed={l.owner.id} size={38} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div className="kl-eyebrow">Owner · your client</div>
-                        <div style={{ fontSize: 15, fontWeight: 600, marginTop: 2 }}>{l.owner.name}</div>
+                        <div style={{ fontSize: 15, fontWeight: 500, marginTop: 2 }}>{l.owner.name}</div>
                       </div>
                       <Icon name="chevronRight" size={16} color="var(--faint)" />
                     </button>

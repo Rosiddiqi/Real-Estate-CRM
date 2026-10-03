@@ -192,7 +192,7 @@
   font-size: 13px; letter-spacing: -0.05px; color: var(--km-crow-t2);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.km-crow--unread .km-crow-name { font-weight: 600; }
+.km-crow--unread .km-crow-name { font-weight: 500; }
 .km-crow--unread .km-crow-preview { color: var(--text); opacity: 0.86; }
 .km-crow-time { flex-shrink: 0; font-family: var(--font-num); font-size: 11.5px; font-weight: 400; color: var(--km-crow-t3); font-variant-numeric: tabular-nums; }
 .km-crow-chip { margin-right: 5px; font-size: 9.5px; font-weight: 500; letter-spacing: 0.1em; color: var(--amber); }
@@ -284,7 +284,7 @@
 .km-sr-title { font-size: 15px; font-weight: 500; letter-spacing: -0.2px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .km-sr-sub { font-size: 13px; color: var(--km-crow-t2); margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; }
 .km-sr-right { flex-shrink: 0; align-self: flex-start; margin-top: 3px; font-family: var(--font-num); font-size: 11.5px; color: var(--km-crow-t3); }
-.km-sr-hit { background: transparent; color: var(--text); font-weight: 600; box-shadow: inset 0 -2px 0 rgba(var(--hl-rgb), 0.55); }
+.km-sr-hit { background: transparent; color: var(--text); font-weight: 500; box-shadow: inset 0 -2px 0 rgba(var(--hl-rgb), 0.55); }
 
 /* ── iOS alert ────────────────────────────────────────────────────────── */
 .km-ialert-root {

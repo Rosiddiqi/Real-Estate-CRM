@@ -110,7 +110,7 @@ export default function NotificationsPanel({ onClose }) {
       onClose={onClose}
       title="Notifications"
       subtitle={unread ? `${unread} unread` : undefined}
-      right={unread ? <button type="button" onClick={markAll} style={{ fontSize: 15, fontWeight: 600, color: 'var(--bright)', padding: '6px 4px' }}>Read all</button> : null}
+      right={unread ? <button type="button" onClick={markAll} style={{ fontSize: 15, fontWeight: 500, color: 'var(--bright)', padding: '6px 4px' }}>Read all</button> : null}
     >
       <div style={{ maxWidth: 720, margin: '0 auto', width: '100%' }}>
         {rows === null ? (

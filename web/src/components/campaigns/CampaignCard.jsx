@@ -7,6 +7,7 @@ import Icon from '../ui/Icon';
 import { Switch } from '../ui/kit';
 import { relativeTime } from '../../lib/format';
 import { StatusPill, LaneBar, LaneTally, Progress, campaignPhase, fmtEta, fmtWhen } from './kit';
+import { tone } from '../../lib/palette';
 
 export const TEMPLATE_ICON = {
   just_listed: 'sign', just_sold: 'key', open_house_invite: 'door', price_improvement: 'trendingDown',
@@ -27,13 +28,13 @@ export function CampaignCard({ campaign: c, onOpen, index = 0 }) {
       type="button"
       className="kp-card km-press km-row-in"
       onClick={onOpen}
-      style={{ '--kp-accent': c.accent || '#2E8BFF', animationDelay: `${Math.min(index, 10) * 35}ms` }}
+      style={{ '--kp-accent': tone(c.accent, 'var(--text)'), animationDelay: `${Math.min(index, 10) * 35}ms` }}
     >
       <span className="kp-card-spine" />
       <span style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
         <span className="kp-card-icon"><Icon name={icon} size={16} stroke={2} /></span>
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span className="km-truncate" style={{ display: 'block', fontSize: 15.5, fontWeight: 600, letterSpacing: '-0.01em' }}>{c.name}</span>
+          <span className="km-truncate" style={{ display: 'block', fontSize: 15.5, fontWeight: 500, letterSpacing: '-0.01em' }}>{c.name}</span>
           <span className="km-truncate" style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>
             <Icon name="users" size={12} color="var(--faint)" />
             {draft ? (c.audienceSummary || 'No audience yet') : `${total} · ${c.audienceSummary || 'Custom list'}`}
@@ -66,8 +67,8 @@ export function CampaignCard({ campaign: c, onOpen, index = 0 }) {
         <span style={{ display: 'block', marginTop: 11 }}>
           {phase === 'sending' || phase === 'paused' ? <Progress value={sent} total={total} style={{ marginBottom: 8 }} /> : null}
           <span style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', fontSize: 12, color: 'var(--dim)' }}>
-            <span className="km-num" style={{ fontWeight: 600, color: 'var(--text)' }}>{sent}<span style={{ color: 'var(--faint)', fontWeight: 500 }}>/{total} sent</span></span>
-            {sent ? <span><span className="km-num" style={{ color: 'var(--green)', fontWeight: 700 }}>{Math.round(s.replyRate || 0)}%</span> replied</span> : null}
+            <span className="km-num" style={{ fontWeight: 500, color: 'var(--text)' }}>{sent}<span style={{ color: 'var(--faint)', fontWeight: 500 }}>/{total} sent</span></span>
+            {sent ? <span><span className="km-num" style={{ color: 'var(--green)', fontWeight: 500 }}>{Math.round(s.replyRate || 0)}%</span> replied</span> : null}
             <LaneTally lanes={s.lanes} />
             {phase === 'sending' && s.eta ? <span className="kp-mono" style={{ marginLeft: 'auto' }}>{fmtEta(s.eta)}</span> : null}
           </span>
@@ -93,11 +94,11 @@ export function CampaignCard({ campaign: c, onOpen, index = 0 }) {
 export function AutomationRow({ automation: a, onToggle, onOpen, busy, index = 0, held = false }) {
   const last = a.lastSentAt || a.lastRunAt;
   return (
-    <div className="kp-auto km-row-in" style={{ '--kp-accent': a.accent, animationDelay: `${Math.min(index, 10) * 35}ms` }}>
+    <div className="kp-auto km-row-in" style={{ '--kp-accent': tone(a.accent, 'var(--text)'), animationDelay: `${Math.min(index, 10) * 35}ms` }}>
       <button type="button" className="km-press" onClick={onOpen} style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0, textAlign: 'left' }}>
         <span className="kp-auto-tile"><Icon name={a.icon || 'zap'} size={17} stroke={2} /></span>
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 600, color: a.enabled ? 'var(--text)' : 'var(--dim)' }}>{a.name}</span>
+          <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 500, color: a.enabled ? 'var(--text)' : 'var(--dim)' }}>{a.name}</span>
           <span className="km-clamp-2" style={{ fontSize: 12, color: 'var(--dim)', marginTop: 1, lineHeight: 1.35 }}>{a.when}</span>
           {held ? (
             <span style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 5, fontSize: 11.5, color: 'var(--amber)' }}>
@@ -153,7 +154,7 @@ export function SwipeRow({ children, onDelete, id, openId, setOpenId, radius = 1
         type="button"
         onClick={onDelete}
         aria-label={label}
-        style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: W, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, background: 'var(--red)', color: '#fff', fontSize: 12.5, fontWeight: 600, opacity: dx < -4 ? 1 : 0, transition: 'opacity 0.15s' }}
+        style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: W, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, background: 'var(--red)', color: '#fff', fontSize: 12.5, fontWeight: 500, opacity: dx < -4 ? 1 : 0, transition: 'opacity 0.15s' }}
       >
         <Icon name="trash" size={18} />
         {label}

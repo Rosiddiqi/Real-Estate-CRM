@@ -24,7 +24,7 @@ function TipBox({ title, rows }) {
       {rows.map((r) => (
         <div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, marginTop: 2 }}>
           <span style={{ width: 12, height: 2, borderRadius: 1, background: r.color, flexShrink: 0 }} />
-          <span style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{r.value}</span>
+          <span style={{ fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>{r.value}</span>
           <span style={{ color: 'var(--dim)' }}>{r.label}</span>
         </div>
       ))}
@@ -133,7 +133,7 @@ function YtdChart({ charts, metric }) {
         {data.map((m) => (
           <div key={m.month} className="km-row" style={{ padding: '9px 0', fontSize: 13 }}>
             <span style={{ width: 44, color: 'var(--dim)' }}>{m.label}</span>
-            <span style={{ flex: 1, fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{money(m.gci)}</span>
+            <span style={{ flex: 1, fontVariantNumeric: 'tabular-nums', fontWeight: 500 }}>{money(m.gci)}</span>
             <span style={{ width: 70, textAlign: 'right', color: 'var(--dim)', fontVariantNumeric: 'tabular-nums' }}>{sidesLabel(m.sides)}</span>
             <span style={{ width: 64, textAlign: 'right', color: 'var(--faint)', fontVariantNumeric: 'tabular-nums' }}>{moneyCompact(m.volume)}</span>
           </div>

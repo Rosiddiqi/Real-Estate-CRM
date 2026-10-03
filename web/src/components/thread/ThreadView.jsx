@@ -206,7 +206,7 @@ export default function ThreadView({
   const emptyNode = (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '28px 24px 8px', textAlign: 'center' }}>
       <Avatar name={displayName} seed={(conv && conv.clientId) || clientId || handle} size={64} />
-      <div style={{ fontSize: 17, fontWeight: 600 }}>{displayName}</div>
+      <div style={{ fontSize: 17, fontWeight: 500 }}>{displayName}</div>
       <div style={{ fontSize: 13, color: 'var(--dim)', maxWidth: 260 }}>
         {t.error ? 'Couldn’t load this conversation. Pull to retry or check your connection.' : `No messages yet. Say hi — it goes out as ${channel === 'sms' ? 'a Text Message' : 'an iMessage'}.`}
       </div>

@@ -448,7 +448,7 @@ export default function MessageList({
             {media.slice(0, 4).map((a, i) => (
               <span key={a.id || a.url} className="km-media" onClick={(e) => { e.stopPropagation(); openMedia(a); }}>
                 <img src={mediaUrl(a.url)} alt="" loading="lazy" decoding="async" />
-                {i === 3 && media.length > 4 ? <span style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 600 }}>+{media.length - 4}</span> : null}
+                {i === 3 && media.length > 4 ? <span style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 500 }}>+{media.length - 4}</span> : null}
               </span>
             ))}
           </div>

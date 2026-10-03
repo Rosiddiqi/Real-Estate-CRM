@@ -13,6 +13,7 @@ import { listListings } from '../../api/listings';
 import { LANES, ListingTile, TileSkeletons, LaneDot, useListingsLive } from '../../components/listings/listingKit';
 import { FilterSheet, SortSheet, EMPTY_FILTERS, SORT_OPTIONS, passesFilters, sortListings, activeCount, filterChipsSummary } from '../../components/listings/FilterSortSheets';
 import '../../styles/listings.css';
+import { tone } from '../../lib/palette';
 
 const SORT_KEY = 'km_listings_sort';
 let cache = null; // last payload — instant paint on reopen, then silent refresh
@@ -47,7 +48,7 @@ function Header({ total, loading, onAdd, search, setSearch, onFilter, onSort, fi
           All <span className="n">{lanes.reduce((n, l) => n + (l.count || 0), 0)}</span>
         </button>
         {lanes.filter((l) => l.count || lane === l.id).map((l) => (
-          <button key={l.id} type="button" role="tab" aria-selected={lane === l.id} className={`kl-lane ${lane === l.id ? 'kl-lane--on' : ''}`} style={{ '--lane': l.color }} onClick={() => setLane(lane === l.id ? 'all' : l.id)}>
+          <button key={l.id} type="button" role="tab" aria-selected={lane === l.id} className={`kl-lane ${lane === l.id ? 'kl-lane--on' : ''}`} style={{ '--lane': tone(l.color) }} onClick={() => setLane(lane === l.id ? 'all' : l.id)}>
             <LaneDot color={l.color} size={7} />{l.label} <span className="n">{l.count}</span>
           </button>
         ))}

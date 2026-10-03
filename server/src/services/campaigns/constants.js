@@ -27,7 +27,7 @@
 const LANES = ['green', 'yellow', 'red', 'gray'];
 
 const LANE_META = {
-  green: { color: '#30D27A', title: "They're in", tag: 'WANTS TO SEE IT', sub: 'Interested, wants a showing or the details' },
+  green: { color: '#D4FF3F', title: "They're in", tag: 'WANTS TO SEE IT', sub: 'Interested, wants a showing or the details' },
   yellow: { color: '#F2C94C', title: 'They might', tag: 'MAYBE / QUESTIONS', sub: 'Curious, unsure, or asking questions' },
   red: { color: '#FF5A56', title: "They're out", tag: 'NOT INTERESTED', sub: 'Close out politely, then stop' },
   gray: { color: '#9AA7B8', title: 'They go quiet', tag: 'NO REPLY', sub: 'Wait it out, then reach back once' },
@@ -50,7 +50,7 @@ const NOT_SENT = ['pending', 'scheduled', 'drafting', 'rate_deferred'];
 const WE_START = ['initial_send', 'gray_check', 'auto_step'];
 const SEQUENCE_KINDS = ['lane_step', 'close_out', 'reminder_step', 'approved_send'];
 
-const ACCENTS = ['#2E8BFF', '#34C4A8', '#B98CFF', '#F2A93B', '#FF7A66'];
+const ACCENTS = ['#E6E6E6', '#CFE3E3', '#8A8A89', '#FFB440', '#FF6B5E'];
 
 function accentFor(campaign) {
   if (!campaign) return ACCENTS[0];
@@ -69,49 +69,49 @@ function accentFor(campaign) {
 // the builder applies the template.
 const TEMPLATES = {
   just_listed: {
-    key: 'just_listed', label: 'Just Listed', icon: 'sign', accent: '#2E8BFF', needsListing: true,
+    key: 'just_listed', label: 'Just Listed', icon: 'sign', accent: '#E6E6E6', needsListing: true,
     sub: 'Announce a new listing to the right buyers',
     brief: 'Let them know I just listed {address}{area}{specsParen}{atPrice}. Offer a private showing before the weekend.',
     audienceHint: 'Buyers with active searches in the area and price band',
   },
   just_sold: {
-    key: 'just_sold', label: 'Just Sold', icon: 'key', accent: '#30D27A', needsListing: true,
+    key: 'just_sold', label: 'Just Sold', icon: 'key', accent: '#D4FF3F', needsListing: true,
     sub: 'Social proof for owners nearby',
     brief: 'Tell them I just closed {address}{area}{forPrice}. Ask if they are curious what their own home would sell for today.',
     audienceHint: 'Homeowners in the same neighborhood',
   },
   open_house_invite: {
-    key: 'open_house_invite', label: 'Open House Invite', icon: 'door', accent: '#BF5AF2', needsListing: true, needsEvent: true,
+    key: 'open_house_invite', label: 'Open House Invite', icon: 'door', accent: '#8A8A89', needsListing: true, needsEvent: true,
     sub: 'Invite, RSVP, reminders',
     brief: 'Invite them to my open house at {address}{area}. Light bites and a private walkthrough, bring a friend. Ask them to reply if they are coming.',
     audienceHint: 'Sphere and active buyers nearby',
   },
   price_improvement: {
-    key: 'price_improvement', label: 'Price Improvement', icon: 'trendingDown', accent: '#F2A93B', needsListing: true,
+    key: 'price_improvement', label: 'Price Improvement', icon: 'trendingDown', accent: '#FFB440', needsListing: true,
     sub: 'Tell matched buyers the price moved',
     brief: 'Let them know {address}{area} just had a price improvement{toPrice}. Offer a private tour this week.',
     audienceHint: 'Buyers searching in that price band',
   },
   market_update: {
-    key: 'market_update', label: 'Market Update', icon: 'barChart', accent: '#34C4A8',
+    key: 'market_update', label: 'Market Update', icon: 'barChart', accent: '#CFE3E3',
     sub: 'A neighborhood pulse, one insight',
     brief: 'Share a quick market update for their neighborhood: what is selling and how fast. Offer a complimentary valuation if they are curious.',
     audienceHint: 'Owners and past clients',
   },
   home_anniversary: {
-    key: 'home_anniversary', label: 'Home Anniversary', icon: 'cake', accent: '#FF7A66',
+    key: 'home_anniversary', label: 'Home Anniversary', icon: 'cake', accent: '#FF6B5E',
     sub: 'Equity check-in for past buyers',
     brief: 'Congratulate them on another year in their home. Mention that values nearby have moved and offer a complimentary equity review.',
     audienceHint: 'Past clients who bought with you',
   },
   coming_soon: {
-    key: 'coming_soon', label: 'Coming Soon', icon: 'lock', accent: '#9A4DFF',
+    key: 'coming_soon', label: 'Coming Soon', icon: 'lock', accent: '#8A8A89',
     sub: 'Off-market tease for top buyers',
     brief: 'Quiet heads up: an off-market home is coming soon{area}, before it hits the MLS. Do not share the address. Ask if they want first look.',
     audienceHint: 'Whales and active buyers',
   },
   custom: {
-    key: 'custom', label: 'Custom', icon: 'compose', accent: '#2E8BFF',
+    key: 'custom', label: 'Custom', icon: 'compose', accent: '#E6E6E6',
     sub: 'Your own message', brief: '',
   },
 };
@@ -123,13 +123,13 @@ const TEMPLATES = {
 //           'draft' → each text is drafted for the agent's one-tap approval.
 const AUTOMATION_DEFS = {
   home_anniversary: {
-    trigger: 'home_anniversary', name: 'Home Anniversary', icon: 'cake', accent: '#34C4A8',
+    trigger: 'home_anniversary', name: 'Home Anniversary', icon: 'cake', accent: '#CFE3E3',
     when: 'Every year on the day they bought (annual CMA / equity touch)',
     approval: 'auto',
     brief: 'Happy home anniversary. Mention how many years they have owned it and offer a complimentary updated valuation (CMA) so they know what it is worth today.',
   },
   birthday: {
-    trigger: 'birthday', name: 'Birthday', icon: 'gift', accent: '#FF7A66',
+    trigger: 'birthday', name: 'Birthday', icon: 'gift', accent: '#FF6B5E',
     when: "On a client's birthday",
     approval: 'auto',
     brief: 'Wish them a happy birthday. Warm and personal, no business talk at all.',
@@ -141,19 +141,19 @@ const AUTOMATION_DEFS = {
     brief: 'A new listing just hit that fits what they are looking for. Mention the address, the one detail that fits their search best, and the price. Offer a private showing.',
   },
   price_drop: {
-    trigger: 'price_drop', name: 'Price Drop Alert', icon: 'trendingDown', accent: '#F2A93B',
+    trigger: 'price_drop', name: 'Price Drop Alert', icon: 'trendingDown', accent: '#FFB440',
     when: 'A home a buyer is watching drops its price',
     approval: 'draft',
     brief: 'Let them know the home they have been watching just dropped its price. Give the new price and offer to set up a showing.',
   },
   open_house_invite: {
-    trigger: 'open_house_invite', name: 'Open House Follow-up', icon: 'door', accent: '#BF5AF2',
+    trigger: 'open_house_invite', name: 'Open House Follow-up', icon: 'door', accent: '#8A8A89',
     when: 'The day after an open house, for everyone who came',
     approval: 'auto',
     brief: 'Thank them for coming to the open house yesterday. Ask what they thought and offer a private second look.',
   },
   post_closing: {
-    trigger: 'post_closing', name: 'Post-Closing Check-ins', icon: 'key', accent: '#30D27A',
+    trigger: 'post_closing', name: 'Post-Closing Check-ins', icon: 'key', accent: '#D4FF3F',
     when: 'After a closing: 1 week, 1 month, 6 months, 1 year',
     approval: 'auto',
     brief: 'Check in after their closing.',
@@ -171,7 +171,7 @@ const AUTOMATION_DEFS = {
     brief: 'Their lease is ending soon. Offer a quick buy-versus-renew comparison: what their rent could own nearby. No pressure.',
   },
   showing_followup: {
-    trigger: 'showing_followup', name: 'Showing Feedback', icon: 'messageSquare', accent: '#2E8BFF',
+    trigger: 'showing_followup', name: 'Showing Feedback', icon: 'messageSquare', accent: '#E6E6E6',
     when: 'The morning after a private showing',
     approval: 'auto',
     brief: 'Ask what they thought of the home they toured yesterday. Keep it short and easy to answer.',

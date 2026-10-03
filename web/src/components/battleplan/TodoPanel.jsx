@@ -357,8 +357,8 @@ export default function TodoPanel({ onNavigate, style }) {
           </button>
           {doneOpen ? board.done.map((t) => (
             <div key={t.id} className="km-row-in" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', marginTop: 4, borderRadius: 10, background: 'rgba(var(--hl-rgb), 0.07)' }}>
-              <button type="button" className="td-circle" onClick={() => board.reopen(t)} aria-label="Reopen — not done after all" style={{ background: 'var(--bp-done)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="check" size={12} color="#fff" stroke={3} />
+              <button type="button" className="td-circle" onClick={() => board.reopen(t)} aria-label="Reopen — not done after all" style={{ background: 'var(--hl)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="check" size={12} color="var(--on-hl)" stroke={2.6} />
               </button>
               <div className="km-truncate" style={{ flex: 1, fontSize: 14, color: 'var(--bp-t2)', textDecoration: 'line-through' }}>{t.title}</div>
             </div>

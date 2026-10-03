@@ -62,7 +62,7 @@ export default function SuggestionCard({ s, onResolved, onRestore, showCampaign 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <Avatar name={s.clientName} seed={s.clientId} size={32} onClick={() => s.clientId && nav.openClient(s.clientId)} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="km-truncate" style={{ fontSize: 14, fontWeight: 600 }}>{s.clientName}</div>
+          <div className="km-truncate" style={{ fontSize: 14, fontWeight: 500 }}>{s.clientName}</div>
           <div className="km-truncate" style={{ fontSize: 11.5, color: 'var(--faint)' }}>
             {s.kind === 'automation_draft' ? 'Automation draft' : needs ? 'Needs you' : 'Reply ready'}
             {showCampaign && s.campaignName ? ` · ${s.campaignName}` : ''} · {relativeTime(s.createdAt)}

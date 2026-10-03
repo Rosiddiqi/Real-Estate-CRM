@@ -96,7 +96,7 @@ export function ConfirmHost() {
         <div className="km-lg km-lg--menu" style={{ borderRadius: 16, overflow: 'hidden' }}>
           {(req.title || req.message) ? (
             <div style={{ padding: '14px 18px', textAlign: 'center', borderBottom: '1px solid var(--line)' }}>
-              {req.title ? <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--dim)' }}>{req.title}</div> : null}
+              {req.title ? <div style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--dim)' }}>{req.title}</div> : null}
               {req.message ? <div style={{ fontSize: 13, color: 'var(--faint)', marginTop: 4 }}>{req.message}</div> : null}
             </div>
           ) : null}
@@ -112,7 +112,7 @@ export function ConfirmHost() {
           type="button"
           className="km-lg km-lg--menu"
           onClick={() => done(false)}
-          style={{ width: '100%', height: 56, borderRadius: 16, fontSize: 18, fontWeight: 600, color: 'var(--bright)' }}
+          style={{ width: '100%', height: 56, borderRadius: 16, fontSize: 18, fontWeight: 500, color: 'var(--bright)' }}
         >
           {req.cancelLabel || 'Cancel'}
         </button>

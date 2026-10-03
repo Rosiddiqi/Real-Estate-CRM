@@ -219,7 +219,7 @@ function FloatingBar({ onAdd }) {
   return (
     <div className="km-scroll-edge" style={{ position: 'relative', zIndex: 5, flexShrink: 0, display: 'flex', justifyContent: 'space-between', padding: 'calc(var(--safe-top) + 8px) 12px 4px' }}>
       <GlassButton icon="chevronLeft" label="Back" onClick={requestClose} />
-      <GlassButton icon="plus" label="New waitlist" onClick={onAdd} style={{ color: 'var(--amber)' }} />
+      <GlassButton icon="plus" label="New waitlist" onClick={onAdd} accent />
     </div>
   );
 }
@@ -253,7 +253,7 @@ export default function WaitlistsPage({ onClose }) {
     <PushPanel onClose={onClose} header={<FloatingBar onAdd={() => setCreating(true)} />}>
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
         <div className="kc-wl-mast">
-          <div className="kc-eyebrow" style={{ color: 'var(--amber)', letterSpacing: '0.16em' }}>Priority access</div>
+          <div className="kc-eyebrow" style={{ color: 'var(--faint)', letterSpacing: '0.14em' }}>Priority access</div>
           <div className="kc-wl-h1">Waitlists</div>
           <div className="kc-wl-sum">{data ? `${lists.length} ${lists.length === 1 ? 'list' : 'lists'} · ${waiting} ${waiting === 1 ? 'client' : 'clients'} waiting · criteria from each client’s wishlist` : 'Loading…'}</div>
         </div>
@@ -290,7 +290,7 @@ export default function WaitlistsPage({ onClose }) {
                           {w.faces.slice(0, 3).map((f, i) => <Avatar key={f.id} name={f.name} seed={f.id} src={f.avatarUrl} size={26} style={{ marginLeft: i ? -9 : 0, boxShadow: '0 0 0 2px var(--bg)', zIndex: 3 - i }} />)}
                         </span>
                       ) : null}
-                      <span className="kc-wl-count" style={{ color: w.count === 0 ? 'var(--faint)' : allPlaced ? 'var(--red)' : 'var(--green)', textShadow: 'none' }}>{pad(w.waitingCount)}</span>
+                      <span className="kc-wl-count" style={{ color: w.count === 0 ? 'var(--faint)' : allPlaced ? 'var(--red)' : 'var(--text)', textShadow: 'none' }}>{pad(w.waitingCount)}</span>
                       <Icon name="chevronRight" size={15} color="var(--faint)" style={{ transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .28s var(--km-ease)' }} />
                     </button>
                     <div className={`kc-acc ${open ? 'kc-acc--open' : ''}`}>

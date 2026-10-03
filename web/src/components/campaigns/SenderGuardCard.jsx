@@ -11,7 +11,7 @@ import { MonoLabel } from './kit';
 import { fmtTz } from './tz';
 
 const COLOR = { green: 'var(--green)', yellow: 'var(--amber)', red: 'var(--red)' };
-const GLOW = { green: 'rgba(48,210,122,0.85)', yellow: 'rgba(242,169,59,0.85)', red: 'rgba(255,90,86,0.85)' };
+const GLOW = { green: 'rgba(var(--hl-rgb), 0.85)', yellow: 'rgba(255, 180, 64, 0.85)', red: 'rgba(255,90,86,0.85)' };
 
 const fmtTime = (iso) => fmtTz(iso, { hour: 'numeric', minute: '2-digit' });
 const fmtWhen = (iso) => fmtTz(iso, { weekday: 'short', hour: 'numeric', minute: '2-digit' });
@@ -77,7 +77,7 @@ export default function SenderGuardCard({ style, defaultOpen = false }) {
       <button type="button" onClick={() => setOpen((v) => !v)} style={{ width: '100%', textAlign: 'left' }} aria-expanded={open}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
           <span className="kp-dot" style={{ width: 9, height: 9, background: COLOR[tone], boxShadow: `0 0 10px ${GLOW[tone]}` }} />
-          <span className="km-truncate" style={{ minWidth: 0, fontSize: 11, fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', color: COLOR[tone] }}>{headline}</span>
+          <span className="km-truncate" style={{ minWidth: 0, fontSize: 11, fontWeight: 500, letterSpacing: '0.13em', textTransform: 'uppercase', color: COLOR[tone] }}>{headline}</span>
           <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--faint)', whiteSpace: 'nowrap', flexShrink: 0 }}>
             <Icon name="shield" size={13} />
             <span className="kp-hide-narrow">Sender Guard</span>

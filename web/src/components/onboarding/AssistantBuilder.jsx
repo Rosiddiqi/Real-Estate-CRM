@@ -54,7 +54,7 @@ export default function AssistantBuilder({ onDone }) {
           {step === 0 ? (
             <>
               <Orb />
-              <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em' }}>Let’s build your assistant</div>
+              <div style={{ fontSize: 28, fontWeight: 500, letterSpacing: '-0.02em' }}>Let’s build your assistant</div>
               <div style={{ fontSize: 15, color: 'var(--dim)', lineHeight: 1.5 }}>
                 {user?.firstName}, this one is yours. It reads your book, drafts your texts and keeps your day straight. What do you want to call it?
               </div>
@@ -67,13 +67,13 @@ export default function AssistantBuilder({ onDone }) {
             </>
           ) : step === 1 ? (
             <>
-              <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em' }}>How should {displayName} talk to you?</div>
+              <div style={{ fontSize: 28, fontWeight: 500, letterSpacing: '-0.02em' }}>How should {displayName} talk to you?</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {PRESETS.map((p) => (
                   <button key={p.id} type="button" className="km-press" onClick={() => { const on = preset === p.id; setPreset(on ? null : p.id); setText(on ? '' : p.text); }}
-                    style={{ textAlign: 'left', minHeight: 56, padding: '12px 14px', borderRadius: 12, border: `1px solid ${preset === p.id ? 'rgba(46,139,255,0.45)' : 'var(--line)'}`, background: preset === p.id ? 'var(--tint)' : 'var(--surface)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    style={{ textAlign: 'left', minHeight: 56, padding: '12px 14px', borderRadius: 12, border: `1px solid ${preset === p.id ? 'rgba(var(--accent-rgb), 0.45)' : 'var(--line)'}`, background: preset === p.id ? 'var(--tint)' : 'var(--surface)', display: 'flex', alignItems: 'center', gap: 12 }}>
                     <span style={{ flex: 1 }}>
-                      <span style={{ display: 'block', fontSize: 17, fontWeight: 600 }}>{p.label}</span>
+                      <span style={{ display: 'block', fontSize: 17, fontWeight: 500 }}>{p.label}</span>
                       <span style={{ display: 'block', fontSize: 14, color: 'var(--dim)', marginTop: 2 }}>{p.sub}</span>
                     </span>
                     {preset === p.id ? <Icon name="checkCircle" size={20} color="var(--bright)" /> : null}
@@ -87,7 +87,7 @@ export default function AssistantBuilder({ onDone }) {
           ) : (
             <>
               <Orb size={88} />
-              <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em' }}>Meet {displayName}</div>
+              <div style={{ fontSize: 28, fontWeight: 500, letterSpacing: '-0.02em' }}>Meet {displayName}</div>
               <div style={{ fontSize: 15, color: 'var(--dim)', lineHeight: 1.5 }}>Tap the bubble any time to talk to {displayName} — from any screen. Your To-Do lives there too: swipe left in the chat.</div>
               <div className="km-ai-card">
                 <div className="km-eyebrow" style={{ color: 'var(--bright)' }}>{displayName.toUpperCase()} CAN</div>

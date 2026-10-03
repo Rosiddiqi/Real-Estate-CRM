@@ -12,6 +12,7 @@ import { nav } from '../../lib/nav';
 import { relativeTime } from '../../lib/format';
 import { updateAutomation } from '../../api/campaigns';
 import { ComposerField, Choice, MonoLabel, InfoNote, Eyebrow } from './kit';
+import { tone } from '../../lib/palette';
 
 export default function AutomationEditor({ automation, open, onClose, onSaved }) {
   const [brief, setBrief] = useState('');
@@ -71,7 +72,7 @@ export default function AutomationEditor({ automation, open, onClose, onSaved })
         </Button>
       )}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '4px 0 2px', '--kp-accent': a.accent }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '4px 0 2px', '--kp-accent': tone(a.accent, 'var(--text)') }}>
         <span className="kp-auto-tile"><Icon name={a.icon} size={18} stroke={2} /></span>
         <div style={{ minWidth: 0 }}>
           <MonoLabel>When</MonoLabel>
@@ -133,7 +134,7 @@ export default function AutomationEditor({ automation, open, onClose, onSaved })
               <Avatar name={m.name} seed={m.clientId} src={m.avatarUrl} size={32} />
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                  <span className="km-truncate" style={{ fontSize: 14, fontWeight: 600 }}>{m.name}</span>
+                  <span className="km-truncate" style={{ fontSize: 14, fontWeight: 500 }}>{m.name}</span>
                   <span style={{ fontSize: 11.5, color: 'var(--faint)', flexShrink: 0 }}>{relativeTime(m.sentAt)}</span>
                 </span>
                 <span className="km-clamp-2 km-selectable" style={{ fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>{m.body}</span>

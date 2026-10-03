@@ -42,10 +42,10 @@ export function mountDesktopFrame() {
   style.textContent = `
     html.km-host, html.km-host body { height: 100%; margin: 0; background: #06080C; overflow: hidden; }
     .kmf-stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-      background: radial-gradient(900px 600px at 50% 38%, rgba(46,139,255,0.10), rgba(6,8,12,0) 70%), #06080C;
+      background: radial-gradient(900px 600px at 50% 38%, rgba(var(--accent-rgb), 0.10), rgba(6,8,12,0) 70%), #06080C;
       font: 500 12px -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif; color: rgba(255,255,255,0.34); }
     .kmf-device { position: relative; width: ${W}px; height: min(${H}px, calc(100vh - 84px)); margin-bottom: 26px; border-radius: 46px; padding: 9px;
-      background: linear-gradient(160deg, #1b2230, #0b0f16 45%, #121822); box-shadow: 0 0 0 1px rgba(255,255,255,0.10), 0 40px 120px -30px rgba(46,139,255,0.35), 0 30px 80px rgba(0,0,0,0.6); }
+      background: linear-gradient(160deg, #1b2230, #0b0f16 45%, #121822); box-shadow: 0 0 0 1px rgba(255,255,255,0.10), 0 40px 120px -30px rgba(var(--accent-rgb), 0.35), 0 30px 80px rgba(0,0,0,0.6); }
     .kmf-screen { width: 100%; height: 100%; border: 0; border-radius: 38px; background: #06080C; display: block; overflow: hidden; }
     .kmf-foot { position: fixed; bottom: 16px; left: 0; right: 0; display: flex; justify-content: center; gap: 14px; letter-spacing: 0.02em; }
     .kmf-foot button { all: unset; cursor: pointer; color: rgba(255,255,255,0.46); }

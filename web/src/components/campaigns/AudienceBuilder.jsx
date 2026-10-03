@@ -52,7 +52,7 @@ function RefineCard({ title, icon, summary, children, defaultOpen }) {
       <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 11, padding: '12px 14px', textAlign: 'left' }}>
         <span style={{ width: 30, height: 30, borderRadius: 9, background: 'var(--tint)', color: 'var(--bright)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Icon name={icon} size={15} stroke={2} /></span>
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: 'block', fontSize: 14.5, fontWeight: 600 }}>{title}</span>
+          <span style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{title}</span>
           <span className="km-truncate" style={{ display: 'block', fontSize: 12, color: summary ? 'var(--bright)' : 'var(--faint)', marginTop: 1 }}>{summary || 'Any'}</span>
         </span>
         <Icon name="chevronDown" size={15} color="var(--faint)" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.22s var(--km-ease)' }} />
@@ -125,7 +125,7 @@ export default function AudienceBuilder({ name, onName, audience, onChange, opti
       </div>
 
       {/* Live count */}
-      <div className="kp-pop-in" style={{ marginTop: 14, borderRadius: 14, padding: '13px 15px', background: 'rgba(46,139,255,0.08)', border: '1px solid rgba(46,139,255,0.25)' }}>
+      <div className="kp-pop-in" style={{ marginTop: 14, borderRadius: 14, padding: '13px 15px', background: 'rgba(var(--accent-rgb), 0.08)', border: '1px solid rgba(var(--accent-rgb), 0.25)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span className="km-num" style={{ fontSize: 32, lineHeight: 1 }}>{count}</span>
           <span style={{ fontSize: 13.5, color: 'var(--dim)' }}>will receive</span>
@@ -200,7 +200,7 @@ export default function AudienceBuilder({ name, onName, audience, onChange, opti
       {people.length ? (
         <>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', margin: '24px 2px 2px' }}>
-            <span style={{ fontSize: 16, fontWeight: 600 }}>Who gets it</span>
+            <span style={{ fontSize: 16, fontWeight: 500 }}>Who gets it</span>
             <MonoLabel>All {count}</MonoLabel>
           </div>
           <div style={{ fontSize: 12.5, color: 'var(--faint)', margin: '0 2px 8px' }}>Tap Exclude on anyone you don’t want to text.</div>
@@ -209,7 +209,7 @@ export default function AudienceBuilder({ name, onName, audience, onChange, opti
               <div key={p.id} className="kp-li">
                 <Avatar name={p.name} seed={p.id} src={p.avatarUrl} size={34} channel={p.channel} />
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 600 }}>{p.name}</span>
+                  <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 500 }}>{p.name}</span>
                   {p.headline ? <span className="km-truncate" style={{ display: 'block', fontSize: 12, color: 'var(--faint)' }}>{p.headline}</span> : null}
                 </span>
                 <button type="button" className="km-pill km-press" style={{ height: 30, padding: '0 11px', fontSize: 12.5 }} onClick={() => set({ excludedIds: [...(a.excludedIds || []), p.id] })}>
@@ -219,7 +219,7 @@ export default function AudienceBuilder({ name, onName, audience, onChange, opti
             ))}
           </div>
           {people.length > 8 ? (
-            <button type="button" onClick={() => setShowAll((v) => !v)} style={{ marginTop: 10, fontSize: 13, fontWeight: 600, color: 'var(--bright)' }}>
+            <button type="button" onClick={() => setShowAll((v) => !v)} style={{ marginTop: 10, fontSize: 13, fontWeight: 500, color: 'var(--bright)' }}>
               {showAll ? 'Show fewer' : `Show all ${people.length}`}
             </button>
           ) : null}

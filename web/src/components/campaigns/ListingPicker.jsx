@@ -51,7 +51,7 @@ export default function ListingPicker({ open, onClose, onPick, includeSold = tru
               >
                 <PropertyPhoto src={(l.photos || [])[0]} seed={l.id} height={54} radius={12} style={{ width: 72, flexShrink: 0 }} />
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 600 }}>{l.title || l.street || l.neighborhood}</span>
+                  <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{l.title || l.street || l.neighborhood}</span>
                   <span className="km-truncate" style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>{[l.listPrice ? moneyCompact(l.listPrice) : null, specs(l)].filter(Boolean).join(' · ')}</span>
                   <span className="km-truncate" style={{ display: 'block', fontSize: 11.5, color: 'var(--faint)', marginTop: 2 }}>{[l.neighborhood, l.statusLabel || l.status, l.laneLabel].filter(Boolean).join(' · ')}</span>
                 </span>

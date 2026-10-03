@@ -262,7 +262,7 @@ export default function AddListingSheet({ prefill = {}, onClose }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Icon name="checkCircle" size={22} color="var(--green)" stroke={2} />
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 650 }}>{result.listing.title}</div>
+                  <div style={{ fontSize: 16, fontWeight: 500 }}>{result.listing.title}</div>
                   <div style={{ fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>Scored against every buyer search in your book</div>
                 </div>
               </div>
@@ -276,7 +276,7 @@ export default function AddListingSheet({ prefill = {}, onClose }) {
                   <div key={b.clientId} className="km-row">
                     <Avatar name={b.name} seed={b.clientId} src={b.avatarUrl} size={36} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 15, fontWeight: 600 }} className="km-truncate">{b.name}</div>
+                      <div style={{ fontSize: 15, fontWeight: 500 }} className="km-truncate">{b.name}</div>
                       <div style={{ fontSize: 12, color: 'var(--dim)' }} className="km-truncate">{b.summary}</div>
                     </div>
                     <ScoreDial value={b.score} size={40} stroke={3} fontSize={13} />
@@ -312,7 +312,7 @@ export default function AddListingSheet({ prefill = {}, onClose }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10 }}>
                   <span style={{ flex: 1, fontSize: 12, color: 'var(--faint)', lineHeight: 1.4 }}>{parsedNote || (isWhisper ? 'Never quoted: the price guide, the owner, the address.' : 'Links aren\'t opened — the address and IDs are read from the link itself.')}</span>
                   <button type="button" className="mm-cta" style={{ height: 38, fontSize: 13.5 }} disabled={!paste.trim() || parsing} onClick={read}>
-                    {parsing ? <Spinner size={15} color="#fff" /> : <Icon name="sparkle" size={15} stroke={2} />} {parsing ? 'Reading…' : 'Read it'}
+                    {parsing ? <Spinner size={15} color="currentColor" /> : <Icon name="sparkle" size={15} stroke={2} />} {parsing ? 'Reading…' : 'Read it'}
                   </button>
                 </div>
               </div>

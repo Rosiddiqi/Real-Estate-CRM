@@ -14,6 +14,7 @@ import DealDetail from './DealDetail';
 import ShortlistSheet from './ShortlistSheet';
 import { GripDots, MiniStars, shortDate, toDateInput } from './bits';
 import { labelFor } from './config';
+import { tone } from '../../lib/palette';
 
 function SubPills({ deal, cfg, onUpdate }) {
   if (!cfg || deal.stage === 'lost') return null;
@@ -199,7 +200,7 @@ function DealCard({
           </div>
           {priceShown > 0 && !lost ? (
             <div className="km-pl-price">
-              <div className="km-pl-price-v">{moneyCompact(priceShown)}{deal.group === 'leases' ? <span style={{ fontSize: 10, fontWeight: 600 }}>/mo</span> : null}</div>
+              <div className="km-pl-price-v">{moneyCompact(priceShown)}{deal.group === 'leases' ? <span style={{ fontSize: 10, fontWeight: 500 }}>/mo</span> : null}</div>
               <div className="km-pl-price-c">{deal.priceCaption}</div>
             </div>
           ) : null}
@@ -242,7 +243,7 @@ function DealCard({
               {shortlist.length ? `${shortlist.length} SHORTLISTED` : '+ PROPERTY'}
             </button>
           ) : null}
-          <span className="km-pl-stagename" style={{ color: deal.color }}>{deal.label}</span>
+          <span className="km-pl-stagename" style={{ color: tone(deal.color) }}>{deal.label}</span>
         </div>
 
         {linked || mls ? (

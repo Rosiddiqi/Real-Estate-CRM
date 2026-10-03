@@ -27,12 +27,12 @@ export default class ErrorBoundary extends Component {
         position: 'absolute', inset: 0, zIndex: 9000, background: 'var(--bg)',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24, textAlign: 'center',
       }}>
-        <div style={{ fontSize: 17, fontWeight: 600 }}>This screen hit a snag</div>
+        <div style={{ fontSize: 17, fontWeight: 500 }}>This screen hit a snag</div>
         <div style={{ fontSize: 13, color: 'var(--dim)', maxWidth: 280 }}>Your data is safe. Try again, or reload the app.</div>
         <button
           type="button"
           onClick={() => { try { navigator.clipboard.writeText(detail); } catch { /* ignore */ } this.setState({ copied: true }); setTimeout(() => this.setState({ copied: false }), 1600); }}
-          style={{ maxWidth: 300, padding: '8px 10px', borderRadius: 8, background: 'rgba(255,59,48,0.08)', border: '1px solid rgba(255,59,48,0.28)', color: '#FF8A80', fontSize: 11, lineHeight: 1.45, textAlign: 'left', wordBreak: 'break-word' }}
+          style={{ maxWidth: 300, padding: '8px 10px', borderRadius: 8, background: 'rgba(255, 107, 94, 0.08)', border: '1px solid rgba(255, 107, 94, 0.28)', color: '#FF8A80', fontSize: 11, lineHeight: 1.45, textAlign: 'left', wordBreak: 'break-word' }}
         >
           {copied ? 'Copied' : error.message}
         </button>

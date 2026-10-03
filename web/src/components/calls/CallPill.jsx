@@ -39,7 +39,7 @@ export default function CallPill() {
         <button type="button" className="km-call-pill-main" onClick={() => callStore.openDeviceLog()}>
           <span className="km-call-live is-ringing" />
           <span style={{ minWidth: 0, flex: 1 }}>
-            <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 650 }}>Calling {who}…</span>
+            <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 500 }}>Calling {who}…</span>
             <span className="km-truncate" style={{ display: 'block', fontSize: 11.5, color: 'rgba(255,255,255,0.6)' }}>On your phone · tap Log when you hang up</span>
           </span>
         </button>
@@ -75,7 +75,7 @@ export default function CallPill() {
       <button type="button" className="km-call-pill-main" onClick={open}>
         <span className={`km-call-live ${!call.answeredAt ? 'is-ringing' : ''} ${call.held ? 'is-held' : ''}`} style={live ? null : { background: 'var(--hl)', boxShadow: 'none' }} />
         <span style={{ minWidth: 0, flex: 1 }}>
-          <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 650 }}>{name}</span>
+          <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 500 }}>{name}</span>
           <span style={{ display: 'block', fontSize: 11.5, color: 'rgba(255,255,255,0.6)', fontVariantNumeric: 'tabular-nums' }}>
             {live ? (call.held ? 'On hold' : call.answeredAt ? fmtClock(elapsed) : 'Calling…') : call.recapStatus === 'pending' ? 'Call ended · writing your recap…' : 'Call ended · recap ready'}
           </span>
@@ -83,7 +83,7 @@ export default function CallPill() {
       </button>
       {live ? (
         <>
-          <button type="button" className="km-call-pill-btn" onClick={() => callStore.toggleMute()} aria-label={st.muted ? 'Unmute' : 'Mute'} style={st.muted ? { background: '#fff', color: '#06080C' } : null}>
+          <button type="button" className="km-call-pill-btn" onClick={() => callStore.toggleMute()} aria-label={st.muted ? 'Unmute' : 'Mute'} style={st.muted ? { background: '#fff', color: '#0D0D0D' } : null}>
             <Icon name={st.muted ? 'micOff' : 'mic'} size={16} stroke={2} />
           </button>
           <button type="button" className="km-call-pill-btn" onClick={open} aria-label="Return to call"><Icon name="chevronDown" size={16} stroke={2.2} style={{ transform: 'rotate(180deg)' }} /></button>

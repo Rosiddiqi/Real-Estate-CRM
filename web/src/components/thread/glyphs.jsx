@@ -87,7 +87,7 @@ export function ComposeGlyph({ size = 20, color = 'currentColor' }) {
 
 // Signal-bars "line status" (replaces RevMatch's RPM gauge): provider health.
 export function LineStatusGlyph({ size = 18, health = 'green' }) {
-  const color = { green: '#30D27A', yellow: '#F2A93B', red: '#FF5A5A' }[health] || '#8E8E93';
+  const color = { green: 'var(--green)', yellow: 'var(--amber)', red: 'var(--red)' }[health] || 'var(--meta)';
   const lit = health === 'red' ? 1 : health === 'yellow' ? 3 : health === 'green' ? 4 : 0;
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">

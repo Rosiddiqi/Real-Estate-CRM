@@ -43,7 +43,7 @@ export function MonthGrid({ year, month, selectedKey, onSelect, dots, marks, tod
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>
         {DOW.map((d, i) => (
-          <div key={i} style={{ fontSize: 8.5, fontWeight: 700, letterSpacing: 1.2, color: 'var(--bp-t3)', textAlign: 'center', padding: '4px 0' }}>{d}</div>
+          <div key={i} style={{ fontSize: 8.5, fontWeight: 500, letterSpacing: 1.2, color: 'var(--bp-t3)', textAlign: 'center', padding: '4px 0' }}>{d}</div>
         ))}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}>
@@ -55,7 +55,7 @@ export function MonthGrid({ year, month, selectedKey, onSelect, dots, marks, tod
           const isWork = !!(mark && !mark.off && mark.hours);
           const isOff = !!(mark && mark.off);
           const colors = (dots && dots.get(c.key)) || [];
-          const ink = isToday ? 'var(--bp-now-ink)' : isSel ? '#fff' : 'var(--bp-t1)';
+          const ink = isToday ? 'var(--on-hl)' : isSel ? 'var(--on-accent)' : isOff ? 'var(--bp-t3)' : 'var(--bp-t1)';
           return (
             <button
               key={c.key}
@@ -65,24 +65,20 @@ export function MonthGrid({ year, month, selectedKey, onSelect, dots, marks, tod
               aria-label={keyToDate(c.key).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
               aria-pressed={isSel}
               style={{
-                background: isToday
-                  ? 'linear-gradient(135deg, var(--bp-now), var(--bp-now-deep))'
-                  : isSel ? 'linear-gradient(135deg, var(--blue), var(--deep))'
-                    : isWork ? 'color-mix(in srgb, var(--blue) 14%, transparent)'
-                      : isOff ? 'var(--bp-fill)' : 'transparent',
-                border: isToday || isSel ? '1px solid transparent' : isWork ? '1px solid color-mix(in srgb, var(--blue) 32%, transparent)' : '1px solid transparent',
-                boxShadow: isToday ? '0 0 10px rgba(212,169,74,0.35)' : isSel ? '0 6px 14px -6px var(--glow)' : 'none',
+                background: isToday ? 'var(--hl)' : isSel ? 'var(--bright)' : 'transparent',
+                border: '1px solid transparent',
+                boxShadow: !isToday && !isSel && isWork ? 'inset 0 0 0 var(--hairline) var(--line)' : 'none',
                 color: ink,
               }}
             >
-              <span style={{ fontSize: 13, fontWeight: isSel || isToday ? 700 : 500, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{c.day}</span>
-              {isToday && !mark ? <span style={{ fontSize: 7, fontWeight: 800, letterSpacing: 0.4, lineHeight: 1 }}>TODAY</span> : null}
-              {isOff ? <span style={{ fontSize: 7, fontWeight: 700, letterSpacing: 0.4, lineHeight: 1, color: isToday || isSel ? ink : 'var(--bp-t3)' }}>OFF</span> : null}
-              {isWork ? <span style={{ fontSize: 8, fontWeight: 700, lineHeight: 1, whiteSpace: 'nowrap', color: isToday || isSel ? ink : 'var(--blue)' }}>{mark.hours}</span> : null}
+              <span style={{ fontFamily: 'var(--font-num)', fontSize: 14, fontWeight: isSel || isToday ? 500 : 300, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{c.day}</span>
+              {isToday && !mark ? <span style={{ fontSize: 7, fontWeight: 500, letterSpacing: 0.4, lineHeight: 1 }}>TODAY</span> : null}
+              {isOff ? <span style={{ fontSize: 7, fontWeight: 500, letterSpacing: 0.4, lineHeight: 1, color: isToday || isSel ? ink : 'var(--bp-t3)' }}>OFF</span> : null}
+              {isWork ? <span style={{ fontFamily: 'var(--font-num)', fontSize: 8, fontWeight: 400, lineHeight: 1, whiteSpace: 'nowrap', color: isToday || isSel ? ink : 'var(--bp-t3)' }}>{mark.hours}</span> : null}
               {colors.length ? (
                 <span style={{ position: 'absolute', top: 4, right: 4, display: 'flex', gap: 2 }}>
                   {colors.slice(0, 3).map((col, k) => (
-                    <span key={k} style={{ width: 4.5, height: 4.5, borderRadius: 3, background: isToday ? 'var(--bp-now-ink)' : isSel ? '#fff' : col, boxShadow: isToday || isSel ? 'none' : `0 0 5px ${col}` }} />
+                    <span key={k} style={{ width: 4.5, height: 4.5, borderRadius: 3, background: isToday ? 'var(--on-hl)' : isSel ? 'var(--on-accent)' : col, boxShadow: 'none' }} />
                   ))}
                 </span>
               ) : null}
@@ -110,9 +106,9 @@ export default function MonthCalendarSheet({ open, onClose, selectedKey, onSelec
     <Sheet open={open} onClose={onClose} title="Pick a day" left={false} right={{ label: 'Today', onClick: () => onSelect?.(today) }} maxWidth={460}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 4px 4px' }}>
         <Icon name="calendar" size={12} color="var(--blue)" stroke={2} />
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.6, color: 'var(--blue)' }}>{label}</span>
+        <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: 1.6, color: 'var(--blue)' }}>{label}</span>
         <span style={{ flex: 1 }} />
-        <span style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 9, fontWeight: 600, letterSpacing: 1, color: 'var(--bp-t3)' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 9, fontWeight: 500, letterSpacing: 1, color: 'var(--bp-t3)' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'color-mix(in srgb, var(--blue) 30%, transparent)' }} />WORKING</span>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'linear-gradient(135deg, var(--bp-now), var(--bp-now-deep))' }} />TODAY</span>
         </span>

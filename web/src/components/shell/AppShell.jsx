@@ -108,7 +108,7 @@ function Offline() {
       <div style={{ width: 56, height: 56, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surfaceHi)', border: '1px solid var(--lineHi)' }}>
         <Icon name="globe" size={26} color="var(--dim)" />
       </div>
-      <div style={{ fontSize: 19, fontWeight: 600 }}>Can’t reach {BRAND.name}</div>
+      <div style={{ fontSize: 19, fontWeight: 500 }}>Can’t reach {BRAND.name}</div>
       <div style={{ fontSize: 14, color: 'var(--dim)', maxWidth: 300, lineHeight: 1.45 }}>Check your connection. You’re still signed in — we’ll reconnect automatically.</div>
       <Button onClick={attempt} loading={busy} style={{ marginTop: 6, minWidth: 160 }}>Try again</Button>
       <button type="button" onClick={logout} style={{ color: 'var(--faint)', fontSize: 13, marginTop: 4 }}>Sign out</button>

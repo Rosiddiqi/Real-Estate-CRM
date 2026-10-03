@@ -44,7 +44,7 @@ function QuickAction({ icon, label, color, onClick, href }) {
       <span style={{ width: 44, height: 44, borderRadius: 14, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: alpha(color, 14), color }}>
         <Icon name={icon} size={19} stroke={2} />
       </span>
-      <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--dim)' }}>{label}</span>
+      <span style={{ fontSize: 11.5, fontWeight: 500, color: 'var(--dim)' }}>{label}</span>
     </>
   );
   const style = { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, minWidth: 0 };
@@ -66,9 +66,9 @@ function Briefing({ appt }) {
     <div className="km-ai-card" style={{ marginTop: 16, background: alpha('var(--violet)', 7), borderColor: alpha('var(--violet)', 22), borderLeftColor: 'var(--violet)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
         <Icon name="sparkle" size={13} color="var(--violet)" stroke={2.2} />
-        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.3, color: 'var(--violet)' }}>PRE-APPOINTMENT BRIEFING</span>
+        <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: 1.3, color: 'var(--violet)' }}>PRE-APPOINTMENT BRIEFING</span>
         <span style={{ flex: 1 }} />
-        {b ? <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 0.8, color: 'var(--faint)' }}>{b.source === 'ai' ? 'AI' : 'QUICK BRIEF'}</span> : null}
+        {b ? <span style={{ fontSize: 9.5, fontWeight: 500, letterSpacing: 0.8, color: 'var(--faint)' }}>{b.source === 'ai' ? 'AI' : 'QUICK BRIEF'}</span> : null}
         <button type="button" onClick={() => load(true)} disabled={state.loading} aria-label="Refresh briefing" className="km-icon-btn km-icon-btn--sm" style={{ width: 26, height: 26, color: 'var(--dim)' }}>
           {state.loading ? <Spinner size={13} /> : <Icon name="refresh" size={13} />}
         </button>
@@ -83,7 +83,7 @@ function Briefing({ appt }) {
       {state.error && !b ? <div style={{ fontSize: 13, color: 'var(--dim)' }}>Couldn’t prepare a briefing right now.</div> : null}
       {b ? (
         <div className="km-selectable">
-          <div style={{ fontSize: 14.5, fontWeight: 650, lineHeight: 1.35, marginBottom: 8 }}>{b.headline}</div>
+          <div style={{ fontSize: 14.5, fontWeight: 500, lineHeight: 1.35, marginBottom: 8 }}>{b.headline}</div>
           {(b.bullets || []).map((t, i) => (
             <div key={i} style={{ display: 'flex', gap: 8, fontSize: 13, lineHeight: 1.45, color: 'var(--text)', marginTop: 4 }}>
               <span style={{ width: 4, height: 4, borderRadius: 2, background: 'var(--violet)', marginTop: 8, flexShrink: 0 }} />
@@ -92,7 +92,7 @@ function Briefing({ appt }) {
           ))}
           {(b.talkingPoints || []).length ? (
             <>
-              <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 1.2, color: 'var(--faint)', margin: '12px 0 2px' }}>SAY / SHOW</div>
+              <div style={{ fontSize: 9.5, fontWeight: 500, letterSpacing: 1.2, color: 'var(--faint)', margin: '12px 0 2px' }}>SAY / SHOW</div>
               {b.talkingPoints.map((t, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, fontSize: 13, lineHeight: 1.45, marginTop: 4 }}>
                   <Icon name="arrowRight" size={12} color="var(--blue)" stroke={2.4} style={{ marginTop: 4 }} />
@@ -103,7 +103,7 @@ function Briefing({ appt }) {
           ) : null}
           {(b.watchOuts || []).length ? (
             <>
-              <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 1.2, color: 'var(--amber)', margin: '12px 0 2px' }}>WATCH FOR</div>
+              <div style={{ fontSize: 9.5, fontWeight: 500, letterSpacing: 1.2, color: 'var(--amber)', margin: '12px 0 2px' }}>WATCH FOR</div>
               {b.watchOuts.map((t, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, fontSize: 13, lineHeight: 1.45, marginTop: 4 }}>
                   <Icon name="alert" size={12} color="var(--amber)" stroke={2.2} style={{ marginTop: 3 }} />
@@ -140,7 +140,7 @@ function OutcomeCapture({ appt, onSaved }) {
     <div style={{ marginTop: 16, padding: 14, borderRadius: 16, background: 'var(--surfaceHi)', border: '1px solid var(--line)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
         <Icon name="messageSquare" size={14} color="var(--kind-showing)" stroke={2} />
-        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.3, color: 'var(--dim)' }}>SHOWING FEEDBACK</span>
+        <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: 1.3, color: 'var(--dim)' }}>SHOWING FEEDBACK</span>
         <span style={{ flex: 1 }} />
         {!editing ? <button type="button" className="km-btn km-btn--plain km-btn--sm" onClick={() => setEditing(true)}>Update</button> : null}
       </div>
@@ -286,15 +286,15 @@ export default function AppointmentSheet({ id, onClose }) {
         return (
           <div style={{ paddingTop: 2 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 800, letterSpacing: 1.1, textTransform: 'uppercase', color: c, padding: '3px 8px', borderRadius: 6, background: alpha(c, 13) }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 500, letterSpacing: 1.1, textTransform: 'uppercase', color: c, padding: '3px 8px', borderRadius: 6, background: alpha(c, 13) }}>
                 <Icon name={meta.icon} size={12} stroke={2.2} /> {meta.label}
               </span>
-              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.1, textTransform: 'uppercase', color: STATUS_TONE[appt.status], padding: '3px 8px', borderRadius: 6, border: `1px solid ${alpha(STATUS_TONE[appt.status], 35)}` }}>
+              <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: 1.1, textTransform: 'uppercase', color: STATUS_TONE[appt.status], padding: '3px 8px', borderRadius: 6, border: `1px solid ${alpha(STATUS_TONE[appt.status], 35)}` }}>
                 {STATUS_LABEL[appt.status] || appt.status}
               </span>
               {appt.source && appt.source !== 'user' ? <span style={{ fontSize: 10, color: 'var(--faint)' }}>via {appt.source}</span> : null}
             </div>
-            <div style={{ fontSize: 21, fontWeight: 700, letterSpacing: -0.4, marginTop: 10, lineHeight: 1.2 }} className="km-selectable">{appt.title}</div>
+            <div style={{ fontSize: 21, fontWeight: 500, letterSpacing: -0.4, marginTop: 10, lineHeight: 1.2 }} className="km-selectable">{appt.title}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 14, color: 'var(--dim)' }}>
               <Icon name="clock" size={15} /> <span>{whenLabel(appt)} · {durLabel(appt.durationMin)}</span>
             </div>
@@ -309,7 +309,7 @@ export default function AppointmentSheet({ id, onClose }) {
                 <Avatar name={appt.client.name} seed={appt.client.id} src={appt.client.avatarUrl} size={42} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span className="km-truncate" style={{ fontSize: 16, fontWeight: 600 }}>{appt.client.name}</span>
+                    <span className="km-truncate" style={{ fontSize: 16, fontWeight: 500 }}>{appt.client.name}</span>
                     {appt.client.isWhale ? <Icon name="crown" size={13} color="var(--text)" /> : null}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
@@ -333,7 +333,7 @@ export default function AppointmentSheet({ id, onClose }) {
               <button type="button" className="km-press" onClick={() => { close(); setTimeout(() => nav.openListing(appt.listing.id), 260); }} style={{ display: 'block', width: '100%', marginTop: 16, borderRadius: 16, overflow: 'hidden', border: '1px solid var(--line)', textAlign: 'left', background: 'var(--surfaceHi)' }}>
                 <PropertyPhoto src={appt.listing.photo} seed={appt.listing.id} height={140} label={appt.listing.short} />
                 <div style={{ padding: '10px 12px' }}>
-                  <div className="km-truncate" style={{ fontSize: 15, fontWeight: 600 }}>{appt.listing.short || appt.listing.title}</div>
+                  <div className="km-truncate" style={{ fontSize: 15, fontWeight: 500 }}>{appt.listing.short || appt.listing.title}</div>
                   <div className="km-truncate" style={{ fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>
                     {[appt.listing.listPrice ? moneyCompact(appt.listing.listPrice) : null, appt.listing.beds ? `${appt.listing.beds} bd` : null, appt.listing.bathsTotal ? `${appt.listing.bathsTotal} ba` : null, appt.listing.livingAreaSqft ? `${Number(appt.listing.livingAreaSqft).toLocaleString()} sq ft` : null].filter(Boolean).join(' · ')}
                   </div>

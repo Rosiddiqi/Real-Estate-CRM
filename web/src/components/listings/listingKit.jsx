@@ -11,17 +11,18 @@ import { mediaUrl } from '../../api/client';
 import { useSocket, useResync } from '../../hooks/useSocket';
 import { moneyCompact, money, num } from '../../lib/format';
 import '../../styles/listings.css';
+import { tone } from '../../lib/palette';
 
 // ── lanes (mirrors server services/listings/shape.js) ───────────────────
 export const LANES = [
-  { id: 'mine', label: 'My Listings', short: 'Mine', color: '#F2A93B' },
-  { id: 'mls', label: 'MLS Feed', short: 'MLS', color: '#2E8BFF' },
-  { id: 'pocket', label: 'Pocket & Coming Soon', short: 'Pocket', color: '#9A4DFF' },
-  { id: 'whisper', label: 'Whispers', short: 'Whispers', color: '#30D27A' },
-  { id: 'newdev', label: 'New Development', short: 'New Dev', color: '#32D4F5' },
+  { id: 'mine', label: 'My Listings', short: 'Mine', color: '#FFB440' },
+  { id: 'mls', label: 'MLS Feed', short: 'MLS', color: '#E6E6E6' },
+  { id: 'pocket', label: 'Pocket & Coming Soon', short: 'Pocket', color: '#8A8A89' },
+  { id: 'whisper', label: 'Whispers', short: 'Whispers', color: '#D4FF3F' },
+  { id: 'newdev', label: 'New Development', short: 'New Dev', color: '#CFE3E3' },
 ];
 export const LANE_BY_ID = Object.fromEntries(LANES.map((l) => [l.id, l]));
-export const laneColor = (lane) => (LANE_BY_ID[lane] && LANE_BY_ID[lane].color) || 'var(--blue)';
+export const laneColor = (lane) => tone((LANE_BY_ID[lane] && LANE_BY_ID[lane].color) || '#E6E6E6');
 
 export const STATUS_OPTIONS = [
   { id: 'coming_soon', label: 'Coming soon' },
@@ -122,7 +123,7 @@ export function useListingsLive(refetch, events = ['listing_updated', 'match_new
 
 // ── lane dot + eyebrow + badges ──────────────────────────────────────────
 export function LaneDot({ color, size = 7 }) {
-  return <span className="kl-dot" style={{ width: size, height: size, background: color, boxShadow: `0 0 6px ${color}` }} />;
+  return <span className="kl-dot" style={{ width: size, height: size, background: tone(color) }} />;
 }
 
 const BADGE_TONE = {
@@ -403,7 +404,7 @@ export function RankedTile({ l, onOpen, onOpenPerson, index = 0 }) {
             <Avatar name={top.name} seed={top.clientId} src={top.avatarUrl} size={28} />
             <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
               <div className="kl-eyebrow" style={{ color: 'var(--bright)' }}>Top match · {l.matchCount} client{l.matchCount === 1 ? '' : 's'}</div>
-              <div className="km-truncate" style={{ fontSize: 13.5, fontWeight: 600, marginTop: 2 }}>{top.name}{top.whale ? <span className="kl-whale">WHALE</span> : null}</div>
+              <div className="km-truncate" style={{ fontSize: 13.5, fontWeight: 500, marginTop: 2 }}>{top.name}{top.whale ? <span className="kl-whale">WHALE</span> : null}</div>
             </div>
             <ScoreDial value={top.score} size={38} stroke={3} label={`${top.score}${top.verifyHold ? '*' : ''}`} fontSize={12.5} />
           </button>

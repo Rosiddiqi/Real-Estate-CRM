@@ -381,7 +381,7 @@ const Composer = forwardRef(function Composer({
             <div className="km-cmp-att km-cmp-att--wide km-lg km-lg--menu">
               <PropertyPhoto src={listing.heroPhoto} seed={listing.id} height={44} radius={9} style={{ width: 56, flexShrink: 0 }} />
               <span style={{ minWidth: 0, flex: 1 }}>
-                <span className="km-truncate" style={{ display: 'block', fontSize: 13, fontWeight: 600 }}>{listing.address}</span>
+                <span className="km-truncate" style={{ display: 'block', fontSize: 13, fontWeight: 500 }}>{listing.address}</span>
                 <span className="km-truncate" style={{ display: 'block', fontSize: 11.5, color: 'var(--dim)' }}>{[listing.price ? moneyCompact(listing.price) : null, listing.neighborhood].filter(Boolean).join(' · ')}</span>
               </span>
               <button type="button" className="km-cmp-att-x" onClick={() => setListing(null)} aria-label="Remove listing"><Icon name="x" size={11} stroke={3} /></button>

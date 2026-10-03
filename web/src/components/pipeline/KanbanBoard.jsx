@@ -10,6 +10,7 @@ import { haptic } from '../../lib/native';
 import DealCard from './DealCard';
 import { StageDot } from './bits';
 import { stageForPhase } from './config';
+import { tone } from '../../lib/palette';
 
 const EDGE = 44;
 
@@ -31,7 +32,7 @@ function Ghost({ deal, x, y, dropping, ghostRef }) {
     <div ref={ghostRef} className={`km-pl-ghost ${dropping ? 'km-pl-ghost--drop' : ''}`} style={{ left: ghostLeft(x), top: y - 30 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="km-truncate" style={{ fontSize: 14, fontWeight: 600 }}>{deal.name}</div>
+          <div className="km-truncate" style={{ fontSize: 14, fontWeight: 500 }}>{deal.name}</div>
           <div className="km-truncate" style={{ fontSize: 12, color: 'var(--dim)' }}>{deal.address || deal.label}</div>
         </div>
         {deal.price ? <div className="km-pl-price-v">{moneyCompact(deal.price)}</div> : null}
@@ -208,8 +209,8 @@ export default function KanbanBoard({
       <div className="km-pl-nav">
         <button type="button" className={`km-pl-nav-btn km-press ${navOpen ? 'km-pl-nav-btn--open' : ''}`} onClick={() => setNavOpen((o) => !o)} aria-expanded={navOpen} aria-label="Jump to a stage">
           <StageDot color={current.color} glow />
-          <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: -0.2 }}>{current.label}</span>
-          <span className="km-mono" style={{ fontSize: 10.5, fontWeight: 700, color: countOf(current.id) > 0 ? 'var(--blue)' : 'var(--faint)' }}>{fmtCount(countOf(current.id))}</span>
+          <span style={{ fontSize: 14, fontWeight: 500, letterSpacing: -0.2 }}>{current.label}</span>
+          <span className="km-mono" style={{ fontSize: 10.5, fontWeight: 500, color: countOf(current.id) > 0 ? 'var(--blue)' : 'var(--faint)' }}>{fmtCount(countOf(current.id))}</span>
           <span style={{ flex: 1 }} />
           <span className="km-mono" style={{ fontSize: 9, letterSpacing: 1.2, color: 'var(--faint)' }}>{Math.min(colIdx, phases.length - 1) + 1} / {phases.length}</span>
           <Icon name="chevronDown" size={13} color="var(--faint)" style={{ transform: navOpen ? 'rotate(180deg)' : 'none', transition: 'transform 180ms ease' }} />
@@ -225,12 +226,12 @@ export default function KanbanBoard({
                   <button key={p.id} type="button" role="option" aria-selected={on} className={`km-pl-nav-row ${on ? 'km-pl-nav-row--on' : ''}`} onClick={() => { scrollToColumn(i); setNavOpen(false); }}>
                     <StageDot color={p.color} />
                     <span style={{ minWidth: 0 }}>
-                      <span style={{ display: 'block', fontSize: 13.5, fontWeight: on ? 700 : 500 }}>{p.label}</span>
+                      <span style={{ display: 'block', fontSize: 13.5, fontWeight: on ? 500 : 400 }}>{p.label}</span>
                       <span style={{ display: 'block', fontSize: 10, color: 'var(--faint)', marginTop: 1 }}>{p.sub}</span>
                     </span>
                     <span style={{ flex: 1 }} />
                     {volumeOf(p.id) ? <span className="km-mono" style={{ fontSize: 10.5, color: 'var(--faint)', marginRight: 4 }}>{moneyCompact(volumeOf(p.id))}</span> : null}
-                    <span className="km-mono" style={{ fontSize: 11, fontWeight: 700, color: n > 0 ? 'var(--blue)' : 'var(--faint)' }}>{fmtCount(n)}</span>
+                    <span className="km-mono" style={{ fontSize: 11, fontWeight: 500, color: n > 0 ? 'var(--blue)' : 'var(--faint)' }}>{fmtCount(n)}</span>
                     {on ? <Icon name="check" size={13} color="var(--blue)" stroke={3} /> : null}
                   </button>
                 );
@@ -255,7 +256,7 @@ export default function KanbanBoard({
                 </div>
                 {vol ? <span className="km-pl-col-vol">{moneyCompact(vol)}</span> : <span className="km-pl-col-sub">{p.sub}</span>}
               </div>
-              <div className="km-pl-col-rule" style={{ background: `linear-gradient(90deg, ${p.color}, transparent)` }} />
+              <div className="km-pl-col-rule" style={{ background: `linear-gradient(90deg, ${tone(p.color)}, transparent)` }} />
               <div className="km-pl-col-body">
                 {list.length === 0 ? (
                   <div className="km-pl-col-empty">{p.id === 'closed' ? 'Nothing closed this month yet' : 'No deals'}</div>

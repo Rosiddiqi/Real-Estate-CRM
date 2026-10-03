@@ -60,7 +60,7 @@ export default function DealSheet({ id, onClose }) {
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 35%, rgba(0,0,0,0.62))' }} />
               <div style={{ position: 'absolute', left: 14, right: 14, bottom: 12, display: 'flex', alignItems: 'flex-end', gap: 10, color: '#fff' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="km-truncate" style={{ fontSize: 16, fontWeight: 700 }}>{deal.address || deal.propertyLabel || 'Property to be set'}</div>
+                  <div className="km-truncate" style={{ fontSize: 16, fontWeight: 500 }}>{deal.address || deal.propertyLabel || 'Property to be set'}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, opacity: 0.9, marginTop: 2 }}>
                     <StageDot color={deal.color} glow />
                     {deal.label}
@@ -69,8 +69,8 @@ export default function DealSheet({ id, onClose }) {
                 </div>
                 {deal.price ? (
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.4 }}>{moneyCompact(deal.price)}</div>
-                    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, opacity: 0.75 }}>{deal.priceCaption}</div>
+                    <div style={{ fontSize: 20, fontWeight: 500, letterSpacing: -0.4 }}>{moneyCompact(deal.price)}</div>
+                    <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: 1, opacity: 0.75 }}>{deal.priceCaption}</div>
                   </div>
                 ) : null}
               </div>

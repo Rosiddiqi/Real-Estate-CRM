@@ -107,12 +107,12 @@ function LaneCard({ lane, value, onChange, hasEvent, defaultOpen }) {
 
   return (
     <div className="kp-lane">
-      <span className="kp-lane-spine" style={{ background: m.color, opacity: enabled ? 1 : 0.25, boxShadow: enabled ? `0 0 10px ${m.hex}88` : 'none' }} />
+      <span className="kp-lane-spine" style={{ background: m.color, opacity: enabled ? 1 : 0.25, boxShadow: 'none' }} />
       <div style={{ padding: '12px 13px 12px 17px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
           <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} style={{ display: 'flex', alignItems: 'center', gap: 9, flex: 1, minWidth: 0, textAlign: 'left' }}>
             <LaneDot lane={lane} size={10} />
-            <span style={{ fontSize: 14.5, fontWeight: 600, color: enabled ? 'var(--text)' : 'var(--dim)', whiteSpace: 'nowrap' }}>{m.title}</span>
+            <span style={{ fontSize: 14.5, fontWeight: 500, color: enabled ? 'var(--text)' : 'var(--dim)', whiteSpace: 'nowrap' }}>{m.title}</span>
             <span className="kp-tag" style={{ color: m.color, background: `color-mix(in srgb, ${m.hex} 12%, transparent)`, border: `1px solid color-mix(in srgb, ${m.hex} 32%, transparent)` }}>{m.tag}</span>
             <span style={{ flex: 1 }} />
             <Icon name="chevronDown" size={14} color="var(--faint)" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.22s var(--km-ease)' }} />
@@ -161,7 +161,7 @@ function LaneCard({ lane, value, onChange, hasEvent, defaultOpen }) {
                   placeholder="2 DAYS"
                   onChange={(e) => { const timerText = e.target.value.toUpperCase(); onChange({ ...value, timerText, timerHours: timerTextToHours(timerText) }); }}
                   onFocus={focusSoon}
-                  style={{ width: 120, textAlign: 'center', fontWeight: 700, letterSpacing: '0.1em', color: m.color }}
+                  style={{ width: 120, textAlign: 'center', fontWeight: 500, letterSpacing: '0.1em', color: m.color }}
                   aria-label="Wait time"
                 />
                 <MonoLabel style={{ margin: '13px 0 7px' }}>Then tell your AI what to send, once</MonoLabel>
@@ -185,7 +185,7 @@ function AiReplySection({ value, onChange }) {
     <div className="kp-section" style={{ borderLeft: '3px solid #5AC8FA' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14.5, fontWeight: 700 }}>When they respond</div>
+          <div style={{ fontSize: 14.5, fontWeight: 500 }}>When they respond</div>
           <MonoLabel style={{ marginTop: 3 }}>{on ? 'AI drafts an answer · you approve every send' : 'Off · every reply is yours'}</MonoLabel>
         </div>
         <Switch checked={on} onChange={(next) => onChange({ ...v, mode: next ? 'draft' : 'off' })} label="When they respond" />
@@ -226,7 +226,7 @@ function RemindersSection({ value, onChange, hasEvent }) {
     <div className="kp-section" style={{ borderLeft: '3px solid #B98CFF' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14.5, fontWeight: 700 }}>Reminders</div>
+          <div style={{ fontSize: 14.5, fontWeight: 500 }}>Reminders</div>
           <MonoLabel style={{ marginTop: 3 }}>{enabled ? `${steps.length || 'No'} timed reminder${steps.length === 1 ? '' : 's'} · ${v.audience === 'everyone' ? 'everyone' : 'people who said yes'}` : 'Off'}</MonoLabel>
         </div>
         <Switch checked={enabled} onChange={(next) => onChange({ ...v, enabled: next })} label="Reminders" />

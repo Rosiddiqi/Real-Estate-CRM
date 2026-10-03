@@ -99,7 +99,7 @@ export default function CalendarPage({ date, onClose }) {
 
       <div style={{ padding: '18px 20px 8px', display: 'flex', alignItems: 'flex-end', gap: 10 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: 'var(--blue)' }}>
+          <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: 2, color: 'var(--blue)' }}>
             {sel.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase()}
           </div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 400, letterSpacing: -0.7, marginTop: 3 }}>{dayTitle}</div>
@@ -136,18 +136,18 @@ export default function CalendarPage({ date, onClose }) {
               <div className="bp-spine" style={{ background: c, boxShadow: `0 0 8px ${alpha(c, 50)}` }} />
               <div className="bp-wash" style={{ background: `radial-gradient(120% 80% at 0% 0%, ${c}, transparent 70%)` }} />
               <div style={{ width: 58, flexShrink: 0 }}>
-                <div className="bp-num" style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', textDecoration: cancelled ? 'line-through' : 'none' }}>
-                  {a.allDay ? 'All day' : (() => { const [hm, ap] = fmtMin(mins(a.startAt)).split(' '); return <>{hm}<span style={{ fontSize: 10, fontWeight: 700, marginLeft: 2, color: 'var(--dim)' }}>{ap}</span></>; })()}
+                <div className="bp-num" style={{ fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', textDecoration: cancelled ? 'line-through' : 'none' }}>
+                  {a.allDay ? 'All day' : (() => { const [hm, ap] = fmtMin(mins(a.startAt)).split(' '); return <>{hm}<span style={{ fontSize: 10, fontWeight: 500, marginLeft: 2, color: 'var(--dim)' }}>{ap}</span></>; })()}
                 </div>
                 <div className="bp-num" style={{ fontSize: 11, color: 'var(--faint)', marginTop: 1 }}>{durLabel(a.durationMin)}</div>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Icon name={t.icon} size={13} color={c} stroke={2.2} />
-                  <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 1, color: c, textTransform: 'uppercase' }}>{t.label}</span>
-                  {a.status !== 'scheduled' ? <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 0.8, color: 'var(--faint)', textTransform: 'uppercase' }}>· {STATUS_LABEL[a.status]}</span> : null}
+                  <span style={{ fontSize: 9.5, fontWeight: 500, letterSpacing: 1, color: c, textTransform: 'uppercase' }}>{t.label}</span>
+                  {a.status !== 'scheduled' ? <span style={{ fontSize: 9.5, fontWeight: 500, letterSpacing: 0.8, color: 'var(--faint)', textTransform: 'uppercase' }}>· {STATUS_LABEL[a.status]}</span> : null}
                 </div>
-                <div className="km-truncate" style={{ fontSize: 14.5, fontWeight: 600, marginTop: 3 }}>{a.title}</div>
+                <div className="km-truncate" style={{ fontSize: 14.5, fontWeight: 500, marginTop: 3 }}>{a.title}</div>
                 {a.location ? <div className="km-truncate" style={{ fontSize: 12, color: 'var(--dim)', marginTop: 1 }}>{a.location}</div> : null}
               </div>
               {a.client ? <Avatar name={a.client.name} seed={a.client.id} src={a.client.avatarUrl} size={32} /> : <Icon name="chevronRight" size={15} color="var(--faint)" />}

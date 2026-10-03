@@ -73,7 +73,7 @@ export default function CampaignsPage({ onClose }) {
         <button type="button" className="kp-hero km-press" onClick={() => nav.newCampaign()} style={{ marginTop: 10 }}>
           <span className="kp-hero-tile"><Icon name="sparkle" size={19} stroke={2} /></span>
           <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: 'block', fontSize: 15.5, fontWeight: 600 }}>New text campaign</span>
+            <span style={{ display: 'block', fontSize: 15.5, fontWeight: 500 }}>New text campaign</span>
             <span style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>Tell your AI who to reach and what to say</span>
           </span>
           <Icon name="chevronRight" size={16} color="var(--faint)" />
@@ -127,7 +127,7 @@ export default function CampaignsPage({ onClose }) {
                 )))}
               </div>
               {b.id === 'completed' && b.rows.length > 4 ? (
-                <button type="button" onClick={() => setShowAllDone((v) => !v)} style={{ marginTop: 10, fontSize: 13, color: 'var(--bright)', fontWeight: 600 }}>
+                <button type="button" onClick={() => setShowAllDone((v) => !v)} style={{ marginTop: 10, fontSize: 13, color: 'var(--bright)', fontWeight: 500 }}>
                   {showAllDone ? 'Show fewer' : `Show all ${b.rows.length}`}
                 </button>
               ) : null}

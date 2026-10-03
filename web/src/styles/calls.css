@@ -24,7 +24,7 @@
 .km-ph-head::after {
   display: none;
   content: ''; position: absolute; width: 240px; height: 240px; right: -70px; top: -110px; border-radius: 50%;
-  background: rgba(46, 139, 255, 0.26); filter: blur(42px); pointer-events: none;
+  background: rgba(var(--accent-rgb), 0.26); filter: blur(42px); pointer-events: none;
 }
 .km-ph-head > * { position: relative; z-index: 1; max-width: 760px; margin-left: auto; margin-right: auto; }
 .km-ph-head-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; }
@@ -218,7 +218,7 @@ body.km-kb-open .km-ph-fab, body.km-tabbar-hidden .km-ph-fab { opacity: 0; point
 .km-call-ctl-btn.is-on { background: #fff !important; color: #0D0D0D; }
 .km-call-ctl-btn:disabled { opacity: 0.35; }
 .km-call-end-row { display: flex; justify-content: center; margin-top: 14px; }
-.km-call-end { width: 68px; height: 68px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; background: #FF3B30; box-shadow: 0 10px 28px -8px rgba(255, 59, 48, 0.7); transition: transform 0.16s var(--km-ease); }
+.km-call-end { width: 68px; height: 68px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; background: #FF3B30; box-shadow: 0 10px 28px -8px rgba(255, 107, 94, 0.7); transition: transform 0.16s var(--km-ease); }
 .km-call-end:active { transform: scale(0.93); }
 .km-call-end svg { transform: rotate(135deg); }
 
@@ -236,7 +236,7 @@ body.km-kb-open .km-ph-fab, body.km-tabbar-hidden .km-ph-fab { opacity: 0; point
 .km-sg-count { margin-left: auto; font-size: 12px; color: rgba(255, 255, 255, 0.4); font-variant-numeric: tabular-nums; }
 .km-sg-title { font-size: 21px; font-weight: 400; letter-spacing: -0.025em; margin-top: 12px; line-height: 1.25; }
 .km-sg-heard { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); font-size: 13px; line-height: 1.45; color: rgba(255, 255, 255, 0.72); }
-.km-sg-heard b { display: block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); margin-bottom: 3px; font-weight: 700; }
+.km-sg-heard b { display: block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); margin-bottom: 3px; font-weight: 500; }
 .km-sg-fields { margin-top: 12px; display: flex; flex-direction: column; border-top: 1px solid rgba(255, 255, 255, 0.07); }
 .km-sg-field { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.07); }
 .km-sg-field label { width: 64px; flex-shrink: 0; font-size: 12px; color: rgba(255, 255, 255, 0.45); }
@@ -283,7 +283,7 @@ body.km-kb-open .km-ph-fab, body.km-tabbar-hidden .km-ph-fab { opacity: 0; point
 .km-dlog-chip--talked.is-on svg { color: var(--hl); }
 .km-dlog-chip--voicemail.is-on { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.5); }
 .km-dlog-chip--voicemail.is-on svg { color: #fff; }
-.km-dlog-chip--no_answer.is-on { background: rgba(255, 90, 90, 0.14); border-color: rgba(255, 90, 90, 0.5); }
+.km-dlog-chip--no_answer.is-on { background: rgba(255, 107, 94, 0.14); border-color: rgba(255, 107, 94, 0.5); }
 .km-dlog-chip--no_answer.is-on svg { color: var(--red); }
 .km-dlog-dur { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.07); }
 .km-dlog-label { font-size: 14px; font-weight: 500; color: #fff; }
@@ -293,7 +293,7 @@ body.km-kb-open .km-ph-fab, body.km-tabbar-hidden .km-ph-fab { opacity: 0; point
   width: 74px; height: 38px; border-radius: 10px; text-align: center; font-family: var(--font-num); font-size: 18px; font-weight: 300; font-variant-numeric: tabular-nums;
   color: #fff; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); outline: none;
 }
-.km-dlog-durinput[aria-invalid="true"] { border-color: rgba(255, 90, 90, 0.6); }
+.km-dlog-durinput[aria-invalid="true"] { border-color: rgba(255, 107, 94, 0.6); }
 .km-dlog-notes {
   display: block; width: 100%; margin-top: 10px; min-height: 96px; resize: vertical; border-radius: 12px; padding: 10px 12px;
   font-size: 16px; line-height: 1.4; color: #fff; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); outline: none;

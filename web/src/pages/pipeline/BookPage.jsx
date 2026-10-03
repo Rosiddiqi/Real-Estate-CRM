@@ -32,13 +32,13 @@ const SORTS = [
   ['transactions', 'Transactions'],
 ];
 const BADGES = {
-  whale: { label: 'Whale', icon: 'diamond', color: '#4DA2FF' },
-  repeat: { label: 'Repeat', icon: 'refresh', color: '#BF5AF2' },
-  referrer: { label: 'Referrer', icon: 'handshake', color: '#FF9F0A' },
-  vip: { label: 'VIP', icon: 'crown', color: '#FF375F' },
-  recent: { label: 'Recent', icon: 'clock', color: '#30D27A' },
-  investor: { label: 'Investor', icon: 'building', color: '#32D4F5' },
-  anniversary: { label: 'Anniversary', icon: 'key', color: '#F5C24B' },
+  whale: { label: 'Whale', icon: 'diamond', color: 'var(--text)' },
+  repeat: { label: 'Repeat', icon: 'refresh', color: 'var(--dim)' },
+  referrer: { label: 'Referrer', icon: 'handshake', color: 'var(--amber)' },
+  vip: { label: 'VIP', icon: 'crown', color: 'var(--hl-ink)' },
+  recent: { label: 'Recent', icon: 'clock', color: 'var(--green)' },
+  investor: { label: 'Investor', icon: 'building', color: 'var(--cyan)' },
+  anniversary: { label: 'Anniversary', icon: 'key', color: 'var(--amber)' },
 };
 
 const monthKey = (iso) => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
@@ -50,7 +50,7 @@ function Badge({ id }) {
   const b = BADGES[id];
   if (!b) return null;
   return (
-    <span className="km-bk-badge" style={{ color: b.color, background: `${b.color}1F` }}>
+    <span className="km-bk-badge" style={{ color: b.color, background: `color-mix(in srgb, ${b.color} 12%, transparent)` }}>
       <Icon name={b.icon} size={9} stroke={2.4} />{b.label}
     </span>
   );
@@ -163,7 +163,7 @@ function Ledger({ data, onEditDate }) {
                 >
                   <Avatar name={r.name} seed={r.clientId} src={r.avatarUrl} size={38} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="km-truncate" style={{ fontSize: 14.5, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <div className="km-truncate" style={{ fontSize: 14.5, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 5 }}>
                       {r.name}{r.isWhale ? <Icon name="diamond" size={12} color="var(--bright)" stroke={2} /> : null}
                     </div>
                     <div className="km-truncate" style={{ fontSize: 12, color: 'var(--dim)', marginTop: 1 }}>
@@ -237,8 +237,8 @@ function Clients({ sort, setSortOpen, search, setSearch }) {
           <Avatar name={c.name} seed={c.id} src={c.avatarUrl} size={42} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-              <span className="km-truncate" style={{ flex: 1, fontSize: 15, fontWeight: 600 }}>{c.name}</span>
-              <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--green)', letterSpacing: -0.3 }}>{moneyCompact(c.lifetimeVolume)}</span>
+              <span className="km-truncate" style={{ flex: 1, fontSize: 15, fontWeight: 500 }}>{c.name}</span>
+              <span style={{ fontSize: 15, fontWeight: 500, color: 'var(--green)', letterSpacing: -0.3 }}>{moneyCompact(c.lifetimeVolume)}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
               <span className="km-truncate" style={{ flex: 1, fontSize: 12, color: 'var(--dim)' }}>

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Icon from '../ui/Icon';
 import { moneyCompact } from '../../lib/format';
+import { tone, tint } from '../../lib/palette';
 
 const pad = (n) => String(n).padStart(2, '0');
 
@@ -41,7 +42,7 @@ export function StageDot({ color, size = 7, glow = false }) {
   return (
     <span
       className="km-pl-dot"
-      style={{ width: size, height: size, background: color, boxShadow: glow ? `0 0 8px ${color}` : undefined }}
+      style={{ width: size, height: size, background: tone(color), boxShadow: glow ? `0 0 0 3px ${tint(color, 22)}` : undefined }}
     />
   );
 }
@@ -182,7 +183,7 @@ export function Field({ label, children }) {
 }
 
 export function Check({ on }) {
-  return <span className="km-pl-check">{on ? <Icon name="check" size={12} stroke={3.4} color="#fff" /> : null}</span>;
+  return <span className="km-pl-check">{on ? <Icon name="check" size={12} stroke={2.6} color="var(--on-hl)" /> : null}</span>;
 }
 
 export function compactPrice(n) { return n ? moneyCompact(n) : null; }

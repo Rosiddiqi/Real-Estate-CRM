@@ -76,7 +76,7 @@ function RoutineEditor({ block, onSave, onCancel, onDelete }) {
         {DAYS.map((d) => {
           const on = b.days.includes(d.iso);
           return (
-            <button key={d.key} type="button" onClick={() => toggleDay(d.iso)} aria-pressed={on} aria-label={d.label} className="km-press" style={{ flex: 1, height: 34, borderRadius: 10, fontSize: 12.5, fontWeight: 700, background: on ? 'color-mix(in srgb, var(--kind-personal) 20%, transparent)' : 'var(--bp-fill)', border: `1px solid ${on ? 'color-mix(in srgb, var(--kind-personal) 50%, transparent)' : 'var(--bp-hair2)'}`, color: on ? 'var(--kind-personal)' : 'var(--dim)' }}>{d.short}</button>
+            <button key={d.key} type="button" onClick={() => toggleDay(d.iso)} aria-pressed={on} aria-label={d.label} className="km-press" style={{ flex: 1, height: 34, borderRadius: 10, fontSize: 12.5, fontWeight: 500, background: on ? 'color-mix(in srgb, var(--kind-personal) 20%, transparent)' : 'var(--bp-fill)', border: `1px solid ${on ? 'color-mix(in srgb, var(--kind-personal) 50%, transparent)' : 'var(--bp-hair2)'}`, color: on ? 'var(--kind-personal)' : 'var(--dim)' }}>{d.short}</button>
           );
         })}
       </div>
@@ -172,7 +172,7 @@ export default function WorkScheduleSheet({ onClose }) {
                 const day = s.weekly[d.key] || { start: '09:00', end: '18:00', off: false };
                 return (
                   <div key={d.key} className="km-row" style={{ gap: 10, padding: '10px 0' }}>
-                    <span style={{ width: 44, fontSize: 14.5, fontWeight: 600, opacity: day.off ? 0.45 : 1 }}>{d.label.slice(0, 3)}</span>
+                    <span style={{ width: 44, fontSize: 14.5, fontWeight: 500, opacity: day.off ? 0.45 : 1 }}>{d.label.slice(0, 3)}</span>
                     {day.off ? (
                       <span style={{ flex: 1, fontSize: 13, color: 'var(--faint)' }}>Off — outreach paused</span>
                     ) : (
@@ -194,7 +194,7 @@ export default function WorkScheduleSheet({ onClose }) {
                 {overrides.map(([d, o]) => (
                   <div key={d} className="km-row" style={{ padding: '10px 0' }}>
                     <Icon name={o.off ? 'moon' : 'sun'} size={16} color={o.off ? 'var(--faint)' : 'var(--amber)'} />
-                    <span style={{ flex: 1, fontSize: 14, fontWeight: 600 }}>{keyToDate(d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                    <span style={{ flex: 1, fontSize: 14, fontWeight: 500 }}>{keyToDate(d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                     <span style={{ fontSize: 13, color: 'var(--dim)' }}>{o.off ? 'Off' : `${fmtMin(hhmmToMin(o.start))} – ${fmtMin(hhmmToMin(o.end))}`}</span>
                     <button type="button" className="km-icon-btn km-icon-btn--sm" onClick={() => removeOverride(d)} aria-label="Remove override"><Icon name="x" size={15} color="var(--faint)" /></button>
                   </div>
@@ -231,9 +231,9 @@ export default function WorkScheduleSheet({ onClose }) {
             ) : (
               <button key={b.id || i} type="button" className="bp-tile km-press" onClick={() => setEditing(i)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '11px 12px 11px 16px', marginBottom: 8, textAlign: 'left' }}>
                 <div className="bp-spine" style={{ background: 'var(--kind-personal)' }} />
-                <span className="bp-num" style={{ width: 62, fontSize: 13, fontWeight: 700, color: 'var(--kind-personal)' }}>{fmtMin(hhmmToMin(b.start))}</span>
+                <span className="bp-num" style={{ width: 62, fontSize: 13, fontWeight: 500, color: 'var(--kind-personal)' }}>{fmtMin(hhmmToMin(b.start))}</span>
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 600 }}>{b.title}</span>
+                  <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{b.title}</span>
                   <span style={{ display: 'block', fontSize: 12, color: 'var(--dim)', marginTop: 1 }}>{durLabel(b.durationMin)} · {daysSummary(b.days)}</span>
                 </span>
                 <Icon name="edit" size={15} color="var(--faint)" />
@@ -265,7 +265,7 @@ export default function WorkScheduleSheet({ onClose }) {
               <div className="km-row" style={{ borderBottom: 0, paddingBottom: 6 }}>
                 <span style={{ width: 30, height: 30, borderRadius: 9, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'color-mix(in srgb, var(--kind-content) 16%, transparent)' }}><Icon name="camera" size={16} color="var(--kind-content)" stroke={2} /></span>
                 <span style={{ flex: 1 }}>
-                  <span style={{ display: 'block', fontSize: 15, fontWeight: 600 }}>Content block</span>
+                  <span style={{ display: 'block', fontSize: 15, fontWeight: 500 }}>Content block</span>
                   <span style={{ display: 'block', fontSize: 12, color: 'var(--dim)' }}>Listing media, reels, market updates</span>
                 </span>
                 <Switch checked={s.contentBlock.enabled !== false} onChange={(v) => patch({ contentBlock: { ...s.contentBlock, enabled: v } })} label="Content block" />
@@ -282,7 +282,7 @@ export default function WorkScheduleSheet({ onClose }) {
               <div className="km-row" style={{ borderBottom: 0, paddingBottom: 6, marginTop: 6 }}>
                 <span style={{ width: 30, height: 30, borderRadius: 9, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'color-mix(in srgb, var(--kind-personal) 16%, transparent)' }}><Icon name="wine" size={16} color="var(--kind-personal)" stroke={2} /></span>
                 <span style={{ flex: 1 }}>
-                  <span style={{ display: 'block', fontSize: 15, fontWeight: 600 }}>Protected lunch</span>
+                  <span style={{ display: 'block', fontSize: 15, fontWeight: 500 }}>Protected lunch</span>
                   <span style={{ display: 'block', fontSize: 12, color: 'var(--dim)' }}>Slides after a client appointment that covers it</span>
                 </span>
                 <Switch checked={s.lunch.enabled !== false} onChange={(v) => patch({ lunch: { ...s.lunch, enabled: v } })} label="Lunch" />
@@ -303,7 +303,7 @@ export default function WorkScheduleSheet({ onClose }) {
               <div key={r.id} className="km-row" style={{ padding: '10px 4px' }}>
                 <Icon name={r.label.startsWith('Enforced') ? 'shield' : 'sparkle'} size={16} color={r.label.startsWith('Enforced') ? 'var(--green)' : 'var(--violet)'} />
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 14.5, fontWeight: 600 }}>{r.text}</span>
+                  <span style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{r.text}</span>
                   <span style={{ display: 'block', fontSize: 12, color: 'var(--dim)', marginTop: 1 }}>{r.label}</span>
                 </span>
                 <button type="button" className="km-icon-btn km-icon-btn--sm" onClick={() => dropRule(r)} aria-label="Remove rule"><Icon name="trash" size={15} color="var(--faint)" /></button>
@@ -323,7 +323,7 @@ export default function WorkScheduleSheet({ onClose }) {
             <div className="km-list" style={{ padding: '0 14px' }}>
               <div className="km-row">
                 <span style={{ flex: 1 }}>
-                  <span style={{ display: 'block', fontSize: 15, fontWeight: 600 }}>Sphere check-ins</span>
+                  <span style={{ display: 'block', fontSize: 15, fontWeight: 500 }}>Sphere check-ins</span>
                   <span style={{ display: 'block', fontSize: 12, color: 'var(--dim)' }}>Suggest a few no-ask texts a day to past clients and your sphere who’ve gone quiet 90+ days.</span>
                 </span>
                 <Switch checked={!!(s.planner && s.planner.soiCheckins)} onChange={(v) => patch({ planner: { ...(s.planner || {}), soiCheckins: v } })} label="Sphere check-ins" />

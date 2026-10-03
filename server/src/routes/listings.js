@@ -58,11 +58,11 @@ async function tzFor(workspaceId) {
 
 // ── sources ───────────────────────────────────────────────────────────────
 const SOURCE_FOR_LANE = {
-  mine: { kind: 'own', name: 'My Listings', color: '#F2A93B', origin: 'own' },
-  pocket: { kind: 'pocket', name: 'Pocket & Coming Soon', color: '#9A4DFF', origin: 'pocket' },
-  whisper: { kind: 'whisper', name: 'Whispers', color: '#30D27A', origin: 'whisper' },
+  mine: { kind: 'own', name: 'My Listings', color: '#FFB440', origin: 'own' },
+  pocket: { kind: 'pocket', name: 'Pocket & Coming Soon', color: '#8A8A89', origin: 'pocket' },
+  whisper: { kind: 'whisper', name: 'Whispers', color: '#D4FF3F', origin: 'whisper' },
   newdev: { kind: 'development', name: 'New Development', color: '#32D4F5', origin: 'development' },
-  mls: { kind: 'mls', name: 'MLS Feed', color: '#2E8BFF', origin: 'manual' },
+  mls: { kind: 'mls', name: 'MLS Feed', color: '#E6E6E6', origin: 'manual' },
 };
 
 async function sourceForLane(workspaceId, lane) {

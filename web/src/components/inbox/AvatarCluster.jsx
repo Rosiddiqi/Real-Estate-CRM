@@ -25,7 +25,7 @@ export default function AvatarCluster({ participants = [], size = 48 }) {
             {more ? (
               <span style={{
                 width: face, height: face, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'var(--surfaceHi)', color: 'var(--dim)', fontSize: Math.round(face * 0.3), fontWeight: 700,
+                background: 'var(--surfaceHi)', color: 'var(--dim)', fontSize: Math.round(face * 0.3), fontWeight: 500,
               }}
               >
                 +{more}

@@ -22,7 +22,7 @@ function DropCard({ d, index }) {
       </div>
       <div style={{ padding: '12px 16px 16px' }}>
         <div className="kl-source"><LaneDot color={d.laneColor} /><span className="kl-source-name">{d.sourceName}</span></div>
-        <div style={{ fontSize: 17, fontWeight: 650, letterSpacing: '-0.015em', marginTop: 6 }} className="km-truncate">{d.title}</div>
+        <div style={{ fontSize: 17, fontWeight: 500, letterSpacing: '-0.015em', marginTop: 6 }} className="km-truncate">{d.title}</div>
         <div style={{ fontSize: 13.5, color: 'var(--dim)', marginTop: 2 }} className="km-truncate">{d.subtitle}</div>
         {statsLine(d) ? <div style={{ fontSize: 12.5, color: 'var(--dim)', marginTop: 8, fontVariantNumeric: 'tabular-nums' }}>{statsLine(d)}</div> : null}
         <div className="mm-drop-prices">

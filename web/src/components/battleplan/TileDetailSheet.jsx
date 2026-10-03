@@ -48,7 +48,7 @@ function CoachAI({ item, onCoached }) {
     <div style={{ marginTop: 12, padding: 12, borderRadius: 12, background: alpha('var(--violet)', 8), border: `1px solid ${alpha('var(--violet)', 30)}` }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
         <Icon name="sparkle" size={12} color="var(--violet)" stroke={2.2} />
-        <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1.4, color: 'var(--violet)' }}>COACH AI</span>
+        <span style={{ fontSize: 9.5, fontWeight: 500, letterSpacing: 1.4, color: 'var(--violet)' }}>COACH AI</span>
       </div>
       <div style={{ fontSize: 11.5, color: 'var(--bp-t2)', lineHeight: '16px', marginBottom: 8 }}>
         Tell the AI how to handle {who} — where they are in your process and what to do next. It learns this for future plans.
@@ -68,12 +68,12 @@ function CoachAI({ item, onCoached }) {
           onClick={save}
           disabled={!ready}
           style={{
-            padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 700,
+            padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 500,
             background: ready ? 'linear-gradient(135deg, var(--violet), color-mix(in srgb, var(--violet) 70%, #000))' : 'var(--bp-fill)',
             color: ready ? '#fff' : 'var(--bp-t3)',
           }}
         >{busy ? 'Saving…' : 'Train AI'}</button>
-        {result ? <span style={{ fontSize: 12, color: 'var(--bp-done)', fontWeight: 600 }}>✓ {result}</span> : null}
+        {result ? <span style={{ fontSize: 12, color: 'var(--bp-done)', fontWeight: 500 }}>✓ {result}</span> : null}
         {err ? <span style={{ fontSize: 12, color: 'var(--red)' }}>{err}</span> : null}
       </div>
     </div>
@@ -96,19 +96,19 @@ function SlotEditor({ item, others = [], onSave }) {
   const stepBtn = { width: 34, height: 34, borderRadius: 10, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bp-fill)', border: '1px solid var(--bp-hair2)', color: 'var(--bp-t1)' };
   return (
     <div style={{ marginTop: 12, padding: 12, borderRadius: 12, background: 'var(--bp-fill)', border: '1px solid var(--bp-hair2)' }}>
-      <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1.4, color: 'var(--bp-t3)', marginBottom: 8 }}>EDIT SLOT</div>
+      <div style={{ fontSize: 9.5, fontWeight: 500, letterSpacing: 1.4, color: 'var(--bp-t3)', marginBottom: 8 }}>EDIT SLOT</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <input type="time" className="km-input" value={start} onChange={(e) => setStart(e.target.value)} style={{ width: 132, minHeight: 40, padding: '8px 10px' }} aria-label="Start time" />
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
           <button type="button" className="km-press" style={stepBtn} onClick={() => stepDur(-1)} aria-label="Shorter"><Icon name="minus" size={15} /></button>
-          <span className="bp-num" style={{ minWidth: 54, textAlign: 'center', fontSize: 14, fontWeight: 600 }}>{durLabel(dur)}</span>
+          <span className="bp-num" style={{ minWidth: 54, textAlign: 'center', fontSize: 14, fontWeight: 500 }}>{durLabel(dur)}</span>
           <button type="button" className="km-press" style={stepBtn} onClick={() => stepDur(1)} aria-label="Longer"><Icon name="plus" size={15} /></button>
         </div>
       </div>
       <div className="bp-num" style={{ fontSize: 12, color: 'var(--bp-t2)', marginTop: 8 }}>{s != null ? `${fmtMin(s)} → ${fmtMin(s + dur)}` : 'Pick a start time'}</div>
       {conflicts.length ? (
-        <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,149,0,0.10)', border: '1px solid rgba(242,169,59,0.35)' }}>
-          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.2, color: 'var(--amber)', marginBottom: 3 }}>! OVERLAPS WITH</div>
+        <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: 10, background: 'rgba(255, 180, 64, 0.10)', border: '1px solid rgba(255, 180, 64, 0.35)' }}>
+          <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: 1.2, color: 'var(--amber)', marginBottom: 3 }}>! OVERLAPS WITH</div>
           {conflicts.slice(0, 3).map((c) => (
             <div key={c.id} className="km-truncate" style={{ fontSize: 12, color: 'var(--bp-t2)' }}>{fmtMin(c.startMin)} · {c.title}</div>
           ))}
@@ -134,22 +134,22 @@ export default function TileDetailSheet({ open, item, onClose, onComplete, onRet
       {({ close }) => (
         <div style={{ paddingTop: 4 }}>
           {done ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '6px 10px', borderRadius: 8, background: 'rgba(52,199,89,0.10)', border: '1px solid rgba(52,199,89,0.28)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '6px 10px', borderRadius: 8, background: 'rgba(var(--hl-rgb), 0.10)', border: '1px solid rgba(var(--hl-rgb), 0.28)' }}>
               <Icon name="check" size={14} color="var(--bp-done)" stroke={3} />
-              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.6, color: 'var(--bp-done)' }}>COMPLETED</span>
+              <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: 0.6, color: 'var(--bp-done)' }}>COMPLETED</span>
             </div>
           ) : null}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <span style={{ width: 8, height: 8, borderRadius: 4, background: c, boxShadow: `0 0 8px ${alpha(c, 50)}`, flexShrink: 0 }} />
-            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: c, padding: '2px 7px', borderRadius: 5, background: alpha(c, 12) }}>{label}</span>
+            <span style={{ fontSize: 9, fontWeight: 500, letterSpacing: 1.2, textTransform: 'uppercase', color: c, padding: '2px 7px', borderRadius: 5, background: alpha(c, 12) }}>{label}</span>
             <span style={{ flex: 1 }} />
             {item.startMin != null ? (
-              <span className="bp-num" style={{ fontSize: 11, fontWeight: 600, color: c }}>
+              <span className="bp-num" style={{ fontSize: 11, fontWeight: 500, color: c }}>
                 {item.isMove ? 'Best at ' : ''}{fmtMin(item.startMin)} · {durLabel(item.durationMin)}
               </span>
             ) : null}
           </div>
-          <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--bp-t1)', letterSpacing: -0.3, lineHeight: '22px' }}>
+          <div style={{ fontSize: 17, fontWeight: 500, color: 'var(--bp-t1)', letterSpacing: -0.3, lineHeight: '22px' }}>
             {item.whale ? <Icon name="crown" size={14} color="var(--text)" style={{ marginRight: 6, verticalAlign: '-1px' }} /> : null}
             {item.title}
           </div>
@@ -177,7 +177,7 @@ export default function TileDetailSheet({ open, item, onClose, onComplete, onRet
 
           {item.why ? (
             <div style={{ marginTop: 12, padding: 12, borderRadius: 12, background: 'var(--bp-fill)', borderLeft: '2px solid var(--violet)' }}>
-              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.4, color: 'var(--violet)', marginBottom: 5 }}>{item.isMove ? 'WHY THE AI SUGGESTED THIS' : 'WHY IT’S HERE'}</div>
+              <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: 1.4, color: 'var(--violet)', marginBottom: 5 }}>{item.isMove ? 'WHY THE AI SUGGESTED THIS' : 'WHY IT’S HERE'}</div>
               <div className="km-selectable" style={{ fontSize: 13, color: 'var(--bp-t1)', lineHeight: '18px', fontWeight: 500 }}>{item.why}</div>
             </div>
           ) : null}
@@ -186,7 +186,7 @@ export default function TileDetailSheet({ open, item, onClose, onComplete, onRet
             editing ? (
               <SlotEditor item={item} others={others} onSave={async (s, d) => { await onRetime(item, s, d); setEditing(false); close(); }} />
             ) : (
-              <button type="button" className="km-press" onClick={() => setEditing(true)} style={{ marginTop: 12, width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 12, background: 'var(--bp-fill)', border: '1px solid var(--bp-hair2)', color: 'var(--bp-t1)', fontSize: 13, fontWeight: 600 }}>
+              <button type="button" className="km-press" onClick={() => setEditing(true)} style={{ marginTop: 12, width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 12, background: 'var(--bp-fill)', border: '1px solid var(--bp-hair2)', color: 'var(--bp-t1)', fontSize: 13, fontWeight: 500 }}>
                 <Icon name="clock" size={15} color="var(--bp-t2)" />
                 <span style={{ flex: 1, textAlign: 'left' }}>Move this block</span>
                 <Icon name="chevronRight" size={14} color="var(--bp-t3)" />
@@ -207,7 +207,7 @@ export default function TileDetailSheet({ open, item, onClose, onComplete, onRet
               type="button"
               className="km-press"
               onClick={() => { close(); setTimeout(() => onOpenClient(item.clientId), 250); }}
-              style={{ marginTop: 12, width: '100%', padding: '10px 14px', borderRadius: 10, background: 'var(--bp-fill)', border: '1px solid var(--bp-hair2)', color: 'var(--bp-t1)', fontSize: 13, fontWeight: 600 }}
+              style={{ marginTop: 12, width: '100%', padding: '10px 14px', borderRadius: 10, background: 'var(--bp-fill)', border: '1px solid var(--bp-hair2)', color: 'var(--bp-t1)', fontSize: 13, fontWeight: 500 }}
             >Open client card →</button>
           ) : null}
         </div>
@@ -219,7 +219,7 @@ export default function TileDetailSheet({ open, item, onClose, onComplete, onRet
 function actBtn(color, filled) {
   return {
     flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-    padding: '10px 8px', borderRadius: 10, fontSize: 12.5, fontWeight: 700, letterSpacing: -0.1,
+    padding: '10px 8px', borderRadius: 10, fontSize: 12.5, fontWeight: 500, letterSpacing: -0.1,
     border: filled ? 'none' : `1px solid ${alpha(color, 35)}`,
     background: filled ? color : alpha(color, 10),
     color: filled ? '#fff' : color,

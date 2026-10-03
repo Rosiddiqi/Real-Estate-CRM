@@ -29,6 +29,7 @@ import { fmtTz, inputIso, useCampaignTz, zonedIso } from './tz';
 import AudienceBuilder from './AudienceBuilder';
 import TrafficLanes, { normalizeLanes } from './TrafficLanes';
 import ListingPicker from './ListingPicker';
+import { tone } from '../../lib/palette';
 
 const STEPS = ['Audience', 'Message', 'Event', 'Replies', 'Review'];
 const ROUTING_NOTE = 'Campaign texts stay out of your inbox. The first time someone replies, their thread moves to your inbox and the conversation is yours.';
@@ -378,7 +379,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
     <PageHeader
       title={name.trim() || (campaign ? (campaign.name !== 'New campaign' ? campaign.name : 'New campaign') : 'New campaign')}
       left={<GlassButton icon="x" label="Close" onClick={() => saveAndClose(requestClose)} />}
-      right={campaign ? <button type="button" className="km-lg km-press" onClick={() => saveAndClose(requestClose)} style={{ height: 40, padding: '0 15px', borderRadius: 999, fontSize: 14.5, fontWeight: 600, color: 'var(--lg-text)' }}>Save</button> : null}
+      right={campaign ? <button type="button" className="km-lg km-press" onClick={() => saveAndClose(requestClose)} style={{ height: 40, padding: '0 15px', borderRadius: 999, fontSize: 14.5, fontWeight: 500, color: 'var(--lg-text)' }}>Save</button> : null}
     >
       <Stepper stage={stage} maxStage={maxStage} onJump={(i) => (i < stage ? hop(i) : goto(i))} />
     </PageHeader>
@@ -435,9 +436,9 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
             <Eyebrow blue icon="layers">Start from</Eyebrow>
             <div className="km-scroll-x" style={{ display: 'flex', gap: 8, margin: '10px -16px 0', padding: '2px 16px 4px', scrollSnapType: 'x mandatory', scrollPaddingInline: 16 }}>
               {templates.map((t) => (
-                <button key={t.key} type="button" className="kp-tpl km-press" aria-pressed={trigger === t.key} onClick={() => applyTemplate(t.key)} style={{ '--kp-accent': t.accent }}>
+                <button key={t.key} type="button" className="kp-tpl km-press" aria-pressed={trigger === t.key} onClick={() => applyTemplate(t.key)} style={{ '--kp-accent': tone(t.accent, 'var(--text)') }}>
                   <span className="kp-tpl-icon"><Icon name={t.icon} size={15} stroke={2} /></span>
-                  <span style={{ display: 'block', fontSize: 13.5, fontWeight: 600, marginTop: 9 }}>{t.label}</span>
+                  <span style={{ display: 'block', fontSize: 13.5, fontWeight: 500, marginTop: 9 }}>{t.label}</span>
                   <span className="km-clamp-2" style={{ fontSize: 11.5, color: 'var(--faint)', marginTop: 2, lineHeight: 1.3 }}>{t.sub}</span>
                 </button>
               ))}
@@ -460,7 +461,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                   <PropertyPhoto src={listing.photo} seed={listing.id} height={62} radius={12} style={{ width: 84, flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="km-truncate" style={{ fontSize: 14.5, fontWeight: 600 }}>{listing.address}</div>
+                    <div className="km-truncate" style={{ fontSize: 14.5, fontWeight: 500 }}>{listing.address}</div>
                     <div className="km-truncate" style={{ fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>{[listing.price ? moneyCompact(listing.price) : null, listing.specs].filter(Boolean).join(' · ')}</div>
                     <div className="km-truncate" style={{ fontSize: 11.5, color: 'var(--faint)', marginTop: 2 }}>{[listing.neighborhood, listing.offMarket ? 'Off-market: address never shared' : null].filter(Boolean).join(' · ')}</div>
                   </div>
@@ -483,7 +484,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
               </button>
             )}
 
-            <Eyebrow icon="eye" style={{ marginTop: 22 }} right={samples.length ? <button type="button" onClick={preview3} disabled={writing} style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--bright)', letterSpacing: 0, textTransform: 'none' }}>Regenerate</button> : null}>Previews</Eyebrow>
+            <Eyebrow icon="eye" style={{ marginTop: 22 }} right={samples.length ? <button type="button" onClick={preview3} disabled={writing} style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--bright)', letterSpacing: 0, textTransform: 'none' }}>Regenerate</button> : null}>Previews</Eyebrow>
             {writing && !samples.length ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 14 }}>{[0, 1, 2].map((i) => <div key={i} className="kp-skel-bubble" style={{ animationDelay: `${i * 120}ms` }} />)}</div>
             ) : samples.length ? (
@@ -500,8 +501,8 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
                   <div key={s.clientId} className="kp-step-in" style={{ marginTop: 14, animationDelay: `${i * 90}ms`, opacity: writing ? 0.5 : 1, transition: 'opacity 0.2s' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <Avatar name={s.name} seed={s.clientId} src={s.avatarUrl} size={26} />
-                      <span style={{ fontSize: 13.5, fontWeight: 600 }}>{s.name}</span>
-                      <span className="kp-chan" style={{ color: s.channel === 'sms' ? 'var(--sms)' : 'var(--imsg)', border: `1px solid ${s.channel === 'sms' ? 'rgba(52,209,91,0.35)' : 'rgba(46,139,255,0.35)'}` }}>{s.channel === 'sms' ? 'SMS' : 'iMESSAGE'}</span>
+                      <span style={{ fontSize: 13.5, fontWeight: 500 }}>{s.name}</span>
+                      <span className="kp-chan" style={{ color: s.channel === 'sms' ? 'var(--sms)' : 'var(--imsg)', border: `1px solid ${s.channel === 'sms' ? 'rgba(52,209,91,0.35)' : 'rgba(var(--accent-rgb), 0.35)'}` }}>{s.channel === 'sms' ? 'SMS' : 'iMESSAGE'}</span>
                       {s.cold ? <span className="kp-mono" style={{ fontSize: 8.5 }}>New to you</span> : null}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: 8 }}>
@@ -521,9 +522,9 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
         {stage === 2 ? (
           <div>
             <div className="kp-section" style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span className="kp-auto-tile" style={{ '--kp-accent': '#BF5AF2' }}><Icon name="calendar" size={17} stroke={2} /></span>
+              <span className="kp-auto-tile" style={{ '--kp-accent': 'var(--dim)' }}><Icon name="calendar" size={17} stroke={2} /></span>
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: 'block', fontSize: 15, fontWeight: 600 }}>This campaign has an event</span>
+                <span style={{ display: 'block', fontSize: 15, fontWeight: 500 }}>This campaign has an event</span>
                 <span style={{ display: 'block', fontSize: 12.5, color: 'var(--faint)', marginTop: 1 }}>Open house, broker caravan, client event</span>
               </span>
               <Switch checked={event.enabled} onChange={(v) => onEvent({ enabled: v })} label="Has an event" />
@@ -616,7 +617,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
             <div className="kp-guard" style={{ marginTop: 18 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Icon name="shield" size={15} color="var(--green)" />
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', color: 'var(--green)' }}>Sender Guard plan</span>
+                <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.13em', textTransform: 'uppercase', color: 'var(--green)' }}>Sender Guard plan</span>
                 {!plan ? <Spinner size={13} color="var(--faint)" /> : null}
               </div>
               {guardInfo ? (
@@ -638,10 +639,10 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
       {launched ? (
         <div className="kp-launched">
           <div className="kp-launched-card kp-pop-in">
-            <span style={{ width: 52, height: 52, borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--tint)', border: '1px solid rgba(46,139,255,0.45)', color: 'var(--bright)', boxShadow: '0 0 24px -4px var(--glow)' }}>
+            <span style={{ width: 52, height: 52, borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--tint)', border: '1px solid rgba(var(--accent-rgb), 0.45)', color: 'var(--bright)', boxShadow: '0 0 24px -4px var(--glow)' }}>
               <Icon name={launched.status === 'scheduled' ? 'clock' : 'send'} size={21} />
             </span>
-            <div style={{ fontSize: 19, fontWeight: 600, marginTop: 14 }}>{launched.status === 'scheduled' ? 'Campaign scheduled' : 'Campaign launched'}</div>
+            <div style={{ fontSize: 19, fontWeight: 500, marginTop: 14 }}>{launched.status === 'scheduled' ? 'Campaign scheduled' : 'Campaign launched'}</div>
             <div style={{ fontSize: 13.5, color: 'var(--dim)', lineHeight: 1.5, marginTop: 7 }}>
               {launched.status === 'scheduled'
                 ? `Starts ${fmtTz(inputIso(startLocal), { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} for ${launched.recipients} people. Replies land in your inbox.`
@@ -665,10 +666,10 @@ function SummaryCard({ icon, title, children, onEdit }) {
     <button type="button" className="km-press" onClick={onEdit} style={{ display: 'flex', alignItems: 'flex-start', gap: 11, width: '100%', textAlign: 'left', marginTop: 10, padding: '13px 14px', borderRadius: 14, background: 'var(--surface)', border: '1px solid var(--line)' }}>
       <Icon name={icon} size={16} color="var(--bright)" style={{ marginTop: 2 }} />
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: 'block', fontSize: 14.5, fontWeight: 600 }}>{title}</span>
+        <span style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{title}</span>
         <span style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)', marginTop: 3, lineHeight: 1.45 }}>{children}</span>
       </span>
-      <span style={{ fontSize: 12.5, color: 'var(--bright)', fontWeight: 600 }}>Edit</span>
+      <span style={{ fontSize: 12.5, color: 'var(--bright)', fontWeight: 500 }}>Edit</span>
     </button>
   );
 }
@@ -683,7 +684,7 @@ function BuilderBody({ header, children, footer, loadError, campaign, scrollRef 
         <div className="kp-wide" style={{ padding: '10px 16px 0' }}>
           {loadError ? (
             <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--faint)' }}>
-              <div style={{ fontSize: 15, color: 'var(--dim)', fontWeight: 600 }}>Couldn’t open this campaign</div>
+              <div style={{ fontSize: 15, color: 'var(--dim)', fontWeight: 500 }}>Couldn’t open this campaign</div>
               <div style={{ fontSize: 13, marginTop: 6 }}>{loadError.message}</div>
             </div>
           ) : !campaign ? (

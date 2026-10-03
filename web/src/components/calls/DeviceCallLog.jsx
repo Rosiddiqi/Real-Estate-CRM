@@ -144,7 +144,7 @@ export default function DeviceCallLog({ onClose }) {
           <div className="km-sg-actions" style={{ marginTop: 16 }}>
             <button type="button" className="km-sg-btn km-lg km-lg--light" onClick={notNow} disabled={saving}>Not now</button>
             <button type="button" className="km-sg-btn km-sg-btn--yes" onClick={save} disabled={!outcome || saving || (outcome !== 'no_answer' && durSec == null)}>
-              {saving ? <Spinner size={16} color="#fff" /> : null}{notes.trim() ? 'Save & get follow-ups' : 'Save'}
+              {saving ? <Spinner size={16} color="currentColor" /> : null}{notes.trim() ? 'Save & get follow-ups' : 'Save'}
             </button>
           </div>
         </div>

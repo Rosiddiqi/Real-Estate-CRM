@@ -129,7 +129,7 @@ export default function PayPlanSheet({ onClose }) {
     closeRef.current = close;
     return (
       <button type="button" className="km-btn km-btn--block km-press" disabled={!form || saving} onClick={save} style={{ minHeight: 48 }}>
-        {saving ? <Spinner size={16} color="#fff" /> : <Icon name="check" size={17} stroke={2.4} />}
+        {saving ? <Spinner size={16} color="currentColor" /> : <Icon name="check" size={17} stroke={2.4} />}
         {saving ? 'Saving…' : 'Save pay plan'}
       </button>
     );
@@ -145,14 +145,14 @@ export default function PayPlanSheet({ onClose }) {
         <div style={{ paddingBottom: 6 }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 12,
-            background: 'linear-gradient(135deg, rgba(46,139,255,0.10), var(--surfaceHi))', border: '1px solid rgba(46,139,255,0.25)',
+            background: 'linear-gradient(135deg, rgba(var(--accent-rgb), 0.10), var(--surfaceHi))', border: '1px solid rgba(var(--accent-rgb), 0.25)',
           }}>
-            <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(46,139,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(var(--accent-rgb), 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Icon name={parsed ? 'sparkle' : 'checkCircle'} size={16} color="var(--blue)" stroke={2} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="km-pl-eyebrow" style={{ color: 'var(--blue)' }}>{parsed ? `PARSED · REVIEW${parsed.source === 'ai' ? '' : ' · BASIC READ'}` : 'ACTIVE'}</div>
-              <div className="km-truncate" style={{ fontSize: 13.5, fontWeight: 600, marginTop: 2 }}>
+              <div className="km-truncate" style={{ fontSize: 13.5, fontWeight: 500, marginTop: 2 }}>
                 {PLAN_TYPES.find((t) => t[0] === form.planType)?.[1]} · {Math.round((form.agentSplit ?? 0.7) * 100)}/{Math.round((1 - (form.agentSplit ?? 0.7)) * 100)}{form.capAmount ? ` until ${moneyCompact(form.capAmount)} cap` : ''}
               </div>
               <div className="km-truncate" style={{ fontSize: 11.5, color: 'var(--faint)' }}>{parsed && parsed.summary ? parsed.summary : `Cap year resets ${MONTHS[Number(form.annMonth) - 1]} ${Number(form.annDay)}`}</div>
@@ -253,7 +253,7 @@ export default function PayPlanSheet({ onClose }) {
           </Block>
 
           {tip ? (
-            <div className="km-pl-serena" style={{ marginTop: 16, display: 'flex', gap: 10, background: 'rgba(154,77,255,0.08)', borderColor: 'rgba(154,77,255,0.25)' }}>
+            <div className="km-pl-serena" style={{ marginTop: 16, display: 'flex', gap: 10, background: 'rgba(var(--hl-rgb), 0.08)', borderColor: 'rgba(var(--hl-rgb), 0.25)' }}>
               <Icon name="sparkle" size={14} color="var(--violet)" />
               <div style={{ flex: 1 }}>
                 <b>SERENA</b>

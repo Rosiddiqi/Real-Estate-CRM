@@ -40,7 +40,7 @@ export function Chip({ tone = 'blue', icon, children, style, className = '' }) {
 // Colored dot + label (stage pills etc.)
 export function DotLabel({ color, children, style }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--dim)', ...style }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 500, color: 'var(--dim)', ...style }}>
       <span style={{ width: 7, height: 7, borderRadius: '50%', background: color }} />
       {children}
     </span>

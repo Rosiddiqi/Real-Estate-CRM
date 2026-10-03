@@ -55,23 +55,23 @@ export default function Scoreboard({ closings, volume, gci, northStar, monthLabe
               ) : null}
             </svg>
             <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.8, color: 'var(--blue)', marginBottom: 4 }}>CLOSINGS</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 52, fontWeight: 700, color: 'var(--text)', letterSpacing: -2.2, lineHeight: 1 }}>{fmtSides(units)}</div>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.2, color: 'var(--faint)', marginTop: 4 }}>OF {goal} · {monthLabel}</div>
+              <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: 1.8, color: 'var(--blue)', marginBottom: 4 }}>CLOSINGS</div>
+              <div style={{ fontFamily: 'var(--font-num)', fontSize: 52, fontWeight: 300, color: 'var(--text)', letterSpacing: -2.2, lineHeight: 1 }}>{fmtSides(units)}</div>
+              <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: 1.2, color: 'var(--faint)', marginTop: 4 }}>OF {goal} · {monthLabel}</div>
             </div>
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 8.5, fontWeight: 700, letterSpacing: 1.5, color: 'var(--faint)', marginBottom: 6 }}>NORTH STAR</div>
-            <div style={{ fontSize: 13, fontWeight: 600, lineHeight: '17px', letterSpacing: -0.2, marginBottom: 10 }}>{northStar}</div>
+            <div style={{ fontSize: 8.5, fontWeight: 500, letterSpacing: 1.5, color: 'var(--faint)', marginBottom: 6 }}>NORTH STAR</div>
+            <div style={{ fontSize: 13, fontWeight: 500, lineHeight: '17px', letterSpacing: -0.2, marginBottom: 10 }}>{northStar}</div>
             <div
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 8px', borderRadius: 6,
-                background: ahead ? 'color-mix(in srgb, var(--blue) 10%, transparent)' : 'rgba(255,90,90,0.10)',
-                border: `1px solid ${ahead ? 'color-mix(in srgb, var(--blue) 30%, transparent)' : 'rgba(255,90,90,0.30)'}`,
+                background: ahead ? 'color-mix(in srgb, var(--blue) 10%, transparent)' : 'rgba(255, 107, 94, 0.10)',
+                border: `1px solid ${ahead ? 'color-mix(in srgb, var(--blue) 30%, transparent)' : 'rgba(255, 107, 94, 0.30)'}`,
               }}
             >
               <span style={{ width: 6, height: 6, borderRadius: 3, background: ringColor, animation: 'pulseDot 1.6s ease-in-out infinite' }} />
-              <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 0.8, color: 'var(--text)' }}>{paceText}</span>
+              <span style={{ fontSize: 9.5, fontWeight: 500, letterSpacing: 0.8, color: 'var(--text)' }}>{paceText}</span>
             </div>
             <div style={{ fontSize: 11, color: 'var(--dim)', marginTop: 8, lineHeight: 1.35 }}>
               Pace today: {fmtSides(pace)} of {goal}
@@ -81,8 +81,8 @@ export default function Scoreboard({ closings, volume, gci, northStar, monthLabe
 
         <div style={{ paddingTop: 16, borderTop: '1px solid var(--line)' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 7, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.5, color: 'var(--dim)' }}>VOLUME</span>
-            <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.4 }}>{moneyCompact(volume.units || 0)}</span>
+            <span style={{ fontSize: 9, fontWeight: 500, letterSpacing: 1.5, color: 'var(--dim)' }}>VOLUME</span>
+            <span style={{ fontSize: 16, fontWeight: 500, letterSpacing: -0.4 }}>{moneyCompact(volume.units || 0)}</span>
             <span style={{ fontSize: 10, color: 'var(--faint)' }}>
               {volGoal ? `of ${moneyCompact(volGoal)} · ` : ''}{fmtSides(units)} side{units === 1 ? '' : 's'}
             </span>
@@ -104,13 +104,13 @@ export default function Scoreboard({ closings, volume, gci, northStar, monthLabe
           style={{ width: '100%', marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}
         >
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.5, color: 'var(--faint)', marginBottom: 3 }}>GCI MTD</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: 'var(--blue)', letterSpacing: -0.8, lineHeight: 1 }}>{gci.mtd != null ? money(gci.mtd) : '—'}</div>
+            <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: 1.5, color: 'var(--faint)', marginBottom: 3 }}>GCI MTD</div>
+            <div style={{ fontFamily: 'var(--font-num)', fontSize: 24, fontWeight: 300, color: 'var(--blue)', letterSpacing: -0.8, lineHeight: 1 }}>{gci.mtd != null ? money(gci.mtd) : '—'}</div>
             {gci.net != null ? <div style={{ fontSize: 11, color: 'var(--dim)', marginTop: 4 }}>{money(gci.net)} net to you</div> : null}
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.3, color: 'var(--faint)', marginBottom: 3 }}>PROJ EOM</div>
-            <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: -0.3 }}>{gci.projected != null ? moneyCompact(gci.projected) : '—'}</div>
+            <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: 1.3, color: 'var(--faint)', marginBottom: 3 }}>PROJ EOM</div>
+            <div style={{ fontSize: 15, fontWeight: 500, letterSpacing: -0.3 }}>{gci.projected != null ? moneyCompact(gci.projected) : '—'}</div>
             {gci.weighted ? <div style={{ fontSize: 10.5, color: 'var(--faint)', marginTop: 3 }}>+{moneyCompact(gci.weighted)} weighted</div> : null}
           </div>
         </button>

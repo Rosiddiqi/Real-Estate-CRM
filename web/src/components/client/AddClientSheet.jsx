@@ -235,7 +235,7 @@ export default function AddClientSheet({ prefill = {}, onClose }) {
             <textarea className="km-input" rows={2} value={serena} onChange={(e) => setSerena(e.target.value)} placeholder="“Text her a welcome” · “Set a showing Saturday” · “Remind me to call Friday”" style={{ minHeight: 64 }} />
           </div>
 
-          {error ? <div style={{ marginTop: 12, padding: '10px 12px', borderRadius: 10, fontSize: 13.5, background: 'rgba(255,59,48,.1)', border: '1px solid rgba(255,59,48,.3)', color: '#FF6B5E' }}>{error}</div> : null}
+          {error ? <div style={{ marginTop: 12, padding: '10px 12px', borderRadius: 10, fontSize: 13.5, background: 'rgba(255, 107, 94, .1)', border: '1px solid rgba(255, 107, 94, .3)', color: '#FF6B5E' }}>{error}</div> : null}
 
           <button type="button" className="km-btn km-btn--block km-btn--lg" style={{ marginTop: 18 }} disabled={!canSave} onClick={() => save(close)}>
             {saving ? 'Saving…' : `Add ${nounLabel.toLowerCase()}`}

@@ -36,7 +36,7 @@ function Hi({ text, q }) {
   if (!term || term.length < 2) return s;
   const i = s.toLowerCase().indexOf(term.toLowerCase());
   if (i < 0) return s;
-  return <>{s.slice(0, i)}<mark style={{ background: 'transparent', color: 'var(--bright)', fontWeight: 700 }}>{s.slice(i, i + term.length)}</mark>{s.slice(i + term.length)}</>;
+  return <>{s.slice(0, i)}<mark style={{ background: 'transparent', color: 'var(--bright)', fontWeight: 500 }}>{s.slice(i, i + term.length)}</mark>{s.slice(i + term.length)}</>;
 }
 
 function Row({ left, title, sub, right, onClick, index }) {
@@ -45,7 +45,7 @@ function Row({ left, title, sub, right, onClick, index }) {
       <span className="km-ph-row-main" style={{ padding: '10px 0' }}>
         {left}
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span className="km-truncate" style={{ display: 'block', fontSize: 15.5, fontWeight: 600 }}>{title}</span>
+          <span className="km-truncate" style={{ display: 'block', fontSize: 15.5, fontWeight: 500 }}>{title}</span>
           {sub ? <span className="km-truncate" style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>{sub}</span> : null}
         </span>
       </span>
@@ -138,7 +138,7 @@ export default function GlobalSearch({ onClose, q: initialQ }) {
             <section>
               <div className="km-ph-section-head">
                 <span className="km-eyebrow">Recent searches</span>
-                <button type="button" style={{ fontSize: 13, color: 'var(--bright)', fontWeight: 600 }} onClick={() => { try { localStorage.removeItem(RECENT_KEY); } catch { /* ignore */ } setRecents([]); }}>Clear</button>
+                <button type="button" style={{ fontSize: 13, color: 'var(--bright)', fontWeight: 500 }} onClick={() => { try { localStorage.removeItem(RECENT_KEY); } catch { /* ignore */ } setRecents([]); }}>Clear</button>
               </div>
               {recents.map((r, i) => (
                 <button key={r} type="button" className="km-ph-row km-press km-row-in" onClick={() => setQ(r)} style={{ width: 'calc(100% - 16px)', textAlign: 'left', padding: '12px 0', gap: 12, animationDelay: `${i * 22}ms` }}>

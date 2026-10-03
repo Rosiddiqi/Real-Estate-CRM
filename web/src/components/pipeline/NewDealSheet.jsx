@@ -135,7 +135,7 @@ export default function NewDealSheet({ prefill = {}, onClose }) {
   const footer = ({ close }) => { closeRef.current = close; return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500 }}>
           {stageInfo ? <StageDot color={stageInfo.color} glow /> : null}
           <span className="km-truncate">{stageInfo ? stageInfo.label : 'Stage'}</span>
           {price ? <span style={{ color: 'var(--blue)' }}>· {moneyCompact(price)}{lease ? '/mo' : ''}</span> : null}
@@ -145,7 +145,7 @@ export default function NewDealSheet({ prefill = {}, onClose }) {
         </div>
       </div>
       <button type="button" className="km-btn km-press" style={{ minHeight: 48, padding: '0 20px' }} disabled={!canCreate} onClick={create} aria-label="Add deal">
-        {saving ? <Spinner size={16} color="#fff" /> : <Icon name={effStage === 'closed' ? 'key' : 'plus'} size={17} stroke={2.2} />}
+        {saving ? <Spinner size={16} color="currentColor" /> : <Icon name={effStage === 'closed' ? 'key' : 'plus'} size={17} stroke={2.2} />}
         {saving ? 'Adding…' : effStage === 'closed' ? 'Add & close' : 'Add to pipeline'}
       </button>
     </div>
@@ -160,17 +160,17 @@ export default function NewDealSheet({ prefill = {}, onClose }) {
             <button type="button" className="km-pl-pickrow km-press" onClick={() => setPickClient(true)}>
               <Avatar name={fullName(client)} seed={client.id} src={client.avatarUrl} size={38} />
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span className="km-truncate" style={{ display: 'block', fontSize: 15, fontWeight: 600 }}>{fullName(client)}</span>
+                <span className="km-truncate" style={{ display: 'block', fontSize: 15, fontWeight: 500 }}>{fullName(client)}</span>
                 <span className="km-truncate" style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)' }}>{[formatPhone(client.phone), client.neighborhood].filter(Boolean).join(' · ') || 'Client'}</span>
               </span>
-              <span style={{ color: 'var(--blue)', fontSize: 13, fontWeight: 600 }}>Change</span>
+              <span style={{ color: 'var(--blue)', fontSize: 13, fontWeight: 500 }}>Change</span>
             </button>
           ) : (
             <button type="button" className="km-pl-pickrow km-press" onClick={() => setPickClient(true)}>
               <span style={{ width: 38, height: 38, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--tint)', color: 'var(--blue)' }}>
                 <Icon name="userPlus" size={18} />
               </span>
-              <span style={{ flex: 1, fontSize: 15, fontWeight: 600, color: 'var(--blue)' }}>Choose a client</span>
+              <span style={{ flex: 1, fontSize: 15, fontWeight: 500, color: 'var(--blue)' }}>Choose a client</span>
               <Icon name="chevronRight" size={16} color="var(--faint)" />
             </button>
           )}
@@ -189,7 +189,7 @@ export default function NewDealSheet({ prefill = {}, onClose }) {
             <div className="km-pl-pickrow">
               <PropertyPhoto src={listing.photo} seed={listing.key} radius={8} height={40} style={{ width: 54, flexShrink: 0 }} />
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 600 }}>{listing.label}</span>
+                <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 500 }}>{listing.label}</span>
                 <span className="km-truncate" style={{ display: 'block', fontSize: 12, color: 'var(--dim)' }}>{[listing.price ? moneyCompact(listing.price) : null, listing.sub, listing.mlsNumber ? `MLS ${listing.mlsNumber}` : null].filter(Boolean).join(' · ')}</span>
               </span>
               <button type="button" className="km-icon-btn km-icon-btn--sm" aria-label="Clear listing" onClick={() => setListing(null)}><Icon name="x" size={15} /></button>
@@ -198,7 +198,7 @@ export default function NewDealSheet({ prefill = {}, onClose }) {
             <div className="km-pl-pickrow">
               <PropertyPhoto src={property.heroPhoto} seed={property.id} radius={8} height={40} style={{ width: 54, flexShrink: 0 }} />
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 600 }}>{propertyLabel}</span>
+                <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 500 }}>{propertyLabel}</span>
                 <span className="km-truncate" style={{ display: 'block', fontSize: 12, color: 'var(--dim)' }}>{[property.relationship, property.estValue ? `est. ${moneyCompact(property.estValue)}` : null, property.neighborhood].filter(Boolean).join(' · ')}</span>
               </span>
               <button type="button" className="km-icon-btn km-icon-btn--sm" aria-label="Clear property" onClick={() => setProperty(null)}><Icon name="x" size={15} /></button>
@@ -211,7 +211,7 @@ export default function NewDealSheet({ prefill = {}, onClose }) {
                     <button key={p.id} type="button" className="km-pl-opt" onClick={() => { setProperty(p); if (price == null && p.estValue && fam === 'listing') setPrice(p.estValue); }}>
                       <PropertyPhoto src={p.heroPhoto} seed={p.id} radius={6} height={26} style={{ width: 34, flexShrink: 0 }} />
                       <span style={{ flex: 1, minWidth: 0 }}>
-                        <span className="km-truncate" style={{ display: 'block', fontSize: 13.5, fontWeight: 600 }}>{[p.street, p.unit ? `#${p.unit}` : null].filter(Boolean).join(' ') || p.buildingName || 'Property'}</span>
+                        <span className="km-truncate" style={{ display: 'block', fontSize: 13.5, fontWeight: 500 }}>{[p.street, p.unit ? `#${p.unit}` : null].filter(Boolean).join(' ') || p.buildingName || 'Property'}</span>
                         <span className="km-truncate" style={{ display: 'block', fontSize: 11.5, color: 'var(--faint)' }}>{[p.relationship, p.estValue ? moneyCompact(p.estValue) : null, p.neighborhood].filter(Boolean).join(' · ')}</span>
                       </span>
                       <Icon name="plus" size={15} color="var(--blue)" />
@@ -231,7 +231,7 @@ export default function NewDealSheet({ prefill = {}, onClose }) {
                     <button key={h.key} type="button" className="km-pl-opt" onClick={() => { setListing(h); if (price == null && h.price) setPrice(h.price); }}>
                       <PropertyPhoto src={h.photo} seed={h.key} radius={6} height={26} style={{ width: 34, flexShrink: 0 }} />
                       <span style={{ flex: 1, minWidth: 0 }}>
-                        <span className="km-truncate" style={{ display: 'block', fontSize: 13.5, fontWeight: 600 }}>{h.label}</span>
+                        <span className="km-truncate" style={{ display: 'block', fontSize: 13.5, fontWeight: 500 }}>{h.label}</span>
                         <span className="km-truncate" style={{ display: 'block', fontSize: 11.5, color: 'var(--faint)' }}>{[h.price ? moneyCompact(h.price) : null, h.sub].filter(Boolean).join(' · ')}</span>
                       </span>
                       <Icon name="plus" size={15} color="var(--blue)" />
@@ -247,7 +247,7 @@ export default function NewDealSheet({ prefill = {}, onClose }) {
           <div className="km-pl-seg">
             {[['main', 'Main pipeline', 'Client journey'], ['new_dev', 'New Development', 'Pre-construction lane']].map(([id, l, sub]) => (
               <button key={id} type="button" className={`km-press ${track === id ? 'on' : ''}`} onClick={() => { setTrack(id); setStage(null); }}>
-                <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: track === id ? 'var(--blue)' : 'var(--text)' }}>{l}</span>
+                <span style={{ display: 'block', fontSize: 13, fontWeight: 500, color: track === id ? 'var(--blue)' : 'var(--text)' }}>{l}</span>
                 <span style={{ display: 'block', fontSize: 10.5, color: 'var(--faint)', marginTop: 2 }}>{sub}</span>
               </button>
             ))}
@@ -258,7 +258,7 @@ export default function NewDealSheet({ prefill = {}, onClose }) {
             {stages.map((s) => (
               <button key={s.key} type="button" className={`km-pl-opt ${effStage === s.key ? 'km-pl-opt--on' : ''}`} onClick={() => setStage(s.key)} aria-pressed={effStage === s.key}>
                 <StageDot color={s.color} size={9} glow={effStage === s.key} />
-                <span style={{ fontSize: 14, fontWeight: 600 }}>{s.label}</span>
+                <span style={{ fontSize: 14, fontWeight: 500 }}>{s.label}</span>
                 <span className="km-truncate" style={{ marginLeft: 'auto', fontSize: 11.5, color: 'var(--faint)' }}>{s.key === 'closed' ? 'Books it · celebrates' : s.sub}</span>
                 {effStage === s.key ? <Icon name="check" size={14} color="var(--blue)" stroke={2.6} /> : null}
               </button>

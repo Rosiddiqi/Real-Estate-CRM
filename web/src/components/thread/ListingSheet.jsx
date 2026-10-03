@@ -94,7 +94,7 @@ export default function ListingSheet({ open, onClose, onPick }) {
           >
             <PropertyPhoto src={(l.photos && l.photos[0]) || null} seed={l.id} height={46} radius={10} style={{ width: 62, flexShrink: 0 }} />
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span className="km-truncate" style={{ display: 'block', fontSize: 15, fontWeight: 600 }}>{l.title || l.street || 'Listing'}</span>
+              <span className="km-truncate" style={{ display: 'block', fontSize: 15, fontWeight: 500 }}>{l.title || l.street || 'Listing'}</span>
               <span className="km-truncate" style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>
                 {[l.listPrice ? moneyCompact(l.listPrice) : null, specs, l.neighborhood].filter(Boolean).join(' · ')}
               </span>

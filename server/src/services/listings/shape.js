@@ -8,10 +8,10 @@ const DAY = 864e5;
 
 // Lanes = the source sections on the Listings page.
 const LANES = [
-  { id: 'mine', label: 'My Listings', short: 'Mine', color: '#F2A93B' },
-  { id: 'mls', label: 'MLS Feed', short: 'MLS', color: '#2E8BFF' },
-  { id: 'pocket', label: 'Pocket & Coming Soon', short: 'Pocket', color: '#9A4DFF' },
-  { id: 'whisper', label: 'Whispers', short: 'Whispers', color: '#30D27A' },
+  { id: 'mine', label: 'My Listings', short: 'Mine', color: '#FFB440' },
+  { id: 'mls', label: 'MLS Feed', short: 'MLS', color: '#E6E6E6' },
+  { id: 'pocket', label: 'Pocket & Coming Soon', short: 'Pocket', color: '#8A8A89' },
+  { id: 'whisper', label: 'Whispers', short: 'Whispers', color: '#D4FF3F' },
   { id: 'newdev', label: 'New Development', short: 'New Dev', color: '#32D4F5' },
 ];
 const LANE_BY_ID = Object.fromEntries(LANES.map((l) => [l.id, l]));

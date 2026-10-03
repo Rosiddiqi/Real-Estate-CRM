@@ -47,7 +47,7 @@ function PairCard({ p, first, onDismiss }) {
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <ListingThumb src={p.property.photo} seed={p.property.id} w={44} h={32} radius={7} />
             <div style={{ minWidth: 0 }}>
-              <div className="mm-party-sub km-truncate" style={{ color: 'var(--text)', fontWeight: 600 }}>{p.property.label}</div>
+              <div className="mm-party-sub km-truncate" style={{ color: 'var(--text)', fontWeight: 500 }}>{p.property.label}</div>
               {p.property.estValue ? <div className="mm-party-sub">est. {moneyCompact(p.property.estValue)}</div> : null}
             </div>
           </div>
@@ -82,7 +82,7 @@ function PairCard({ p, first, onDismiss }) {
           {ownerBusy ? <Spinner size={14} /> : <Icon name="message" size={15} stroke={1.9} />} Text {firstOf(p.owner.name)}
         </button>
         <button type="button" className="mm-draft" style={{ minHeight: 40 }} disabled={buyerBusy} onClick={() => draft({ clientId: p.buyer.clientId, name: p.buyer.name, propertyId: p.property.id, mode: 'offmarket_buyer' })}>
-          {buyerBusy ? <Spinner size={14} color="#fff" /> : <Icon name="message" size={15} stroke={1.9} />} Text {firstOf(p.buyer.name)}
+          {buyerBusy ? <Spinner size={14} color="currentColor" /> : <Icon name="message" size={15} stroke={1.9} />} Text {firstOf(p.buyer.name)}
         </button>
         <button type="button" className="mm-icon-btn" style={{ width: 40, height: 40 }} aria-label="Not a fit" onClick={() => onDismiss(p)}><Icon name="eyeOff" size={16} stroke={1.9} /></button>
       </div>

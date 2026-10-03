@@ -25,12 +25,12 @@ const DAY = 86400000;
 
 // ── Board columns (phases) ────────────────────────────────────────────────
 const PHASES = [
-  { id: 'engaged', label: 'Engaged', color: '#9A4DFF', sub: 'New lead · Seller lead', staleDays: 14, odds: 0 },
+  { id: 'engaged', label: 'Engaged', color: '#8A8A89', sub: 'New lead · Seller lead', staleDays: 14, odds: 0 },
   { id: 'consult', label: 'Consult', color: '#5AC8FA', sub: 'Consult · Listing appt', staleDays: 7, odds: 0.1 },
-  { id: 'active', label: 'Active', color: '#2E8BFF', sub: 'Touring · Listed', staleDays: 30, odds: 0.2 },
-  { id: 'offer', label: 'Offer', color: '#F2A93B', sub: 'Offers out · in', staleDays: 5, odds: 0.4 },
+  { id: 'active', label: 'Active', color: '#E6E6E6', sub: 'Touring · Listed', staleDays: 30, odds: 0.2 },
+  { id: 'offer', label: 'Offer', color: '#FFB440', sub: 'Offers out · in', staleDays: 5, odds: 0.4 },
   { id: 'under_contract', label: 'Under Contract', color: '#32D7C9', sub: 'Contingencies open', staleDays: null, odds: 0.85, quiet: true },
-  { id: 'closed', label: 'Closed', color: '#30D27A', sub: 'Funded · recorded', staleDays: null, odds: 1, money: true },
+  { id: 'closed', label: 'Closed', color: '#D4FF3F', sub: 'Funded · recorded', staleDays: null, odds: 1, money: true },
 ];
 const LOST = { id: 'lost', label: 'Lost', color: '#8E8E93', sub: 'Closed out · kept for the record' };
 const PHASE_BY_ID = Object.fromEntries([...PHASES, LOST].map((p) => [p.id, p]));
@@ -51,11 +51,11 @@ KEY_PHASE.lost = 'lost';
 
 // ── New Development lane (pre-construction) ───────────────────────────────
 const NEW_DEV = [
-  { key: 'unit_selection', label: 'Unit Selection', sub: 'Project · line · floorplan · finishes', color: '#9A4DFF', odds: 0.1 },
-  { key: 'pricing_received', label: 'Pricing Received', sub: 'Worksheet or price sheet back', color: '#2E8BFF', odds: 0.2 },
-  { key: 'priority_list', label: 'Priority List', sub: 'In line for a release or phase', color: '#F2A93B', odds: 0.3 },
+  { key: 'unit_selection', label: 'Unit Selection', sub: 'Project · line · floorplan · finishes', color: '#8A8A89', odds: 0.1 },
+  { key: 'pricing_received', label: 'Pricing Received', sub: 'Worksheet or price sheet back', color: '#E6E6E6', odds: 0.2 },
+  { key: 'priority_list', label: 'Priority List', sub: 'In line for a release or phase', color: '#FFB440', odds: 0.3 },
   { key: 'reserved', label: 'Reserved / Contracted', sub: 'Deposit paid · contract signed', color: '#5AC8FA', odds: 0.85 },
-  { key: 'building_delivered', label: 'Building Delivered', sub: 'TCO/CO issued → closing', color: '#30D27A', odds: 0.9 },
+  { key: 'building_delivered', label: 'Building Delivered', sub: 'TCO/CO issued → closing', color: '#D4FF3F', odds: 0.9 },
 ];
 const NEW_DEV_KEYS = NEW_DEV.map((s) => s.key);
 const NEW_DEV_BY_KEY = Object.fromEntries(NEW_DEV.map((s) => [s.key, s]));

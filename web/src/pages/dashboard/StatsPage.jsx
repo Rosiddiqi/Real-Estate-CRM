@@ -71,11 +71,11 @@ function Funnel({ phases }) {
           const col = closed ? 'var(--kind-closing)' : `color-mix(in srgb, var(--blue) ${45 + i * 13}%, transparent)`;
           return (
             <div key={p.key} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
-              <span style={{ width: 92, fontSize: 12, color: closed ? 'var(--text)' : 'var(--dim)', fontWeight: closed ? 600 : 500 }} className="km-truncate">{p.label}</span>
+              <span style={{ width: 92, fontSize: 12, color: closed ? 'var(--text)' : 'var(--dim)', fontWeight: closed ? 500 : 500 }} className="km-truncate">{p.label}</span>
               <span style={{ flex: 1, height: 8, borderRadius: 4, background: 'var(--bp-fill)', position: 'relative' }}>
                 <span className="st-funnel-bar" style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${Math.max(p.count ? 4 : 0, (p.count / max) * 100)}%`, background: col }} />
               </span>
-              <span style={{ width: 22, textAlign: 'right', fontSize: 13, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{p.count}</span>
+              <span style={{ width: 22, textAlign: 'right', fontSize: 13, fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>{p.count}</span>
               <span style={{ width: 56, textAlign: 'right', fontSize: 11, color: 'var(--faint)', fontVariantNumeric: 'tabular-nums' }}>{p.volume ? moneyCompact(p.volume) : '—'}</span>
             </div>
           );
@@ -97,14 +97,14 @@ function HotDeals({ deals }) {
               <Avatar name={d.clientName} seed={d.clientId} src={d.avatarUrl} size={34} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                  <span className="km-truncate" style={{ fontSize: 13.5, fontWeight: 600 }}>{d.clientName}</span>
+                  <span className="km-truncate" style={{ fontSize: 13.5, fontWeight: 500 }}>{d.clientName}</span>
                   {d.whale ? <Icon name="crown" size={12} color="var(--text)" /> : null}
                 </div>
                 <div className="km-truncate" style={{ fontSize: 11, color: 'var(--dim)', marginTop: 1 }}>{[d.stageLabel, d.property].filter(Boolean).join(' · ')}</div>
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: -0.2 }}>{d.price ? moneyCompact(d.price) : '—'}</div>
-                <div style={{ fontSize: 10, fontWeight: 600, marginTop: 2, color: soon ? 'var(--amber)' : 'var(--faint)' }}>
+                <div style={{ fontSize: 13, fontWeight: 500, letterSpacing: -0.2 }}>{d.price ? moneyCompact(d.price) : '—'}</div>
+                <div style={{ fontSize: 10, fontWeight: 500, marginTop: 2, color: soon ? 'var(--amber)' : 'var(--faint)' }}>
                   {d.daysToClose != null ? (d.daysToClose <= 0 ? 'Closes today' : `Closes in ${d.daysToClose}d`) : `${moneyCompact(d.gci)} GCI`}
                 </div>
               </div>
@@ -162,7 +162,7 @@ function FollowUps({ f }) {
               )}
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                  <span className="km-truncate" style={{ fontSize: 13.5, fontWeight: 600 }}>{it.title}</span>
+                  <span className="km-truncate" style={{ fontSize: 13.5, fontWeight: 500 }}>{it.title}</span>
                   {it.whale ? <Icon name="crown" size={12} color="var(--text)" /> : null}
                   {it.stars ? <Stars value={it.stars} size={9} gap={1} /> : null}
                 </span>
@@ -188,7 +188,7 @@ function InboxGlance({ inbox }) {
         <Icon name={icon} size={18} color={color} stroke={2} />
       </span>
       <span style={{ minWidth: 0 }}>
-        <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, letterSpacing: -0.6, lineHeight: 1 }}>{value}</span>
+        <span style={{ display: 'block', fontFamily: 'var(--font-num)', fontSize: 22, fontWeight: 300, letterSpacing: -0.6, lineHeight: 1 }}>{value}</span>
         <span className="km-truncate" style={{ display: 'block', fontSize: 11, color: 'var(--dim)', marginTop: 3 }}>{label}</span>
         {sub ? <span className="km-truncate" style={{ display: 'block', fontSize: 10.5, color: 'var(--faint)', marginTop: 1 }}>{sub}</span> : null}
       </span>
@@ -207,7 +207,7 @@ function InboxGlance({ inbox }) {
               <Avatar name={c.name} seed={c.clientId || c.id} src={c.avatarUrl} size={34} channel={c.channel === 'sms' ? 'sms' : 'imessage'} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span className="km-truncate" style={{ fontSize: 13.5, fontWeight: 600, flex: 1 }}>{c.name}</span>
+                  <span className="km-truncate" style={{ fontSize: 13.5, fontWeight: 500, flex: 1 }}>{c.name}</span>
                   <span style={{ fontSize: 11, color: 'var(--faint)', flexShrink: 0 }}>{listTime(c.at)}</span>
                 </div>
                 <div className="km-truncate" style={{ fontSize: 12, color: 'var(--dim)', marginTop: 1 }}>{c.preview || 'New message'}</div>

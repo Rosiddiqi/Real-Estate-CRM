@@ -106,7 +106,7 @@ async function listAutomations(workspaceId) {
     const stats = a.stats && typeof a.stats === 'object' ? a.stats : {};
     return {
       id: a.id, trigger: a.trigger, name: a.name, enabled: a.status === 'running', status: a.status,
-      icon: def.icon || 'zap', accent: def.accent || '#2E8BFF', when: def.when || '',
+      icon: def.icon || 'zap', accent: def.accent || '#E6E6E6', when: def.when || '',
       brief: a.brief || '', steps: Array.isArray(a.steps) ? a.steps : [],
       approval: (a.audience && a.audience.approval) || def.approval || 'auto',
       minScore: (a.audience && a.audience.minScore) || def.minScore || null,

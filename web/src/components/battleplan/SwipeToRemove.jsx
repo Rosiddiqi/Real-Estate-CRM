@@ -71,8 +71,8 @@ export default function SwipeToRemove({ onRemove, children, label = 'REMOVE', ra
 
   return (
     <div style={{ position: 'relative', overflow: 'hidden', borderRadius: radius }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,69,58,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 16, pointerEvents: 'none' }}>
-        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.2, color: '#FF453A' }}>{label}</span>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(255, 107, 94, 0.16)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 16, pointerEvents: 'none' }}>
+        <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: 1.2, color: '#FF453A' }}>{label}</span>
       </div>
       <div ref={cardRef} style={{ position: 'relative', willChange: 'transform', touchAction: 'pan-y' }}>
         {children}

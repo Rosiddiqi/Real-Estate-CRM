@@ -141,7 +141,7 @@ export default function SerenaProposalCard({ proposal: p, onHandoff }) {
             </>
           ) : (
             <div className="km-selectable" style={{ borderRadius: 12, border: '1px solid var(--srn-hair2)', padding: '10px 12px', background: 'var(--srn-ghost)' }}>
-              <div style={{ fontSize: 13.5, fontWeight: 650, marginBottom: 4 }}>{subject || '(no subject)'}</div>
+              <div style={{ fontSize: 13.5, fontWeight: 500, marginBottom: 4 }}>{subject || '(no subject)'}</div>
               <div style={{ fontSize: 13.5, color: 'var(--dim)', whiteSpace: 'pre-wrap', lineHeight: 1.45 }}>{body}</div>
             </div>
           )}
@@ -180,7 +180,7 @@ export default function SerenaProposalCard({ proposal: p, onHandoff }) {
             </button>
           ) : null}
           <button type="button" className="km-srn-send" onClick={send} disabled={p.sending || !body.trim()}>
-            {p.sending ? <Spinner size={14} color="#fff" /> : <Icon name="arrowUp" size={14} stroke={2.6} />}
+            {p.sending ? <Spinner size={14} color="currentColor" /> : <Icon name="arrowUp" size={14} stroke={2.6} />}
             {hasRecipient ? 'Send' : 'Choose & send'}
           </button>
         </div>
@@ -214,7 +214,7 @@ function CampaignDraft({ p, onHandoff }) {
         ) : null}
       </div>
       <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ fontSize: 15, fontWeight: 650, letterSpacing: '-0.01em' }}>{p.name}</div>
+        <div style={{ fontSize: 15, fontWeight: 500, letterSpacing: '-0.01em' }}>{p.name}</div>
         <div style={{ fontSize: 12.5, color: 'var(--dim)', lineHeight: 1.4 }}><span style={{ color: 'var(--faint)', fontWeight: 500 }}>Audience · </span>{p.audience}</div>
         <div className="km-selectable" style={{ fontSize: 12.5, color: 'var(--dim)', lineHeight: 1.4 }}><span style={{ color: 'var(--faint)', fontWeight: 500 }}>Brief · </span>{p.brief}</div>
       </div>

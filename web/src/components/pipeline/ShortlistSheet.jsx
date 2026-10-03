@@ -110,7 +110,7 @@ export default function ShortlistSheet({ deal, open, onClose, onUpdate }) {
       <div className="km-pl-short" key={r.key}>
         <PropertyPhoto src={r.photo} seed={r.key} className="km-pl-short-thumb" radius={6} height={26} style={{ width: 34 }} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="km-truncate" style={{ fontSize: 13.5, fontWeight: 600 }}>{r.label}</div>
+          <div className="km-truncate" style={{ fontSize: 13.5, fontWeight: 500 }}>{r.label}</div>
           <div className="km-truncate" style={{ fontSize: 11.5, color: 'var(--faint)' }}>
             {[r.price ? moneyCompact(r.price) : null, r.sub, r.mlsNumber ? `MLS ${r.mlsNumber}` : null].filter(Boolean).join(' · ')}
           </div>

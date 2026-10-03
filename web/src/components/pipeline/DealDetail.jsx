@@ -132,7 +132,7 @@ export default function DealDetail({
               <div className="km-pl-short" key={s.key}>
                 <PropertyPhoto src={s.photo} seed={s.key} radius={6} height={26} style={{ width: 34, flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="km-truncate" style={{ fontSize: 12.5, fontWeight: 600 }}>{s.label}</div>
+                  <div className="km-truncate" style={{ fontSize: 12.5, fontWeight: 500 }}>{s.label}</div>
                   {s.price ? <div style={{ fontSize: 11, color: 'var(--faint)' }}>{moneyCompact(s.price)}</div> : null}
                 </div>
                 {one ? <span className="km-pl-theone">✓ THE ONE</span> : (
@@ -232,7 +232,7 @@ export default function DealDetail({
           <button type="button" className={`km-pl-toggle km-press ${split ? 'km-pl-toggle--on' : ''}`} onClick={() => update({ splitShare: split ? 1 : 0.5 })}>
             <Check on={split} />
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 14, fontWeight: 600 }}>Split with a co-agent</span>
+              <span style={{ display: 'block', fontSize: 14, fontWeight: 500 }}>Split with a co-agent</span>
               <span style={{ display: 'block', fontSize: 11.5, color: 'var(--dim)', marginTop: 1 }}>
                 {split
                   ? (deal.booked

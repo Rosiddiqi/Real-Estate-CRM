@@ -26,6 +26,7 @@ import SuggestionCard from './SuggestionCard';
 import TrafficLanes, { normalizeLanes } from './TrafficLanes';
 import { useCampaign, useMessagingMode } from './useCampaignsData';
 import { fmtTz, useCampaignTz } from './tz';
+import { tone } from '../../lib/palette';
 
 const COLS = ['green', 'yellow', 'red', 'gray', 'waiting'];
 const PAGE = 30;
@@ -84,11 +85,11 @@ function RecipientRow({ r, onMore }) {
         <Avatar name={r.name} seed={r.clientId} src={r.avatarUrl} size={38} channel={r.channel} />
         <span style={{ flex: 1, minWidth: 0 }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span className="km-truncate" style={{ fontSize: 14.5, fontWeight: 600, minWidth: 0 }}>{r.name}</span>
+            <span className="km-truncate" style={{ fontSize: 14.5, fontWeight: 500, minWidth: 0 }}>{r.name}</span>
             {r.laneLockedByAgent ? <Icon name="pin" size={11} color="var(--faint)" title="Lane set by you" /> : null}
             <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
               <span className="kp-dot" style={{ width: 5, height: 5, background: color }} />
-              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color }}>{label}</span>
+              <span style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color }}>{label}</span>
             </span>
           </span>
           <span className="km-truncate" style={{ display: 'block', fontSize: 12.5, color: r.status === 'rate_deferred' ? 'var(--amber)' : 'var(--dim)', marginTop: 2 }}>{activityLine(r)}</span>
@@ -274,7 +275,7 @@ export default function CampaignDetail({ id, onClose }) {
         {c ? (
           <>
             {/* Scoreboard */}
-            <div className="kp-card" style={{ '--kp-accent': c.accent, padding: '14px 14px 14px 18px' }}>
+            <div className="kp-card" style={{ '--kp-accent': tone(c.accent, 'var(--text)'), padding: '14px 14px 14px 18px' }}>
               <span className="kp-card-spine" />
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
                 <StatusPill status={phase} />
@@ -302,7 +303,7 @@ export default function CampaignDetail({ id, onClose }) {
               {phase === 'sending' && s.nextSendAt ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 10 }}>
                   <span className="kp-dot kp-pulse" style={{ width: 7, height: 7, background: 'var(--green)', boxShadow: '0 0 8px var(--green)' }} />
-                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', color: 'var(--green)', textTransform: 'uppercase' }}>Live · next text {fmtIn(s.nextSendAt)}</span>
+                  <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', color: 'var(--green)', textTransform: 'uppercase' }}>Live · next text {fmtIn(s.nextSendAt)}</span>
                 </div>
               ) : null}
               {c.status === 'paused' && !isAuto ? (
@@ -350,7 +351,7 @@ export default function CampaignDetail({ id, onClose }) {
                   <button key={k} type="button" role="tab" aria-selected={on} aria-pressed={on} className="kp-lanecol km-press" onClick={() => { setCol(k); setLimit(PAGE); }} style={{ '--kp-c': m.hex }}>
                     <span style={{ display: 'flex', justifyContent: 'center' }}><LaneDot lane={k} size={8} glow={on || counts[k] > 0} /></span>
                     <div className="kp-lanecol-num" style={{ color: counts[k] ? 'var(--text)' : 'var(--faint)' }}>{counts[k]}</div>
-                    <div className="km-truncate" style={{ fontSize: 10.5, fontWeight: 600, color: on ? m.color : 'var(--faint)' }}>{m.short}</div>
+                    <div className="km-truncate" style={{ fontSize: 10.5, fontWeight: 500, color: on ? m.color : 'var(--faint)' }}>{m.short}</div>
                   </button>
                 );
               })}
@@ -369,7 +370,7 @@ export default function CampaignDetail({ id, onClose }) {
               </div>
             )}
             {colRows.length > limit ? (
-              <button type="button" className="km-press" onClick={() => setLimit((n) => n + 60)} style={{ display: 'block', margin: '12px auto 0', fontSize: 13.5, fontWeight: 600, color: 'var(--bright)' }}>
+              <button type="button" className="km-press" onClick={() => setLimit((n) => n + 60)} style={{ display: 'block', margin: '12px auto 0', fontSize: 13.5, fontWeight: 500, color: 'var(--bright)' }}>
                 Show {Math.min(60, colRows.length - limit)} more of {colRows.length}
               </button>
             ) : null}
@@ -383,7 +384,7 @@ export default function CampaignDetail({ id, onClose }) {
                 <button type="button" className="km-press" onClick={() => nav.openListing(c.listing.id)} style={{ display: 'flex', gap: 11, alignItems: 'center', width: '100%', textAlign: 'left', marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--line)' }}>
                   <PropertyPhoto src={c.listing.photo} seed={c.listing.id} height={54} radius={10} style={{ width: 72, flexShrink: 0 }} />
                   <span style={{ flex: 1, minWidth: 0 }}>
-                    <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 600 }}>{c.listing.street || c.listing.address}</span>
+                    <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 500 }}>{c.listing.street || c.listing.address}</span>
                     <span className="km-truncate" style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>{[c.listing.price ? moneyCompact(c.listing.price) : null, c.listing.specs].filter(Boolean).join(' · ')}</span>
                     <span className="km-truncate" style={{ display: 'block', fontSize: 11.5, color: 'var(--faint)', marginTop: 2 }}>{c.includePhoto ? 'Photo rides the first text (never to cold contacts)' : 'Text only, no photo'}</span>
                   </span>
@@ -397,16 +398,16 @@ export default function CampaignDetail({ id, onClose }) {
                 <Eyebrow icon="calendar" style={{ marginTop: 22 }}>The event</Eyebrow>
                 <div className="kp-section" style={{ marginTop: 10, padding: 13, display: 'flex', gap: 12, alignItems: 'center' }}>
                   <div style={{ width: 46, borderRadius: 11, overflow: 'hidden', border: '1px solid var(--line)', textAlign: 'center', flexShrink: 0, background: 'var(--surfaceHi)' }}>
-                    <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: '#fff', background: 'var(--kind-openhouse)', padding: '3px 0' }}>{fmtTz(c.event.startAt, { month: 'short' }).toUpperCase()}</div>
+                    <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.1em', color: '#0D0D0D', background: 'var(--kind-openhouse)', padding: '3px 0' }}>{fmtTz(c.event.startAt, { month: 'short' }).toUpperCase()}</div>
                     <div className="km-num" style={{ fontSize: 19, padding: '3px 0 4px' }}>{fmtTz(c.event.startAt, { day: 'numeric' })}</div>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="km-truncate" style={{ fontSize: 14.5, fontWeight: 600 }}>{c.event.title || 'Event'}</div>
+                    <div className="km-truncate" style={{ fontSize: 14.5, fontWeight: 500 }}>{c.event.title || 'Event'}</div>
                     <div className="km-truncate" style={{ fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>{fmtWhen(c.event.startAt, { todayWord: true })}{c.event.address ? ` · ${c.event.address}` : ''}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 5, fontSize: 12, color: 'var(--faint)', flexWrap: 'wrap' }}>
                       {c.event.rsvp !== false ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><LaneDot lane="green" size={6} />{counts.green} said yes</span> : null}
                       {c.invite && c.invite.url ? (
-                        <a href={mediaUrl(c.invite.url)} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--bright)', fontWeight: 600 }}>
+                        <a href={mediaUrl(c.invite.url)} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--bright)', fontWeight: 500 }}>
                           <Icon name="calendarCheck" size={12} />Calendar invite
                         </a>
                       ) : null}
@@ -416,7 +417,7 @@ export default function CampaignDetail({ id, onClose }) {
               </>
             ) : null}
 
-            <Eyebrow icon="reply" style={{ marginTop: 22 }} right={lanesEditable ? <button type="button" onClick={openLanes} style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--bright)', letterSpacing: 0, textTransform: 'none' }}>Edit</button> : null}>After they reply</Eyebrow>
+            <Eyebrow icon="reply" style={{ marginTop: 22 }} right={lanesEditable ? <button type="button" onClick={openLanes} style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--bright)', letterSpacing: 0, textTransform: 'none' }}>Edit</button> : null}>After they reply</Eyebrow>
             <button type="button" className={`kp-section ${lanesEditable ? 'km-press' : ''}`} onClick={lanesEditable ? openLanes : undefined} disabled={!lanesEditable} style={{ marginTop: 10, padding: '10px 13px', width: '100%', textAlign: 'left', display: 'block', color: 'inherit' }}>
               {['green', 'yellow', 'red', 'gray'].map((k) => {
                 const l = (c.lanes || {})[k] || {};
@@ -428,7 +429,7 @@ export default function CampaignDetail({ id, onClose }) {
                 return (
                   <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '5px 0', fontSize: 13, color: off ? 'var(--faint)' : 'var(--dim)' }}>
                     <LaneDot lane={k} size={7} glow={!off} />
-                    <span style={{ width: 76, flexShrink: 0, color: off ? 'var(--faint)' : 'var(--text)', fontWeight: 600 }}>{LANE_META[k].short}</span>
+                    <span style={{ width: 76, flexShrink: 0, color: off ? 'var(--faint)' : 'var(--text)', fontWeight: 500 }}>{LANE_META[k].short}</span>
                     <span className="km-truncate" style={{ minWidth: 0 }}>{text}</span>
                   </div>
                 );

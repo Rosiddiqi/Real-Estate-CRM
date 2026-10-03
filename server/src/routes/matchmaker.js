@@ -97,7 +97,7 @@ router.post('/whispers', ah(async (req, res) => {
     throw new HttpError(422, "Couldn't place that one — name a neighborhood, building or the kind of home (e.g. \"5BR waterfront in Bal Harbour\")");
   }
   let source = await prisma.listingSource.findFirst({ where: { workspaceId: wid, kind: 'whisper' } });
-  if (!source) source = await prisma.listingSource.create({ data: { workspaceId: wid, name: 'Whispers', kind: 'whisper', color: '#30D27A' } });
+  if (!source) source = await prisma.listingSource.create({ data: { workspaceId: wid, name: 'Whispers', kind: 'whisper', color: '#D4FF3F' } });
   const allowed = ['street', 'unitNumber', 'city', 'state', 'postalCode', 'neighborhood', 'buildingName', 'market', 'developmentName', 'propertyType', 'priceGuide',
     'beds', 'bathsTotal', 'livingAreaSqft', 'lotSqft', 'yearBuilt', 'yearRenovated', 'stories', 'garageSpaces', 'architecturalStyle', 'waterfront', 'waterFrontageFt',
     'dockLengthFt', 'views', 'amenities', 'hoaFee', 'taxAnnual', 'mlsNumber', 'eta', 'whisperSource', 'headline'];

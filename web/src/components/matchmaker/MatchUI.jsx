@@ -26,12 +26,12 @@ export function BucketChip({ bucket }) {
 export const WhaleChip = () => <span className="mm-whale">Whale</span>;
 
 const SUBJECT_TONE = {
-  mine: ['My listing', '#F2A93B'], mls: ['MLS', '#4DA2FF'], pocket: ['Pocket', '#B98AFF'], whisper: ['Whisper', '#30D27A'],
-  newdev: ['New dev', '#5FDCF7'], offmarket: ['Off-market', '#C08BFF'],
+  mine: ['My listing', 'var(--amber)'], mls: ['MLS', 'var(--text)'], pocket: ['Pocket', 'var(--dim)'], whisper: ['Whisper', 'var(--green)'],
+  newdev: ['New dev', 'var(--cyan)'], offmarket: ['Off-market', 'var(--dim)'],
 };
 export function SubjectChip({ lane }) {
   const [label, color] = SUBJECT_TONE[lane] || SUBJECT_TONE.mls;
-  return <span className="mm-subject" style={{ color, borderColor: `${color}55`, background: `${color}1A` }}>{label}</span>;
+  return <span className="mm-subject" style={{ color, borderColor: `color-mix(in srgb, ${color} 34%, transparent)`, background: `color-mix(in srgb, ${color} 10%, transparent)` }}>{label}</span>;
 }
 
 // ── why this rating ─────────────────────────────────────────────────────
@@ -193,7 +193,7 @@ export function MatchRow({ rank, buyer, top, subject, onDismiss, defaultOpen = f
           <WhyRating result={buyer} signals={buyer.signals} />
           <div className="mm-btns">
             <button type="button" className="mm-draft" disabled={busy} onClick={() => draft({ clientId: buyer.clientId, name: buyer.name, listingId: subject.listingId, propertyId: subject.propertyId, mode: dmode, before: beforeNav })}>
-              {busy ? <><Spinner size={15} color="#fff" /> Writing it in your voice…</> : <><Icon name="message" size={16} stroke={1.9} /> Draft text to {firstOf(buyer.name)}</>}
+              {busy ? <><Spinner size={15} color="currentColor" /> Writing it in your voice…</> : <><Icon name="message" size={16} stroke={1.9} /> Draft text to {firstOf(buyer.name)}</>}
             </button>
             <button type="button" className="mm-icon-btn" aria-label={`Call ${buyer.name}`} onClick={async () => { if (beforeNav) await beforeNav(); nav.call({ clientId: buyer.clientId, phone: buyer.phone, name: buyer.name }); }}><Icon name="phone" size={17} stroke={1.9} /></button>
             {onDismiss ? <button type="button" className="mm-icon-btn" aria-label="Not a fit" onClick={() => onDismiss(buyer)}><Icon name="eyeOff" size={17} stroke={1.9} /></button> : null}
@@ -311,7 +311,7 @@ function SubjectMatchCard({ m, client, top, onOpenSubject, onDismiss, beforeNav 
         <WhyRating result={m} signals={top ? m.signals : null} title="Why this fits" />
         <div className="mm-btns">
           <button type="button" className="mm-draft" disabled={busy} onClick={() => draft({ clientId: client.id, name: client.name, listingId: s.listingId, propertyId: s.propertyId, mode, before: beforeNav })}>
-            {busy ? <><Spinner size={15} color="#fff" /> Writing it in your voice…</> : <><Icon name="message" size={16} stroke={1.9} /> Draft text to {firstOf(client.name)}</>}
+            {busy ? <><Spinner size={15} color="currentColor" /> Writing it in your voice…</> : <><Icon name="message" size={16} stroke={1.9} /> Draft text to {firstOf(client.name)}</>}
           </button>
           {onDismiss ? <button type="button" className="mm-icon-btn" aria-label="Not a fit" onClick={() => onDismiss(m)}><Icon name="eyeOff" size={17} stroke={1.9} /></button> : null}
         </div>
