@@ -130,14 +130,14 @@ export default function CallRecap({ call, lines, onDone, onHandoff }) {
             <div className="km-call-meta">{call.direction === 'inbound' ? 'Incoming' : 'Outgoing'} call · {call.mode === 'device' && call.outcome === 'no_answer' ? 'no answer' : call.mode === 'device' && call.outcome === 'voicemail' ? `voicemail ${fmtShort(call.durationSec)}` : fmtShort(call.durationSec)}{call.mode === 'simulated' ? ' · demo line' : call.mode === 'device' ? ' · from your phone' : ''}</div>
             {!call.clientId && !saved && call.otherNumber ? (
               <button type="button" className="km-srn-ghost km-srn-ghost--blue" style={{ marginTop: 10 }} onClick={() => setSaveOpen(true)}><Icon name="userPlus" size={14} stroke={2} />Save contact</button>
-            ) : saved ? <div style={{ marginTop: 8, fontSize: 12.5, color: 'var(--green)', fontWeight: 600 }}>✓ Saved to clients</div> : null}
+            ) : saved ? <div style={{ marginTop: 8, fontSize: 12.5, color: 'var(--green)', fontWeight: 500 }}>✓ Saved to clients</div> : null}
           </div>
 
           <div className="km-recap-card">
-            <div className="km-recap-eyebrow"><Icon name="sparkle" size={12} stroke={2.2} color="#C29BFF" />Summary{call.topic ? <span style={{ marginLeft: 'auto', fontWeight: 500, letterSpacing: 0, textTransform: 'none' }} className="km-truncate">{call.topic}</span> : null}</div>
+            <div className="km-recap-eyebrow"><Icon name="sparkle" size={12} stroke={2.2} color="var(--hl)" />Summary{call.topic ? <span style={{ marginLeft: 'auto', fontWeight: 500, letterSpacing: 0, textTransform: 'none' }} className="km-truncate">{call.topic}</span> : null}</div>
             {pending ? (
               <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 10, color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>
-                <Spinner size={16} color="#C29BFF" />Wrapping up the call — pulling out your commitments and next steps…
+                <Spinner size={16} color="var(--hl)" />Wrapping up the call — pulling out your commitments and next steps…
               </div>
             ) : call.summary ? (
               <>
@@ -215,7 +215,7 @@ export default function CallRecap({ call, lines, onDone, onHandoff }) {
                 <div style={{ marginTop: 10, maxHeight: 320, overflowY: 'auto' }}>
                   {lines.map((l) => (
                     <div key={l.id} style={{ marginBottom: 9, fontSize: 13.5, lineHeight: 1.42 }} className="km-selectable">
-                      <span style={{ fontSize: 11, fontWeight: 700, color: l.speaker === 'agent' ? 'rgba(255,255,255,0.4)' : 'var(--bright)', marginRight: 6 }}>{l.speaker === 'agent' ? 'YOU' : l.speaker === 'note' ? 'NOTE' : (call.client?.firstName || 'THEM').toUpperCase()}</span>
+                      <span style={{ fontSize: 11, fontWeight: 500, color: l.speaker === 'agent' ? 'rgba(255,255,255,0.4)' : 'var(--bright)', marginRight: 6 }}>{l.speaker === 'agent' ? 'YOU' : l.speaker === 'note' ? 'NOTE' : (call.client?.firstName || 'THEM').toUpperCase()}</span>
                       <span style={{ color: l.speaker === 'agent' ? 'rgba(255,255,255,0.7)' : '#fff' }}>{l.text}</span>
                     </div>
                   ))}

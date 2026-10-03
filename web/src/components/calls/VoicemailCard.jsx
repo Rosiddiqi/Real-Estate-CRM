@@ -65,7 +65,7 @@ export default function VoicemailCard({ call, onCall, onText, onHeard, onInfo, i
         </button>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="km-truncate" style={{ fontSize: 15.5, fontWeight: 650, display: 'flex', alignItems: 'center', gap: 6 }}>
-            {!heard ? <span style={{ width: 8, height: 8, borderRadius: 4, background: 'var(--blue)', boxShadow: '0 0 8px var(--glow)', flexShrink: 0 }} /> : null}
+            {!heard ? <span style={{ width: 8, height: 8, borderRadius: 4, background: 'var(--hl)', flexShrink: 0 }} /> : null}
             <span className="km-truncate">{name}</span>
           </div>
           <div style={{ fontSize: 12.5, color: 'var(--dim)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 5 }}>

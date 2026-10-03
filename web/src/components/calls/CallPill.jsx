@@ -73,7 +73,7 @@ export default function CallPill() {
   return createPortal(
     <div className="km-call-pill" role="status" aria-label={live ? `On a call with ${name}` : 'Call ended'}>
       <button type="button" className="km-call-pill-main" onClick={open}>
-        <span className={`km-call-live ${!call.answeredAt ? 'is-ringing' : ''} ${call.held ? 'is-held' : ''}`} style={live ? null : { background: 'var(--violet)', boxShadow: '0 0 8px var(--violet)' }} />
+        <span className={`km-call-live ${!call.answeredAt ? 'is-ringing' : ''} ${call.held ? 'is-held' : ''}`} style={live ? null : { background: 'var(--hl)', boxShadow: 'none' }} />
         <span style={{ minWidth: 0, flex: 1 }}>
           <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 650 }}>{name}</span>
           <span style={{ display: 'block', fontSize: 11.5, color: 'rgba(255,255,255,0.6)', fontVariantNumeric: 'tabular-nums' }}>
@@ -93,7 +93,7 @@ export default function CallPill() {
         </>
       ) : (
         <>
-          <button type="button" className="km-call-pill-btn" onClick={open} aria-label="Open recap" style={{ background: 'var(--blue)' }}><Icon name="arrowRight" size={16} stroke={2.2} /></button>
+          <button type="button" className="km-call-pill-btn" onClick={open} aria-label="Open recap" style={{ background: '#fff', color: '#0D0D0D' }}><Icon name="arrowRight" size={16} stroke={2.2} /></button>
           <button type="button" className="km-call-pill-btn" onClick={() => callStore.dismiss()} aria-label="Dismiss"><Icon name="x" size={15} stroke={2.2} /></button>
         </>
       )}

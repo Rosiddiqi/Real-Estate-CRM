@@ -37,7 +37,7 @@ export default function SaveContactSheet({ open, phone, onClose, onSaved }) {
   return (
     <Sheet open={open} onClose={onClose} title="Save contact" right={{ label: busy ? 'Saving…' : 'Save', onClick: save, disabled: !first.trim() || busy }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 6 }}>
-        <div style={{ textAlign: 'center', fontSize: 22, fontWeight: 600, fontVariantNumeric: 'tabular-nums', padding: '4px 0 2px' }}>{formatPhone(phone)}</div>
+        <div style={{ textAlign: 'center', fontSize: 22, fontWeight: 500, fontVariantNumeric: 'tabular-nums', padding: '4px 0 2px' }}>{formatPhone(phone)}</div>
         <div className="km-field-row">
           <TextInput label="First name" value={first} onChange={(e) => setFirst(e.target.value)} autoFocus placeholder="Required" />
           <TextInput label="Last name" value={last} onChange={(e) => setLast(e.target.value)} />

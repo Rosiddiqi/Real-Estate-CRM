@@ -25,7 +25,7 @@ export default function CallNowHero() {
   return (
     <section className="km-ph-hero" aria-label="Call now">
       <div className="km-ph-section-head">
-        <span className="km-eyebrow" style={{ color: 'var(--green)' }}>Call now</span>
+        <span className="km-eyebrow" style={{ color: 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 7 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--hl)' }} />Call now</span>
         {source ? <span style={{ fontSize: 11.5, color: 'var(--faint)' }}>{source.startsWith('battle_plan') ? 'From today’s plan' : 'Live signals'}</span> : null}
       </div>
       <div className="km-ph-hero-scroll km-scroll-x">

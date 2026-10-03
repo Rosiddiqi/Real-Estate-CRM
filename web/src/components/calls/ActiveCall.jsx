@@ -168,7 +168,7 @@ function LiveCall({ clientId, phone, name, callId, onClose }) {
       <div className="km-call-inner" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
         <div className={`km-call-hero ${!answered ? 'km-call-ringing' : 'is-compact'}`}>
           <Avatar name={call && !call.client && !name ? null : displayName} seed={seed} src={call && call.client ? call.client.avatarUrl : null} size={answered ? 52 : 72}
-            style={{ boxShadow: '0 0 0 4px rgba(46,139,255,0.14), 0 10px 30px -10px rgba(46,139,255,0.55)', fontSize: answered ? 19 : 26, transition: 'width 0.3s var(--km-ease), height 0.3s var(--km-ease)' }} />
+            style={{ boxShadow: '0 0 0 4px rgba(255,255,255,0.08), 0 10px 30px -10px rgba(0,0,0,0.6)', fontSize: answered ? 19 : 26, transition: 'width 0.3s var(--km-ease), height 0.3s var(--km-ease)' }} />
           <div className="km-call-name km-truncate">{displayName}</div>
           {meta ? <div className="km-call-meta km-truncate">{meta}</div> : null}
           {call && call.mode === 'simulated' && !answered ? <div className="km-call-status">Demo line · simulated conversation</div> : null}
@@ -199,7 +199,7 @@ function LiveCall({ clientId, phone, name, callId, onClose }) {
             <div className="km-call-tx-head">
               <span className="km-call-live" style={answered && !held ? null : { background: 'rgba(255,255,255,0.3)', boxShadow: 'none', animation: 'none' }} />
               Live transcript{call && call.mode === 'twilio' ? ' · needs a transcription provider' : ''}
-              <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 5 }}><Icon name="sparkle" size={11} stroke={2} color="#C29BFF" />Co-pilot on</span>
+              <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 5 }}><Icon name="sparkle" size={11} stroke={1.8} color="var(--hl)" />Co-pilot on</span>
             </div>
             <div className="km-call-tx-body" ref={txRef}>
               {!st.lines.length ? (
@@ -208,14 +208,14 @@ function LiveCall({ clientId, phone, name, callId, onClose }) {
                 const me = l.speaker === 'agent';
                 const note = l.speaker === 'note';
                 return (
-                  <div key={l.id} className="km-call-line" style={{ opacity: l.final === false ? 0.55 : 1 }}>
+                  <div key={l.id} className="km-call-line" style={l.final === false ? { opacity: 0.55 } : undefined}>
                     <div className={`km-call-tick ${l.signal || note ? 'is-on' : ''}`} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div className="km-call-who" style={{ color: note ? 'var(--bright)' : me ? 'rgba(255,255,255,0.34)' : 'var(--bright)' }}>
+                      <div className="km-call-who" style={{ color: note ? 'var(--hl)' : me ? 'rgba(255,255,255,0.34)' : '#fff' }}>
                         {note ? 'NOTE' : me ? 'YOU' : (firstName || 'THEM').toUpperCase()}
                         <span style={{ fontWeight: 500, color: 'rgba(255,255,255,0.3)', letterSpacing: 0 }}>{fmtClock(l.t)}</span>
                       </div>
-                      <div className="km-call-text km-selectable" style={{ color: note ? 'var(--bright)' : me ? 'rgba(255,255,255,0.62)' : '#fff' }}>{l.text}</div>
+                      <div className="km-call-text km-selectable" style={{ color: note ? 'var(--hl)' : me ? 'rgba(255,255,255,0.62)' : '#fff' }}>{l.text}</div>
                     </div>
                   </div>
                 );
@@ -227,7 +227,7 @@ function LiveCall({ clientId, phone, name, callId, onClose }) {
           {cue ? (
             <div className="km-cue" key={cue.id} role="status">
               <div className="km-cue-head">
-                <Icon name="sparkle" size={12} stroke={2.2} color="#D3B5FF" />
+                <Icon name="sparkle" size={12} stroke={1.8} color="var(--hl)" />
                 <span className="km-cue-eyebrow">Co-pilot · {cue.title}</span>
                 <button type="button" aria-label="Dismiss" onClick={() => callStore.dismissCue(cue.id)} style={{ color: 'rgba(255,255,255,0.55)' }}><Icon name="x" size={14} stroke={2.2} /></button>
               </div>

@@ -168,10 +168,10 @@ export default function PhonePage() {
               <>
                 <span><b>{stats.today}</b> {stats.today === 1 ? 'call' : 'calls'} today</span>
                 {stats.missedToday ? <><span className="km-ph-dotsep">·</span><span><b style={{ color: 'var(--red)' }}>{stats.missedToday}</b> missed</span></> : null}
-                {counts.unheard ? <><span className="km-ph-dotsep">·</span><span><b style={{ color: 'var(--violet)' }}>{counts.unheard}</b> new {counts.unheard === 1 ? 'voicemail' : 'voicemails'}</span></> : null}
+                {counts.unheard ? <><span className="km-ph-dotsep">·</span><span><b style={{ color: 'var(--hl-ink)' }}>{counts.unheard}</b> new {counts.unheard === 1 ? 'voicemail' : 'voicemails'}</span></> : null}
               </>
             ) : (
-              <span>{counts.unheard ? <><b style={{ color: 'var(--violet)' }}>{counts.unheard}</b> new {counts.unheard === 1 ? 'voicemail' : 'voicemails'} · </> : null}No calls yet today</span>
+              <span>{counts.unheard ? <><b style={{ color: 'var(--hl-ink)' }}>{counts.unheard}</b> new {counts.unheard === 1 ? 'voicemail' : 'voicemails'} · </> : null}No calls yet today</span>
             )}
           </div>
         </div>

@@ -62,7 +62,7 @@ export default function KeypadSheet({ open, onClose, onDial, recents = [], mode 
               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 6px', borderRadius: 12, textAlign: 'left' }}>
               <Avatar name={m.name} seed={m.clientId || m.phone} size={30} />
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 600 }}>{m.name || formatPhone(m.phone)}</span>
+                <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{m.name || formatPhone(m.phone)}</span>
                 <span style={{ fontSize: 12, color: 'var(--dim)' }}>{formatPhone(m.phone)}</span>
               </span>
               <Icon name="arrowUpRight" size={14} color="var(--faint)" />

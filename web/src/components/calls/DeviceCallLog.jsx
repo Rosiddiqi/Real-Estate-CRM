@@ -135,7 +135,7 @@ export default function DeviceCallLog({ onClose }) {
           </div>
 
           <div className="km-recap-card" style={{ marginTop: 12 }}>
-            <div className="km-recap-eyebrow"><Icon name="sparkle" size={12} stroke={2.2} color="#C29BFF" />Notes</div>
+            <div className="km-recap-eyebrow"><Icon name="sparkle" size={12} stroke={2.2} color="var(--hl)" />Notes</div>
             <textarea className="km-dlog-notes km-selectable" rows={4} value={notes} onChange={(e) => setNotes(e.target.value)}
               placeholder={outcome === 'no_answer' ? 'Anything to remember? (optional)' : 'What did you cover? Dates, next steps, anything you promised…'} />
             <div className="km-dlog-hint" style={{ marginTop: 8 }}>{assistant} turns your notes into follow-ups — the showing to book, the to-dos you promised, a text to send.</div>
