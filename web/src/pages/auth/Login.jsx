@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { Button, TextInput } from '../../components/ui/kit';
-import Icon from '../../components/ui/Icon';
+import { BrandMark, Wordmark } from '../../components/ui/BrandMark';
 import { BRAND } from '../../brand';
 import { getApiBase, setApiBase } from '../../api/client';
 import { isNative } from '../../lib/native';
@@ -52,55 +52,59 @@ export default function Login() {
   return (
     <div className="km-scroll" style={{ position: 'fixed', inset: 0, background: 'var(--bg)' }}>
       <div className="km-login-hero" aria-hidden="true" />
-      <div style={{ position: 'relative', maxWidth: 420, margin: '0 auto', padding: 'calc(var(--safe-top) + 72px) 24px 48px', display: 'flex', flexDirection: 'column', gap: 28 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, textAlign: 'center' }}>
-          <div style={{ width: 64, height: 64, borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(160deg, var(--bright), var(--deep))', boxShadow: '0 18px 40px -12px var(--glow), inset 0 1px 0 rgba(255,255,255,0.3)' }}>
-            <Icon name="key" size={30} color="#fff" stroke={2} />
-          </div>
-          <div>
-            <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: '-0.02em' }}>{BRAND.name}</div>
-            <div style={{ fontSize: 15, color: 'var(--dim)', marginTop: 6 }}>{BRAND.tagline}</div>
-          </div>
+      <form
+        onSubmit={submit}
+        style={{
+          position: 'relative', maxWidth: 440, minHeight: '100%', margin: '0 auto',
+          padding: 'calc(var(--safe-top) + 44px) 36px calc(var(--safe-bottom) + 28px)',
+          display: 'flex', flexDirection: 'column',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'var(--faint)' }}>
+          <BrandMark size={30} />
+          <Wordmark size={26} color="var(--faint)" style={{ letterSpacing: '0.14em', marginRight: 0 }} />
         </div>
 
-        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <h1 className="km-login-title">
+          {mode === 'signin' ? <>Every client,<br />the right home.</> : <>Start your<br />book.</>}
+        </h1>
+        <p style={{ fontSize: 13.5, color: 'var(--faint)', marginTop: 14 }}>{BRAND.tagline}</p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 22, marginTop: 44 }}>
           {mode === 'register' ? (
             <div className="km-field-row">
-              <TextInput placeholder="First name" value={form.firstName} onChange={set('firstName')} autoComplete="given-name" required />
-              <TextInput placeholder="Last name" value={form.lastName} onChange={set('lastName')} autoComplete="family-name" />
+              <TextInput label="First name" value={form.firstName} onChange={set('firstName')} autoComplete="given-name" required />
+              <TextInput label="Last name" value={form.lastName} onChange={set('lastName')} autoComplete="family-name" />
             </div>
           ) : null}
-          <TextInput type="email" placeholder="Email" value={form.email} onChange={set('email')} autoComplete="email" required />
-          <TextInput type="password" placeholder="Password" value={form.password} onChange={set('password')} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} required />
+          <TextInput label="Email" type="email" placeholder="you@brokerage.com" value={form.email} onChange={set('email')} autoComplete="email" required />
+          <TextInput label="Password" type="password" placeholder="••••••••" value={form.password} onChange={set('password')} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} required />
           {mode === 'register' ? (
-            <TextInput placeholder="Brokerage (optional)" value={form.brokerageName} onChange={set('brokerageName')} />
+            <TextInput label="Brokerage (optional)" value={form.brokerageName} onChange={set('brokerageName')} />
           ) : null}
-          {error ? <div style={{ color: 'var(--red)', fontSize: 13.5, textAlign: 'center' }}>{error}</div> : null}
-          <Button type="submit" size="lg" block loading={busy === 'submit'}>
-            {mode === 'signin' ? 'Sign in' : 'Create account'}
-          </Button>
-        </form>
+        </div>
+        {error ? <div style={{ color: 'var(--red)', fontSize: 13.5, marginTop: 16 }}>{error}</div> : null}
 
+        <div style={{ flex: 1, minHeight: 44 }} />
+
+        <Button type="submit" size="lg" block loading={busy === 'submit'}>
+          {mode === 'signin' ? 'Sign in' : 'Create account'}
+        </Button>
         {server.demoLogin ? (
-          <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'var(--faint)', fontSize: 12 }}>
-              <div className="km-divider" style={{ flex: 1 }} /> OR <div className="km-divider" style={{ flex: 1 }} />
-            </div>
-            <Button variant="ghost" size="lg" block icon="sparkle" onClick={demo} loading={busy === 'demo'}>
-              Explore the demo book
-            </Button>
-          </>
+          <Button variant="ghost" size="lg" block onClick={demo} loading={busy === 'demo'} style={{ marginTop: 12 }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--hl)' }} />
+            Explore the demo book
+          </Button>
         ) : null}
-
         <button
           type="button"
           onClick={() => { setMode(mode === 'signin' ? 'register' : 'signin'); setError(''); }}
-          style={{ color: 'var(--bright)', fontSize: 14.5, fontWeight: 500 }}
+          style={{ color: 'var(--dim)', fontSize: 13.5, marginTop: 18, padding: '6px 0' }}
         >
-          {mode === 'signin' ? 'New here? Create an account' : 'Have an account? Sign in'}
+          {mode === 'signin' ? <>New here? <u style={{ textUnderlineOffset: 3 }}>Create an account</u></> : <>Have an account? <u style={{ textUnderlineOffset: 3 }}>Sign in</u></>}
         </button>
-        {isNative() ? <ServerAddress unreachable={server.checked && !server.reachable} /> : null}
-      </div>
+        {isNative() ? <div style={{ marginTop: 10, textAlign: 'center' }}><ServerAddress unreachable={server.checked && !server.reachable} /></div> : null}
+      </form>
     </div>
   );
 }

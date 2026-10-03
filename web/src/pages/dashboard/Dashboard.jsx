@@ -1,9 +1,10 @@
-// Home tab — fixed top bar (date eyebrow, time-based greeting, search ·
-// notifications · menu glass buttons, avatar → settings) over a two-page
-// horizontal pager: Battle Plan · Stats. Strict axis lock on the first 8 px,
+// Home tab — Soul dashboard: a top bar (date eyebrow, big time-based
+// greeting, search · notifications · menu circles, avatar → settings) that
+// floats over the Battle Plan's photo hero, above a two-page horizontal
+// pager: Battle Plan · Stats. Strict axis lock on the first 8 px,
 // page change needs a real flick (≥60 px at ≥0.4 px/ms) or a long drag
 // (≥120 px); page index persisted; vertical scroll only inside pages.
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import GlassButton from '../../components/ui/GlassButton';
 import { nav } from '../../lib/nav';
 import { useAuth } from '../../hooks/useAuth';
@@ -68,6 +69,19 @@ export default function Dashboard() {
   const reduced = useReducedMotion();
   const now = useClockMinute();
 
+  // The top bar floats over the pages; they inset their content by its height.
+  const topRef = useRef(null);
+  const [topInset, setTopInset] = useState(110);
+  useLayoutEffect(() => {
+    const el = topRef.current;
+    if (!el) return undefined;
+    const measure = () => setTopInset(el.offsetHeight || 110);
+    measure();
+    let ro; try { ro = new ResizeObserver(measure); ro.observe(el); } catch { /* noop */ }
+    window.addEventListener('resize', measure);
+    return () => { try { ro && ro.disconnect(); } catch { /* noop */ } window.removeEventListener('resize', measure); };
+  }, []);
+
   // Notification badge.
   const [unread, setUnread] = useState(0);
   const loadBadges = useCallback(() => { getBadges().then((b) => setUnread((b && b.unreadNotifications) || 0)).catch(() => {}); }, []);
@@ -108,12 +122,12 @@ export default function Dashboard() {
 
   return (
     <div className="km-screen km-dash">
-      <header className="km-dash-top">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 34 }}>
-          <div className="km-dash-eyebrow" style={{ flex: 1, minWidth: 0 }}>{eyebrow}</div>
-          <GlassButton icon="search" size={34} label="Search" onClick={() => nav.openSearch()} />
-          <GlassButton icon="bell" size={34} label="Notifications" badge={unread > 0 ? (unread > 99 ? '99+' : unread) : null} onClick={() => nav.openNotifications()} />
-          <GlassButton icon="menu" size={34} label="Menu" onClick={() => nav.openMenu()} />
+      <header ref={topRef} className={`km-dash-top ${page === 1 ? 'km-dash-top--solid' : ''}`}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 38 }}>
+          <div className="km-dash-eyebrow km-truncate" style={{ flex: 1, minWidth: 0 }}>{eyebrow}</div>
+          <GlassButton icon="search" size={38} className="km-lg--clear" label="Search" onClick={() => nav.openSearch()} />
+          <GlassButton icon="bell" size={38} className="km-lg--clear" label="Notifications" badge={unread > 0 ? (unread > 99 ? '99+' : unread) : null} onClick={() => nav.openNotifications()} />
+          <GlassButton icon="menu" size={38} className="km-lg--clear" label="Menu" onClick={() => nav.openMenu()} />
           <button type="button" className="km-dash-avatar km-press" onClick={() => nav.openSettings()} aria-label="Settings and profile">
             {user && user.avatarUrl ? <img src={mediaUrl(user.avatarUrl)} alt="" /> : (getInitials(`${first} ${(user && user.lastName) || ''}`) || 'K').slice(0, 1)}
           </button>
@@ -136,10 +150,10 @@ export default function Dashboard() {
           }}
         >
           <div className="km-dash-slot" style={{ overflow: 'hidden' }} aria-hidden={page !== 0}>
-            <BattlePlanPage page={page} onSelectPage={setPagePersist} active={page === 0} />
+            <BattlePlanPage page={page} onSelectPage={setPagePersist} active={page === 0} topInset={topInset} />
           </div>
           <div className="km-dash-slot km-scroll" aria-hidden={page !== 1} style={{ overflowY: 'auto' }}>
-            <StatsPage page={page} onSelectPage={setPagePersist} active={page === 1} />
+            <StatsPage page={page} onSelectPage={setPagePersist} active={page === 1} topInset={topInset} />
           </div>
         </div>
       </div>

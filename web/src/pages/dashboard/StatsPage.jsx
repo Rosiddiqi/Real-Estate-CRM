@@ -17,6 +17,7 @@ import { nav } from '../../lib/nav';
 import { useResync, useSocket } from '../../hooks/useSocket';
 import { getDashboardStats, getCommissionSummary } from '../../api/dashboard';
 import { moneyCompact, listTime } from '../../lib/format';
+import { BrandMark } from '../../components/ui/BrandMark';
 import PageDots from '../../components/battleplan/PageDots';
 import Scoreboard from '../../components/dashboard/Scoreboard';
 import PipelineHealth from '../../components/dashboard/PipelineHealth';
@@ -25,11 +26,11 @@ const ChartSheet = lazy(() => import('../../components/dashboard/ChartSheet'));
 
 function SectionHead({ num, label, trailing }) {
   return (
-    <div className="bp-sechead" style={{ padding: '0 20px', marginBottom: 10 }}>
+    <div className="bp-sechead" style={{ padding: '0 24px', marginBottom: 12 }}>
       <span className="bp-sechead-num">{num}</span>
-      <span className="bp-sechead-label" style={{ color: 'var(--dim)' }}>{label}</span>
-      <span className="bp-sechead-line" style={{ background: 'linear-gradient(90deg, var(--lineHi), transparent)' }} />
-      {trailing ? <span className="bp-sechead-trail" style={{ color: 'var(--faint)' }}>{trailing}</span> : null}
+      <span className="bp-sechead-label">{label}</span>
+      <span className="bp-sechead-line" />
+      {trailing ? <span className="bp-sechead-trail">{trailing}</span> : null}
     </div>
   );
 }
@@ -230,7 +231,7 @@ function StatsSkeleton() {
   );
 }
 
-export default function StatsPage({ page, onSelectPage, active }) {
+export default function StatsPage({ page, onSelectPage, active, topInset = 0 }) {
   const [stats, setStats] = useState(null);
   const [summary, setSummary] = useState(null);
   const [status, setStatus] = useState('loading');
@@ -257,14 +258,14 @@ export default function StatsPage({ page, onSelectPage, active }) {
   const m = useMemo(() => (stats ? mergeMoney(stats, summary) : null), [stats, summary]);
 
   return (
-    <div style={{ minHeight: '100%', background: 'var(--bg)', paddingBottom: 'calc(var(--tabbar-clearance) + var(--safe-bottom) + 12px)' }}>
-      <PageDots page={page} onSelectPage={onSelectPage} style={{ padding: '10px 0 12px' }} />
+    <div style={{ minHeight: '100%', background: 'var(--bg)', paddingTop: topInset, paddingBottom: 'calc(var(--tabbar-clearance) + var(--safe-bottom) + 12px)' }}>
+      <PageDots page={page} onSelectPage={onSelectPage} style={{ padding: '10px 0 14px' }} />
       {status === 'loading' && !stats ? <StatsSkeleton /> : null}
       {status === 'error' && !stats ? (
         <div className="km-empty">
-          <div style={{ width: 64, height: 64, borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface)', border: '1px solid var(--line)' }}><Icon name="barChart" size={28} color="var(--faint)" /></div>
+          <div className="km-tile" style={{ width: 64, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="barChart" size={26} color="var(--faint)" stroke={1.5} /></div>
           <div className="km-empty-title">Stats are catching up</div>
-          <div className="km-empty-sub">We couldn’t load your numbers. <button type="button" onClick={load} style={{ color: 'var(--bright)', fontWeight: 600 }}>Try again</button></div>
+          <div className="km-empty-sub">We couldn’t load your numbers. <button type="button" onClick={load} style={{ color: 'var(--text)', fontWeight: 500, textDecoration: 'underline', textUnderlineOffset: 3 }}>Try again</button></div>
         </div>
       ) : null}
       {stats && m ? (
@@ -281,7 +282,7 @@ export default function StatsPage({ page, onSelectPage, active }) {
           <div style={{ display: 'flex', gap: 10, padding: '10px 20px 0' }}>
             <button type="button" className="st-square" onClick={() => setChart('mtd')} aria-label="Open month-to-date chart">
               <div className="st-eyebrow">MTD · {stats.month.label}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, letterSpacing: -0.8, marginTop: 6 }}>{moneyCompact(m.mtdGci || 0)}</div>
+              <div className="st-value">{moneyCompact(m.mtdGci || 0)}</div>
               <div style={{ fontSize: 11, color: 'var(--dim)', marginTop: 3 }}>{Math.round((m.mtdSides || 0) * 10) / 10} sides · {moneyCompact(m.mtdVolume || 0)}</div>
               {(() => {
                 // Same point last month (cumulative GCI by this day-of-month).
@@ -294,7 +295,7 @@ export default function StatsPage({ page, onSelectPage, active }) {
                 const lm = String((stats.charts && stats.charts.lastMonthLabel) || 'last month').slice(0, 3);
                 return (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 8, fontSize: 10.5, color: 'var(--faint)' }}>
-                    <Icon name={up ? 'trendingUp' : down ? 'trendingDown' : 'minus'} size={12} color={up ? 'var(--green)' : down ? 'var(--amber)' : 'var(--faint)'} />
+                    <Icon name={up ? 'trendingUp' : down ? 'trendingDown' : 'minus'} size={12} color={up ? 'var(--hl-ink)' : down ? 'var(--amber)' : 'var(--faint)'} />
                     <span className="km-truncate">vs {moneyCompact(byNow)} by {lm} {day}</span>
                   </div>
                 );
@@ -302,12 +303,12 @@ export default function StatsPage({ page, onSelectPage, active }) {
             </button>
             <button type="button" className="st-square" onClick={() => setChart('ytd')} aria-label="Open year-to-date chart">
               <div className="st-eyebrow">YTD · {stats.charts.year}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, letterSpacing: -0.8, marginTop: 6 }}>{moneyCompact(m.ytdGci || 0)}</div>
+              <div className="st-value">{moneyCompact(m.ytdGci || 0)}</div>
               <div style={{ fontSize: 11, color: 'var(--dim)', marginTop: 3 }}>{Math.round((m.ytdSides || 0) * 10) / 10} sides · {moneyCompact(m.ytdVolume || 0)}</div>
               {m.annualGciGoal ? (
                 <div style={{ marginTop: 8 }}>
-                  <div style={{ height: 4, borderRadius: 2, background: 'color-mix(in srgb, var(--blue) 14%, transparent)' }}>
-                    <div style={{ height: '100%', borderRadius: 2, width: `${Math.min(100, ((m.ytdGci || 0) / m.annualGciGoal) * 100)}%`, background: 'var(--blue)' }} />
+                  <div style={{ height: 4, borderRadius: 2, background: 'rgba(var(--accent-rgb), 0.10)' }}>
+                    <div style={{ height: '100%', borderRadius: 2, width: `${Math.min(100, ((m.ytdGci || 0) / m.annualGciGoal) * 100)}%`, background: 'var(--hl)' }} />
                   </div>
                   <div style={{ fontSize: 10.5, color: 'var(--faint)', marginTop: 4 }}>{Math.round(((m.ytdGci || 0) / m.annualGciGoal) * 100)}% of {moneyCompact(m.annualGciGoal)} goal</div>
                 </div>
@@ -332,7 +333,7 @@ export default function StatsPage({ page, onSelectPage, active }) {
           <SectionHead num="06" label="Inbox" trailing="QUICK GLANCE" />
           <InboxGlance inbox={stats.inbox} />
 
-          <div style={{ textAlign: 'center', fontSize: 9, letterSpacing: 2, color: 'var(--faint)', marginTop: 36 }}>— KEYMATCH —</div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 40, color: 'var(--ghost)' }}><BrandMark size={22} dot={false} /></div>
         </div>
       ) : null}
 

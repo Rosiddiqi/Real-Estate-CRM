@@ -63,10 +63,21 @@ body.km-sheet-open [data-serena-bubble] { opacity: 0 !important; pointer-events:
   background: url('../assets/login.jpg') center 30% / cover no-repeat;
   opacity: 0.42;
 }
-.km-login-hero::after { content: ''; position: absolute; inset: 0; background: rgba(0, 0, 0, 0.38); }
+.km-login-hero::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.34) 0%, rgba(0, 0, 0, 0.46) 48%, rgba(13, 13, 13, 0.94) 78%, #0D0D0D 100%);
+}
 :root[data-theme="light"] .km-login-hero { background: #D1D1D1; }
 :root[data-theme="light"] .km-login-hero::before { opacity: 0.5; filter: grayscale(0.3) brightness(1.25); }
-:root[data-theme="light"] .km-login-hero::after { background: rgba(242, 242, 242, 0.52); }
+:root[data-theme="light"] .km-login-hero::after {
+  background: linear-gradient(180deg, rgba(242, 242, 242, 0.5) 0%, rgba(242, 242, 242, 0.6) 48%, rgba(242, 242, 242, 0.95) 78%, #F2F2F2 100%);
+}
+
+/* Soul registration headline: Poppins Light, big and quiet. */
+.km-login-title {
+  margin: 72px 0 0; font-family: var(--font-display); font-weight: 300; font-size: 36px;
+  line-height: 1.14; letter-spacing: -0.025em; color: var(--text-90);
+}
 
 /* Header field for tab roots: the floor with a whisper of lift at the top
    (Soul has no textures — the photography carries the mood). */

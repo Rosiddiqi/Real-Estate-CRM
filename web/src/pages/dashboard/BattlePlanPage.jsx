@@ -1,8 +1,9 @@
 // Battle Plan — page 0 of Home. Port of RevMatch's live "Minimal Rail
-// Planner" (BattlePlanRail): burn-away quote hero, fixed chrome (＋ Event ·
+// Planner" (BattlePlanRail), dressed in the Soul system: burn-away photo
+// quote hero, fixed chrome (＋ Event ·
 // PLAN/STATS dots · ＋ Work schedule, day picker — the To-Do lives in the
 // assistant's chat, not here, exactly like RevMatch), a 5 AM–10 PM
-// rail that opens centered on a fixed gold NOW line and keeps creeping under
+// rail that opens centered on a fixed highlight NOW line and keeps creeping under
 // it, KIND-colored appointment tiles that pulse, side-by-side lanes for
 // overlaps, the work-hours bracket, MISSED / ROLLED OVER / PAST groups, pinch
 // zoom, and the reactive 7 PM flip to tomorrow.
@@ -19,7 +20,7 @@ import PageDots from '../../components/battleplan/PageDots';
 import MonthCalendarSheet from '../../components/battleplan/MonthCalendar';
 import TileDetailSheet from '../../components/battleplan/TileDetailSheet';
 import useTodoBoard from '../../components/battleplan/useTodoBoard';
-import { itemColor, apptColor, alpha, KIND_COLOR } from '../../components/calendar/appointmentTypes';
+import { itemColor, apptColor, KIND_COLOR } from '../../components/calendar/appointmentTypes';
 import { fmtMin, durLabel, dateKey, keyToDate, shiftKey, dateLine, resolveWindow, compactHours, hourIn, minuteOfDay, zonedDate, setAgentTz } from '../../components/battleplan/time';
 import useAgentTz from '../../components/battleplan/useAgentTz';
 
@@ -28,7 +29,7 @@ const PX_MIN = 1.2;
 const PX_MAX = 9;
 const ZOOM_KEY = 'km_planner_zoom';
 const LINE_GAP = 24;
-const BASE_PAD = 110;          // clears the floating tab bar
+const BASE_PAD = 112;          // clears the floating tab bar (= --tabbar-clearance)
 const DAY_START = 5 * 60;      // 5:00 AM
 const DAY_END = 22 * 60;       // 10:00 PM — the day ends here
 const PAST_GRACE = 15;
@@ -93,13 +94,13 @@ function useBattlePlan(date) {
 function Spine({ color, beat, glow = true }) {
   return (
     <>
-      <div className={`bp-spine ${beat ? 'bp-beat-accent' : ''}`} style={{ background: color, boxShadow: glow ? `0 0 8px ${alpha(color, 50)}` : 'none' }} />
+      <div className={`bp-spine ${beat ? 'bp-beat-accent' : ''}`} style={{ background: color, opacity: glow ? 1 : 0.6 }} />
       <div className="bp-wash" style={{ background: `radial-gradient(120% 80% at 0% 0%, ${color}, transparent 70%)` }} />
     </>
   );
 }
 
-export default function BattlePlanPage({ page, onSelectPage, active }) {
+export default function BattlePlanPage({ page, onSelectPage, active, topInset = 0 }) {
   const { user } = useAuth();
   const tz = useAgentTz();
 
@@ -436,7 +437,7 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
 
   return (
     <div className="bp-root">
-      <QuoteHero progress={quoteProgress} onTap={toggleQuote} affirmation={user && user.preferences && user.preferences.affirmation} />
+      <QuoteHero progress={quoteProgress} onTap={toggleQuote} topInset={topInset} affirmation={user && user.preferences && user.preferences.affirmation} />
 
       <div className="bp-planner" style={{ opacity: centered ? 1 : 0 }}>
         <div
@@ -446,15 +447,15 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
           style={{ paddingTop: chromeH, paddingBottom: `calc(${BASE_PAD}px + var(--safe-bottom))` }}
         >
           {/* header */}
-          <div style={{ padding: '12px 20px 10px' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: 'var(--blue)' }}>{dateLine(selDate)}</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 4 }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 30, fontWeight: 400, letterSpacing: -0.8, lineHeight: 1.1, color: 'var(--bp-t1)' }}>{titleDay}</div>
-              {isTomorrow && !override ? <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 1.2, color: 'var(--bp-now)' }}>AFTER 7 PM · TOMORROW’S PLAN</span> : null}
+          <div style={{ padding: '14px 24px 12px' }}>
+            <div className="bp-dateline">{dateLine(selDate)}</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 6 }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 30, fontWeight: 300, letterSpacing: '-0.035em', lineHeight: 1.1, color: 'var(--bp-t1)' }}>{titleDay}</div>
+              {isTomorrow && !override ? <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: 1, color: 'var(--hl-ink)' }}>AFTER 7 PM · TOMORROW’S PLAN</span> : null}
             </div>
             {data && data.isPlanDay && data.summary && !data.offDay ? (
-              <button type="button" onClick={() => setTodoOpen(true)} style={{ display: 'flex', alignItems: 'flex-start', gap: 7, marginTop: 8, textAlign: 'left' }}>
-                <Icon name="sparkle" size={13} color="var(--violet)" stroke={2} style={{ marginTop: 2 }} />
+              <button type="button" onClick={() => nav.openSerena('todo')} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 10, textAlign: 'left' }}>
+                <Icon name="sparkle" size={14} color="var(--hl-ink)" stroke={1.7} style={{ marginTop: 2 }} />
                 <span style={{ fontSize: 13, lineHeight: 1.4, color: 'var(--bp-t2)' }}>{data.summary}</span>
               </button>
             ) : null}
@@ -462,7 +463,7 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
               <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 3 }}>
                 {data.warnings.slice(0, 3).map((w) => (
                   <div key={w} style={{ display: 'flex', alignItems: 'flex-start', gap: 7, fontSize: 11.5, lineHeight: 1.35, color: 'var(--bp-t3)' }}>
-                    <Icon name="alert" size={12} color="var(--bp-amber)" stroke={2.2} style={{ marginTop: 1, flexShrink: 0 }} />
+                    <Icon name="alert" size={12} color="var(--bp-amber)" stroke={1.8} style={{ marginTop: 1, flexShrink: 0 }} />
                     <span>{w}</span>
                   </div>
                 ))}
@@ -471,7 +472,7 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
           </div>
 
           {/* 01 BATTLE PLAN ─── n ON THE RAIL [Routine ▾|✎] */}
-          <div className="bp-sechead" style={{ padding: '2px 20px 10px' }}>
+          <div className="bp-sechead" style={{ padding: '2px 24px 12px' }}>
             <span className="bp-sechead-num">01</span>
             <span className="bp-sechead-label">Battle Plan</span>
             <span className="bp-sechead-line" />
@@ -485,10 +486,10 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
                 style={{ opacity: hasPastRoutine ? 1 : 0.45 }}
               >
                 Routine
-                <Icon name="chevronDown" size={10} stroke={2.6} style={{ transform: routineCollapsed ? 'none' : 'rotate(180deg)', transition: 'transform 200ms' }} />
+                <Icon name="chevronDown" size={10} stroke={2} style={{ transform: routineCollapsed ? 'none' : 'rotate(180deg)', transition: 'transform 200ms' }} />
               </button>
               <button type="button" onClick={() => nav.openWorkSchedule()} aria-label="Edit your routine and work schedule">
-                <Icon name="edit" size={11} stroke={2} />
+                <Icon name="edit" size={11} stroke={1.7} />
               </button>
             </span>
           </div>
@@ -499,10 +500,10 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
               <div className="bp-tile" style={{ padding: '12px 14px 12px 17px', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <Spine color="var(--bp-t3)" glow={false} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700 }}>You’re off {isToday ? 'today' : 'this day'}</div>
+                  <div style={{ fontSize: 14, fontWeight: 500 }}>You’re off {isToday ? 'today' : 'this day'}</div>
                   <div style={{ fontSize: 12, color: 'var(--bp-t2)', marginTop: 2 }}>Outreach is paused. Your content block stays in case you come in.</div>
                 </div>
-                <button type="button" className="td-btn" onClick={workToday} style={{ background: 'var(--blue)', color: '#04121F', fontWeight: 700 }}>I’m working</button>
+                <button type="button" className="td-btn" onClick={workToday} style={{ background: 'var(--bright)', color: 'var(--on-accent)', fontWeight: 500, borderRadius: 999 }}>I’m working</button>
               </div>
             </div>
           ) : null}
@@ -510,23 +511,22 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
           {/* MISSED */}
           {isToday && missed.length ? (
             <div style={{ padding: '0 14px 12px' }}>
-              <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 1.4, color: 'var(--bp-amber)', marginBottom: 7 }}>MISSED · {missed.length}</div>
+              <div className="bp-flag" style={{ marginBottom: 8 }}>MISSED · {missed.length}</div>
               {missed.map((e) => (
                 <button
                   key={e.id}
                   type="button"
-                  className="km-press"
                   onClick={() => openTile(e)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', padding: '9px 11px', marginBottom: 6, borderRadius: 10, background: 'rgba(255,159,10,0.10)', border: '1px solid rgba(255,159,10,0.28)' }}
+                  className="km-press bp-flag-row"
                 >
-                  <Icon name="alert" size={15} color="var(--bp-amber)" stroke={2.2} />
+                  <Icon name="alert" size={16} color="var(--bp-amber)" stroke={1.7} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="km-truncate" style={{ fontSize: 13, fontWeight: 600, color: 'var(--bp-t1)' }}>
+                    <div className="km-truncate" style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--bp-t1)' }}>
                       {e.whale ? <Icon name="crown" size={11} color="var(--amber)" style={{ marginRight: 4, verticalAlign: '-1px' }} /> : null}{e.title}
                     </div>
-                    <div className="bp-num" style={{ fontSize: 10, color: 'rgba(255,159,10,0.9)', marginTop: 1 }}>{fmtMin(e.start)} · tap to reschedule or complete</div>
+                    <div className="bp-num" style={{ fontSize: 11, color: 'var(--bp-amber)', marginTop: 2 }}>{fmtMin(e.start)} · tap to reschedule or complete</div>
                   </div>
-                  <Icon name="chevronRight" size={13} color="var(--bp-amber)" />
+                  <Icon name="chevronRight" size={14} color="var(--bp-t3)" />
                 </button>
               ))}
             </div>
@@ -537,22 +537,22 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
             <div style={{ padding: '0 14px 12px' }}>
               <button
                 type="button"
-                className="km-press"
                 onClick={() => setRolledOpen((o) => !o)}
-                style={{ display: 'flex', alignItems: 'center', gap: 9, width: '100%', padding: '9px 11px', borderRadius: 10, background: 'rgba(255,159,10,0.10)', border: '1px solid rgba(255,159,10,0.28)' }}
+                className="km-press bp-flag-row"
+                style={{ marginBottom: 0 }}
               >
-                <Icon name="arrowDown" size={15} color="var(--bp-amber)" stroke={2.2} />
+                <Icon name="arrowDown" size={16} color="var(--bp-amber)" stroke={1.7} />
                 <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                  <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 1.4, color: 'var(--bp-amber)' }}>ROLLED OVER · {rolled.length}</div>
-                  <div style={{ fontSize: 10.5, color: 'var(--bp-t2)', marginTop: 1 }}>Unfinished to-dos carried into today — tap to {rolledOpen ? 'hide' : 'review'}</div>
+                  <div className="bp-flag">ROLLED OVER · {rolled.length}</div>
+                  <div style={{ fontSize: 11.5, color: 'var(--bp-t2)', marginTop: 2 }}>Unfinished to-dos carried into today — tap to {rolledOpen ? 'hide' : 'review'}</div>
                 </div>
-                <Icon name="chevronDown" size={12} color="var(--bp-t3)" stroke={2.4} style={{ transform: rolledOpen ? 'rotate(180deg)' : 'none', transition: 'transform 200ms' }} />
+                <Icon name="chevronDown" size={13} color="var(--bp-t3)" stroke={1.8} style={{ transform: rolledOpen ? 'rotate(180deg)' : 'none', transition: 'transform 200ms' }} />
               </button>
               {rolledOpen ? rolled.map((t) => (
                 <div key={t.id} className="bp-tile km-row-in" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 11px 9px 14px', marginTop: 6 }}>
-                  <button type="button" className="td-circle" onClick={() => todo.complete(t)} aria-label="Mark done" style={{ width: 20, height: 20, border: '1.5px solid var(--bp-amber)' }} />
-                  <button type="button" onClick={() => setTodoOpen(true)} style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                    <div className="km-truncate" style={{ fontSize: 13, fontWeight: 600 }}>{t.title}</div>
+                  <button type="button" className="td-circle" onClick={() => todo.complete(t)} aria-label="Mark done" style={{ width: 20, height: 20, border: '1.2px solid var(--bp-amber)' }} />
+                  <button type="button" onClick={() => nav.openSerena('todo')} style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                    <div className="km-truncate" style={{ fontSize: 13.5, fontWeight: 500 }}>{t.title}</div>
                     <div className="bp-num" style={{ fontSize: 10, color: 'var(--bp-t3)', marginTop: 1 }}>Rolled over · from {keyToDate(t.dueKey).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
                   </button>
                 </div>
@@ -564,21 +564,21 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
           {(pastOther.length > 0 || (hasPastRoutine && !routineCollapsed)) ? (
             <div style={{ padding: '0 14px 12px' }}>
               {[...pastOther, ...(routineCollapsed ? [] : pastRoutine)].sort((a, b) => a.start - b.start).map((e) => (
-                <button key={e.id} type="button" onClick={() => openTile(e)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', padding: '6px 0', opacity: 0.45, borderBottom: '1px dashed var(--bp-hair)' }}>
+                <button key={e.id} type="button" onClick={() => openTile(e)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', padding: '6px 0', opacity: 0.5, borderBottom: '1px solid var(--bp-hair)' }}>
                   <span style={{ width: 6, height: 6, borderRadius: 3, background: itemColor(e), flexShrink: 0 }} />
                   <span className="bp-num" style={{ fontSize: 10, color: 'var(--bp-t3)', width: 56, flexShrink: 0 }}>{fmtMin(e.start)}</span>
                   <span className="km-truncate" style={{ fontSize: 12, color: 'var(--bp-t2)', flex: 1 }}>{e.title}</span>
-                  {e.status === 'completed' || e.status === 'done' ? <Icon name="check" size={12} color="var(--bp-done)" stroke={2.6} /> : null}
+                  {e.status === 'completed' || e.status === 'done' ? <Icon name="check" size={12} color="var(--bp-done)" stroke={2} /> : null}
                 </button>
               ))}
             </div>
           ) : null}
           {hasPastRoutine && routineCollapsed ? (
             <div style={{ padding: '0 14px 12px' }}>
-              <button type="button" onClick={() => setRoutineCollapsed(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '6px 0', borderBottom: '1px dashed var(--bp-hair)', textAlign: 'left' }}>
+              <button type="button" onClick={() => setRoutineCollapsed(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '6px 0', borderBottom: '1px solid var(--bp-hair)', textAlign: 'left' }}>
                 <span style={{ width: 6, height: 6, borderRadius: 3, background: KIND_COLOR.personal }} />
                 <span style={{ fontSize: 10, color: 'var(--bp-t3)', flex: 1 }}>{pastRoutine.length} earlier routine {pastRoutine.length === 1 ? 'block' : 'blocks'} · tap to show</span>
-                <Icon name="chevronDown" size={11} color="var(--bp-t3)" stroke={2.4} />
+                <Icon name="chevronDown" size={11} color="var(--bp-t3)" stroke={1.8} />
               </button>
             </div>
           ) : null}
@@ -590,10 +590,10 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
               {window_ && window_.startMin != null ? (() => {
                 const top = Math.max(0, (window_.startMin - DAY_START) * px);
                 const h = Math.max(0, (Math.min(window_.endMin, DAY_END) - Math.max(window_.startMin, DAY_START)) * px);
-                const cap = { position: 'absolute', left: 36, width: 8, height: 2, background: 'var(--blue)', borderRadius: 1, pointerEvents: 'none' };
+                const cap = { position: 'absolute', left: 36, width: 8, height: 1.5, background: 'var(--bp-work)', borderRadius: 1, pointerEvents: 'none' };
                 return (
                   <>
-                    <div aria-label="Working hours" style={{ position: 'absolute', left: 36, top, height: h, width: 2, background: 'var(--blue)', borderRadius: 1, pointerEvents: 'none', boxShadow: '0 0 6px var(--glow)' }} />
+                    <div aria-label="Working hours" style={{ position: 'absolute', left: 36, top, height: h, width: 1.5, background: 'var(--bp-work)', borderRadius: 1, pointerEvents: 'none' }} />
                     <div style={{ ...cap, top }} />
                     <div style={{ ...cap, top: top + h - 2 }} />
                   </>
@@ -608,8 +608,8 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
                   ticks.push(
                     <Fragment key={h}>
                       <div style={{ position: 'absolute', top: y - 8, left: 0, width: 34, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 3, paddingRight: 2 }}>
-                        <span className="bp-num" style={{ fontSize: 10, fontWeight: 600, color: inWork ? 'var(--bp-t1)' : 'var(--bp-t2)' }}>{h12}</span>
-                        <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--bp-t3)' }}>{a}</span>
+                        <span className="bp-num" style={{ fontSize: 10.5, fontWeight: 400, color: inWork ? 'var(--bp-t1)' : 'var(--bp-t2)' }}>{h12}</span>
+                        <span className="bp-num" style={{ fontSize: 8, fontWeight: 500, color: 'var(--bp-t3)' }}>{a}</span>
                       </div>
                       <div style={{ position: 'absolute', top: y, left: 50, right: 0, height: 1, background: 'var(--bp-hour)' }} />
                       {h + 30 <= DAY_END && px >= 2 ? <div style={{ position: 'absolute', top: y + 30 * px, left: 50, right: 0, height: 1, background: 'var(--bp-half)' }} /> : null}
@@ -639,7 +639,7 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
                 const done = e.status === 'completed' || e.status === 'done';
                 return (
                   <Fragment key={e.id}>
-                    <div style={{ position: 'absolute', top: y - 4, left: 46, width: 8, height: 8, borderRadius: 4, background: c, boxShadow: `0 0 8px ${alpha(c, 50)}`, zIndex: 1 }} />
+                    <div style={{ position: 'absolute', top: y - 4, left: 46, width: 8, height: 8, borderRadius: 4, background: c, boxShadow: '0 0 0 3px var(--bp-floor)', zIndex: 1 }} />
                     <div
                       data-bp-item={e.id}
                       role="button"
@@ -656,20 +656,20 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
                       <div className="bp-tile-head" style={{ top: LINE_GAP + 10 /* sticky insets from the scroller's padding (= chrome) */ }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
                           {beat ? <span className="bp-beat-dot" style={{ flexShrink: 0, width: 7, height: 7, borderRadius: '50%', background: c, display: 'inline-block' }} /> : null}
-                          {done ? <Icon name="check" size={12} color="var(--bp-done)" stroke={2.6} /> : null}
-                          <span className="km-truncate" style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--bp-t1)' }}>
+                          {done ? <Icon name="check" size={12} color="var(--bp-done)" stroke={2} /> : null}
+                          <span className="km-truncate" style={{ flex: 1, fontSize: 13.5, fontWeight: 500, color: 'var(--bp-t1)' }}>
                             {e.whale ? <Icon name="crown" size={11} color="var(--amber)" style={{ marginRight: 4, verticalAlign: '-1px' }} /> : null}{e.title}
                           </span>
                           {!narrow ? (
-                            <span className="bp-num" style={{ flexShrink: 0, fontSize: 10, fontWeight: 600, color: c, whiteSpace: 'nowrap' }}>
+                            <span className="bp-num" style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 400, color: 'var(--bp-t2)', whiteSpace: 'nowrap' }}>
                               {fmtMin(e.start)} · {durLabel(e.dur)}
                             </span>
                           ) : null}
                         </div>
                         {timeRow ? (
-                          <div className="bp-num km-truncate" style={{ fontSize: 10, fontWeight: 600, color: c, marginTop: 1 }}>{fmtMin(e.start)} · {durLabel(e.dur)}</div>
+                          <div className="bp-num km-truncate" style={{ fontSize: 10.5, fontWeight: 400, color: 'var(--bp-t2)', marginTop: 1 }}>{fmtMin(e.start)} · {durLabel(e.dur)}</div>
                         ) : null}
-                        {showSub ? <div className="km-truncate" style={{ fontSize: 11, color: 'var(--bp-t2)', marginTop: 2 }}>{e.sub}</div> : null}
+                        {showSub ? <div className="km-truncate" style={{ fontSize: 11.5, color: 'var(--bp-t3)', marginTop: 3 }}>{e.sub}</div> : null}
                       </div>
                     </div>
                   </Fragment>
@@ -692,27 +692,27 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
         {/* fixed chrome */}
         <div ref={chromeRef} className="bp-chrome">
           <div style={{ pointerEvents: 'auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px 0' }}>
               <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
-                <button type="button" className="bp-quick bp-quick--event" onClick={newEvent}><Icon name="plus" size={11} stroke={2.8} /> Event</button>
+                <button type="button" className="bp-quick bp-quick--event" onClick={newEvent}><Icon name="plus" size={12} stroke={2} /> Event</button>
               </div>
               <PageDots page={page} onSelectPage={onSelectPage} />
               <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                <button type="button" className="bp-quick bp-quick--sched" onClick={() => nav.openWorkSchedule()}><Icon name="plus" size={11} stroke={2.8} /> <span className="bp-q-long">Work schedule</span><span className="bp-q-short">Schedule</span></button>
+                <button type="button" className="bp-quick bp-quick--sched" onClick={() => nav.openWorkSchedule()}><Icon name="plus" size={12} stroke={1.8} /> <span className="bp-q-long">Work schedule</span><span className="bp-q-short">Schedule</span></button>
               </div>
             </div>
-            <div style={{ margin: '10px 14px 10px' }}>
+            <div style={{ margin: '12px 16px 10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div className="bp-daypicker" style={{ flex: 1, minWidth: 0 }}>
-                  <button type="button" className="bp-arrow" onClick={() => shiftDay(-1)} aria-label="Previous day"><Icon name="chevronLeft" size={15} stroke={2.2} /></button>
+                  <button type="button" className="bp-arrow" onClick={() => shiftDay(-1)} aria-label="Previous day"><Icon name="chevronLeft" size={16} stroke={1.6} /></button>
                   <button type="button" onClick={() => setCalendarOpen(true)} style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: '3px 4px' }} aria-label="Pick a day">
                     <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Icon name="calendar" size={12} color="var(--blue)" stroke={1.9} />
-                      <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.2, color: 'var(--blue)', textTransform: 'uppercase' }}>{titleDay}</span>
+                      <Icon name="calendar" size={13} color="var(--bp-t2)" stroke={1.6} />
+                      <span style={{ fontSize: 12, fontWeight: 500, letterSpacing: '0.14em', color: 'var(--bp-t1)', textTransform: 'uppercase' }}>{titleDay}</span>
                     </span>
-                    <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: 1, color: 'var(--bp-t2)', textTransform: 'uppercase' }}>{selDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                    <span className="bp-num" style={{ fontSize: 11, fontWeight: 300, letterSpacing: '0.04em', color: 'var(--bp-t2)', textTransform: 'uppercase' }}>{selDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                   </button>
-                  <button type="button" className="bp-arrow" onClick={() => shiftDay(1)} aria-label="Next day"><Icon name="chevronRight" size={15} stroke={2.2} /></button>
+                  <button type="button" className="bp-arrow" onClick={() => shiftDay(1)} aria-label="Next day"><Icon name="chevronRight" size={16} stroke={1.6} /></button>
                 </div>
               </div>
               {!isToday ? (
@@ -720,22 +720,22 @@ export default function BattlePlanPage({ page, onSelectPage, active }) {
                   type="button"
                   className="km-press"
                   onClick={goToday}
-                  style={{ marginTop: 6, width: '100%', padding: '6px 0', borderRadius: 10, background: 'linear-gradient(135deg, var(--blue), var(--deep))', color: '#fff', fontSize: 9, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', boxShadow: '0 6px 14px -8px var(--glow)' }}
+                  style={{ marginTop: 8, width: '100%', padding: '8px 0', borderRadius: 999, background: 'var(--bright)', color: 'var(--on-accent)', fontSize: 10.5, fontWeight: 500, letterSpacing: 1.2, textTransform: 'uppercase' }}
                 >↺ Back to today</button>
               ) : null}
             </div>
           </div>
         </div>
 
-        {/* fixed gold NOW line */}
+        {/* fixed highlight NOW line */}
         {isToday ? (
           <div ref={lineHostRef} style={{ position: 'absolute', top: chromeH + LINE_GAP, left: 0, right: 0, height: 0, zIndex: 30, pointerEvents: 'none' }}>
             <div style={{ opacity: lineVisible ? 1 : 0, transition: 'opacity 360ms ease' }}>
-              <div style={{ position: 'absolute', left: 60, right: 64, top: -1, height: 2, borderRadius: 1, background: 'linear-gradient(90deg, var(--bp-now), rgba(212,169,74,0))', boxShadow: '0 0 14px rgba(212,169,74,0.6)' }} />
+              <div style={{ position: 'absolute', left: 60, right: 64, top: -1, height: 1.5, borderRadius: 1, background: 'linear-gradient(90deg, var(--bp-now-line), rgba(var(--hl-rgb), 0))', boxShadow: '0 0 12px rgba(var(--hl-rgb), 0.35)' }} />
               <div className="bp-now-pill">{fmtMin(NOW)}</div>
             </div>
             <button type="button" className="bp-now-btn" onClick={() => snapToNow(true)} aria-label="Scroll to now">
-              <Icon name="undo" size={11} stroke={2.5} /> Now
+              <Icon name="undo" size={11} stroke={2} /> Now
             </button>
           </div>
         ) : null}
