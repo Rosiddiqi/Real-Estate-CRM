@@ -205,7 +205,7 @@ export default function ComposePanel({ to, clientId, body, listingId, onClose })
         <div className="km-compose-results km-scroll">
           {numberRow ? (
             <button type="button" className="km-compose-row km-press" onClick={() => pickNumber(q)}>
-              <span className="km-compose-numtile"><Icon name="message" size={16} stroke={2} color="#fff" /></span>
+              <span className="km-compose-numtile"><Icon name="message" size={16} stroke={1.8} color="currentColor" /></span>
               <span className="km-compose-row-main">
                 <span className="km-compose-row-name">Text {formatPhone(numberRow)}</span>
                 <span className="km-compose-row-sub">New conversation</span>
@@ -224,7 +224,7 @@ export default function ComposePanel({ to, clientId, body, listingId, onClose })
                 onClick={() => pick(c)}
                 style={{ animationDelay: `${Math.min(i, 5) * 30}ms` }}
               >
-                <Avatar name={c.name || fullName(c)} seed={c.id} src={c.avatarUrl} size={34} style={c.isWhale ? { boxShadow: '0 0 0 1.5px var(--blue)' } : undefined} />
+                <Avatar name={c.name || fullName(c)} seed={c.id} src={c.avatarUrl} size={34} style={c.isWhale ? { boxShadow: '0 0 0 1.5px rgba(var(--accent-rgb), 0.85)' } : undefined} />
                 <span className="km-compose-row-main">
                   <span className="km-compose-row-name">{c.name || fullName(c)}</span>
                   <span className="km-compose-row-sub">{textable ? formatPhone(c.phone) : (c.email ? `${c.email} · no mobile number` : 'No mobile number')}</span>

@@ -37,7 +37,7 @@ export default function ScheduledSheet({ item, initialAction, onClose, onUpdate,
           ) : (
             <div style={{ fontSize: 15, lineHeight: 1.45, whiteSpace: 'pre-wrap' }}>{item.body || '(attachment)'}</div>
           )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 12.5, fontWeight: 600, color: channel === 'sms' ? 'var(--sms)' : 'var(--bright)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 12.5, fontWeight: 500, color: channel === 'sms' ? 'var(--dim)' : 'var(--text)' }}>
             <Icon name="clock" size={13} stroke={2.2} />
             {scheduledCaption(item.scheduledFor).replace('Will be sent', 'Sends')}
           </div>
@@ -85,8 +85,8 @@ export default function ScheduledSheet({ item, initialAction, onClose, onUpdate,
 function Action({ icon, label, onClick, danger, last }) {
   return (
     <button type="button" className="km-row km-press" onClick={onClick} style={{ width: '100%', padding: '14px 16px', textAlign: 'left', borderBottom: last ? 0 : undefined }}>
-      <Icon name={icon} size={18} color={danger ? 'var(--red)' : 'var(--bright)'} />
-      <span style={{ flex: 1, fontSize: 16, fontWeight: 600, color: danger ? 'var(--red)' : 'var(--bright)' }}>{label}</span>
+      <Icon name={icon} size={18} color={danger ? 'var(--red)' : 'var(--text)'} />
+      <span style={{ flex: 1, fontSize: 15.5, fontWeight: 500, color: danger ? 'var(--red)' : 'var(--text)' }}>{label}</span>
     </button>
   );
 }

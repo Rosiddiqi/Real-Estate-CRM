@@ -23,8 +23,8 @@ export function RowActionsSheet({ conv, onClose, onOpen, onOpenCard, onDelete })
     <Sheet open={open} onClose={onClose} title={convName(c)} left={false} right={{ label: 'Done', onClick: onClose }}>
       <Group>
         <Row icon="message" title="Open Conversation" onClick={act(() => onOpen(c))} />
-        <Row icon={unread ? 'checkCircle' : 'circle'} iconBg="rgba(46,139,255,0.16)" iconColor="var(--blue)" title={unread ? 'Mark as Read' : 'Mark as Unread'} onClick={act(() => (unread ? inbox.markRead(c.id) : inbox.markUnread(c.id)))} />
-        <Row icon="pin" iconBg="rgba(124,92,252,0.16)" iconColor="#9C84FF" title={c.pinned ? 'Unpin' : 'Pin'} onClick={act(() => inbox.setPinned(c.id, !c.pinned))} />
+        <Row icon={unread ? 'checkCircle' : 'circle'} title={unread ? 'Mark as Read' : 'Mark as Unread'} onClick={act(() => (unread ? inbox.markRead(c.id) : inbox.markUnread(c.id)))} />
+        <Row icon="pin" title={c.pinned ? 'Unpin' : 'Pin'} onClick={act(() => inbox.setPinned(c.id, !c.pinned))} />
         <Row icon="bell" iconBg="rgba(242,169,59,0.16)" iconColor="var(--amber)" title={c.muted ? 'Show Alerts' : 'Hide Alerts'} onClick={act(() => inbox.setMuted(c.id, !c.muted))} />
         {c.clientId ? <Row icon="user" title="Client Card" chevron onClick={act(() => onOpenCard(c))} style={{ borderBottom: 0 }} /> : null}
       </Group>

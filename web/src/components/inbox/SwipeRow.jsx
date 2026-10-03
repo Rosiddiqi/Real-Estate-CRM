@@ -140,7 +140,7 @@ export default function SwipeRow({ children, left = [], right = [], height = 82,
       {left.length ? (
         <div className="km-swipe-acts km-swipe-acts--left">
           {left.map((a, i) => (
-            <button key={a.id} type="button" className="km-swipe-act" style={{ background: a.color, '--i': i }} onClick={fire(a)} tabIndex={-1}>
+            <button key={a.id} type="button" className="km-swipe-act" style={{ background: a.color, color: a.ink, '--i': i }} onClick={fire(a)} tabIndex={-1}>
               <span className="km-swipe-act-in" style={{ '--t': i === 0 ? 14 : ACT_W - 4 }}>
                 {a.icon}
                 <span>{a.label}</span>
@@ -152,7 +152,7 @@ export default function SwipeRow({ children, left = [], right = [], height = 82,
       {right.length ? (
         <div className="km-swipe-acts km-swipe-acts--right">
           {right.map((a, i) => (
-            <button key={a.id} type="button" className="km-swipe-act" style={{ background: a.color }} onClick={fire(a)} tabIndex={-1}>
+            <button key={a.id} type="button" className="km-swipe-act" style={{ background: a.color, color: a.ink }} onClick={fire(a)} tabIndex={-1}>
               <span className="km-swipe-act-in km-swipe-act-in--r" style={{ '--t': i === right.length - 1 ? 14 : ACT_W - 4 }}>
                 {a.icon}
                 <span>{a.label}</span>

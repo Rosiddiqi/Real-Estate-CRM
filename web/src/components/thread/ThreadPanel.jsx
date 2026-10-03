@@ -32,7 +32,7 @@ function Header({ conversation, client, defaultService, fallbackName, clientId, 
           seed={cid || phone}
           src={c && c.avatarUrl}
           size={56}
-          style={isWhale ? { boxShadow: '0 0 0 1.5px var(--blue), 0 0 12px rgba(46,139,255,0.5)' } : { boxShadow: '0 0 0 0.5px rgba(255,255,255,0.12)' }}
+          style={isWhale ? { boxShadow: '0 0 0 1.5px rgba(var(--accent-rgb), 0.85)' } : { boxShadow: '0 0 0 var(--hairline) var(--lineHi)' }}
         />
         <span className="km-th-namepill km-lg">
           <span>{name}</span>
@@ -41,7 +41,7 @@ function Header({ conversation, client, defaultService, fallbackName, clientId, 
         <span className="km-th-sub">
           <span className="km-dot" style={{ background: channel === 'sms' ? 'var(--sms)' : 'var(--imsg)' }} />
           {channelLabel(channel === 'sms' ? 'sms' : 'imsg')}
-          {isWhale ? <span style={{ color: 'var(--blue)', fontWeight: 700, letterSpacing: '0.1em', fontSize: 10 }}>· WHALE</span> : null}
+          {isWhale ? <span style={{ color: 'var(--dim)', fontWeight: 500, letterSpacing: '0.1em', fontSize: 10 }}>· WHALE</span> : null}
         </span>
       </button>
       <div>

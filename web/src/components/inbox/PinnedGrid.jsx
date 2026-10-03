@@ -51,7 +51,7 @@ function Cell({ conv, typing, onOpen, onMenu, selected }) {
             seed={conv.clientId || conv.handle || name}
             src={conv.client && conv.client.avatarUrl}
             size={64}
-            style={whale ? { boxShadow: '0 0 0 2px var(--blue), 0 0 14px rgba(46,139,255,0.5)' } : undefined}
+            style={whale ? { boxShadow: '0 0 0 1.5px rgba(var(--accent-rgb), 0.85)' } : undefined}
           />
         )}
         {unread ? <span className="km-pin-dot" /> : null}

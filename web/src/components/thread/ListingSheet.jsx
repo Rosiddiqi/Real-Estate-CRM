@@ -99,7 +99,7 @@ export default function ListingSheet({ open, onClose, onPick }) {
                 {[l.listPrice ? moneyCompact(l.listPrice) : null, specs, l.neighborhood].filter(Boolean).join(' · ')}
               </span>
             </span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--bright)', flexShrink: 0 }}>Add</span>
+            <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--hl-ink)', flexShrink: 0 }}>Add</span>
           </button>
         );
       })}

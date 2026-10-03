@@ -52,7 +52,7 @@ function Row({ onTap, avatar, title, sub, right, busy }) {
       {avatar}
       <span className="km-sr-main">
         <span className="km-sr-title">{title}</span>
-        <span className="km-sr-sub">{busy ? <span style={{ color: 'var(--blue)' }}>Opening…</span> : sub}</span>
+        <span className="km-sr-sub">{busy ? <span style={{ color: 'var(--dim)' }}>Opening…</span> : sub}</span>
       </span>
       {right ? <span className="km-sr-right">{right}</span> : null}
     </div>
@@ -105,7 +105,7 @@ export default function SearchResults({ query, results, loading, onOpenConversat
               onTap={open(`k:${c.id}`, () => onTextClient(c))}
               avatar={(
                 <AvatarTap onTap={card(c.id)}>
-                  <Avatar name={c.name} seed={c.id} src={c.avatarUrl} size={44} style={c.isWhale ? { boxShadow: '0 0 0 1.5px var(--blue)' } : undefined} />
+                  <Avatar name={c.name} seed={c.id} src={c.avatarUrl} size={44} style={c.isWhale ? { boxShadow: '0 0 0 1.5px rgba(var(--accent-rgb), 0.85)' } : undefined} />
                 </AvatarTap>
               )}
               title={<Hl text={c.name} q={query} />}

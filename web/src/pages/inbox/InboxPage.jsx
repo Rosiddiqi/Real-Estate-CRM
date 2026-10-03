@@ -217,20 +217,20 @@ export default function InboxPage() {
     const unread = isUnread(c);
     return [
       {
-        id: 'read', label: unread ? 'Read' : 'Unread', color: '#2E8BFF',
+        id: 'read', label: unread ? 'Read' : 'Unread', color: '#3A3A3A',
         icon: unread ? <Icon name="checkCircle" size={22} stroke={2} color="#fff" /> : <UnreadDotGlyph size={22} />,
         onClick: () => (unread ? inbox.markRead(c.id) : inbox.markUnread(c.id)),
       },
-      { id: 'pin', label: c.pinned ? 'Unpin' : 'Pin', color: '#7C5CFC', icon: <PinGlyph size={20} color="#fff" />, onClick: () => inbox.setPinned(c.id, !c.pinned) },
+      { id: 'pin', label: c.pinned ? 'Unpin' : 'Pin', color: 'var(--hl)', ink: '#0D0D0D', icon: <PinGlyph size={20} color="#0D0D0D" />, onClick: () => inbox.setPinned(c.id, !c.pinned) },
     ];
   };
   const swipeRight = (c) => [
     {
-      id: 'mute', label: c.muted ? 'Show Alerts' : 'Hide Alerts', color: '#F2A93B',
+      id: 'mute', label: c.muted ? 'Show Alerts' : 'Hide Alerts', color: '#6B6B6A',
       icon: c.muted ? <Icon name="bell" size={21} stroke={2} color="#fff" /> : <BellOff size={22} color="#fff" />,
       onClick: () => inbox.setMuted(c.id, !c.muted),
     },
-    { id: 'delete', label: 'Delete', color: '#FF5A5A', icon: <Icon name="trash" size={21} stroke={2} color="#fff" />, onClick: () => setPendingDelete(c) },
+    { id: 'delete', label: 'Delete', color: '#E5484D', icon: <Icon name="trash" size={21} stroke={2} color="#fff" />, onClick: () => setPendingDelete(c) },
   ];
 
   const renderRows = (rows) => rows.map((c, i) => (
@@ -370,7 +370,7 @@ export default function InboxPage() {
           ) : null}
         </label>
         <button type="button" className="km-icompose km-lg km-press" aria-label="New message" onClick={() => nav.compose()}>
-          <ComposeGlyph size={20} color="var(--blue)" />
+          <ComposeGlyph size={20} color="var(--text)" />
         </button>
       </div>
 

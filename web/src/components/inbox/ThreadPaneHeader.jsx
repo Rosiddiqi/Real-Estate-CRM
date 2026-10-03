@@ -26,7 +26,7 @@ export default function ThreadPaneHeader({ conversation, fallback, defaultServic
           seed={cid || c.handle || name}
           src={c.client && c.client.avatarUrl}
           size={48}
-          style={whale ? { boxShadow: '0 0 0 1.5px var(--blue), 0 0 12px rgba(46,139,255,0.5)' } : undefined}
+          style={whale ? { boxShadow: '0 0 0 1.5px rgba(var(--accent-rgb), 0.85)' } : undefined}
         />
         <span className="km-th-namepill km-lg">
           <span>{name}</span>
@@ -35,7 +35,7 @@ export default function ThreadPaneHeader({ conversation, fallback, defaultServic
         <span className="km-th-sub">
           <span className="km-dot" style={{ background: channel === 'sms' ? 'var(--sms)' : 'var(--imsg)' }} />
           {channelLabel(channel === 'sms' ? 'sms' : 'imsg')}
-          {whale ? <span style={{ color: 'var(--blue)', fontWeight: 700, letterSpacing: '0.1em', fontSize: 10 }}>· WHALE</span> : null}
+          {whale ? <span style={{ color: 'var(--dim)', fontWeight: 500, letterSpacing: '0.1em', fontSize: 10 }}>· WHALE</span> : null}
         </span>
       </button>
       <div>

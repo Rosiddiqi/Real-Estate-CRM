@@ -72,12 +72,9 @@ export default function InboxHeader({ unread = 0, total = 0, whales = 0, filter,
 
   return (
     <div className="km-ihead">
-      <div className="km-ihead-bg km-fluted" aria-hidden="true" />
-      <div className="km-ihead-glow" aria-hidden="true" />
-      <div className="km-ihead-fade" aria-hidden="true" />
       <div className="km-ihead-in">
         <div className="km-ihead-row">
-          <span className="km-ihead-eyebrow">{String(BRAND.name || 'KeyMatch').toUpperCase()}</span>
+          <span className="km-ihead-eyebrow">{String(BRAND.name || 'KeyMatch').toUpperCase()} · MESSAGES</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span title={lineLabel} aria-label={lineLabel} style={{ display: 'inline-flex', padding: 4 }}>
               <LineStatusGlyph size={18} health={health} />
@@ -85,10 +82,10 @@ export default function InboxHeader({ unread = 0, total = 0, whales = 0, filter,
             <span ref={btnRef} style={{ display: 'inline-flex' }}>
               <GlassButton
                 icon="filter"
-                size={36}
+                size={38}
                 label="Filter and options"
                 onClick={() => setOpen((v) => !v)}
-                style={filter ? { color: 'var(--blue)' } : undefined}
+                style={filter ? { color: 'var(--hl-ink)' } : undefined}
                 badge={null}
               />
             </span>
@@ -100,7 +97,7 @@ export default function InboxHeader({ unread = 0, total = 0, whales = 0, filter,
           <span className="km-ihead-sep">·</span>
           <span><b>{total}</b> total</span>
           <span className="km-ihead-sep">·</span>
-          <span><b style={{ color: 'var(--blue)' }}>{whales}</b> {whales === 1 ? 'whale' : 'whales'}</span>
+          <span className="km-ihead-whales"><i aria-hidden="true" /><b>{whales}</b> {whales === 1 ? 'whale' : 'whales'}</span>
         </div>
       </div>
 

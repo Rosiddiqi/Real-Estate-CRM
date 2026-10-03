@@ -366,7 +366,7 @@ const Composer = forwardRef(function Composer({
         <div className="km-cmp-reply km-lg km-lg--menu">
           <span className="km-cmp-reply-bar" />
           <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--bright)' }}>Replying to {replyTo.isFromMe ? 'yourself' : (name || 'them')}</span>
+            <span style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text)' }}>Replying to {replyTo.isFromMe ? 'yourself' : (name || 'them')}</span>
             <span className="km-truncate" style={{ display: 'block', fontSize: 13, color: 'var(--dim)' }}>{replyTo.body || 'Attachment'}</span>
           </span>
           <button type="button" className="km-cmp-circle" style={{ width: 24, height: 24 }} onClick={onClearReply} aria-label="Cancel reply">

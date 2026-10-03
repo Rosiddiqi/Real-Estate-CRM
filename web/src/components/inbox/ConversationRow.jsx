@@ -18,7 +18,7 @@ function Stars({ n }) {
   return (
     <span className="km-crow-stars" aria-label={`${k} star${k === 1 ? '' : 's'}`}>
       {Array.from({ length: k }, (_, i) => (
-        <svg key={i} width="10" height="10" viewBox="0 0 24 24" fill="#F2A93B" aria-hidden="true">
+        <svg key={i} width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <polygon points="12 2 15 9 22 9.3 16.5 13.8 18.5 21 12 17 5.5 21 7.5 13.8 2 9.3 9 9" />
         </svg>
       ))}
@@ -80,7 +80,7 @@ function ConversationRow({ conv, typing = false, onOpen, onAvatar, selected = fa
             src={conv.client && conv.client.avatarUrl}
             size={48}
             channel={ch}
-            style={whale ? { boxShadow: '0 0 0 1.5px var(--blue), 0 0 10px rgba(46,139,255,0.5)' } : undefined}
+            style={whale ? { boxShadow: '0 0 0 1.5px rgba(var(--accent-rgb), 0.85)' } : undefined}
           />
         )}
       </span>

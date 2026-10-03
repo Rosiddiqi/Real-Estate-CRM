@@ -60,7 +60,7 @@ export default function BriefingCard({ conversationId, longThread = false }) {
         aria-label={collapsed ? 'Show relationship briefing' : 'Collapse briefing'}
       >
         <span className="km-brief-head">
-          <span className="km-brief-tile"><Icon name="sparkle" size={collapsed ? 11 : 13} color="#fff" stroke={2} /></span>
+          <span className="km-brief-tile"><Icon name="sparkle" size={collapsed ? 11 : 13} color="currentColor" stroke={1.8} /></span>
           <span className="km-brief-stage">{title}</span>
           {data.isWhale && !collapsed ? <span className="km-brief-eyebrow" style={{ flexShrink: 0 }}>Whale</span> : null}
           <Icon name={collapsed ? 'chevronDown' : 'chevronUp'} size={14} color="var(--faint)" stroke={2.4} />

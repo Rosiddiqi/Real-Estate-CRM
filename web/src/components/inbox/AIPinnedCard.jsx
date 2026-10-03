@@ -49,7 +49,7 @@ export default function AIPinnedCard({ card, onOpen, onDismiss }) {
     <div className="km-aicard-wrap">
       <div className="km-aicard">
         <div className="km-aicard-head">
-          <span className="km-aicard-tile"><Icon name="sparkle" size={18} color="var(--blue)" stroke={2} /></span>
+          <span className="km-aicard-tile"><Icon name="sparkle" size={18} color="var(--hl-ink)" stroke={1.6} /></span>
           <span style={{ flex: 1, minWidth: 0 }}>
             <span className="km-aicard-eyebrow">{card.label || 'Needs you first'}</span>
             <span className="km-aicard-title">{card.title}</span>
@@ -64,7 +64,7 @@ export default function AIPinnedCard({ card, onOpen, onDismiss }) {
         <div className="km-aicard-items">
           {card.items.map((it) => (
             <button key={it.conversationId} type="button" className="km-aicard-item km-press" onClick={() => onOpen && onOpen(it)}>
-              <Avatar name={it.name} seed={it.clientId || it.conversationId} size={30} style={it.isWhale ? { boxShadow: '0 0 0 1.5px var(--blue)' } : undefined} />
+              <Avatar name={it.name} seed={it.clientId || it.conversationId} size={30} style={it.isWhale ? { boxShadow: '0 0 0 1.5px rgba(var(--accent-rgb), 0.85)' } : undefined} />
               <span className="km-aicard-item-main">
                 <span className="km-aicard-item-name">
                   {it.name}

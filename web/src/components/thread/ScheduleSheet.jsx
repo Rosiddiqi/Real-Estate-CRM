@@ -87,13 +87,13 @@ export default function ScheduleSheet({ open, onClose, onConfirm, preview, chann
               <span style={{ display: 'block', fontSize: 15.5, fontWeight: 500 }}>{p.label}</span>
               <span style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)', marginTop: 1 }}>{dayLabel(p.when)} at {formatTime(p.when)}</span>
             </span>
-            {pick === p.id ? <Icon name="check" size={18} color="var(--bright)" stroke={2.4} /> : null}
+            {pick === p.id ? <Icon name="check" size={18} color="var(--hl-ink)" stroke={2} /> : null}
           </button>
         ))}
         <button type="button" className="km-row km-press" onClick={() => setPick('custom')} style={{ width: '100%', padding: '13px 14px', textAlign: 'left', borderBottom: 0 }}>
           <Icon name="clock" size={18} color="var(--bright)" />
           <span style={{ flex: 1, fontSize: 15.5, fontWeight: 500 }}>Custom…</span>
-          {pick === 'custom' ? <Icon name="check" size={18} color="var(--bright)" stroke={2.4} /> : null}
+          {pick === 'custom' ? <Icon name="check" size={18} color="var(--hl-ink)" stroke={2} /> : null}
         </button>
       </div>
       {pick === 'custom' ? (
