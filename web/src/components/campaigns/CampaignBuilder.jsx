@@ -502,7 +502,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <Avatar name={s.name} seed={s.clientId} src={s.avatarUrl} size={26} />
                       <span style={{ fontSize: 13.5, fontWeight: 500 }}>{s.name}</span>
-                      <span className="kp-chan" style={{ color: s.channel === 'sms' ? 'var(--sms)' : 'var(--imsg)', border: `1px solid ${s.channel === 'sms' ? 'rgba(52,209,91,0.35)' : 'rgba(var(--accent-rgb), 0.35)'}` }}>{s.channel === 'sms' ? 'SMS' : 'iMESSAGE'}</span>
+                      <span className="kp-chan" style={{ color: s.channel === 'sms' ? 'var(--sms)' : 'var(--imsg)', border: `1px solid color-mix(in srgb, ${s.channel === 'sms' ? 'var(--sms)' : 'var(--imsg)'} 35%, transparent)` }}>{s.channel === 'sms' ? 'SMS' : 'iMESSAGE'}</span>
                       {s.cold ? <span className="kp-mono" style={{ fontSize: 8.5 }}>New to you</span> : null}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: 8 }}>

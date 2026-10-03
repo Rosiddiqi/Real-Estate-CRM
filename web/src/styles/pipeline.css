@@ -55,7 +55,7 @@
 
 .km-pl-stats {
   display: grid; grid-template-columns: 0.82fr 1.1fr 1fr; margin: 2px 14px 12px;
-  border: var(--hairline) solid var(--glass-line); border-radius: var(--r-card); background: var(--glass-fill); overflow: hidden;
+  border: var(--hairline) solid var(--glass-line); box-shadow: var(--glass-rim); border-radius: var(--r-card); background: var(--glass-fill); overflow: hidden;
 }
 .km-pl-stat { padding: 11px 12px 10px; min-width: 0; }
 .km-pl-stat .km-pl-eyebrow { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 1.2px; }
@@ -147,7 +147,7 @@
 
 /* ── deal card ───────────────────────────────────────────────────────── */
 .km-pl-card {
-  position: relative; background: var(--glass-fill); border: var(--hairline) solid var(--glass-line); border-radius: 18px;
+  position: relative; background: var(--glass-fill); border: var(--hairline) solid var(--glass-line); box-shadow: var(--glass-rim); border-radius: 18px;
   overflow: hidden; transition: border-color 0.2s, background 0.2s, opacity 0.15s; touch-action: manipulation;
 }
 .km-pl-card--expanded { background: var(--glass-fill-hi); border-color: var(--lineHi); }

@@ -1,5 +1,6 @@
 // VoicemailCard (RevMatch VoicemailCard): caller, transcript, seeded waveform
-// player (HTMLAudio when there's a recording; a still waveform placeholder
+// player in the voice-transcript style (played bars bright, the highlight as
+// the playhead) (HTMLAudio when there's a recording; a still waveform placeholder
 // when there isn't), mark heard, call back, text back. Playback is blocked
 // while a call is live.
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -88,7 +89,7 @@ export default function VoicemailCard({ call, onCall, onText, onHeard, onInfo, i
           <Icon name={playing ? 'pause' : 'play'} size={14} stroke={2.4} />
         </button>
         <div className="km-vm-wave" aria-hidden="true">
-          {bars.map((h, i) => <span key={i} className={i < lit ? 'is-on' : ''} style={{ height: h }} />)}
+          {bars.map((h, i) => <span key={i} className={playing || progress > 0 ? (i === Math.max(0, lit - 1) ? 'is-head' : i < lit ? 'is-on' : '') : ''} style={{ height: h }} />)}
         </div>
         <span className="km-vm-dur">{url ? fmtShort(progress ? progress * (call.durationSec || 0) : call.durationSec) : 'no audio'}</span>
       </div>

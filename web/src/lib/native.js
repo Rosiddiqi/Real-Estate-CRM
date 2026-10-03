@@ -11,7 +11,7 @@ export const isNative = () => {
 };
 
 // Keys that must survive iOS purging WKWebView storage (session + server).
-const DURABLE_KEYS = ['km_rt', 'km_at', 'km_api_base', 'km-theme', 'km-accent', 'km-active-tab'];
+const DURABLE_KEYS = ['km_rt', 'km_at', 'km_api_base', 'km-theme', 'km-active-tab'];
 
 export async function hydrateNativeStorage() {
   if (!isNative()) return;

@@ -1,10 +1,11 @@
 /* ===========================================================================
    Phone tab (recents, voicemail, missed, call-now hero, keypad) and the
    full-screen call (live transcript + co-pilot cues + controls) and post-call
-   recap. Ported from RevMatch CallsScreen / C2Transcript / C5Recap, dressed
-   in Soul: the call takes the voice screen's grey gradient, the live
-   transcript focuses its newest lines ("karaoke"), the highlight marks
-   live / progress / co-pilot.
+   recap. Ported from RevMatch CallsScreen / C2Transcript / C5Recap, laid out
+   like Soul's "Affirmation Voice Notes" screen: the voice screen's grey
+   gradient, the live transcript as a focus list over a live waveform, and
+   Soul's round mic control (voice.css holds the transcript parts). The
+   highlight marks live / progress / co-pilot.
    =========================================================================== */
 
 /* ── Phone tab ──────────────────────────────────────────────────────────── */
@@ -39,8 +40,8 @@
   width: 52px; height: 52px; border-radius: 50%; color: var(--text);
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--lg-tint-solid);
-  -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px);
-  box-shadow: inset 0 0 0 var(--hairline) var(--lineHi), 0 10px 24px -10px rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: var(--lg-frost); backdrop-filter: var(--lg-frost);
+  box-shadow: var(--lg-spec), var(--lg-fringe), var(--lg-glow), var(--lg-hairline), 0 10px 24px -10px rgba(0, 0, 0, 0.6);
   transition: transform 0.18s var(--km-ease), opacity 0.2s ease;
   animation: km-ph-fab-in 0.42s var(--km-spring, cubic-bezier(0.16, 1, 0.3, 1)) both;
 }
@@ -57,7 +58,7 @@ body.km-kb-open .km-ph-fab, body.km-tabbar-hidden .km-ph-fab { opacity: 0; point
 .km-ph-hero-scroll { display: flex; gap: 10px; padding: 2px 16px 8px; scroll-snap-type: x mandatory; }
 .km-ph-now {
   scroll-snap-align: start; flex: 0 0 auto; width: 252px; border-radius: var(--r-card); padding: 14px 14px 13px; position: relative; overflow: hidden;
-  background: var(--glass-fill); border: var(--hairline) solid var(--glass-line);
+  background: var(--glass-fill); border: var(--hairline) solid var(--glass-line); box-shadow: var(--glass-rim);
   display: flex; flex-direction: column; gap: 9px; animation: km-rowIn 0.32s var(--km-ease) backwards;
 }
 .km-ph-now::before { display: none; }
@@ -73,7 +74,7 @@ body.km-kb-open .km-ph-fab, body.km-tabbar-hidden .km-ph-fab { opacity: 0; point
   box-shadow: none; transition: transform 0.18s var(--km-ease);
 }
 .km-ph-callbtn:active { transform: scale(0.96); }
-.km-ph-iconbtn { width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: transparent; box-shadow: inset 0 0 0 var(--hairline) var(--lineHi); color: var(--text); flex-shrink: 0; transition: transform 0.18s var(--km-ease); }
+.km-ph-iconbtn { width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--lg-tint); box-shadow: var(--lg-spec), var(--lg-glow), var(--lg-hairline); color: var(--text); flex-shrink: 0; transition: transform 0.18s var(--km-ease); }
 .km-ph-iconbtn:active { transform: scale(0.92); }
 
 /* voicemail bubbles */
@@ -115,9 +116,11 @@ body.km-kb-open .km-ph-fab, body.km-tabbar-hidden .km-ph-fab { opacity: 0; point
   background: var(--bright); box-shadow: none;
 }
 .km-vm-play:disabled { opacity: 0.45; box-shadow: none; }
-.km-vm-wave { flex: 1; display: flex; align-items: center; gap: 2.5px; height: 26px; min-width: 0; }
-.km-vm-wave span { flex: 1; max-width: 3px; border-radius: 2px; background: rgba(var(--accent-rgb), 0.24); transition: background 0.2s; }
-.km-vm-wave span.is-on { background: var(--hl); }
+.km-vm-wave { flex: 1; display: flex; align-items: center; gap: 3px; height: 30px; min-width: 0; }
+.km-vm-wave span { flex: 1; max-width: 3px; border-radius: 9999px; background: rgba(var(--accent-rgb), 0.22); transition: background 0.2s, height 0.2s; }
+.km-vm-wave span.is-on { background: rgba(var(--accent-rgb), 0.85); }
+.km-vm-wave span.is-head { background: var(--hl); height: 30px !important; }
+:root[data-theme="light"] .km-vm-wave span.is-head { background: var(--hl-ink); }
 .km-vm-dur { font-family: var(--font-num); font-size: 11.5px; color: var(--dim); font-variant-numeric: tabular-nums; min-width: 34px; text-align: right; }
 .km-vm-actions { display: flex; gap: 8px; }
 .km-vm-btn { flex: 1; height: 36px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 400; background: transparent; border: var(--hairline) solid var(--lineHi); color: var(--text); transition: transform 0.18s var(--km-ease); }
@@ -131,7 +134,7 @@ body.km-kb-open .km-ph-fab, body.km-tabbar-hidden .km-ph-fab { opacity: 0; point
 .km-kp-grid { display: grid; grid-template-columns: repeat(3, 76px); gap: 14px 24px; justify-content: center; padding: 14px 0 6px; }
 .km-kp-key {
   width: 76px; height: 76px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: var(--glass-fill); box-shadow: inset 0 0 0 var(--hairline) var(--glass-line); color: var(--text); transition: background 0.12s, transform 0.12s var(--km-ease); user-select: none;
+  background: var(--glass-fill); box-shadow: var(--tile-shadow); color: var(--text); transition: background 0.12s, transform 0.12s var(--km-ease); user-select: none;
 }
 .km-kp-key:active { background: rgba(var(--accent-rgb), 0.14); transform: scale(0.95); }
 .km-kp-digit { font-family: var(--font-num); font-size: 30px; font-weight: 300; line-height: 1; }
@@ -155,41 +158,31 @@ body.km-kb-open .km-ph-fab, body.km-tabbar-hidden .km-ph-fab { opacity: 0; point
 .km-call-floor { position: absolute; left: -10%; right: -10%; bottom: -60px; height: 320px; pointer-events: none; background: radial-gradient(55% 50% at 50% 62%, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03) 45%, transparent 75%); }
 .km-call-top { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; padding: calc(var(--safe-top) + 10px) 16px 0; }
 .km-call-round { width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; }
-.km-call-timer { height: 34px; padding: 0 15px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-num); font-size: 15px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.km-call-timer { height: 34px; max-width: calc(100% - 112px); padding: 0 15px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-num); font-size: 15px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.km-call-timer-name { min-width: 0; font-family: var(--font); font-size: 13px; font-weight: 400; letter-spacing: 0; color: rgba(255, 255, 255, 0.72); }
+.km-call-timer-name::before { content: '·'; margin-right: 7px; color: rgba(255, 255, 255, 0.4); }
 .km-call-live { width: 7px; height: 7px; border-radius: 50%; background: var(--hl); box-shadow: 0 0 0 3px rgba(var(--hl-rgb), 0.18); animation: pulseDot 1.6s ease-in-out infinite; }
 .km-call-live.is-ringing { background: #fff; box-shadow: none; }
 .km-call-live.is-held { background: var(--amber); box-shadow: none; animation: none; }
 .km-call-hero { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px 20px 0; }
-.km-call-hero.is-compact { padding-top: 4px; }
-.km-call-hero.is-compact .km-call-name { font-size: 23px; margin-top: 8px; }
 .km-call-name { margin-top: 12px; font-family: var(--font-num); font-size: 28px; font-weight: 300; letter-spacing: -0.02em; max-width: 100%; }
 .km-call-meta { margin-top: 3px; font-size: 13px; color: rgba(255, 255, 255, 0.56); max-width: 100%; }
 .km-call-status { margin-top: 2px; font-size: 13px; color: rgba(255, 255, 255, 0.56); }
 .km-call-ringing .km-avatar { animation: km-call-ring 1.6s ease-in-out infinite; }
 @keyframes km-call-ring { 0%, 100% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.10), 0 10px 30px -10px rgba(0, 0, 0, 0.6); } 50% { box-shadow: 0 0 0 14px rgba(255, 255, 255, 0.03), 0 10px 30px -10px rgba(0, 0, 0, 0.6); } }
 
-.km-call-mid { position: relative; z-index: 2; flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 14px 12px 0; }
-.km-call-brief { border-radius: var(--r-card); padding: 12px 14px; background: rgba(13, 13, 13, 0.28); border: var(--hairline) solid rgba(255, 255, 255, 0.12); }
-.km-call-brief-head { display: flex; align-items: center; gap: 7px; font-size: 10.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); width: 100%; }
+.km-call-mid { position: relative; z-index: 2; flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; padding: 12px 12px 0; overflow: hidden; }
+.km-call-brief { border-radius: 18px; padding: 10px 14px; flex-shrink: 0; }
+.km-call-brief.is-open { padding: 12px 14px 13px; max-height: 42vh; overflow-y: auto; }
+.km-call-wait { padding: 14px 24px 0; text-align: center; font-size: 13.5px; line-height: 1.5; color: rgba(255, 255, 255, 0.36); }
+.km-call-brief-head { display: flex; align-items: center; gap: 7px; font-size: 10.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); width: 100%; min-width: 0; }
+.km-call-brief-peek { flex: 1; min-width: 0; margin-left: 4px; font-size: 12px; font-weight: 400; letter-spacing: 0; text-transform: none; color: rgba(255, 255, 255, 0.5); text-align: left; }
 .km-call-brief-move { font-size: 13.5px; line-height: 1.4; margin-top: 6px; }
 .km-call-brief-points { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .km-call-brief-points span { font-size: 11.5px; padding: 4px 9px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.8); }
-.km-call-tx { flex: 1; min-height: 120px; border-radius: var(--r-card); overflow: hidden; display: flex; flex-direction: column; background: transparent; border: 0; }
-.km-call-tx-head { display: flex; align-items: center; gap: 8px; padding: 11px 16px 4px; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); }
-.km-call-tx-body { flex: 1; min-height: 0; overflow-y: auto; padding: 6px 14px 12px; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 100%); }
-.km-call-line { display: flex; gap: 10px; margin-bottom: 12px; animation: km-rowIn 0.22s var(--km-ease) backwards; transition: opacity 0.4s ease, filter 0.4s ease; }
-/* Soul "karaoke": the newest lines are in focus, earlier ones recede. */
-.km-call-tx-body .km-call-line:not(:nth-last-child(-n+3)) { opacity: 0.38; filter: blur(0.6px); }
-.km-call-tx-body .km-call-line:nth-last-child(3) { opacity: 0.62; }
-.km-call-tick { width: 2px; flex-shrink: 0; align-self: stretch; border-radius: 2px; background: transparent; }
-.km-call-tick.is-on { background: var(--hl); box-shadow: none; }
-.km-call-who { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; }
-.km-call-text { font-size: 17px; line-height: 1.38; letter-spacing: -0.01em; }
-.km-call-empty { padding: 26px 10px; text-align: center; font-size: 14px; color: rgba(255, 255, 255, 0.34); line-height: 1.5; }
-.km-call-typing { display: flex; gap: 4px; padding-left: 12px; }
-.km-call-typing span { width: 5px; height: 5px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); animation: km-srn-typing 1.1s ease-in-out infinite; }
-.km-call-typing span:nth-child(2) { animation-delay: 0.15s; }
-.km-call-typing span:nth-child(3) { animation-delay: 0.3s; }
+.km-call-tx-head { display: flex; align-items: center; gap: 8px; padding: 6px 6px 0; font-size: 10.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); flex-shrink: 0; }
+/* the live focus list (voice.css): the newest line sits ~60% down, earlier lines recede above it */
+.km-call-lines { flex: 1; min-height: 110px; padding: 0 18px; }
 
 /* co-pilot cue card */
 .km-cue {
@@ -209,16 +202,17 @@ body.km-kb-open .km-ph-fab, body.km-tabbar-hidden .km-ph-fab { opacity: 0; point
 .km-cue-more { font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-top: 6px; }
 
 /* dock */
-.km-call-dock { position: relative; z-index: 3; padding: 14px 12px calc(var(--safe-bottom) + 16px); }
-.km-call-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; justify-items: center; max-width: 380px; margin: 0 auto; }
+.km-call-voice { position: relative; z-index: 2; flex-shrink: 0; padding-top: 2px; }
+.km-call-voice .km-vt-wave { margin: 2px 0 10px; }
+.km-call-dock { position: relative; z-index: 3; padding: 18px 12px calc(var(--safe-bottom) + 14px); }
+.km-call-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; justify-items: center; align-items: end; max-width: 380px; margin: 0 auto; }
 .km-call-ctl { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; color: rgba(255, 255, 255, 0.78); }
 .km-call-ctl-btn { width: 56px; height: 56px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; transition: background 0.18s, color 0.18s, transform 0.16s var(--km-ease); }
 .km-call-ctl-btn svg { width: 23px; height: 23px; }
 .km-call-ctl-btn:active { transform: scale(0.94); }
 .km-call-ctl-btn.is-on { background: #fff !important; color: #0D0D0D; }
 .km-call-ctl-btn:disabled { opacity: 0.35; }
-.km-call-end-row { display: flex; justify-content: center; margin-top: 14px; }
-.km-call-end { width: 68px; height: 68px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; background: #FF3B30; box-shadow: 0 10px 28px -8px rgba(255, 107, 94, 0.7); transition: transform 0.16s var(--km-ease); }
+.km-call-end { width: 62px; height: 62px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; background: #FF3B30; box-shadow: inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.55), inset 0 0 10px rgba(255, 255, 255, 0.18), 0 10px 28px -8px rgba(255, 59, 48, 0.6); transition: transform 0.16s var(--km-ease); }
 .km-call-end:active { transform: scale(0.93); }
 .km-call-end svg { transform: rotate(135deg); }
 
@@ -311,9 +305,14 @@ body.km-kb-open .km-ph-fab, body.km-tabbar-hidden .km-ph-fab { opacity: 0; point
   .km-call-hero .km-avatar { width: 56px !important; height: 56px !important; }
   .km-call-name { font-size: 23px; margin-top: 6px; }
   .km-call-ctl-btn { width: 50px; height: 50px; }
-  .km-call-end { width: 60px; height: 60px; }
-  .km-call-end-row { margin-top: 10px; }
+  .km-call-end { width: 56px; height: 56px; }
   .km-call-brief-move { font-size: 12.5px; }
+  .km-call-lines .km-vt-text { font-size: 17px; }
+  .km-call-lines .km-vt-line.is-focus .km-vt-text { font-size: 21px; }
+  .km-call-voice .km-vt-wave { height: 56px; margin-bottom: 6px; }
+  .km-call-voice .km-vt-wave i { height: calc(12px + var(--h, 0.4) * 26px); }
+  .km-call-voice .km-vt-head { height: 56px; }
+  .km-call-dock { padding-top: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .km-call, .km-call.is-leaving, .km-cue, .km-sg { animation: none; }

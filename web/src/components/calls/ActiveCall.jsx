@@ -1,10 +1,12 @@
 // ActiveCall — overlay `call` ({ clientId, phone, name } or { callId } to
-// re-open). Full-screen dark call UI (RevMatch C2Transcript + CallControls):
-// glass top bar (minimize · live timer · note), caller hero, relationship
-// briefing, rolling live transcript (YOU / THEM, signal ticks), co-pilot cue
-// cards for objections, and the control dock (mute · keypad · speaker · add ·
-// hold · note · end). Hanging up turns the screen into the post-call recap.
-// Minimizing keeps the call alive in the CallPill.
+// re-open). Full-screen call laid out like Soul's "Affirmation Voice Notes"
+// screen: glass top bar (minimize · live timer + caller · note), relationship
+// briefing, the live transcript as a focus list (the newest line large, the
+// earlier ones receding), a live waveform with the highlight as its playhead,
+// Soul's round mic control (tap to mute), co-pilot cue cards for objections,
+// and a row of call controls (keypad · speaker · end · add · hold). Hanging up
+// turns the screen into the post-call recap. Minimizing keeps the call alive
+// in the CallPill.
 //
 // Device mode (the agent's own phone places the call): no call screen — the
 // dial hands `tel:` to the system dialer and the overlay closes at once; when
@@ -23,6 +25,7 @@ import { callStore, useCallState } from './callStore';
 import { fmtClock } from './callUtil';
 import KeypadSheet from './KeypadSheet';
 import CallRecap from './CallRecap';
+import { KaraokeLines, LIVE_HEAD, VoiceButton, VoiceWave, WAVE_BARS, useLiveLevels } from './VoiceTranscript';
 import '../../styles/calls.css';
 
 function Ctl({ icon, label, on, onClick, disabled }) {
@@ -84,7 +87,7 @@ function LiveCall({ clientId, phone, name, callId, onClose }) {
   const [briefOpen, setBriefOpen] = useState(true);
   const started = useRef(false);
   const [attached, setAttached] = useState(false);
-  const txRef = useRef(null);
+  const [pin, setPin] = useState(null); // a past line the agent tapped to re-read
 
   const call = attached ? st.call : null;
   const live = callStore.isLive(call);
@@ -134,10 +137,20 @@ function LiveCall({ clientId, phone, name, callId, onClose }) {
     const short = typeof window !== 'undefined' && window.innerHeight < 760;
     if (st.lines.length >= (short ? 1 : 3)) { autoCollapsed.current = true; setBriefOpen(false); }
   }, [st.lines.length]);
+  // Re-reading a past line holds focus for a moment, then the list follows the call again.
   useEffect(() => {
-    const el = txRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [st.lines]);
+    if (pin == null) return undefined;
+    const id = setTimeout(() => setPin(null), 6000);
+    return () => clearTimeout(id);
+  }, [pin]);
+  const lineCount = st.lines.length;
+  const lastLineAt = useRef(0);
+  useEffect(() => { if (lineCount) lastLineAt.current = Date.now(); }, [lineCount]);
+  const interim = st.lines.some((l) => l.final === false);
+  // Waveform energy: someone is talking now (an interim line, or a line that just landed).
+  const levels = useLiveLevels(live && answered && !held, () => (interim ? 0.9 : Math.max(0, 1 - (Date.now() - lastLineAt.current) / 3200)));
+  const focus = pin != null && pin < lineCount ? pin : Math.max(0, lineCount - 1);
+  const shortScreen = typeof window !== 'undefined' && window.innerHeight < 720;
 
   const done = () => { callStore.dismiss(); close(); };
   const handoff = (fn) => { callStore.dismiss(); setLeaving(true); setTimeout(() => { onClose?.(); setTimeout(fn, 60); }, 280); };
@@ -161,25 +174,29 @@ function LiveCall({ clientId, phone, name, callId, onClose }) {
         <div className="km-call-timer km-lg km-lg--light" aria-live="polite">
           <span className={`km-call-live ${!answered ? 'is-ringing' : ''} ${held ? 'is-held' : ''}`} />
           {status || fmtClock(elapsed)}
+          {answered ? <span className="km-call-timer-name km-truncate">{displayName}</span> : null}
         </div>
         <button type="button" className="km-call-round km-lg km-lg--light" onClick={() => setNoteOpen(true)} aria-label="Add a note" disabled={!call}><Icon name="edit" size={17} stroke={2} /></button>
       </div>
 
       <div className="km-call-inner" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-        <div className={`km-call-hero ${!answered ? 'km-call-ringing' : 'is-compact'}`}>
-          <Avatar name={call && !call.client && !name ? null : displayName} seed={seed} src={call && call.client ? call.client.avatarUrl : null} size={answered ? 52 : 72}
-            style={{ boxShadow: '0 0 0 4px rgba(255,255,255,0.08), 0 10px 30px -10px rgba(0,0,0,0.6)', fontSize: answered ? 19 : 26, transition: 'width 0.3s var(--km-ease), height 0.3s var(--km-ease)' }} />
-          <div className="km-call-name km-truncate">{displayName}</div>
-          {meta ? <div className="km-call-meta km-truncate">{meta}</div> : null}
-          {call && call.mode === 'simulated' && !answered ? <div className="km-call-status">Demo line · simulated conversation</div> : null}
-        </div>
+        {!answered ? (
+          <div className="km-call-hero km-call-ringing">
+            <Avatar name={call && !call.client && !name ? null : displayName} seed={seed} src={call && call.client ? call.client.avatarUrl : null} size={72}
+              style={{ boxShadow: '0 0 0 4px rgba(255,255,255,0.08), 0 10px 30px -10px rgba(0,0,0,0.6)', fontSize: 26 }} />
+            <div className="km-call-name km-truncate">{displayName}</div>
+            {meta ? <div className="km-call-meta km-truncate">{meta}</div> : null}
+            {call && call.mode === 'simulated' ? <div className="km-call-status">Demo line · simulated conversation</div> : null}
+          </div>
+        ) : null}
 
         <div className="km-call-mid">
           {brief && (brief.recommendedMove || (brief.touchPoints && brief.touchPoints.length) || (brief.iceBreakers && brief.iceBreakers.length)) ? (
-            <div className="km-call-brief">
-              <button type="button" className="km-call-brief-head" onClick={() => setBriefOpen((v) => !v)}>
+            <div className={`km-call-brief km-lg km-lg--light ${briefOpen ? 'is-open' : ''}`}>
+              <button type="button" className="km-call-brief-head" onClick={() => setBriefOpen((v) => !v)} aria-expanded={briefOpen}>
                 <Icon name="sparkle" size={12} stroke={2.2} />Briefing
-                <Icon name={briefOpen ? 'chevronUp' : 'chevronDown'} size={13} stroke={2.2} style={{ marginLeft: 'auto' }} />
+                {!briefOpen && answered && meta ? <span className="km-call-brief-peek km-truncate">{meta}</span> : null}
+                <Icon name={briefOpen ? 'chevronUp' : 'chevronDown'} size={13} stroke={2.2} style={{ marginLeft: 'auto', flexShrink: 0 }} />
               </button>
               {briefOpen ? (
                 <>
@@ -195,34 +212,26 @@ function LiveCall({ clientId, phone, name, callId, onClose }) {
             </div>
           ) : null}
 
-          <div className="km-call-tx">
-            <div className="km-call-tx-head">
-              <span className="km-call-live" style={answered && !held ? null : { background: 'rgba(255,255,255,0.3)', boxShadow: 'none', animation: 'none' }} />
-              Live transcript{call && call.mode === 'twilio' ? ' · needs a transcription provider' : ''}
-              <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 5 }}><Icon name="sparkle" size={11} stroke={1.8} color="var(--hl)" />Co-pilot on</span>
-            </div>
-            <div className="km-call-tx-body" ref={txRef}>
-              {!st.lines.length ? (
-                <div className="km-call-empty">{answered ? 'Listening…' : 'The transcript appears as the call connects.'}</div>
-              ) : st.lines.map((l) => {
-                const me = l.speaker === 'agent';
-                const note = l.speaker === 'note';
-                return (
-                  <div key={l.id} className="km-call-line" style={l.final === false ? { opacity: 0.55 } : undefined}>
-                    <div className={`km-call-tick ${l.signal || note ? 'is-on' : ''}`} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div className="km-call-who" style={{ color: note ? 'var(--hl)' : me ? 'rgba(255,255,255,0.34)' : '#fff' }}>
-                        {note ? 'NOTE' : me ? 'YOU' : (firstName || 'THEM').toUpperCase()}
-                        <span style={{ fontWeight: 500, color: 'rgba(255,255,255,0.3)', letterSpacing: 0 }}>{fmtClock(l.t)}</span>
-                      </div>
-                      <div className="km-call-text km-selectable" style={{ color: note ? 'var(--hl)' : me ? 'rgba(255,255,255,0.62)' : '#fff' }}>{l.text}</div>
-                    </div>
-                  </div>
-                );
-              })}
-              {live && answered && !held && st.lines.length ? <div className="km-call-typing" aria-hidden="true"><span /><span /><span /></div> : null}
-            </div>
-          </div>
+          {answered ? (
+            <>
+              <div className="km-call-tx-head">
+                <span className="km-call-live" style={!held ? null : { background: 'rgba(255,255,255,0.3)', boxShadow: 'none', animation: 'none' }} />
+                Live transcript{call && call.mode === 'twilio' ? ' · needs a transcription provider' : ''}
+                <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 5 }}><Icon name="sparkle" size={11} stroke={1.8} color="var(--hl)" />Co-pilot on</span>
+              </div>
+              <KaraokeLines
+                lines={st.lines}
+                focus={focus}
+                themName={firstName}
+                onPick={(i) => setPin(i >= lineCount - 1 ? null : i)}
+                align={0.6}
+                empty={held ? 'On hold' : 'Listening…'}
+                className="km-call-lines"
+              />
+            </>
+          ) : (
+            <div className="km-call-wait">The transcript appears as the call connects.</div>
+          )}
 
           {cue ? (
             <div className="km-cue" key={cue.id} role="status">
@@ -238,18 +247,32 @@ function LiveCall({ clientId, phone, name, callId, onClose }) {
           ) : null}
         </div>
 
+        <div className="km-vt km-vt--dark km-call-voice">
+          <VoiceWave levels={levels} head={LIVE_HEAD / (WAVE_BARS - 1)} label={answered ? 'Live audio' : 'Waiting for the call to connect'} />
+          <VoiceButton
+            icon={st.muted ? 'micOff' : 'mic'}
+            label={st.muted ? 'Muted · tap to unmute' : 'Tap to mute'}
+            ariaLabel={st.muted ? 'Unmute' : 'Mute'}
+            progress={answered && live ? (elapsed % 60) / 60 : 0}
+            on={st.muted}
+            onClick={() => { haptic('light'); callStore.toggleMute(); }}
+            disabled={!call}
+            size={shortScreen ? 64 : 80}
+          />
+        </div>
+
         <div className="km-call-dock">
           <div className="km-call-grid">
-            <Ctl icon={st.muted ? 'micOff' : 'mic'} label={st.muted ? 'Unmute' : 'Mute'} on={st.muted} onClick={() => { haptic('light'); callStore.toggleMute(); }} disabled={!call} />
             <Ctl icon="keypad" label="Keypad" onClick={() => setKeypad(true)} disabled={!call} />
             <Ctl icon="volume" label="Speaker" on={st.speaker} onClick={() => { haptic('light'); callStore.toggleSpeaker(); }} disabled={!call} />
+            <div className="km-call-ctl">
+              <button type="button" className="km-call-end" onClick={end} aria-label="End call" disabled={!call && !st.dialing}>
+                <Icon name="phone" size={28} stroke={1.8} />
+              </button>
+              <span>End</span>
+            </div>
             <Ctl icon="userPlus" label="Add" onClick={() => toast(call && call.mode === 'twilio' ? 'Conference calling is coming soon' : 'Adding a caller needs a connected phone line')} disabled={!call} />
             <Ctl icon="pause" label={held ? 'Resume' : 'Hold'} on={held} onClick={() => { haptic('light'); callStore.toggleHold(); }} disabled={!call || !answered} />
-          </div>
-          <div className="km-call-end-row">
-            <button type="button" className="km-call-end" onClick={end} aria-label="End call" disabled={!call && !st.dialing}>
-              <Icon name="phone" size={30} stroke={1.8} />
-            </button>
           </div>
         </div>
       </div>

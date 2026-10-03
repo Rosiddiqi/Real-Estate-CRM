@@ -14,6 +14,7 @@ import { decideSuggestion, getCall, undoCallAction } from '../../api/calls';
 import { callStore } from './callStore';
 import { callName, fmtShort } from './callUtil';
 import SaveContactSheet from './SaveContactSheet';
+import TranscriptPlayer from './VoiceTranscript';
 
 const KIND = {
   appointment: { label: 'Appointment', icon: 'calendar', yes: 'Yes, book it' },
@@ -44,7 +45,6 @@ export default function CallRecap({ call, lines, onDone, onHandoff }) {
   const [busy, setBusy] = useState(null);
   const [editing, setEditing] = useState(null);
   const [vals, setVals] = useState({});
-  const [showTx, setShowTx] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
   const [saved, setSaved] = useState(null);
   const decided = useRef(new Map());
@@ -205,23 +205,17 @@ export default function CallRecap({ call, lines, onDone, onHandoff }) {
             <button type="button" className="km-sg-btn km-sg-btn--yes" style={{ width: '100%', marginTop: 16 }} onClick={onDone}>Done</button>
           ) : null}
 
-          {lines.length ? (
-            <div className="km-recap-card" style={{ marginTop: 14 }}>
-              <button type="button" className="km-recap-eyebrow" style={{ width: '100%' }} onClick={() => setShowTx((v) => !v)}>
-                <Icon name="file" size={12} stroke={2.2} />Transcript · {lines.filter((l) => l.speaker !== 'note').length} lines
-                <Icon name={showTx ? 'chevronUp' : 'chevronDown'} size={13} stroke={2.2} style={{ marginLeft: 'auto' }} />
-              </button>
-              {showTx ? (
-                <div style={{ marginTop: 10, maxHeight: 320, overflowY: 'auto' }}>
-                  {lines.map((l) => (
-                    <div key={l.id} style={{ marginBottom: 9, fontSize: 13.5, lineHeight: 1.42 }} className="km-selectable">
-                      <span style={{ fontSize: 11, fontWeight: 500, color: l.speaker === 'agent' ? 'rgba(255,255,255,0.4)' : 'var(--bright)', marginRight: 6 }}>{l.speaker === 'agent' ? 'YOU' : l.speaker === 'note' ? 'NOTE' : (call.client?.firstName || 'THEM').toUpperCase()}</span>
-                      <span style={{ color: l.speaker === 'agent' ? 'rgba(255,255,255,0.7)' : '#fff' }}>{l.text}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-            </div>
+          {lines.length || call.recordingUrl ? (
+            <TranscriptPlayer
+              lines={lines}
+              recordingUrl={call.recordingUrl}
+              durationSec={call.durationSec}
+              seed={call.id}
+              themName={call.client?.firstName}
+              title={lines.length ? `Call transcript · ${lines.filter((l) => l.speaker !== 'note').length} lines` : 'Call recording'}
+              dark
+              className="km-recap-tx"
+            />
           ) : null}
         </div>
       </div>

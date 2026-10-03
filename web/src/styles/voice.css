@@ -1,0 +1,127 @@
+/* ===========================================================================
+   Voice transcript — Soul's "Affirmation Voice Notes" screen as the call
+   transcript (live during a call; replay on the recap and the client
+   timeline). Components/calls/VoiceTranscript.jsx.
+   • Focus line: Poppins Medium 25, white. Neighbours: 20px at 20% + blur.
+   • Waveform: 27 rounded 4px bars on an 8px pitch; played bars bright,
+     unplayed dim; the playhead is a tall bar in the highlight.
+   • Control: an 80px glass circle, a 1px track ring with a 2px progress arc,
+     a soft white bloom behind, and an uppercase "TAP TO …" label.
+   Dark by default; a card follows the light theme unless it is `--dark`.
+   =========================================================================== */
+
+.km-vt {
+  --vt-ink: 255, 255, 255;
+  --vt-text: #FFFFFF;
+  --vt-head: var(--hl);
+  --vt-bloom: rgba(255, 255, 255, 0.2);
+  position: relative; display: flex; flex-direction: column; align-items: center; color: var(--vt-text);
+}
+/* the call screen is always the dark voice surface */
+.km-call { --vt-ink: 255, 255, 255; --vt-text: #FFFFFF; --vt-head: var(--hl); --vt-bloom: rgba(255, 255, 255, 0.2); }
+:root[data-theme="light"] .km-vt:not(.km-vt--dark) {
+  --vt-ink: 13, 13, 13;
+  --vt-text: #0D0D0D;
+  --vt-head: var(--hl-ink);
+  --vt-bloom: rgba(13, 13, 13, 0.07);
+}
+
+/* ── replay card (Soul's grey voice surface) ── */
+.km-vt--card {
+  border-radius: var(--r-card); padding: 14px 14px 18px; overflow: hidden; isolation: isolate;
+  background: linear-gradient(180deg, #1C1C1C 0%, #252525 58%, #2F2F2F 100%);
+  box-shadow: inset 1px 1px 0.5px -0.5px rgba(255, 255, 255, 0.22), inset 0 0 8px rgba(248, 248, 248, 0.05), inset 0 0 0 var(--hairline) rgba(255, 255, 255, 0.10);
+}
+:root[data-theme="light"] .km-vt--card:not(.km-vt--dark) {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F3F3F3 58%, #EAEAEA 100%);
+  box-shadow: var(--tile-shadow);
+}
+.km-vt-top { align-self: stretch; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.km-vt-pill {
+  height: 28px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center;
+  font-size: 11px; font-weight: 400; color: var(--vt-text);
+  background: rgba(var(--vt-ink), 0.05);
+  box-shadow: inset 1px 1px 0.5px -0.5px rgba(255, 255, 255, 0.3), inset 0 0 0 var(--hairline) rgba(var(--vt-ink), 0.10);
+}
+.km-vt-clock { font-family: var(--font-num); font-size: 12px; font-weight: 300; color: rgba(var(--vt-ink), 0.72); font-variant-numeric: tabular-nums; }
+.km-vt-clock em { font-style: normal; color: rgba(var(--vt-ink), 0.36); }
+
+/* ── the focus list ── */
+.km-vt-lines {
+  align-self: stretch; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%);
+}
+.km-vt-lines::-webkit-scrollbar { display: none; }
+.km-vt-lines--card { height: 214px; margin-top: 6px; }
+.km-vt--compact .km-vt-lines--card { height: 160px; }
+.km-vt-line {
+  padding: 9px 10px; border-radius: 12px; text-align: left; cursor: pointer; outline: none;
+  transition: opacity 0.45s var(--km-ease), filter 0.45s var(--km-ease);
+}
+.km-vt-line.is-near { opacity: 0.32; filter: blur(1.2px); }
+.km-vt-line.is-far { opacity: 0.2; filter: blur(2.4px); }
+.km-vt-line:focus-visible { box-shadow: inset 0 0 0 1px rgba(var(--vt-ink), 0.3); }
+.km-vt-who { display: none; }
+.km-vt-line.is-focus .km-vt-who {
+  display: flex; align-items: baseline; gap: 8px; margin-bottom: 5px;
+  font-size: 10.5px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(var(--vt-ink), 0.46);
+}
+.km-vt-who em { font-style: normal; font-family: var(--font-num); font-weight: 400; letter-spacing: 0; color: rgba(var(--vt-ink), 0.3); }
+.km-vt-line.is-note .km-vt-who { color: var(--vt-head); }
+/* a line the co-pilot flagged (objection, buying signal) */
+.km-vt-line.is-signal .km-vt-who::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--vt-head); align-self: center; }
+.km-vt-text {
+  display: block; font-family: var(--font-display); font-weight: 500; font-size: 20px; line-height: 1.32; letter-spacing: -0.01em; color: var(--vt-text);
+}
+.km-vt-line.is-focus .km-vt-text { font-size: 25px; line-height: 1.24; }
+.km-vt-line.is-me.is-focus .km-vt-text { color: rgba(var(--vt-ink), 0.78); }
+.km-vt-line.is-interim .km-vt-text { color: rgba(var(--vt-ink), 0.7); }
+.km-vt-lines--card .km-vt-text { font-size: 16px; }
+.km-vt-lines--card .km-vt-line.is-focus .km-vt-text { font-size: 20px; }
+.km-vt--compact .km-vt-lines--card .km-vt-text { font-size: 15px; }
+.km-vt--compact .km-vt-lines--card .km-vt-line.is-focus .km-vt-text { font-size: 18px; }
+.km-vt-lines--empty { display: flex; align-items: center; justify-content: center; -webkit-mask-image: none; mask-image: none; }
+.km-vt-empty { padding: 18px 10px; text-align: center; font-size: 14px; line-height: 1.5; color: rgba(var(--vt-ink), 0.4); }
+.km-vt-dots { display: inline-flex; gap: 4px; margin-left: 8px; vertical-align: middle; }
+.km-vt-dots i { width: 5px; height: 5px; border-radius: 50%; background: rgba(var(--vt-ink), 0.5); animation: km-vt-typing 1.1s ease-in-out infinite; }
+@keyframes km-vt-typing { 0%, 60%, 100% { opacity: 0.3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-2px); } }
+.km-vt-dots i:nth-child(2) { animation-delay: 0.15s; }
+.km-vt-dots i:nth-child(3) { animation-delay: 0.3s; }
+
+/* ── the waveform ── */
+.km-vt-wave { height: 73px; display: flex; align-items: center; justify-content: center; gap: 4px; margin: 12px 0 6px; outline: none; flex-shrink: 0; }
+.km-vt-wave i { width: 4px; height: calc(16px + var(--h, 0.4) * 32px); border-radius: 9999px; background: rgb(var(--vt-ink)); flex-shrink: 0; transition: height 0.12s linear, opacity 0.25s ease; }
+.km-vt-head { width: 4px; height: 73px; border-radius: 9999px; background: var(--vt-head); flex-shrink: 0; }
+.km-vt-wave.is-seekable { cursor: pointer; touch-action: manipulation; }
+.km-vt-wave:focus-visible { box-shadow: 0 0 0 1px rgba(var(--vt-ink), 0.3); border-radius: 12px; }
+.km-vt--card .km-vt-wave { height: 60px; margin-top: 10px; }
+.km-vt--card .km-vt-wave i { height: calc(12px + var(--h, 0.4) * 28px); }
+.km-vt--card .km-vt-head { height: 60px; }
+.km-vt--compact .km-vt-wave { height: 48px; }
+.km-vt--compact .km-vt-wave i { height: calc(10px + var(--h, 0.4) * 22px); }
+.km-vt--compact .km-vt-head { height: 48px; }
+
+/* ── the round control ── */
+.km-vt-ctl { display: flex; flex-direction: column; align-items: center; gap: 12px; flex-shrink: 0; }
+.km-vt-btnwrap { position: relative; display: flex; align-items: center; justify-content: center; }
+.km-vt-bloom {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, var(--vt-bloom), transparent); opacity: 0.63;
+}
+.km-vt-ring { position: absolute; inset: 0; overflow: visible; }
+.km-vt-ring-track { fill: none; stroke: rgba(var(--vt-ink), 0.1); stroke-width: 1; }
+.km-vt-ring-arc { fill: none; stroke: rgba(var(--vt-ink), 0.85); stroke-width: 2; stroke-linecap: round; transition: stroke-dashoffset 0.3s linear, opacity 0.2s ease; }
+.km-vt-btn { position: relative; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: var(--vt-text); transition: transform 0.16s var(--km-ease), background 0.18s, color 0.18s; }
+.km-vt--dark .km-vt-btn, .km-call .km-vt-btn { background: rgba(255, 255, 255, 0.06); color: #FFFFFF; }
+.km-vt-btn:active { transform: scale(0.94); }
+.km-vt-btn:disabled { opacity: 0.4; }
+.km-vt-btn.is-on { background: #FFFFFF !important; color: #0D0D0D !important; }
+.km-vt-label { font-size: 12px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(var(--vt-ink), 0.34); white-space: nowrap; }
+.km-vt--card .km-vt-ctl { margin-top: 4px; gap: 10px; }
+.km-vt--card .km-vt-label { font-size: 10.5px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .km-vt-line, .km-vt-wave i, .km-vt-ring-arc { transition: none; }
+  .km-vt-dots i { animation: none; }
+}

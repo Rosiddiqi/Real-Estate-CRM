@@ -8,7 +8,7 @@ import { hydrateNativeStorage, initNative, hideSplash } from './lib/native';
 // or a phone-width frame around it on wide desktop screens).
 export function boot() {
 if (window.self !== window.top) document.documentElement.classList.add('km-framed');
-// Apply theme + accent before first paint (no flash).
+// Apply the theme before first paint (no flash).
 applyTheme();
 
 // A stale code-split chunk after a deploy → reload once per session.

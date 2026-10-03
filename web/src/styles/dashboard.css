@@ -167,18 +167,18 @@
   transition: transform 0.18s var(--km-ease), opacity 0.18s;
 }
 .bp-quick:active { transform: scale(0.96); }
-/* Soul: the primary is the white pill; the secondary is hairline glass. */
+/* Soul: the primary is the white pill; the secondary is a glass pill. */
 .bp-quick--event { background: var(--bright); color: var(--on-accent); }
-.bp-quick--sched { background: var(--glass-fill); color: var(--text); box-shadow: inset 0 0 0 var(--hairline) var(--lineHi); }
+.bp-quick--sched { background: var(--glass-fill); color: var(--text); box-shadow: var(--lg-spec), var(--lg-glow), var(--lg-hairline); }
 
 .bp-daypicker {
   padding: 6px; border-radius: 999px; display: flex; align-items: center; gap: 6px;
-  background: var(--bp-panel); box-shadow: inset 0 0 0 var(--hairline) var(--glass-line);
+  background: var(--bp-panel); box-shadow: var(--tile-shadow);
 }
 .bp-arrow {
   width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
   display: inline-flex; align-items: center; justify-content: center;
-  background: transparent; box-shadow: inset 0 0 0 var(--hairline) var(--lineHi); color: var(--bp-t1);
+  background: var(--lg-tint); box-shadow: var(--lg-spec), var(--lg-glow), var(--lg-hairline); color: var(--bp-t1);
   transition: transform 0.18s var(--km-ease);
 }
 .bp-arrow:active { transform: scale(0.92); }
@@ -316,15 +316,15 @@
 /* ── Stats ─────────────────────────────────────────────────────────────── */
 /* Soul glass tiles; values in Inter Light. */
 .st-card {
-  background: var(--glass-fill); box-shadow: inset 0 0 0 var(--hairline) var(--glass-line);
+  background: var(--glass-fill); box-shadow: var(--tile-shadow);
   border: 0; border-radius: var(--r-card);
 }
-.st-plain { background: var(--glass-fill); box-shadow: inset 0 0 0 var(--hairline) var(--glass-line); border: 0; border-radius: var(--r-card); }
+.st-plain { background: var(--glass-fill); box-shadow: var(--tile-shadow); border: 0; border-radius: var(--r-card); }
 .st-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; color: var(--faint); text-transform: uppercase; }
 .st-value { font-family: var(--font-num); font-size: 26px; font-weight: 300; letter-spacing: -0.02em; margin-top: 8px; font-variant-numeric: tabular-nums; }
 .st-square {
   flex: 1; min-width: 0; text-align: left; padding: 16px 16px 14px; border-radius: var(--r-card);
-  background: var(--glass-fill); box-shadow: inset 0 0 0 var(--hairline) var(--glass-line); border: 0;
+  background: var(--glass-fill); box-shadow: var(--tile-shadow); border: 0;
   transition: transform 0.18s var(--km-ease);
 }
 .st-square:active { transform: scale(0.97); }
@@ -346,7 +346,7 @@
 .cal-type-tile {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
   padding: 12px 4px 10px; border-radius: var(--r-card); min-height: 78px;
-  border: 0; box-shadow: inset 0 0 0 var(--hairline) var(--glass-line); background: var(--glass-fill);
+  border: 0; box-shadow: var(--tile-shadow); background: var(--glass-fill);
   font-size: 12px; font-weight: 500; color: var(--dim); text-align: center; line-height: 1.15;
   transition: transform 0.18s var(--km-ease), background 0.18s, border-color 0.18s, color 0.18s;
 }

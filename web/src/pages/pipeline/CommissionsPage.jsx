@@ -29,7 +29,7 @@ function useCssColors(names) {
   const [colors, setColors] = useState(read);
   useEffect(() => {
     const mo = new MutationObserver(() => setColors(read()));
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style', 'class', 'data-accent'] });
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style', 'class'] });
     return () => mo.disconnect();
   }, [read]);
   return colors;

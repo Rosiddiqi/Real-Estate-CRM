@@ -530,6 +530,7 @@ router.get('/:id/activity', ah(async (req, res) => {
 
   const seen = { call: new Set(), appointment: new Set(), note: new Set(), deal: new Set(), property: new Set(), search: new Set() };
   const items = [];
+  const callById = new Map(calls.map((c) => [c.id, c]));
   for (const a of acts) {
     if (!includeMessages && MESSAGE_TYPES.has(a.type)) continue;
     const m = a.meta && typeof a.meta === 'object' ? a.meta : {};
@@ -539,7 +540,15 @@ router.get('/:id/activity', ah(async (req, res) => {
     if (m.dealId || a.dealId) seen.deal.add(m.dealId || a.dealId);
     if (m.propertyId) seen.property.add(m.propertyId);
     if (m.searchId) seen.search.add(m.searchId);
-    items.push({ id: `a:${a.id}`, activityId: a.id, kind: activityKind(a.type), type: a.type, title: a.title, body: a.body, at: a.occurredAt, meta: m, actor: a.actor });
+    // A call's activity carries its recap; the transcript and recording live on the call itself.
+    const call = m.callId ? callById.get(m.callId) : null;
+    const meta = call ? {
+      ...m,
+      transcript: Array.isArray(m.transcript) ? m.transcript : (Array.isArray(call.transcript) && call.transcript.length ? call.transcript.slice(0, 80) : null),
+      recordingUrl: m.recordingUrl || call.recordingUrl || null,
+      durationSec: m.durationSec != null ? m.durationSec : call.durationSec,
+    } : m;
+    items.push({ id: `a:${a.id}`, activityId: a.id, kind: activityKind(a.type), type: a.type, title: a.title, body: a.body, at: a.occurredAt, meta, actor: a.actor });
   }
   for (const c of calls) {
     if (seen.call.has(c.id)) continue;

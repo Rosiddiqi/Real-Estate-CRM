@@ -1,6 +1,5 @@
-// PillTabs — segmented control. Track = hairline glass pill; the selected
-// segment is Soul's solid white pill (ink on light) that springs between
-// cells.
+// PillTabs — segmented control. Track = Liquid Glass pill; the selected
+// segment is a glass lens (white glass on light) that springs between cells.
 //   <PillTabs value={tab} onChange={setTab} items={[{ id:'all', label:'All', count:12 }, ...]} />
 export default function PillTabs({ items, value, onChange, size = 'md', style, className = '' }) {
   const idx = Math.max(0, items.findIndex((i) => i.id === value));
@@ -39,7 +38,7 @@ export default function PillTabs({ items, value, onChange, size = 'md', style, c
               flex: 1, position: 'relative', zIndex: 1, minWidth: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               fontSize: size === 'sm' ? 12.5 : 13.5, fontWeight: 500,
-              color: active ? 'var(--on-accent)' : 'var(--lg-text-idle)',
+              color: active ? 'var(--lg-text)' : 'var(--lg-text-idle)',
               transition: 'color 0.2s',
               padding: '0 6px',
             }}

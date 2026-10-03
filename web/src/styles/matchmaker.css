@@ -19,7 +19,7 @@
 .mm-seg-lens { position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: 999px; transition: transform 0.34s var(--km-spring); pointer-events: none; }
 .mm-seg button { position: relative; z-index: 1; padding: 9px 4px; border-radius: 999px; font-size: 11.5px; font-weight: 500; letter-spacing: 0.01em; white-space: nowrap;
   color: var(--lg-text-idle); transition: color 0.16s; }
-.mm-seg button[aria-selected="true"] { color: var(--on-accent); }
+.mm-seg button[aria-selected="true"] { color: var(--lg-text); }
 .mm-mode-line { display: flex; align-items: center; gap: 8px; padding: 10px 4px 0; }
 .mm-mode-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--hl); box-shadow: 0 0 0 3px rgba(var(--hl-rgb), 0.18); animation: mm-pulse 1.6s ease-in-out infinite; }
 @keyframes mm-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.7); opacity: 0.5; } }

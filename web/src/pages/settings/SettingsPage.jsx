@@ -13,7 +13,7 @@ import { PERSONALITY_PRESETS } from '../../components/onboarding/personalityPres
 import { api } from '../../api/client';
 import { updateMe, updateWorkspace, uploadFiles } from '../../api/system';
 import { nav } from '../../lib/nav';
-import { ACCENTS, getStoredAccent, getStoredTheme, setAccent, setTheme } from '../../hooks/useShellEffects';
+import { getStoredTheme, setTheme } from '../../hooks/useShellEffects';
 import { setFullWidth } from '../../lib/desktopFrame';
 import { isNative } from '../../lib/native';
 import { fullName, formatPhone, formatPhoneInput, formatDate } from '../../lib/format';
@@ -43,7 +43,6 @@ export default function SettingsPage({ onClose }) {
   const [me, setMe] = useState(null);
   const [sheet, setSheet] = useState(null);
   const [theme, setThemeState] = useState(getStoredTheme());
-  const [accent, setAccentState] = useState(getStoredAccent());
 
   useEffect(() => { api.get('/me').then(setMe).catch(() => {}); }, []);
 
@@ -59,7 +58,6 @@ export default function SettingsPage({ onClose }) {
   };
 
   const chooseTheme = (t) => { setThemeState(t); setTheme(t); savePrefs({ theme: t }); };
-  const chooseAccent = (a) => { setAccentState(a); setAccent(a); savePrefs({ accent: a }); };
 
   const onAvatar = async (e) => {
     const f = e.target.files?.[0];
@@ -112,16 +110,6 @@ export default function SettingsPage({ onClose }) {
               <button key={id} type="button" onClick={() => chooseTheme(id)} className="km-press"
                 style={{ height: 64, borderRadius: 16, boxShadow: theme === id ? 'inset 0 0 0 1px var(--text)' : 'inset 0 0 0 var(--hairline) var(--glass-line)', background: theme === id ? 'var(--glass-fill-hi)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontWeight: 500, color: theme === id ? 'var(--text)' : 'var(--dim)' }}>
                 <Icon name={icon} size={18} stroke={1.5} /> {label}
-              </button>
-            ))}
-          </div>
-          <div className="km-eyebrow" style={{ margin: '16px 2px 10px' }}>Accent</div>
-          <div style={{ display: 'flex', gap: 12 }}>
-            {Object.entries(ACCENTS).map(([id, a]) => (
-              <button key={id} type="button" onClick={() => chooseAccent(id)} className="km-press"
-                style={{ flex: 1, padding: '12px 6px', borderRadius: 16, boxShadow: accent === id ? 'inset 0 0 0 1px var(--text)' : 'inset 0 0 0 var(--hairline) var(--glass-line)', background: accent === id ? 'var(--glass-fill-hi)' : 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                <span style={{ width: 28, height: 28, borderRadius: 14, background: a.swatch, boxShadow: 'inset 0 0 0 var(--hairline) rgba(0, 0, 0, 0.25)' }} />
-                <span style={{ fontSize: 12.5, fontWeight: 500, color: accent === id ? 'var(--text)' : 'var(--dim)' }}>{a.label}</span>
               </button>
             ))}
           </div>
@@ -447,7 +435,7 @@ function MessagingLine() {
           : 'Not configured';
   return (
     <Group>
-      <Row icon="message" iconColor="var(--sms)" iconBg="rgba(52,209,91,0.14)" title="SMS & calling" sub={sub} style={{ borderBottom: 0 }} />
+      <Row icon="message" title="SMS & calling" sub={sub} style={{ borderBottom: 0 }} />
     </Group>
   );
 }

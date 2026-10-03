@@ -1,6 +1,6 @@
-// Soul floating nav: a grey glass pill, icon-only, with a dot under the
-// active tab. Phone sits dead center in a raised circle — the easiest thumb
-// tap, and the one place the neon highlight lives in the app chrome.
+// Floating nav: a Liquid Glass pill, icon-only, with a dot under the active
+// tab. Phone sits dead center in a raised circle — the easiest thumb tap,
+// and the one place the neon highlight lives in the app chrome.
 import Icon from '../ui/Icon';
 import { haptic } from '../../lib/native';
 

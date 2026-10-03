@@ -1,49 +1,59 @@
 /* ===========================================================================
-   GLASS — the Soul material. Quiet and flat: a whisper of fill, a 0.67px
-   hairline, and a backdrop blur only where something floats over content.
-   No specular rims, no colour fringes, no saturation boosts.
+   LIQUID GLASS — the material for everything that floats, from the
+   HorizonX "Liquid Glass" kit (docs/BRAND.md § Liquid glass). A glass object
+   is almost clear: a whisper of fill, a frosted backdrop, and light doing
+   the work — a bright specular rim on the lit (top-left) edge, a fainter one
+   on the far edge, a soft inner glow, a hairline edge and a faint colour
+   fringe where the light bends.
    1. Floating controls (tab bar, circle buttons, segmented tracks, toasts,
-      menus, composer) use `km-lg`.
-   2. Content surfaces (cards, tiles, inputs) use the tile recipe in
-      components.css (`km-tile`) — glass fill + hairline, no blur.
+      menus, composer, search) use `km-lg`.
+   2. Content surfaces (cards, tiles, lists) use the tile recipe in
+      components.css (`km-tile`, --tile-shadow): same rim, no blur.
    3. Over photos use `km-lg--clear` (+ `km-lg--dim` for legibility).
-   4. Selected segments are SOLID emphasis (white on dark, ink on light).
+   4. A selected segment is a glass lens inside its track (`km-lg-seg`).
    Extend this file rather than hand-rolling a new recipe.
    =========================================================================== */
 
 :root {
-  --lg-tint: rgba(255, 255, 255, 0.04);
-  --lg-tint-solid: rgba(24, 24, 24, 0.86);
-  --lg-frost: blur(24px);
+  --lg-tint: rgba(255, 255, 255, 0.055);
+  --lg-tint-solid: rgba(26, 26, 26, 0.84);
+  --lg-frost: blur(18px) saturate(170%) brightness(1.04);
   --lg-tint-clear: rgba(255, 255, 255, 0.03);
-  --lg-frost-clear: blur(24px);
+  --lg-frost-clear: blur(10px) saturate(160%) brightness(1.05);
   --lg-dim: rgba(13, 13, 13, 0.42);
-  --lg-hairline: inset 0 0 0 var(--hairline) rgba(255, 255, 255, 0.10);
-  --lg-rim-glow: var(--lg-hairline);
-  --lg-fringe: 0 0 0 0 transparent;
-  --lg-drop: 0 10px 28px -14px rgba(0, 0, 0, 0.7);
-  --lg-shadow: var(--lg-hairline), var(--lg-drop);
+  --lg-hairline: inset 0 0 0 var(--hairline) rgba(255, 255, 255, 0.12);
+  --lg-spec: inset 1.25px 1.25px 0.75px -0.75px rgba(255, 255, 255, 0.62), inset -1px -1px 0.75px -0.75px rgba(255, 255, 255, 0.26);
+  --lg-glow: inset 0 0 8px rgba(248, 248, 248, 0.16);
+  --lg-fringe: inset 2.5px 0 2px -2px rgba(255, 124, 100, 0.18), inset -2.5px 0 2px -2px rgba(100, 170, 255, 0.2);
+  --lg-rim-glow: var(--lg-spec), var(--lg-glow), var(--lg-hairline);
+  --lg-drop: 0 16px 24px -16px rgba(0, 0, 0, 0.65);
+  --lg-shadow: var(--lg-spec), var(--lg-fringe), var(--lg-glow), var(--lg-hairline), var(--lg-drop);
   --lg-text: #FFFFFF;
   --lg-text-idle: rgba(255, 255, 255, 0.46);
   --lg-text-tertiary: rgba(255, 255, 255, 0.3);
-  --lg-fill: rgba(255, 255, 255, 0.08);
+  --lg-fill: rgba(255, 255, 255, 0.1);
   --lg-accent: var(--hl);
   --mat-thin: rgba(13, 13, 13, 0.40);
   --mat-regular: rgba(13, 13, 13, 0.62);
   --mat-thick: rgba(13, 13, 13, 0.84);
-  --mat-blur: blur(24px);
-  --nav-fill: rgba(175, 175, 174, 0.94);
-  --nav-icon: #0D0D0D;
-  --nav-bump: #D9D9D9;
+  --mat-blur: blur(24px) saturate(160%);
+  --nav-fill: rgba(255, 255, 255, 0.06);
+  --nav-icon: #FFFFFF;
+  --nav-ring: #0D0D0D;
+  --nav-dot: var(--hl);
 }
 
 :root[data-theme="light"] {
   --lg-tint: rgba(255, 255, 255, 0.55);
-  --lg-tint-solid: rgba(255, 255, 255, 0.90);
-  --lg-tint-clear: rgba(255, 255, 255, 0.10);
+  --lg-tint-solid: rgba(255, 255, 255, 0.9);
+  --lg-frost: blur(18px) saturate(180%) brightness(1.06);
+  --lg-tint-clear: rgba(255, 255, 255, 0.18);
   --lg-dim: rgba(13, 13, 13, 0.30);
-  --lg-hairline: inset 0 0 0 var(--hairline) rgba(13, 13, 13, 0.10);
-  --lg-drop: 0 10px 28px -16px rgba(0, 0, 0, 0.25);
+  --lg-hairline: inset 0 0 0 var(--hairline) rgba(13, 13, 13, 0.07);
+  --lg-spec: inset 1.25px 1.25px 0.75px -0.75px rgba(255, 255, 255, 0.98), inset -1px -1px 0.75px -0.75px rgba(255, 255, 255, 0.8);
+  --lg-glow: inset 0 0 8px rgba(255, 255, 255, 0.6);
+  --lg-fringe: 0 0 0 0 transparent;
+  --lg-drop: 0 14px 24px -14px rgba(0, 0, 0, 0.24);
   --lg-text: #0D0D0D;
   --lg-text-idle: rgba(13, 13, 13, 0.55);
   --lg-text-tertiary: rgba(13, 13, 13, 0.3);
@@ -51,9 +61,10 @@
   --mat-thin: rgba(255, 255, 255, 0.5);
   --mat-regular: rgba(255, 255, 255, 0.72);
   --mat-thick: rgba(255, 255, 255, 0.88);
-  --nav-fill: rgba(13, 13, 13, 0.92);
-  --nav-icon: #FFFFFF;
-  --nav-bump: #2A2A2A;
+  --nav-fill: rgba(255, 255, 255, 0.62);
+  --nav-icon: #0D0D0D;
+  --nav-ring: #FFFFFF;
+  --nav-dot: #0D0D0D;
 }
 
 /* ── Regular glass (default) ─────────────────────────────────────────── */
@@ -67,41 +78,49 @@
 }
 .km-lg--solid { background: var(--lg-tint-solid); }
 .km-lg--menu {
-  background: rgba(22, 22, 22, 0.94);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
-  box-shadow: var(--lg-hairline), 0 18px 48px rgba(0, 0, 0, 0.55);
+  background: rgba(28, 28, 28, 0.76);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  backdrop-filter: blur(28px) saturate(170%);
+  box-shadow: var(--lg-spec), var(--lg-glow), var(--lg-hairline), 0 18px 48px rgba(0, 0, 0, 0.55);
 }
-:root[data-theme="light"] .km-lg--menu { background: rgba(255, 255, 255, 0.96); box-shadow: var(--lg-hairline), 0 18px 48px rgba(0, 0, 0, 0.14); }
+:root[data-theme="light"] .km-lg--menu {
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--lg-spec), var(--lg-glow), var(--lg-hairline), 0 18px 48px rgba(0, 0, 0, 0.14);
+}
 
 /* Light glass for controls on a dark floor (call screen buttons). */
 .km-lg--light {
-  background: rgba(255, 255, 255, 0.07);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
-  box-shadow: inset 0 0 0 var(--hairline) rgba(255, 255, 255, 0.14), 0 10px 24px -12px rgba(0, 0, 0, 0.7);
+  background: rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: var(--lg-frost);
+  backdrop-filter: var(--lg-frost);
+  box-shadow: var(--lg-spec), var(--lg-fringe), inset 0 0 8px rgba(248, 248, 248, 0.18), inset 0 0 0 var(--hairline) rgba(255, 255, 255, 0.14), 0 10px 24px -12px rgba(0, 0, 0, 0.7);
 }
-.km-lg--light:is(button, [role="button"]):active { background: rgba(255, 255, 255, 0.16); }
+.km-lg--light:is(button, [role="button"]):active { background: rgba(255, 255, 255, 0.18); }
 
-/* Clear glass — only over photos / video. */
+/* Clear glass — only over photos / video: almost no fill, brighter rim. */
 .km-lg--clear {
   background: var(--lg-tint-clear);
   -webkit-backdrop-filter: var(--lg-frost-clear);
   backdrop-filter: var(--lg-frost-clear);
-  box-shadow: inset 0 0 0 var(--hairline) rgba(255, 255, 255, 0.30);
+  box-shadow: var(--lg-spec), var(--lg-fringe), var(--lg-glow), inset 0 0 0 var(--hairline) rgba(255, 255, 255, 0.28);
 }
 .km-lg--clear.km-lg--dim { background: var(--lg-dim); }
 
 .km-lg--tint-blue { background: var(--hl-soft); }
-.km-lg--line { box-shadow: var(--lg-hairline), var(--lg-drop); }
+.km-lg--line { box-shadow: var(--lg-spec), var(--lg-glow), var(--lg-hairline), var(--lg-drop); }
 
 /* Segmented controls: track = `km-lg km-lg--line`; selected segment =
-   `km-lg km-lg--flat km-lg-seg` — solid emphasis, Soul's white pill. */
+   `km-lg km-lg--flat km-lg-seg` — a glass lens that slides in the track
+   (white glass on light). Its label is --lg-text. */
 .km-lg--flat { -webkit-backdrop-filter: none; backdrop-filter: none; }
 .km-lg-seg {
-  background: var(--bright);
-  box-shadow: none;
-  color: var(--on-accent);
+  background: rgba(255, 255, 255, 0.11);
+  box-shadow: var(--lg-spec), var(--lg-glow), var(--lg-hairline);
+  color: var(--lg-text);
+}
+:root[data-theme="light"] .km-lg-seg {
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--lg-spec), var(--lg-hairline), 0 4px 12px -6px rgba(0, 0, 0, 0.25);
 }
 
 /* ── Scroll edge effect — top bars get no band ─────────────────────── */
@@ -134,12 +153,12 @@
   -webkit-backdrop-filter: var(--mat-blur);
   backdrop-filter: var(--mat-blur);
   border-color: transparent;
-  box-shadow: none;
+  box-shadow: var(--lg-spec), inset 0 0 0 var(--hairline) rgba(255, 255, 255, 0.10);
 }
 .km-mat--thin { background: var(--mat-thin); }
 .km-mat--thick { background: var(--mat-thick); }
 
-/* Press: glass brightens slightly. */
+/* Press: the glass catches more light. */
 .km-lg:is(button, [role="button"], a):active { background: var(--lg-fill); }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -154,8 +173,15 @@
     --lg-dim: rgba(28, 28, 28, 0.92);
     --mat-thin: rgba(28, 28, 28, 0.95);
     --mat-regular: rgba(28, 28, 28, 0.97);
+    --nav-fill: rgba(28, 28, 28, 0.97);
   }
-  .km-lg, .km-lg--menu, .km-mat { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  :root[data-theme="light"] {
+    --lg-tint: rgba(255, 255, 255, 0.97);
+    --lg-tint-solid: rgba(255, 255, 255, 0.97);
+    --lg-tint-clear: rgba(255, 255, 255, 0.92);
+    --nav-fill: rgba(255, 255, 255, 0.97);
+  }
+  .km-lg, .km-lg--menu, .km-mat, .km-tabbar { -webkit-backdrop-filter: none; backdrop-filter: none; }
   .km-scroll-edge::before {
     -webkit-backdrop-filter: none; backdrop-filter: none;
     background: var(--bg);
@@ -168,6 +194,7 @@
     --lg-tint-solid: rgba(20, 20, 20, 0.96);
     --lg-dim: rgba(0, 0, 0, 0.8);
     --lg-text-idle: rgba(255, 255, 255, 0.85);
+    --nav-fill: rgba(20, 20, 20, 0.94);
   }
   .km-lg { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55), var(--lg-drop); }
 }

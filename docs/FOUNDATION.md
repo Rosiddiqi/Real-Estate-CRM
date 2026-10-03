@@ -83,12 +83,14 @@ fix every one. Check 390×844 (primary), 375×667 (small), and 1280×860 (deskto
   agent's approval (Preview → Edit/Approve → Send). Campaign launches approve sends at campaign level.
   Every AI feature MUST work without AI (`ai.available()` false → deterministic fallback copy/logic).
   AI never blocks the UI (async + loading/skeleton states).
-- **Channel colors** are monochrome: iMessage = white bubble with ink text (`--imsg`/`--imsg-text`),
-  SMS/Android = graphite (`--sms`/`--sms-text`) — everywhere a channel appears.
+- **Channel colors** match iPhone Messages: iMessage = blue bubble (`--imsg`), SMS/Android = green
+  (`--sms`), both with white text; incoming = grey (`--bubble-in`). They belong to texting UI only
+  (bubbles, the send button, channel dots) — elsewhere icons stay monochrome.
 - **No manual sync UI**: realtime via WebSocket; silent refetch on reconnect/foreground (`useResync`).
 - **Empty states**: centered 64px icon tile + 17px title + 14px sub (`<EmptyState>`).
-- Hairlines + space over boxes. No glows; the one colour is the Volt highlight (`--hl`), used for
-  live/active/progress/AI moments only — see `docs/BRAND.md`. No emoji as UI icons (use `<Icon>`).
+- Hairlines + space over boxes. No glows; the one accent is the Volt highlight (`--hl`, neon
+  green-yellow, no alternatives), used for live/active/progress/AI moments only — see
+  `docs/BRAND.md`. No emoji as UI icons (use `<Icon>`).
 - Fair Housing: never store or infer protected-class info (race, religion, national origin,
   familial status, disability, sex…) or demographic neighborhood preferences — only property
   attributes and explicitly named locations. Applies to every AI prompt.
@@ -137,13 +139,18 @@ fix every one. Check 390×844 (primary), 375×667 (small), and 1280×860 (deskto
   `--on-hl`, `--hl-rgb`; status `--green`, `--amber`, `--red`, `--cyan`; `--imsg(-text)`, `--sms(-text)`,
   KIND colors; radii `--r-card 20 / --r-img 15 / --r-sheet 32 / --r-pill`; fonts `--font` (Poppins),
   `--font-num` (Inter); motion `--km-ease`, `--km-nav-ease`, `--km-spring`. Light theme via
-  `data-theme="light"` — use vars, never hard-code dark colors. Settings › Accent swaps only the
-  `--hl*` variables (Volt · Amber · Mist). Data colours from the server go through
+  `data-theme="light"` — use vars, never hard-code dark colors. Appearance is light or dark only;
+  the highlight is always Volt (no accent picker). Data colours from the server go through
   `lib/palette.js` (`tone()`, `tint()`); never append hex alpha to a colour string.
-- **Glass** (`styles/liquid-glass.css`, Soul recipe): `km-lg` (+`--solid`, `--menu`, `--line`, `--flat`,
-  `km-lg-seg` = the white selected pill, `--clear km-lg--dim` over photos), `km-mat` for content-layer
-  frost, `km-scroll-edge` for top bars. Content tiles use `km-tile`/`km-card` (glass fill + hairline,
-  no blur).
+- **Glass** (`styles/liquid-glass.css`, the HorizonX Liquid Glass recipe): `km-lg` (+`--solid`, `--menu`,
+  `--line`, `--flat`, `km-lg-seg` = the glass lens of a segmented control, `--clear km-lg--dim` over
+  photos), `km-mat` for content-layer frost, `km-scroll-edge` for top bars. The rim is tokens:
+  `--lg-spec` (specular edges), `--lg-glow`, `--lg-hairline`, `--lg-fringe`, `--lg-drop`. Content tiles
+  use `km-tile`/`km-card` (`--tile-shadow`: the same rim, no blur).
+- **Call transcripts** (`components/calls/VoiceTranscript.jsx`, `styles/voice.css`): Soul's voice-notes
+  screen — `KaraokeLines` (focus line + receding neighbours), `VoiceWave` (Volt playhead),
+  `VoiceButton` (glass circle + progress ring); `TranscriptPlayer` is the replay widget (recap,
+  client timeline).
 - **Kit** (`components/ui`):
   - `Icon` (`<Icon name="house" size={20} />` — names in `Icon.jsx`; add none, use what exists),
   - `Avatar` (`name`, `seed`=client.id, `src`, `size`, `channel`, `badge`),

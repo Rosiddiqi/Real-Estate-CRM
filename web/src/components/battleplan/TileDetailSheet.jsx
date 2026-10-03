@@ -163,7 +163,7 @@ export default function TileDetailSheet({ open, item, onClose, onComplete, onRet
                 </button>
               ) : null}
               {item.clientId && onText ? (
-                <button type="button" className="km-press" onClick={() => { close(); setTimeout(() => onText(item), 250); }} style={actBtn('var(--imsg)')}>
+                <button type="button" className="km-press" onClick={() => { close(); setTimeout(() => onText(item), 250); }} style={actBtn('var(--text)')}>
                   <Icon name="message" size={14} stroke={2} /> Message
                 </button>
               ) : null}

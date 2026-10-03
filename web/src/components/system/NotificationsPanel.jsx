@@ -13,7 +13,7 @@ import { useResync, useSocket } from '../../hooks/useSocket';
 import '../../styles/calls.css';
 
 const TYPES = {
-  message: { icon: 'message', color: 'var(--imsg)' },
+  message: { icon: 'message', color: 'var(--text)' },
   call_missed: { icon: 'phoneMissed', color: 'var(--red)' },
   missed_call: { icon: 'phoneMissed', color: 'var(--red)' },
   voicemail: { icon: 'voicemail', color: 'var(--violet)' },

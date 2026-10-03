@@ -323,7 +323,7 @@ export default function AppointmentSheet({ id, onClose }) {
 
             <div style={{ display: 'flex', gap: 6, marginTop: 16 }}>
               {appt.client && appt.client.phone ? <QuickAction icon="phone" label="Call" color="var(--green)" onClick={() => { close(); setTimeout(() => nav.call({ clientId: appt.client.id, phone: appt.client.phone, name: appt.client.name }), 260); }} /> : null}
-              {appt.client ? <QuickAction icon="message" label="Text" color="var(--imsg)" onClick={() => { close(); setTimeout(() => nav.openThread({ clientId: appt.client.id }), 260); }} /> : null}
+              {appt.client ? <QuickAction icon="message" label="Text" color="var(--text)" onClick={() => { close(); setTimeout(() => nav.openThread({ clientId: appt.client.id }), 260); }} /> : null}
               {appt.listing ? <QuickAction icon="house" label="Listing" color="var(--kind-showing)" onClick={() => { close(); setTimeout(() => nav.openListing(appt.listing.id), 260); }} /> : null}
               {appt.location ? <QuickAction icon="compass" label="Directions" color="var(--amber)" href={directionsUrl(appt.location)} /> : null}
               <QuickAction icon="trash" label="Delete" color="var(--red)" onClick={() => remove(close)} />

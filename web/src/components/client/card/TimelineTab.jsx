@@ -7,8 +7,8 @@
 import { useMemo, useState } from 'react';
 import ThreadView from '../../thread/ThreadView';
 import Icon from '../../ui/Icon';
+import TranscriptPlayer from '../../calls/VoiceTranscript';
 import { confirm, toast } from '../../ui/toast';
-import { mediaUrl } from '../../../api/client';
 import { updateNote, deleteNote } from '../../../api/clients';
 import { nav } from '../../../lib/nav';
 import { formatTime } from '../../../lib/format';
@@ -46,28 +46,19 @@ export function CallCard({ item }) {
         {m.recordingUrl ? <span className="kc-tag kc-tag--mono kc-tag--violet">Recorded</span> : null}
         <span className="kc-mono" style={{ fontSize: 11.5, color: 'var(--faint)' }}>{shortDate(item.at)} · {formatTime(item.at)}</span>
       </div>
-      {m.recordingUrl ? (
-        <audio controls preload="none" src={mediaUrl(m.recordingUrl)} style={{ width: '100%', height: 34 }} />
-      ) : null}
       {bullets.length ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <span className="kc-tag kc-tag--mono kc-tag--violet" style={{ alignSelf: 'flex-start' }}><Icon name="sparkle" size={9} stroke={2.4} /> AI recap</span>
           {bullets.map((b, i) => <div key={i} className="kc-bullet km-selectable">{b}</div>)}
         </div>
       ) : null}
-      {transcript.length ? (
+      {transcript.length || m.recordingUrl ? (
         <div>
-          <button type="button" onClick={() => setOpen((o) => !o)} className="kc-mono" style={{ fontSize: 10.5, letterSpacing: 1.2, color: 'var(--dim)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <Icon name={open ? 'chevronUp' : 'chevronDown'} size={12} /> TRANSCRIPT · {transcript.length} LINES
+          <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="kc-mono" style={{ fontSize: 10.5, letterSpacing: 1.2, color: 'var(--dim)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Icon name={open ? 'chevronUp' : 'chevronDown'} size={12} /> {transcript.length ? `TRANSCRIPT · ${transcript.length} LINES` : 'RECORDING'}
           </button>
           {open ? (
-            <div className="kc-transcript" style={{ marginTop: 8 }}>
-              {transcript.map((t, i) => (
-                <div key={i} className={`${t.speaker === 'agent' ? 'kc-me' : ''} km-selectable`}>
-                  <b style={{ fontSize: 10.5, color: 'var(--faint)', marginRight: 6 }}>{t.speaker === 'agent' ? 'You' : 'Client'}</b>{t.text}
-                </div>
-              ))}
-            </div>
+            <TranscriptPlayer lines={transcript} recordingUrl={m.recordingUrl} durationSec={m.durationSec} seed={item.id} themName="Client" title={transcript.length ? 'Call transcript' : 'Call recording'} compact className="kc-call-tx" />
           ) : null}
         </div>
       ) : null}

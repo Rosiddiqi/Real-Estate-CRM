@@ -170,7 +170,7 @@ function FollowUps({ f }) {
               </span>
             </button>
             {it.action ? (
-              <button type="button" className="km-press" onClick={it.action.onClick} aria-label={it.action.label} style={{ width: 32, height: 32, borderRadius: 10, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'color-mix(in srgb, var(--imsg) 12%, transparent)', color: 'var(--imsg)' }}>
+              <button type="button" className="km-press" onClick={it.action.onClick} aria-label={it.action.label} style={{ width: 32, height: 32, borderRadius: 10, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'var(--tint)', color: 'var(--text)' }}>
                 <Icon name={it.action.icon} size={15} stroke={2} />
               </button>
             ) : <Icon name="chevronRight" size={14} color="var(--faint)" />}
@@ -197,7 +197,7 @@ function InboxGlance({ inbox }) {
   return (
     <div style={{ padding: '0 20px' }}>
       <div style={{ display: 'flex', gap: 10 }}>
-        {tile('message', 'var(--imsg)', inbox.unreadMessages, 'Unread', inbox.unreadConversations ? `${inbox.unreadConversations} thread${inbox.unreadConversations === 1 ? '' : 's'}` : null, () => nav.go('inbox'))}
+        {tile('message', 'var(--text)', inbox.unreadMessages, 'Unread', inbox.unreadConversations ? `${inbox.unreadConversations} thread${inbox.unreadConversations === 1 ? '' : 's'}` : null, () => nav.go('inbox'))}
         {tile('phoneMissed', 'var(--red)', inbox.missedCalls, 'Missed calls', null, () => nav.go('phone'))}
       </div>
       {(inbox.recentUnread || []).length ? (
