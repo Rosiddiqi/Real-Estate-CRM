@@ -14,10 +14,12 @@ import { serena } from './serenaStore';
 
 const ClientPicker = lazy(() => import('../client/ClientPicker'));
 
+// Bubble fill + its text colour, and the label tint (Soul: monochrome
+// channels — iMessage white, SMS graphite, email a lighter graphite).
 const CHANNEL = {
-  imessage: { label: 'iMessage', color: 'var(--imsg)' },
-  sms: { label: 'SMS', color: 'var(--sms)' },
-  email: { label: 'Email', color: 'var(--cyan)' },
+  imessage: { label: 'iMessage', color: 'var(--imsg)', text: 'var(--imsg-text)', tint: 'var(--text)' },
+  sms: { label: 'SMS', color: 'var(--sms)', text: 'var(--sms-text)', tint: 'var(--dim)' },
+  email: { label: 'Email', color: 'var(--email-bubble, #262626)', text: 'var(--email-text, #fff)', tint: 'var(--dim)' },
 };
 
 function autoGrow(el) {
@@ -115,9 +117,9 @@ export default function SerenaProposalCard({ proposal: p, onHandoff }) {
           <>
             <Avatar name={p.clientName} seed={p.clientId} size={30} channel={p.kind === 'email' ? undefined : p.channel} />
             <div style={{ minWidth: 0, flex: 1 }}>
-              <div className="km-truncate" style={{ fontSize: 14, fontWeight: 600 }}>{p.clientName}</div>
+              <div className="km-truncate" style={{ fontSize: 14, fontWeight: 500 }}>{p.clientName}</div>
               <div className="km-truncate" style={{ fontSize: 11.5, color: 'var(--dim)' }}>
-                <span style={{ color: ch.color, fontWeight: 600 }}>{ch.label}</span>
+                <span style={{ color: ch.tint, fontWeight: 500 }}>{ch.label}</span>
                 {p.to ? ` · ${p.to}` : ''}
                 {p.listingLabel ? ` · ${p.listingLabel}` : ''}
               </div>
@@ -149,7 +151,7 @@ export default function SerenaProposalCard({ proposal: p, onHandoff }) {
           {editing ? (
             <textarea ref={ta} className="km-srn-prop-edit" value={body} onChange={(e) => { setBody(e.target.value); autoGrow(e.target); }} />
           ) : (
-            <div className="km-srn-prop-bubble km-selectable" style={{ background: ch.color }}>{body}</div>
+            <div className="km-srn-prop-bubble km-selectable" style={{ background: ch.color, color: ch.text }}>{body}</div>
           )}
           {!editing && p.reason ? <div style={{ fontSize: 11, color: 'var(--faint)', marginTop: 6 }}>{p.reason}</div> : null}
         </div>
@@ -213,8 +215,8 @@ function CampaignDraft({ p, onHandoff }) {
       </div>
       <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div style={{ fontSize: 15, fontWeight: 650, letterSpacing: '-0.01em' }}>{p.name}</div>
-        <div style={{ fontSize: 12.5, color: 'var(--dim)', lineHeight: 1.4 }}><span style={{ color: 'var(--faint)', fontWeight: 600 }}>Audience · </span>{p.audience}</div>
-        <div className="km-selectable" style={{ fontSize: 12.5, color: 'var(--dim)', lineHeight: 1.4 }}><span style={{ color: 'var(--faint)', fontWeight: 600 }}>Brief · </span>{p.brief}</div>
+        <div style={{ fontSize: 12.5, color: 'var(--dim)', lineHeight: 1.4 }}><span style={{ color: 'var(--faint)', fontWeight: 500 }}>Audience · </span>{p.audience}</div>
+        <div className="km-selectable" style={{ fontSize: 12.5, color: 'var(--dim)', lineHeight: 1.4 }}><span style={{ color: 'var(--faint)', fontWeight: 500 }}>Brief · </span>{p.brief}</div>
       </div>
       {!dismissed ? (
         <div className="km-srn-prop-actions">

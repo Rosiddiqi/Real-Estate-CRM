@@ -13,10 +13,10 @@ import { serena, useSerena } from './serenaStore';
 import { useAssistant } from '../../hooks/useAssistant';
 
 const ICONS = [
-  { icon: 'calendar', color: 'var(--srn-violet)', bg: 'rgba(154,77,255,0.14)' },
-  { icon: 'phone', color: 'var(--green)', bg: 'rgba(48,210,122,0.14)' },
-  { icon: 'message', color: 'var(--imsg)', bg: 'rgba(46,139,255,0.14)' },
-  { icon: 'key', color: 'var(--amber)', bg: 'rgba(242,169,59,0.14)' },
+  { icon: 'calendar', color: 'var(--text)', bg: 'transparent' },
+  { icon: 'phone', color: 'var(--text)', bg: 'transparent' },
+  { icon: 'message', color: 'var(--text)', bg: 'transparent' },
+  { icon: 'key', color: 'var(--text)', bg: 'transparent' },
 ];
 const DEFAULT_STARTERS = ['What’s my day?', 'Who should I call first?', 'Draft a just-listed text for 128 Sunset Dr', 'Add a showing with the Delacroixs tomorrow at 2'];
 

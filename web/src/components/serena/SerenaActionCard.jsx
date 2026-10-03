@@ -7,12 +7,12 @@ import { serena } from './serenaStore';
 
 const CATS = {
   calendar: { accent: 'var(--srn-violet)', icon: 'calendar' },
-  todo: { accent: 'var(--blue)', icon: 'checklist' },
+  todo: { accent: 'var(--text)', icon: 'checklist' },
   note: { accent: 'var(--green)', icon: 'file' },
   contact: { accent: 'var(--green)', icon: 'user' },
-  search: { accent: 'var(--blue)', icon: 'target' },
+  search: { accent: 'var(--text)', icon: 'target' },
   portfolio: { accent: 'var(--cyan)', icon: 'house' },
-  pipeline: { accent: 'var(--blue)', icon: 'pipeline' },
+  pipeline: { accent: 'var(--text)', icon: 'pipeline' },
   call: { accent: 'var(--green)', icon: 'phone' },
   memory: { accent: 'var(--srn-violet)', icon: 'sparkle' },
   drafts: { accent: 'var(--srn-violet)', icon: 'message' },

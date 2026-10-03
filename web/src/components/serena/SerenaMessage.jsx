@@ -92,7 +92,7 @@ function Entities({ items, onHandoff }) {
           <div key={`${e.type}-${e.id}-${i}`} className="km-srn-ent">
             <button type="button" className="km-srn-ent-main km-press" onClick={openIt} style={{ textAlign: 'left' }}>
               {avatar ? <Avatar name={e.name} seed={e.clientId || e.id} size={32} /> : (
-                <span style={{ width: 32, height: 32, borderRadius: 10, background: 'var(--tint)', color: 'var(--bright)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span style={{ width: 32, height: 32, borderRadius: '50%', background: 'transparent', boxShadow: 'inset 0 0 0 var(--hairline) var(--lineHi)', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Icon name={e.type === 'listing' ? 'house' : e.type === 'pipeline' ? 'pipeline' : 'dollar'} size={16} stroke={2} />
                 </span>
               )}

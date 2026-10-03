@@ -1,5 +1,5 @@
-// SerenaAvatar — Serena's identity everywhere: a liquid-glass orb with a
-// breathing violet core (RevMatch's SerenaAvatar). `thinking` adds a slow
+// SerenaAvatar — the assistant's identity everywhere: a graphite glass orb
+// with a breathing highlight core (Soul's mic-button language). `thinking` adds a slow
 // rotating halo while a turn is running.
 import '../../styles/serena.css';
 
@@ -12,7 +12,7 @@ export default function SerenaAvatar({ size = 32, thinking = false, glass = true
       aria-hidden="true"
     >
       <span className="km-srn-halo" />
-      <span className="km-srn-core" style={{ width: core, height: core, boxShadow: `0 0 ${core}px rgba(154,77,255,0.55), 0 0 ${core * 2}px rgba(154,77,255,0.25)` }} />
+      <span className="km-srn-core" style={{ width: core, height: core, boxShadow: `0 0 ${core}px rgba(var(--hl-rgb), 0.5), 0 0 ${core * 2}px rgba(var(--hl-rgb), 0.18)` }} />
     </span>
   );
 }

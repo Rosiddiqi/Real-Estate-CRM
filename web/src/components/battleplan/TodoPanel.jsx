@@ -115,9 +115,9 @@ function AddTodoBox({ onAdd }) {
         disabled={!ready}
         aria-label="Add to-do"
         style={{
-          border: `1px solid ${ready ? alpha('var(--blue)', 40) : 'var(--bp-hair2)'}`,
-          background: ready ? 'var(--blue)' : 'var(--bp-fill)',
-          color: ready ? '#04121F' : 'var(--bp-t3)',
+          border: `var(--hairline) solid ${ready ? 'var(--hl)' : 'var(--bp-hair2)'}`,
+          background: ready ? 'var(--hl)' : 'transparent',
+          color: ready ? 'var(--on-hl)' : 'var(--bp-t3)',
         }}
       >
         <Icon name="plus" size={18} stroke={2.6} />
@@ -133,16 +133,16 @@ function MyRow({ task, onDone, onRemove, onOpen }) {
     <div data-bp-item={`task-${task.id}`} style={{ marginBottom: 8, opacity: task.pendingSave ? 0.7 : 1, transition: 'opacity 0.2s' }} className="km-row-in">
       <SwipeToRemove onRemove={onRemove}>
         <div className="bp-tile" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 12px 12px 16px' }}>
-          <Spine color={meta.hot ? 'var(--bp-amber)' : 'var(--bp-t3)'} glow={meta.hot} />
+          <Spine color={meta.hot ? 'var(--bp-amber)' : 'var(--bp-t3)'} glow={false} />
           <button
             type="button"
             className="td-circle"
             onClick={(e) => { e.stopPropagation(); onDone(); }}
             aria-label="Mark done"
-            style={{ border: `1.5px solid ${meta.hot ? 'var(--bp-amber)' : 'var(--bp-t3)'}` }}
+            style={{ border: `1.2px solid ${meta.hot ? 'var(--bp-amber)' : 'var(--bp-t3)'}` }}
           />
           <div onClick={onOpen || undefined} style={{ flex: 1, minWidth: 0, cursor: onOpen ? 'pointer' : 'default' }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--bp-t1)', lineHeight: 1.35, overflowWrap: 'anywhere' }}>
+            <div style={{ fontSize: 14.5, fontWeight: 500, color: 'var(--bp-t1)', lineHeight: 1.35, overflowWrap: 'anywhere' }}>
               {whale ? <Icon name="crown" size={12} color="var(--text)" style={{ marginRight: 5, verticalAlign: '-1px' }} /> : null}
               {task.title}
             </div>
@@ -163,13 +163,13 @@ function SuggestionRow({ s, onAdd, onDismiss, onOpen }) {
     <div data-bp-item={`sugg-${s.id}`} className="bp-tile km-row-in" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 12px 12px 16px', marginBottom: 8 }}>
       <Spine color="var(--violet)" glow={false} />
       <div onClick={onOpen || undefined} style={{ flex: 1, minWidth: 0, cursor: onOpen ? 'pointer' : 'default' }}>
-        <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--bp-t1)', lineHeight: 1.35, overflowWrap: 'anywhere' }}>{s.title}</div>
+        <div style={{ fontSize: 14.5, fontWeight: 500, color: 'var(--bp-t1)', lineHeight: 1.35, overflowWrap: 'anywhere' }}>{s.title}</div>
         <div className="km-clamp-2" style={{ fontSize: 12, color: 'var(--bp-t2)', marginTop: 4, lineHeight: 1.4 }}>{why}</div>
       </div>
       <button type="button" className="td-btn td-iconbtn" onClick={onDismiss} aria-label="Dismiss suggestion" style={{ border: '1px solid var(--bp-hair2)', color: 'var(--bp-t2)' }}>
         <Icon name="x" size={14} stroke={2.2} />
       </button>
-      <button type="button" className="td-btn" onClick={onAdd} style={{ background: 'var(--violet)', color: '#fff' }}>Add</button>
+      <button type="button" className="td-btn" onClick={onAdd} style={{ background: 'var(--hl)', color: 'var(--on-hl)' }}>Add</button>
     </div>
   );
 }
@@ -180,23 +180,23 @@ function MoveRow({ m, flash, onAdd, onGood, onBad, onOpen, onCall, onText }) {
   const detail = (m.why || m.sub || '').trim();
   return (
     <div data-bp-item={`move-${m.id}`} className="bp-tile km-row-in" style={{ padding: '12px 12px 10px 16px', marginBottom: 8 }}>
-      <Spine color="var(--violet)" glow />
+      <Spine color="var(--violet)" glow={false} />
       <div onClick={onOpen} style={{ cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5, minWidth: 0 }}>
           <span className="td-reason" style={{ color: rc, background: alpha(rc, 13), border: `1px solid ${alpha(rc, 28)}` }}>{m.reasonLabel || 'FOLLOW-UP'}</span>
           {m.whale ? <Icon name="crown" size={12} color="var(--text)" /> : null}
-          {m.date && m.date !== dateKey() ? <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 0.8, color: 'var(--bp-t3)' }}>TOMORROW</span> : null}
+          {m.date && m.date !== dateKey() ? <span style={{ fontSize: 9.5, fontWeight: 500, letterSpacing: 0.8, color: 'var(--bp-t3)' }}>TOMORROW</span> : null}
           <span style={{ flex: 1 }} />
           {flash === 'trained' ? <span className="td-trained">✓ TRAINED</span> : null}
         </div>
-        <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--bp-t1)', lineHeight: 1.35, overflowWrap: 'anywhere' }}>{m.title}</div>
+        <div style={{ fontSize: 14.5, fontWeight: 500, color: 'var(--bp-t1)', lineHeight: 1.35, overflowWrap: 'anywhere' }}>{m.title}</div>
         <div className="km-clamp-2" style={{ fontSize: 12, color: 'var(--bp-t2)', marginTop: 4, lineHeight: 1.4 }}>
           {sentence}{detail && detail !== m.title ? ` · ${detail}` : ''}
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
         {m.phone ? (
-          <button type="button" className="td-btn" onClick={onCall} style={{ height: 30, padding: '0 10px', fontSize: 12, background: 'linear-gradient(135deg, var(--bp-now), var(--bp-now-deep))', color: 'var(--bp-now-ink)', fontWeight: 700 }}>
+          <button type="button" className="td-btn" onClick={onCall} style={{ height: 30, padding: '0 12px', fontSize: 12, background: 'var(--hl)', color: 'var(--on-hl)', fontWeight: 500 }}>
             <Icon name="phone" size={12} stroke={2.4} /> Call
           </button>
         ) : null}
@@ -207,7 +207,7 @@ function MoveRow({ m, flash, onAdd, onGood, onBad, onOpen, onCall, onText }) {
         ) : null}
         <span style={{ flex: 1 }} />
         {flash === 'added' ? (
-          <span className="td-trained" style={{ color: 'var(--violet)' }}>Added</span>
+          <span className="td-trained" style={{ color: 'var(--hl-ink)' }}>Added</span>
         ) : (
           <>
             <button type="button" className="td-btn td-iconbtn" onClick={onGood} aria-label="Good suggestion" style={{ height: 32, width: 32, border: '1px solid var(--bp-hair2)', color: flash === 'trained' ? 'var(--violet)' : 'var(--bp-t2)' }}>
@@ -216,7 +216,7 @@ function MoveRow({ m, flash, onAdd, onGood, onBad, onOpen, onCall, onText }) {
             <button type="button" className="td-btn td-iconbtn" onClick={onBad} aria-label="Tell AI why this is off" style={{ height: 32, width: 32, border: '1px solid var(--bp-hair2)', color: 'var(--bp-t2)' }}>
               <Icon name="thumbsDown" size={14} stroke={2} />
             </button>
-            <button type="button" className="td-btn" onClick={onAdd} style={{ height: 32, background: 'var(--violet)', color: '#fff' }}>Add</button>
+            <button type="button" className="td-btn" onClick={onAdd} style={{ height: 32, background: 'var(--hl)', color: 'var(--on-hl)' }}>Add</button>
           </>
         )}
       </div>
@@ -280,7 +280,7 @@ export default function TodoPanel({ onNavigate, style }) {
       {board.status === 'error' && !mine.length ? (
         <div style={{ textAlign: 'center', padding: '24px 8px', color: 'var(--bp-t3)', fontSize: 13 }}>
           Couldn’t load your list.{' '}
-          <button type="button" onClick={board.reload} style={{ color: 'var(--bright)', fontWeight: 600 }}>Try again</button>
+          <button type="button" onClick={board.reload} style={{ color: 'var(--bright)', fontWeight: 500 }}>Try again</button>
         </div>
       ) : null}
 
@@ -296,7 +296,7 @@ export default function TodoPanel({ onNavigate, style }) {
 
       {board.status !== 'loading' && !empty ? (
         <>
-          <Label right={(board.done || []).length ? <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--bp-done)', letterSpacing: 0, textTransform: 'none' }}>{board.done.length} done today</span> : null}>
+          <Label right={(board.done || []).length ? <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--bp-done)', letterSpacing: 0, textTransform: 'none' }}>{board.done.length} done today</span> : null}>
             Your list{mine.length ? ` · ${mine.length}` : ''}
           </Label>
           {!mine.length ? (
@@ -317,7 +317,7 @@ export default function TodoPanel({ onNavigate, style }) {
 
       {suggestions.length ? (
         <>
-          <Label color="var(--violet)" right={<Icon name="sparkle" size={12} color="var(--violet)" />}>{assistant} suggests</Label>
+          <Label color="var(--hl-ink)" right={<Icon name="sparkle" size={12} color="var(--hl-ink)" />}>{assistant} suggests</Label>
           {shown.map((it) => (it.kind === 'suggested' ? (
             <SuggestionRow
               key={`s-${it.row.id}`}
@@ -340,7 +340,7 @@ export default function TodoPanel({ onNavigate, style }) {
             />
           )))}
           {suggestions.length > SUGGEST_VISIBLE ? (
-            <button type="button" onClick={() => setShowAll((v) => !v)} style={{ display: 'block', width: '100%', minHeight: 44, fontSize: 14, fontWeight: 600, color: 'var(--violet)' }}>
+            <button type="button" onClick={() => setShowAll((v) => !v)} style={{ display: 'block', width: '100%', minHeight: 44, fontSize: 14, fontWeight: 500, color: 'var(--hl-ink)' }}>
               {showAll ? 'Show fewer' : `Show ${hidden} more`}
             </button>
           ) : null}
@@ -351,12 +351,12 @@ export default function TodoPanel({ onNavigate, style }) {
         <div style={{ marginTop: 12 }}>
           <button type="button" onClick={() => setDoneOpen((o) => !o)} style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', minHeight: 44, padding: '0 2px' }} aria-expanded={doneOpen}>
             <Icon name="check" size={14} color="var(--bp-done)" stroke={2.6} />
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.1, color: 'var(--bp-done)', textTransform: 'uppercase' }}>Done today · {board.done.length}</span>
+            <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: 1.1, color: 'var(--bp-done)', textTransform: 'uppercase' }}>Done today · {board.done.length}</span>
             <span style={{ flex: 1 }} />
             <Icon name="chevronDown" size={13} color="var(--bp-t3)" stroke={2.4} style={{ transform: doneOpen ? 'rotate(180deg)' : 'none', transition: 'transform 200ms' }} />
           </button>
           {doneOpen ? board.done.map((t) => (
-            <div key={t.id} className="km-row-in" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', marginTop: 4, borderRadius: 10, background: 'rgba(52,199,89,0.07)' }}>
+            <div key={t.id} className="km-row-in" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', marginTop: 4, borderRadius: 10, background: 'rgba(var(--hl-rgb), 0.07)' }}>
               <button type="button" className="td-circle" onClick={() => board.reopen(t)} aria-label="Reopen — not done after all" style={{ background: 'var(--bp-done)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name="check" size={12} color="#fff" stroke={3} />
               </button>
