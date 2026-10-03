@@ -25,13 +25,13 @@ export function CampaignCard({ campaign: c, onOpen, index = 0 }) {
   return (
     <button
       type="button"
-      className="kc-card km-press km-row-in"
+      className="kp-card km-press km-row-in"
       onClick={onOpen}
-      style={{ '--kc-accent': c.accent || '#2E8BFF', animationDelay: `${Math.min(index, 10) * 35}ms` }}
+      style={{ '--kp-accent': c.accent || '#2E8BFF', animationDelay: `${Math.min(index, 10) * 35}ms` }}
     >
-      <span className="kc-card-spine" />
+      <span className="kp-card-spine" />
       <span style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-        <span className="kc-card-icon"><Icon name={icon} size={16} stroke={2} /></span>
+        <span className="kp-card-icon"><Icon name={icon} size={16} stroke={2} /></span>
         <span style={{ flex: 1, minWidth: 0 }}>
           <span className="km-truncate" style={{ display: 'block', fontSize: 15.5, fontWeight: 600, letterSpacing: '-0.01em' }}>{c.name}</span>
           <span className="km-truncate" style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>
@@ -69,7 +69,7 @@ export function CampaignCard({ campaign: c, onOpen, index = 0 }) {
             <span className="km-num" style={{ fontWeight: 600, color: 'var(--text)' }}>{sent}<span style={{ color: 'var(--faint)', fontWeight: 500 }}>/{total} sent</span></span>
             {sent ? <span><span className="km-num" style={{ color: 'var(--green)', fontWeight: 700 }}>{Math.round(s.replyRate || 0)}%</span> replied</span> : null}
             <LaneTally lanes={s.lanes} />
-            {phase === 'sending' && s.eta ? <span className="kc-mono" style={{ marginLeft: 'auto' }}>{fmtEta(s.eta)}</span> : null}
+            {phase === 'sending' && s.eta ? <span className="kp-mono" style={{ marginLeft: 'auto' }}>{fmtEta(s.eta)}</span> : null}
           </span>
           <LaneBar lanes={s.lanes} style={{ marginTop: 9 }} />
           {c.status === 'paused' && c.schedule && c.schedule.pauseReason === 'needs_texting_line' ? (
@@ -93,9 +93,9 @@ export function CampaignCard({ campaign: c, onOpen, index = 0 }) {
 export function AutomationRow({ automation: a, onToggle, onOpen, busy, index = 0, held = false }) {
   const last = a.lastSentAt || a.lastRunAt;
   return (
-    <div className="kc-auto km-row-in" style={{ '--kc-accent': a.accent, animationDelay: `${Math.min(index, 10) * 35}ms` }}>
+    <div className="kp-auto km-row-in" style={{ '--kp-accent': a.accent, animationDelay: `${Math.min(index, 10) * 35}ms` }}>
       <button type="button" className="km-press" onClick={onOpen} style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0, textAlign: 'left' }}>
-        <span className="kc-auto-tile"><Icon name={a.icon || 'zap'} size={17} stroke={2} /></span>
+        <span className="kp-auto-tile"><Icon name={a.icon || 'zap'} size={17} stroke={2} /></span>
         <span style={{ flex: 1, minWidth: 0 }}>
           <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 600, color: a.enabled ? 'var(--text)' : 'var(--dim)' }}>{a.name}</span>
           <span className="km-clamp-2" style={{ fontSize: 12, color: 'var(--dim)', marginTop: 1, lineHeight: 1.35 }}>{a.when}</span>
@@ -105,7 +105,7 @@ export function AutomationRow({ automation: a, onToggle, onOpen, busy, index = 0
               Paused — needs a texting line
             </span>
           ) : null}
-          <span className="kc-mono" style={{ display: held ? 'none' : 'flex', flexWrap: 'wrap', gap: '2px 7px', marginTop: 5, fontSize: 8.5 }}>
+          <span className="kp-mono" style={{ display: held ? 'none' : 'flex', flexWrap: 'wrap', gap: '2px 7px', marginTop: 5, fontSize: 8.5 }}>
             <span>{a.audienceCount} qualify</span>
             <span style={{ opacity: 0.5 }}>·</span>
             <span style={{ color: a.approval === 'draft' ? 'var(--amber)' : 'var(--faint)' }}>{a.approval === 'draft' ? 'You approve' : 'Auto-send'}</span>

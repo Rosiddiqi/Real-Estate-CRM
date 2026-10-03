@@ -53,15 +53,15 @@ const focusSoon = (e) => { const t = e.target; setTimeout(() => { try { t.scroll
 
 function StepRow({ step, color, onLabel, onBrief, onRemove, index, locked }) {
   return (
-    <div className="kc-step-in" style={{ display: 'flex', gap: 10, alignItems: 'stretch', animationDelay: `${index * 80}ms`, opacity: locked ? 0.35 : 1 }}>
+    <div className="kp-step-in" style={{ display: 'flex', gap: 10, alignItems: 'stretch', animationDelay: `${index * 80}ms`, opacity: locked ? 0.35 : 1 }}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-        <span className="kc-dot" style={{ width: 8, height: 8, marginTop: 9, background: color, boxShadow: `0 0 8px ${color}` }} />
+        <span className="kp-dot" style={{ width: 8, height: 8, marginTop: 9, background: color, boxShadow: `0 0 8px ${color}` }} />
         <span style={{ width: 1.5, flex: 1, background: `color-mix(in srgb, ${color} 30%, transparent)`, marginTop: 4 }} />
       </div>
       <div style={{ flex: 1, minWidth: 0, paddingBottom: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {/* Auto-sizing pill: a hidden copy of the text sizes the grid cell. */}
-          <span className="kc-steplabel" data-value={`${step.label || ''} `} style={{ color, background: `color-mix(in srgb, ${color} 10%, transparent)`, border: `1px solid color-mix(in srgb, ${color} 32%, transparent)` }}>
+          <span className="kp-steplabel" data-value={`${step.label || ''} `} style={{ color, background: `color-mix(in srgb, ${color} 10%, transparent)`, border: `1px solid color-mix(in srgb, ${color} 32%, transparent)` }}>
             <input
               size={1}
               value={step.label || ''}
@@ -74,7 +74,7 @@ function StepRow({ step, color, onLabel, onBrief, onRemove, index, locked }) {
             <Icon name="x" size={11} />
           </button>
         </div>
-        <textarea className="kc-stepbrief" rows={Math.min(4, Math.max(1, Math.ceil(String(step.brief || '').length / 36)))} value={step.brief || ''} disabled={locked} onChange={(e) => onBrief(e.target.value)} onFocus={focusSoon} aria-label="What to say" style={{ resize: 'none', lineHeight: 1.4 }} />
+        <textarea className="kp-stepbrief" rows={Math.min(4, Math.max(1, Math.ceil(String(step.brief || '').length / 36)))} value={step.brief || ''} disabled={locked} onChange={(e) => onBrief(e.target.value)} onFocus={focusSoon} aria-label="What to say" style={{ resize: 'none', lineHeight: 1.4 }} />
       </div>
     </div>
   );
@@ -106,14 +106,14 @@ function LaneCard({ lane, value, onChange, hasEvent, defaultOpen }) {
   const patchStep = (i, p) => onChange({ ...value, steps: steps.map((s, j) => (j === i ? { ...s, ...p } : s)) });
 
   return (
-    <div className="kc-lane">
-      <span className="kc-lane-spine" style={{ background: m.color, opacity: enabled ? 1 : 0.25, boxShadow: enabled ? `0 0 10px ${m.hex}88` : 'none' }} />
+    <div className="kp-lane">
+      <span className="kp-lane-spine" style={{ background: m.color, opacity: enabled ? 1 : 0.25, boxShadow: enabled ? `0 0 10px ${m.hex}88` : 'none' }} />
       <div style={{ padding: '12px 13px 12px 17px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
           <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} style={{ display: 'flex', alignItems: 'center', gap: 9, flex: 1, minWidth: 0, textAlign: 'left' }}>
             <LaneDot lane={lane} size={10} />
             <span style={{ fontSize: 14.5, fontWeight: 600, color: enabled ? 'var(--text)' : 'var(--dim)', whiteSpace: 'nowrap' }}>{m.title}</span>
-            <span className="kc-tag" style={{ color: m.color, background: `color-mix(in srgb, ${m.hex} 12%, transparent)`, border: `1px solid color-mix(in srgb, ${m.hex} 32%, transparent)` }}>{m.tag}</span>
+            <span className="kp-tag" style={{ color: m.color, background: `color-mix(in srgb, ${m.hex} 12%, transparent)`, border: `1px solid color-mix(in srgb, ${m.hex} 32%, transparent)` }}>{m.tag}</span>
             <span style={{ flex: 1 }} />
             <Icon name="chevronDown" size={14} color="var(--faint)" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.22s var(--km-ease)' }} />
           </button>
@@ -128,13 +128,13 @@ function LaneCard({ lane, value, onChange, hasEvent, defaultOpen }) {
         )}
 
         {open && enabled ? (
-          <div className="kc-step-in" style={{ marginTop: 12 }}>
+          <div className="kp-step-in" style={{ marginTop: 12 }}>
             {lane !== 'gray' ? (
               <>
                 <MonoLabel style={{ marginBottom: 7 }}>Tell your AI what this lane should do</MonoLabel>
-                <div className="kc-composer">
+                <div className="kp-composer">
                   <textarea rows={2} value={value.text || ''} placeholder={PLACEHOLDER[lane]} onChange={(e) => onChange({ ...value, text: e.target.value })} onFocus={focusSoon} aria-label={`${m.title} instructions`} />
-                  <div className="kc-composer-row">
+                  <div className="kp-composer-row">
                     <SparkButton label={building ? 'Building…' : steps.length ? 'Rebuild' : 'Build'} disabled={!String(value.text || '').trim()} busy={building} onClick={build} style={{ height: 30 }} />
                   </div>
                 </div>
@@ -156,7 +156,7 @@ function LaneCard({ lane, value, onChange, hasEvent, defaultOpen }) {
               <>
                 <MonoLabel style={{ marginBottom: 7 }}>Wait for a reply</MonoLabel>
                 <input
-                  className="kc-input"
+                  className="kp-input"
                   value={value.timerText || ''}
                   placeholder="2 DAYS"
                   onChange={(e) => { const timerText = e.target.value.toUpperCase(); onChange({ ...value, timerText, timerHours: timerTextToHours(timerText) }); }}
@@ -165,7 +165,7 @@ function LaneCard({ lane, value, onChange, hasEvent, defaultOpen }) {
                   aria-label="Wait time"
                 />
                 <MonoLabel style={{ margin: '13px 0 7px' }}>Then tell your AI what to send, once</MonoLabel>
-                <div className="kc-composer">
+                <div className="kp-composer">
                   <textarea rows={2} value={value.text || ''} placeholder="One easy nudge, no pressure, did they see it" onChange={(e) => onChange({ ...value, text: e.target.value })} onFocus={focusSoon} aria-label="No-reply nudge" />
                 </div>
                 <MonoLabel style={{ marginTop: 9 }}>{CAPTION} · leave blank for no nudge</MonoLabel>
@@ -182,7 +182,7 @@ function AiReplySection({ value, onChange }) {
   const v = value && typeof value === 'object' ? value : {};
   const on = v.mode === 'draft' || v.mode === 'suggest';
   return (
-    <div className="kc-section" style={{ borderLeft: '3px solid #5AC8FA' }}>
+    <div className="kp-section" style={{ borderLeft: '3px solid #5AC8FA' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 14.5, fontWeight: 700 }}>When they respond</div>
@@ -191,9 +191,9 @@ function AiReplySection({ value, onChange }) {
         <Switch checked={on} onChange={(next) => onChange({ ...v, mode: next ? 'draft' : 'off' })} label="When they respond" />
       </div>
       {on ? (
-        <div className="kc-step-in" style={{ padding: '0 14px 13px' }}>
+        <div className="kp-step-in" style={{ padding: '0 14px 13px' }}>
           <MonoLabel style={{ marginBottom: 7 }}>Tell your AI how to answer questions</MonoLabel>
-          <div className="kc-composer">
+          <div className="kp-composer">
             <textarea rows={3} value={v.instructions || ''} placeholder="Answer questions using the listing details. Parking is valet out front. If they ask about price, offers or terms, tell them I'll call them personally. Keep it short." onChange={(e) => onChange({ ...v, instructions: e.target.value })} onFocus={focusSoon} aria-label="Reply instructions" />
           </div>
           <MonoLabel style={{ marginTop: 9 }}>Drafts only · nothing sends without your tap · anything not covered comes to you</MonoLabel>
@@ -223,7 +223,7 @@ function RemindersSection({ value, onChange, hasEvent }) {
   if (!hasEvent) return null;
   const steps = Array.isArray(v.steps) ? v.steps : [];
   return (
-    <div className="kc-section" style={{ borderLeft: '3px solid #B98CFF' }}>
+    <div className="kp-section" style={{ borderLeft: '3px solid #B98CFF' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 14.5, fontWeight: 700 }}>Reminders</div>
@@ -232,9 +232,9 @@ function RemindersSection({ value, onChange, hasEvent }) {
         <Switch checked={enabled} onChange={(next) => onChange({ ...v, enabled: next })} label="Reminders" />
       </div>
       {enabled ? (
-        <div className="kc-step-in" style={{ padding: '0 14px 13px' }}>
+        <div className="kp-step-in" style={{ padding: '0 14px 13px' }}>
           <MonoLabel style={{ marginBottom: 7 }}>Tell your AI what reminders to send</MonoLabel>
-          <div className="kc-composer">
+          <div className="kp-composer">
             <textarea rows={2} value={v.text || ''} placeholder="Remind everyone who said yes the morning of, and again 2 hours before with the address" onChange={(e) => onChange({ ...v, text: e.target.value })} onBlur={(e) => build(e.target.value)} onFocus={focusSoon} aria-label="Reminder instructions" />
           </div>
           <MonoLabel style={{ marginTop: 9, color: steps.length ? 'var(--bright)' : undefined }}>{building ? 'Building the schedule…' : steps.length ? steps.map((s) => s.label).join(' · ') : 'Tap outside the box to build the schedule'}</MonoLabel>

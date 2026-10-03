@@ -23,7 +23,7 @@ function Meter({ label, used, limit, left }) {
   return (
     <div style={{ flex: 1, minWidth: 0 }}>
       <div className="km-truncate" style={{ fontSize: 12, color: 'var(--dim)' }}>{label}</div>
-      <div className="kc-meter"><i style={{ width: `${pct}%`, background: full ? 'var(--amber)' : 'var(--blue)', boxShadow: full ? 'none' : '0 0 8px var(--glow)' }} /></div>
+      <div className="kp-meter"><i style={{ width: `${pct}%`, background: full ? 'var(--amber)' : 'var(--blue)', boxShadow: full ? 'none' : '0 0 8px var(--glow)' }} /></div>
       <div className="km-truncate" style={{ fontSize: 11.5, color: 'var(--faint)', marginTop: 5 }}>
         <span className="km-num" style={{ fontSize: 13, color: full ? 'var(--amber)' : 'var(--text)' }}>{used}</span> of {limit}{left != null ? ` · ${left} left` : ''}
       </div>
@@ -49,7 +49,7 @@ export default function SenderGuardCard({ style, defaultOpen = false }) {
   if (!s) {
     if (error) return null;
     return (
-      <div className="kc-guard" style={style}>
+      <div className="kp-guard" style={style}>
         <Skeleton w="55%" h={12} />
         <div style={{ display: 'flex', gap: 14, marginTop: 14 }}><Skeleton h={22} /><Skeleton h={22} /></div>
       </div>
@@ -73,14 +73,14 @@ export default function SenderGuardCard({ style, defaultOpen = false }) {
   const t = s.today;
 
   return (
-    <div className={`kc-guard ${tone !== 'green' ? `kc-guard--${tone}` : ''}`} style={style}>
+    <div className={`kp-guard ${tone !== 'green' ? `kp-guard--${tone}` : ''}`} style={style}>
       <button type="button" onClick={() => setOpen((v) => !v)} style={{ width: '100%', textAlign: 'left' }} aria-expanded={open}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-          <span className="kc-dot" style={{ width: 9, height: 9, background: COLOR[tone], boxShadow: `0 0 10px ${GLOW[tone]}` }} />
+          <span className="kp-dot" style={{ width: 9, height: 9, background: COLOR[tone], boxShadow: `0 0 10px ${GLOW[tone]}` }} />
           <span className="km-truncate" style={{ minWidth: 0, fontSize: 11, fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', color: COLOR[tone] }}>{headline}</span>
           <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--faint)', whiteSpace: 'nowrap', flexShrink: 0 }}>
             <Icon name="shield" size={13} />
-            <span className="kc-hide-narrow">Sender Guard</span>
+            <span className="kp-hide-narrow">Sender Guard</span>
             <Icon name="chevronDown" size={13} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.22s var(--km-ease)' }} />
           </span>
         </div>
@@ -100,7 +100,7 @@ export default function SenderGuardCard({ style, defaultOpen = false }) {
       ) : null}
 
       {open ? (
-        <div className="kc-step-in" style={{ marginTop: 12, borderTop: '1px solid var(--line)', paddingTop: 11 }}>
+        <div className="kp-step-in" style={{ marginTop: 12, borderTop: '1px solid var(--line)', paddingTop: 11 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <div>
               <MonoLabel>Warm-up</MonoLabel>

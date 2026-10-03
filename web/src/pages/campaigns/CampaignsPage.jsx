@@ -66,12 +66,12 @@ export default function CampaignsPage({ onClose }) {
       right={<GlassButton icon="plus" accent label="New campaign" onClick={() => nav.newCampaign()} />}
       bodyStyle={{ padding: '4px 14px 0' }}
     >
-      <div className="kc-wide">
+      <div className="kp-wide">
         {needsLine ? <NeedsLineBanner style={{ marginTop: 4, marginBottom: 10 }} /> : null}
         <SenderGuardCard style={{ marginTop: 4 }} />
 
-        <button type="button" className="kc-hero km-press" onClick={() => nav.newCampaign()} style={{ marginTop: 10 }}>
-          <span className="kc-hero-tile"><Icon name="sparkle" size={19} stroke={2} /></span>
+        <button type="button" className="kp-hero km-press" onClick={() => nav.newCampaign()} style={{ marginTop: 10 }}>
+          <span className="kp-hero-tile"><Icon name="sparkle" size={19} stroke={2} /></span>
           <span style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: 'block', fontSize: 15.5, fontWeight: 600 }}>New text campaign</span>
             <span style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>Tell your AI who to reach and what to say</span>

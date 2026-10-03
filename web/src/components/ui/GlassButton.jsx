@@ -1,6 +1,6 @@
 // GlassButton — 40px liquid-glass circle (header controls, floating actions).
 //   <GlassButton icon="search" onClick={...} label="Search" />
-//   <GlassButton icon="plus" accent />            — blue primary circle
+//   <GlassButton icon="plus" accent />            — solid primary circle (Soul white)
 //   <GlassButton icon="bell" badge={3} />
 import Icon from './Icon';
 
@@ -17,17 +17,17 @@ export default function GlassButton({ icon, onClick, label, size = 40, accent = 
         position: 'relative',
         width: size, height: size, borderRadius: '50%',
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        color: accent ? '#fff' : 'var(--lg-text)',
+        color: accent ? 'var(--on-accent)' : 'var(--lg-text)',
         flexShrink: 0,
         opacity: disabled ? 0.4 : 1,
-        ...(accent ? { background: 'linear-gradient(180deg, var(--bright), var(--deep))', boxShadow: 'var(--glow-btn)' } : null),
+        ...(accent ? { background: 'var(--bright)', boxShadow: 'var(--glow-btn)' } : null),
         ...style,
       }}
     >
-      {children || <Icon name={icon} size={iconSize || Math.round(size * 0.48)} stroke={1.9} />}
+      {children || <Icon name={icon} size={iconSize || Math.round(size * 0.48)} stroke={1.6} />}
       {badge ? (
         <span
-          className="km-badge km-badge--red"
+          className="km-badge"
           style={{ position: 'absolute', top: -3, right: -3, border: '2px solid var(--bg)', minWidth: 18, height: 18, fontSize: 10 }}
         >
           {badge}

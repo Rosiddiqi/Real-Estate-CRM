@@ -16,7 +16,7 @@ import { useAssistant } from '../../hooks/useAssistant';
 
 const SIZE = 44;
 const EDGE = 8;
-const TABBAR_ZONE = 76;      // floating tab bar (≈64) + its 4px lift + air
+const TABBAR_ZONE = 76;      // floating nav (56) + its 10px lift + air (the raised center is mid-screen)
 const DEFAULT_LIFT = 118;    // first-run rest: lower-right, clear of FABs
 const POS_KEY = 'km_serena_pos';
 const TAP_DIST = 10;

@@ -36,18 +36,18 @@ const creating = new Map(); // overlayId → promise (StrictMode double-mount sa
 
 function Stepper({ stage, maxStage, onJump }) {
   return (
-    <div className="kc-stepper" role="tablist" aria-label="Campaign steps">
+    <div className="kp-stepper" role="tablist" aria-label="Campaign steps">
       {STEPS.map((label, i) => {
         const done = i < stage;
         const active = i === stage;
         const reachable = i <= maxStage || i < stage;
         return (
           <span key={label} style={{ display: 'contents' }}>
-            {i > 0 ? <span className={`kc-step-line ${i <= stage ? 'kc-step-line--on' : ''}`} /> : null}
+            {i > 0 ? <span className={`kp-step-line ${i <= stage ? 'kp-step-line--on' : ''}`} /> : null}
             <button type="button" role="tab" aria-selected={active} disabled={!reachable} onClick={() => reachable && onJump(i)}
-              className={`kc-step ${active ? 'kc-step--active' : ''} ${done ? 'kc-step--done' : ''}`}>
-              <span className="kc-step-num">{done ? <Icon name="check" size={12} stroke={2.6} /> : i + 1}</span>
-              {active ? <span className="kc-step-label">{label}</span> : null}
+              className={`kp-step ${active ? 'kp-step--active' : ''} ${done ? 'kp-step--done' : ''}`}>
+              <span className="kp-step-num">{done ? <Icon name="check" size={12} stroke={2.6} /> : i + 1}</span>
+              {active ? <span className="kp-step-label">{label}</span> : null}
             </button>
           </span>
         );
@@ -125,8 +125,8 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
 
   // Hide the floating tab bar while the builder owns the bottom edge.
   useEffect(() => {
-    document.body.classList.add('km-tabbar-hidden', 'kc-builder-open');
-    return () => document.body.classList.remove('km-tabbar-hidden', 'kc-builder-open');
+    document.body.classList.add('km-tabbar-hidden', 'kp-builder-open');
+    return () => document.body.classList.remove('km-tabbar-hidden', 'kp-builder-open');
   }, []);
 
   const hydrate = useCallback((c, { full = true } = {}) => {
@@ -392,8 +392,8 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
         campaign={campaign}
         scrollRef={scrollRef}
         footer={({ requestClose }) => (
-          <div className="kc-footer" style={{ bottom: 'var(--keyboard-height)' }}>
-            {stage > 0 ? <button type="button" className="kc-circle km-press" onClick={back} aria-label="Back a step"><Icon name="chevronLeft" size={20} /></button> : null}
+          <div className="kp-footer" style={{ bottom: 'var(--keyboard-height)' }}>
+            {stage > 0 ? <button type="button" className="kp-circle km-press" onClick={back} aria-label="Back a step"><Icon name="chevronLeft" size={20} /></button> : null}
             {saveDraftCta ? (
               <Button size="lg" block variant="ghost" icon="check" onClick={() => saveAndClose(requestClose)} style={{ flex: 1 }}>Save draft</Button>
             ) : (
@@ -435,8 +435,8 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
             <Eyebrow blue icon="layers">Start from</Eyebrow>
             <div className="km-scroll-x" style={{ display: 'flex', gap: 8, margin: '10px -16px 0', padding: '2px 16px 4px', scrollSnapType: 'x mandatory', scrollPaddingInline: 16 }}>
               {templates.map((t) => (
-                <button key={t.key} type="button" className="kc-tpl km-press" aria-pressed={trigger === t.key} onClick={() => applyTemplate(t.key)} style={{ '--kc-accent': t.accent }}>
-                  <span className="kc-tpl-icon"><Icon name={t.icon} size={15} stroke={2} /></span>
+                <button key={t.key} type="button" className="kp-tpl km-press" aria-pressed={trigger === t.key} onClick={() => applyTemplate(t.key)} style={{ '--kp-accent': t.accent }}>
+                  <span className="kp-tpl-icon"><Icon name={t.icon} size={15} stroke={2} /></span>
                   <span style={{ display: 'block', fontSize: 13.5, fontWeight: 600, marginTop: 9 }}>{t.label}</span>
                   <span className="km-clamp-2" style={{ fontSize: 11.5, color: 'var(--faint)', marginTop: 2, lineHeight: 1.3 }}>{t.sub}</span>
                 </button>
@@ -456,7 +456,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
 
             <Eyebrow icon="house" style={{ marginTop: 22 }}>Listing</Eyebrow>
             {listing ? (
-              <div className="kc-section kc-step-in" style={{ marginTop: 10, padding: 10 }}>
+              <div className="kp-section kp-step-in" style={{ marginTop: 10, padding: 10 }}>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                   <PropertyPhoto src={listing.photo} seed={listing.id} height={62} radius={12} style={{ width: 84, flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -485,7 +485,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
 
             <Eyebrow icon="eye" style={{ marginTop: 22 }} right={samples.length ? <button type="button" onClick={preview3} disabled={writing} style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--bright)', letterSpacing: 0, textTransform: 'none' }}>Regenerate</button> : null}>Previews</Eyebrow>
             {writing && !samples.length ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 14 }}>{[0, 1, 2].map((i) => <div key={i} className="kc-skel-bubble" style={{ animationDelay: `${i * 120}ms` }} />)}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 14 }}>{[0, 1, 2].map((i) => <div key={i} className="kp-skel-bubble" style={{ animationDelay: `${i * 120}ms` }} />)}</div>
             ) : samples.length ? (
               <div style={{ marginTop: 6 }}>
                 <div style={{ fontSize: 12.5, color: 'var(--faint)', margin: '4px 0 2px' }}>{samples.length} of your {count}, each written individually at send time.</div>
@@ -497,16 +497,16 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
                   </InfoNote>
                 ) : null}
                 {samples.map((s, i) => (
-                  <div key={s.clientId} className="kc-step-in" style={{ marginTop: 14, animationDelay: `${i * 90}ms`, opacity: writing ? 0.5 : 1, transition: 'opacity 0.2s' }}>
+                  <div key={s.clientId} className="kp-step-in" style={{ marginTop: 14, animationDelay: `${i * 90}ms`, opacity: writing ? 0.5 : 1, transition: 'opacity 0.2s' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <Avatar name={s.name} seed={s.clientId} src={s.avatarUrl} size={26} />
                       <span style={{ fontSize: 13.5, fontWeight: 600 }}>{s.name}</span>
-                      <span className="kc-chan" style={{ color: s.channel === 'sms' ? 'var(--sms)' : 'var(--imsg)', border: `1px solid ${s.channel === 'sms' ? 'rgba(52,209,91,0.35)' : 'rgba(46,139,255,0.35)'}` }}>{s.channel === 'sms' ? 'SMS' : 'iMESSAGE'}</span>
-                      {s.cold ? <span className="kc-mono" style={{ fontSize: 8.5 }}>New to you</span> : null}
+                      <span className="kp-chan" style={{ color: s.channel === 'sms' ? 'var(--sms)' : 'var(--imsg)', border: `1px solid ${s.channel === 'sms' ? 'rgba(52,209,91,0.35)' : 'rgba(46,139,255,0.35)'}` }}>{s.channel === 'sms' ? 'SMS' : 'iMESSAGE'}</span>
+                      {s.cold ? <span className="kp-mono" style={{ fontSize: 8.5 }}>New to you</span> : null}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: 8 }}>
                       {s.photo ? <PropertyPhoto src={s.photo} seed={listing && listing.id} height={96} radius={14} style={{ width: 150, marginBottom: 5 }} /> : null}
-                      <div className={`kc-bubble km-selectable ${s.channel === 'sms' ? 'kc-bubble--sms' : ''}`}>{s.text}</div>
+                      <div className={`kp-bubble km-selectable ${s.channel === 'sms' ? 'kp-bubble--sms' : ''}`}>{s.text}</div>
                       <MonoLabel style={{ marginTop: 5 }}>{s.via === 'ai' ? 'Written by your AI' : 'Template, personalized'}{s.citations && s.citations.length ? ` · drew on ${s.citations.join(', ')}` : ''}</MonoLabel>
                     </div>
                   </div>
@@ -520,8 +520,8 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
 
         {stage === 2 ? (
           <div>
-            <div className="kc-section" style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span className="kc-auto-tile" style={{ '--kc-accent': '#BF5AF2' }}><Icon name="calendar" size={17} stroke={2} /></span>
+            <div className="kp-section" style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span className="kp-auto-tile" style={{ '--kp-accent': '#BF5AF2' }}><Icon name="calendar" size={17} stroke={2} /></span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'block', fontSize: 15, fontWeight: 600 }}>This campaign has an event</span>
                 <span style={{ display: 'block', fontSize: 12.5, color: 'var(--faint)', marginTop: 1 }}>Open house, broker caravan, client event</span>
@@ -530,21 +530,21 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
             </div>
             {needsEvent && !event.enabled ? <InfoNote kind="warn" style={{ marginTop: 10 }}>Open house invites need the date and time: the reminders and RSVP follow-ups anchor to it.</InfoNote> : null}
             {event.enabled ? (
-              <div className="kc-step-in">
+              <div className="kp-step-in">
                 <Eyebrow blue icon="door" style={{ marginTop: 20 }}>The event</Eyebrow>
-                <input className="kc-input" style={{ marginTop: 10 }} value={event.title} onChange={(e) => onEvent({ title: e.target.value.slice(0, 120) })} placeholder="Title, e.g. Open House · 3550 Main Hwy" aria-label="Event title" />
-                <input className="kc-input" style={{ marginTop: 8 }} value={event.address} onChange={(e) => onEvent({ address: e.target.value.slice(0, 200) })} placeholder="Where: full address" aria-label="Event address" />
-                <label style={{ display: 'block', marginTop: 10 }}><MonoLabel style={{ margin: '0 0 5px 2px' }}>Date</MonoLabel><input className="kc-input" type="date" value={event.date} min={toLocalInput(new Date()).slice(0, 10)} onChange={(e) => onEvent({ date: e.target.value })} aria-label="Event date" /></label>
+                <input className="kp-input" style={{ marginTop: 10 }} value={event.title} onChange={(e) => onEvent({ title: e.target.value.slice(0, 120) })} placeholder="Title, e.g. Open House · 3550 Main Hwy" aria-label="Event title" />
+                <input className="kp-input" style={{ marginTop: 8 }} value={event.address} onChange={(e) => onEvent({ address: e.target.value.slice(0, 200) })} placeholder="Where: full address" aria-label="Event address" />
+                <label style={{ display: 'block', marginTop: 10 }}><MonoLabel style={{ margin: '0 0 5px 2px' }}>Date</MonoLabel><input className="kp-input" type="date" value={event.date} min={toLocalInput(new Date()).slice(0, 10)} onChange={(e) => onEvent({ date: e.target.value })} aria-label="Event date" /></label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 8, marginTop: 8 }}>
-                  <label style={{ minWidth: 0 }}><MonoLabel style={{ margin: '0 0 5px 2px' }}>Starts</MonoLabel><input className="kc-input" type="time" value={event.start} onChange={(e) => onEvent({ start: e.target.value })} aria-label="Start time" /></label>
-                  <label style={{ minWidth: 0 }}><MonoLabel style={{ margin: '0 0 5px 2px' }}>Ends</MonoLabel><input className="kc-input" type="time" value={event.end} onChange={(e) => onEvent({ end: e.target.value })} aria-label="End time" /></label>
+                  <label style={{ minWidth: 0 }}><MonoLabel style={{ margin: '0 0 5px 2px' }}>Starts</MonoLabel><input className="kp-input" type="time" value={event.start} onChange={(e) => onEvent({ start: e.target.value })} aria-label="Start time" /></label>
+                  <label style={{ minWidth: 0 }}><MonoLabel style={{ margin: '0 0 5px 2px' }}>Ends</MonoLabel><input className="kp-input" type="time" value={event.end} onChange={(e) => onEvent({ end: e.target.value })} aria-label="End time" /></label>
                 </div>
-                <div className="kc-list" style={{ marginTop: 12 }}>
-                  <div className="kc-li">
+                <div className="kp-list" style={{ marginTop: 12 }}>
+                  <div className="kp-li">
                     <span style={{ flex: 1 }}><span style={{ display: 'block', fontSize: 14.5 }}>Ask them to RSVP</span><span style={{ display: 'block', fontSize: 12, color: 'var(--faint)', marginTop: 1 }}>A yes puts them in the green lane for reminders</span></span>
                     <Switch checked={event.rsvp} onChange={(v) => onEvent({ rsvp: v })} label="RSVP" />
                   </div>
-                  <div className="kc-li">
+                  <div className="kp-li">
                     <span style={{ flex: 1 }}><span style={{ display: 'block', fontSize: 14.5 }}>Text a calendar invite</span><span style={{ display: 'block', fontSize: 12, color: 'var(--faint)', marginTop: 1 }}>A .ics file rides the announcement. One tap adds it to their calendar.</span></span>
                     <Switch checked={event.calendarInvite} onChange={(v) => onEvent({ calendarInvite: v })} label="Calendar invite" />
                   </div>
@@ -577,7 +577,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
               <span style={{ fontStyle: 'italic' }}>“{brief.slice(0, 110)}{brief.length > 110 ? '…' : ''}”</span>
               {samples[0] ? (
                 <span style={{ display: 'block', marginTop: 9 }}>
-                  <span className="kc-bubble" style={{ display: 'inline-block', fontSize: 13.5, maxWidth: '96%', fontStyle: 'normal' }}>{samples[0].text}</span>
+                  <span className="kp-bubble" style={{ display: 'inline-block', fontSize: 13.5, maxWidth: '96%', fontStyle: 'normal' }}>{samples[0].text}</span>
                   <MonoLabel style={{ marginTop: 4 }}>Sample · {samples[0].name}</MonoLabel>
                 </span>
               ) : null}
@@ -609,11 +609,11 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
 
             <MonoLabel style={{ margin: '20px 2px 8px' }}>When it runs</MonoLabel>
             <Choice value={startMode} onChange={setStartMode} options={[{ id: 'now', label: 'Start now' }, { id: 'at', label: 'Schedule' }]} />
-            {startMode === 'at' ? <input className="kc-input kc-step-in" type="datetime-local" value={startLocal} min={toLocalInput(Date.now() + 5 * 60000)} onChange={(e) => { setStartLocal(e.target.value); if (e.target.value) persist({ schedule: { startAt: inputIso(e.target.value) } }); }} style={{ marginTop: 8 }} aria-label="Start time" /> : null}
+            {startMode === 'at' ? <input className="kp-input kp-step-in" type="datetime-local" value={startLocal} min={toLocalInput(Date.now() + 5 * 60000)} onChange={(e) => { setStartLocal(e.target.value); if (e.target.value) persist({ schedule: { startAt: inputIso(e.target.value) } }); }} style={{ marginTop: 8 }} aria-label="Start time" /> : null}
             <Choice style={{ marginTop: 8 }} value={endMode} onChange={(v) => { setEndMode(v); if (v === 'open') persist({ schedule: { endAt: null } }); }} options={[{ id: 'open', label: 'Run until done' }, { id: 'at', label: 'Finish by' }]} />
-            {endMode === 'at' ? <input className="kc-input kc-step-in" type="datetime-local" value={endLocal} min={toLocalInput(Date.now() + 15 * 60000)} onChange={(e) => setEndLocal(e.target.value)} style={{ marginTop: 8 }} aria-label="Finish by" /> : null}
+            {endMode === 'at' ? <input className="kp-input kp-step-in" type="datetime-local" value={endLocal} min={toLocalInput(Date.now() + 15 * 60000)} onChange={(e) => setEndLocal(e.target.value)} style={{ marginTop: 8 }} aria-label="Finish by" /> : null}
 
-            <div className="kc-guard" style={{ marginTop: 18 }}>
+            <div className="kp-guard" style={{ marginTop: 18 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Icon name="shield" size={15} color="var(--green)" />
                 <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', color: 'var(--green)' }}>Sender Guard plan</span>
@@ -636,8 +636,8 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
       <ListingPicker open={pickListing} onClose={() => setPickListing(false)} onPick={attachListing} includeSold={trigger === 'just_sold'} />
 
       {launched ? (
-        <div className="kc-launched">
-          <div className="kc-launched-card kc-pop-in">
+        <div className="kp-launched">
+          <div className="kp-launched-card kp-pop-in">
             <span style={{ width: 52, height: 52, borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--tint)', border: '1px solid rgba(46,139,255,0.45)', color: 'var(--bright)', boxShadow: '0 0 24px -4px var(--glow)' }}>
               <Icon name={launched.status === 'scheduled' ? 'clock' : 'send'} size={21} />
             </span>
@@ -648,7 +648,7 @@ export default function CampaignBuilder({ prefill = {}, overlayId, onClose }) {
                 : `Going out to ${launched.recipients} people, spaced out to feel human. Replies land in your inbox.`}
             </div>
             {launched.guard && launched.guard.newCount > 0 ? (
-              <div style={{ fontSize: 12.5, color: 'var(--faint)', lineHeight: 1.5, marginTop: 12, padding: '10px 12px', borderRadius: 12, background: 'var(--kc-panel)', textAlign: 'left' }}>
+              <div style={{ fontSize: 12.5, color: 'var(--faint)', lineHeight: 1.5, marginTop: 12, padding: '10px 12px', borderRadius: 12, background: 'var(--kp-panel)', textAlign: 'left' }}>
                 {launched.guard.newCount} of them are new conversations, so this spreads over about {launched.guard.estimatedDays} day{launched.guard.estimatedDays === 1 ? '' : 's'} (about {launched.guard.dailyNewTarget} new people a day). That pacing is what keeps your number safe.
               </div>
             ) : null}
@@ -680,7 +680,7 @@ function BuilderBody({ header, children, footer, loadError, campaign, scrollRef 
     <>
       {header({ requestClose })}
       <div ref={scrollRef} className="km-scroll" style={{ flex: 1, minHeight: 0, paddingBottom: 'calc(150px + var(--safe-bottom) + var(--keyboard-height))', transition: 'padding-bottom 0.25s var(--km-kb-ease)' }}>
-        <div className="kc-wide" style={{ padding: '10px 16px 0' }}>
+        <div className="kp-wide" style={{ padding: '10px 16px 0' }}>
           {loadError ? (
             <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--faint)' }}>
               <div style={{ fontSize: 15, color: 'var(--dim)', fontWeight: 600 }}>Couldn’t open this campaign</div>

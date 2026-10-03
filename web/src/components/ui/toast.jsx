@@ -20,7 +20,7 @@ toast.success = (m, o) => toast(m, { ...o, type: 'success' });
 toast.error = (m, o) => toast(m, { ...o, type: 'error' });
 toast.dismiss = (id) => subs.forEach((fn) => fn({ kind: 'remove', id }));
 
-const ICONS = { success: ['checkCircle', 'var(--green)'], error: ['alert', 'var(--red)'], info: ['sparkle', 'var(--bright)'] };
+const ICONS = { success: ['checkCircle', 'var(--hl-ink)'], error: ['alert', 'var(--red)'], info: ['sparkle', 'var(--text)'] };
 
 export function Toaster() {
   const [items, setItems] = useState([]);
@@ -42,13 +42,13 @@ export function Toaster() {
         const [icon, color] = ICONS[t.type] || ICONS.info;
         return (
           <div key={t.id} className="km-toast km-lg km-lg--menu">
-            <Icon name={icon} size={17} color={color} stroke={2} />
+            <Icon name={icon} size={17} color={color} stroke={1.8} />
             <span style={{ flex: 1 }}>{t.message}</span>
             {t.action ? (
               <button
                 type="button"
                 onClick={() => { t.action.onClick?.(); setItems((xs) => xs.filter((x) => x.id !== t.id)); }}
-                style={{ color: 'var(--bright)', fontWeight: 600, fontSize: 14 }}
+                style={{ color: 'var(--hl-ink)', fontWeight: 500, fontSize: 13.5 }}
               >
                 {t.action.label}
               </button>

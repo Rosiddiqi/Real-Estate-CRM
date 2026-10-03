@@ -140,7 +140,7 @@ export default function Sheet({
           display: 'flex',
           flexDirection: 'column',
           background: 'var(--surface)',
-          border: '1px solid rgba(255,255,255,0.10)',
+          border: 'var(--hairline) solid var(--glass-line)',
           borderRadius: 'var(--r-sheet)',
           boxShadow: 'var(--shadow-sheet)',
           overflow: 'hidden',
@@ -170,15 +170,15 @@ export default function Sheet({
                   <button
                     type="button"
                     onClick={leftAction.onClick || requestClose}
-                    style={{ fontSize: 16, color: 'var(--bright)', padding: '6px 2px', fontWeight: 400 }}
+                    style={{ fontSize: 15, color: 'var(--dim)', padding: '6px 2px', fontWeight: 400 }}
                   >
                     {leftAction.label}
                   </button>
                 ) : null}
               </div>
               <div style={{ textAlign: 'center', minWidth: 0 }}>
-                {title ? <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em' }} className="km-truncate">{title}</div> : null}
-                {subtitle ? <div style={{ fontSize: 12.5, color: 'var(--dim)', marginTop: 1 }} className="km-truncate">{subtitle}</div> : null}
+                {title ? <div className="km-page-title km-truncate">{title}</div> : null}
+                {subtitle ? <div style={{ fontSize: 12, color: 'var(--faint)', marginTop: 3 }} className="km-truncate">{subtitle}</div> : null}
               </div>
               <div style={{ justifySelf: 'end' }}>
                 {right ? (
@@ -187,8 +187,8 @@ export default function Sheet({
                     onClick={right.onClick}
                     disabled={right.disabled}
                     style={{
-                      fontSize: 16, fontWeight: 600, padding: '6px 2px',
-                      color: right.tone === 'danger' ? 'var(--red)' : 'var(--bright)',
+                      fontSize: 15, fontWeight: 500, padding: '6px 2px',
+                      color: right.tone === 'danger' ? 'var(--red)' : 'var(--text)',
                       opacity: right.disabled ? 0.35 : 1,
                     }}
                   >

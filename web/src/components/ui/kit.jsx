@@ -9,9 +9,9 @@ export function Button({ variant = 'primary', size, block, icon, iconRight, load
   const s = size ? `km-btn--${size}` : '';
   return (
     <button type="button" className={`km-btn ${v} ${s} ${block ? 'km-btn--block' : ''} ${className}`} disabled={loading || rest.disabled} {...rest}>
-      {loading ? <Spinner size={16} /> : icon ? <Icon name={icon} size={size === 'sm' ? 15 : 17} stroke={2} /> : null}
+      {loading ? <Spinner size={16} /> : icon ? <Icon name={icon} size={size === 'sm' ? 15 : 17} stroke={1.8} /> : null}
       {children}
-      {iconRight ? <Icon name={iconRight} size={size === 'sm' ? 15 : 17} stroke={2} /> : null}
+      {iconRight ? <Icon name={iconRight} size={size === 'sm' ? 15 : 17} stroke={1.8} /> : null}
     </button>
   );
 }
@@ -41,7 +41,7 @@ export function Chip({ tone = 'blue', icon, children, style, className = '' }) {
 export function DotLabel({ color, children, style }) {
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--dim)', ...style }}>
-      <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, boxShadow: `0 0 6px ${color}` }} />
+      <span style={{ width: 7, height: 7, borderRadius: '50%', background: color }} />
       {children}
     </span>
   );
@@ -51,8 +51,8 @@ export function DotLabel({ color, children, style }) {
 export function EmptyState({ icon = 'sparkle', title, sub, action, style }) {
   return (
     <div className="km-empty" style={style}>
-      <div style={{ width: 64, height: 64, borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface)', border: '1px solid var(--line)' }}>
-        <Icon name={icon} size={28} color="var(--faint)" />
+      <div className="km-tile" style={{ width: 64, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Icon name={icon} size={26} color="var(--faint)" stroke={1.5} />
       </div>
       {title ? <div className="km-empty-title">{title}</div> : null}
       {sub ? <div className="km-empty-sub">{sub}</div> : null}
@@ -83,8 +83,8 @@ export function SkeletonRows({ n = 6, avatar = true }) {
 
 // ── Score dial ────────────────────────────────────────────────────────────
 export function scoreColor(v) {
-  if (v >= 90) return 'var(--bright)';
-  if (v >= 80) return 'var(--blue)';
+  if (v >= 90) return 'var(--hl-ink)';
+  if (v >= 80) return 'var(--text)';
   if (v >= 60) return 'var(--amber)';
   return 'var(--faint)';
 }
@@ -120,7 +120,7 @@ export function Stars({ value = 0, onChange, size = 14, gap = 2 }) {
         const on = n <= value;
         const el = (
           <svg key={n} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill={on ? '#FFD60A' : 'none'} stroke={on ? '#FFD60A' : 'var(--faint)'} strokeWidth="1.6" strokeLinejoin="round" />
+            <path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill={on ? 'var(--hl-ink)' : 'none'} stroke={on ? 'var(--hl-ink)' : 'var(--faint)'} strokeWidth="1.6" strokeLinejoin="round" />
           </svg>
         );
         return onChange ? (
@@ -249,7 +249,10 @@ export function Section({ title, action, children, style, footer }) {
   );
 }
 
-export function Row({ icon, iconColor = 'var(--bright)', iconBg, title, sub, value, chevron, onClick, right, danger, style, children }) {
+// Soul row: a bare 22px outline icon, Poppins Medium label, quiet sub,
+// generous rhythm and a whisper of a divider. (iconBg is accepted for
+// compatibility but Soul icons sit on the surface, not in tiles.)
+export function Row({ icon, iconColor, iconBg, title, sub, value, chevron, onClick, right, danger, style, children }) {
   const Tag = onClick ? 'button' : 'div';
   return (
     <Tag
@@ -257,30 +260,30 @@ export function Row({ icon, iconColor = 'var(--bright)', iconBg, title, sub, val
       onClick={onClick}
       className={onClick ? 'km-press' : ''}
       style={{
-        width: '100%', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left',
-        padding: '12px 14px', minHeight: 48, borderBottom: '1px solid var(--line)', ...style,
+        width: '100%', display: 'flex', alignItems: 'center', gap: 16, textAlign: 'left',
+        padding: '14px 16px', minHeight: 54, borderBottom: '1px solid rgba(var(--accent-rgb), 0.05)', ...style,
       }}
     >
       {icon ? (
-        <span style={{ width: 30, height: 30, borderRadius: 9, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: iconBg || 'var(--tint)', color: iconColor }}>
-          <Icon name={icon} size={17} stroke={2} />
+        <span style={{ width: 24, height: 24, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: danger ? 'var(--red)' : (iconColor || 'var(--text)') }}>
+          <Icon name={icon} size={21} stroke={1.6} />
         </span>
       ) : null}
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span className="km-truncate" style={{ display: 'block', fontSize: 15.5, fontWeight: 500, color: danger ? 'var(--red)' : 'var(--text)' }}>{title}</span>
-        {sub ? <span className="km-truncate" style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>{sub}</span> : null}
+        <span className="km-truncate" style={{ display: 'block', fontSize: 14.5, fontWeight: 500, color: danger ? 'var(--red)' : 'var(--text)' }}>{title}</span>
+        {sub ? <span className="km-truncate" style={{ display: 'block', fontSize: 12.5, color: 'var(--faint)', marginTop: 2 }}>{sub}</span> : null}
         {children}
       </span>
-      {value != null ? <span style={{ fontSize: 14.5, color: 'var(--dim)', flexShrink: 0 }}>{value}</span> : null}
+      {value != null ? <span style={{ fontFamily: 'var(--font-num)', fontSize: 14, color: 'var(--dim)', flexShrink: 0 }}>{value}</span> : null}
       {right || null}
-      {chevron ? <Icon name="chevronRight" size={16} color="var(--faint)" /> : null}
+      {chevron ? <Icon name="chevronRight" size={16} color="var(--faint)" stroke={1.6} /> : null}
     </Tag>
   );
 }
 
 export function Group({ children, style }) {
   return (
-    <div style={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 'var(--r-card)', overflow: 'hidden', ...style }}>
+    <div className="km-tile" style={{ overflow: 'hidden', ...style }}>
       {children}
     </div>
   );

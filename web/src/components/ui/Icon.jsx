@@ -151,7 +151,7 @@ const G = {
   cake: <><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1M2 21h20M7 8v3M12 8v3M17 8v3" /></>,
 }
 
-export default function Icon({ name, size = 20, color = 'currentColor', stroke = 1.8, style, className, title }) {
+export default function Icon({ name, size = 20, color = 'currentColor', stroke = 1.6, style, className, title }) {
   const glyph = G[name];
   if (!glyph) return null;
   return (

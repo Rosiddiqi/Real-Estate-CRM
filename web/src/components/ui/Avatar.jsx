@@ -1,13 +1,14 @@
-// Avatar — gradient + initials (seeded, identical on every screen), photo when
-// available, silhouette for unsaved numbers. Optional channel dot
-// (iMessage blue / SMS green) and status ring.
+// Avatar — Soul: monochrome initials on a graphite disc with a hairline ring
+// (seeded shade, identical on every screen), photo when available,
+// silhouette for unsaved numbers. Optional channel dot (iMessage = white,
+// SMS = grey) and status ring.
 import { avatarBackground, avatarSeed } from '../../lib/avatar';
 import { getInitials } from '../../lib/format';
 import { mediaUrl } from '../../api/client';
 
 function Silhouette({ size }) {
   return (
-    <svg width={size * 0.62} height={size * 0.62} viewBox="0 0 24 24" fill="rgba(255,255,255,0.92)" aria-hidden="true">
+    <svg width={size * 0.62} height={size * 0.62} viewBox="0 0 24 24" fill="var(--faint)" aria-hidden="true">
       <circle cx="12" cy="8.2" r="4.4" />
       <path d="M3.5 21.5c.6-4.6 4.1-7.4 8.5-7.4s7.9 2.8 8.5 7.4z" />
     </svg>
@@ -41,7 +42,8 @@ export default function Avatar({
         height: size,
         fontSize,
         background: src ? 'var(--surfaceHi)' : bg,
-        boxShadow: ring ? `0 0 0 2px var(--bg), 0 0 0 4px ${ring}` : undefined,
+        color: silent ? 'var(--faint)' : undefined,
+        boxShadow: ring ? `0 0 0 2px var(--bg), 0 0 0 3.5px ${ring}` : 'inset 0 0 0 var(--hairline) var(--lineHi)',
         overflow: 'visible',
         ...style,
       }}
@@ -60,7 +62,7 @@ export default function Avatar({
         <span
           style={{
             position: 'absolute', right: -1, bottom: -1, width: dot, height: dot, borderRadius: '50%',
-            background: channel === 'sms' ? 'var(--sms)' : 'var(--imsg)',
+            background: channel === 'sms' ? 'var(--meta)' : 'var(--text)',
             border: '2px solid var(--bg)',
           }}
         />

@@ -1,6 +1,6 @@
-// PillTabs — segmented control. Track = liquid glass pill; the selected
-// segment is a NEUTRAL lens that springs between cells; the label carries the
-// emphasis (HIG: no color on the backgrounds of several controls).
+// PillTabs — segmented control. Track = hairline glass pill; the selected
+// segment is Soul's solid white pill (ink on light) that springs between
+// cells.
 //   <PillTabs value={tab} onChange={setTab} items={[{ id:'all', label:'All', count:12 }, ...]} />
 export default function PillTabs({ items, value, onChange, size = 'md', style, className = '' }) {
   const idx = Math.max(0, items.findIndex((i) => i.id === value));
@@ -38,8 +38,8 @@ export default function PillTabs({ items, value, onChange, size = 'md', style, c
             style={{
               flex: 1, position: 'relative', zIndex: 1, minWidth: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              fontSize: size === 'sm' ? 12.5 : 13.5, fontWeight: 600,
-              color: active ? 'var(--lg-text)' : 'var(--lg-text-idle)',
+              fontSize: size === 'sm' ? 12.5 : 13.5, fontWeight: 500,
+              color: active ? 'var(--on-accent)' : 'var(--lg-text-idle)',
               transition: 'color 0.2s',
               padding: '0 6px',
             }}
@@ -49,8 +49,8 @@ export default function PillTabs({ items, value, onChange, size = 'md', style, c
               <span
                 style={{
                   minWidth: 18, height: 18, padding: '0 5px', borderRadius: 9,
-                  fontSize: 10.5, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  background: active ? 'var(--blue)' : 'var(--lg-fill)', color: active ? '#fff' : 'var(--lg-text-idle)',
+                  fontFamily: 'var(--font-num)', fontSize: 10.5, fontWeight: 500, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  background: active ? 'var(--hl)' : 'var(--lg-fill)', color: active ? 'var(--on-hl)' : 'var(--lg-text-idle)',
                 }}
               >
                 {it.count}

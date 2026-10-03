@@ -55,7 +55,7 @@ export default function OnboardingChecklist({ state, act, showBanner }) {
           onClick={() => setOpen(true)}
           style={{
             position: 'fixed', zIndex: 320, left: 16, right: 16, maxWidth: 520, margin: '0 auto',
-            bottom: 'calc(var(--tabbar-clearance) + var(--safe-bottom) - 26px)',
+            bottom: 'calc(var(--tabbar-clearance) + var(--safe-bottom) - 14px)',
             height: 56, borderRadius: 14, padding: '0 14px', display: 'flex', alignItems: 'center', gap: 12,
             background: 'var(--surfaceHi)', border: '1px solid var(--lineHi)', boxShadow: '0 16px 40px -16px rgba(0,0,0,0.7)',
           }}

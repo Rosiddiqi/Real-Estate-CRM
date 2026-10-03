@@ -58,7 +58,7 @@ export default function SuggestionCard({ s, onResolved, onRestore, showCampaign 
   };
 
   return (
-    <div className={`kc-approve ${needs ? 'kc-approve--needs' : ''} kc-step-in`}>
+    <div className={`kp-approve ${needs ? 'kp-approve--needs' : ''} kp-step-in`}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <Avatar name={s.clientName} seed={s.clientId} size={32} onClick={() => s.clientId && nav.openClient(s.clientId)} />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -96,7 +96,7 @@ export default function SuggestionCard({ s, onResolved, onRestore, showCampaign 
         />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: 10 }}>
-          <div className="kc-bubble km-selectable">{text}</div>
+          <div className="kp-bubble km-selectable">{text}</div>
           <MonoLabel style={{ marginTop: 5 }}>{s.via === 'ai' ? 'Drafted by your AI' : 'Drafted from your campaign details'} · not sent</MonoLabel>
         </div>
       )}

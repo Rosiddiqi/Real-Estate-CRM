@@ -71,17 +71,17 @@ export default function AutomationEditor({ automation, open, onClose, onSaved })
         </Button>
       )}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '4px 0 2px', '--kc-accent': a.accent }}>
-        <span className="kc-auto-tile"><Icon name={a.icon} size={18} stroke={2} /></span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '4px 0 2px', '--kp-accent': a.accent }}>
+        <span className="kp-auto-tile"><Icon name={a.icon} size={18} stroke={2} /></span>
         <div style={{ minWidth: 0 }}>
           <MonoLabel>When</MonoLabel>
           <div style={{ fontSize: 14, marginTop: 2 }}>{a.when}</div>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-        <div className="kc-tile" style={{ flex: 1 }}><MonoLabel>Qualify now</MonoLabel><div className="kc-tile-num">{a.audienceCount}</div></div>
-        <div className="kc-tile" style={{ flex: 1 }}><MonoLabel>Texts sent</MonoLabel><div className="kc-tile-num">{a.sentCount}</div></div>
-        <div className="kc-tile" style={{ flex: 1 }}><MonoLabel>Queued</MonoLabel><div className="kc-tile-num">{a.queued}</div></div>
+        <div className="kp-tile" style={{ flex: 1 }}><MonoLabel>Qualify now</MonoLabel><div className="kp-tile-num">{a.audienceCount}</div></div>
+        <div className="kp-tile" style={{ flex: 1 }}><MonoLabel>Texts sent</MonoLabel><div className="kp-tile-num">{a.sentCount}</div></div>
+        <div className="kp-tile" style={{ flex: 1 }}><MonoLabel>Queued</MonoLabel><div className="kp-tile-num">{a.queued}</div></div>
       </div>
 
       {multi ? (
@@ -90,7 +90,7 @@ export default function AutomationEditor({ automation, open, onClose, onSaved })
           <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {steps.map((s, i) => (
               <div key={i}>
-                <div className="kc-mono" style={{ color: 'var(--bright)', marginBottom: 6 }}>{s.label || `${s.dayOffset} days after closing`}</div>
+                <div className="kp-mono" style={{ color: 'var(--bright)', marginBottom: 6 }}>{s.label || `${s.dayOffset} days after closing`}</div>
                 <ComposerField rows={2} value={s.instructions || ''} onChange={(v) => setSteps((xs) => xs.map((x, j) => (j === i ? { ...x, instructions: v } : x)))} placeholder="What should this text say?" />
               </div>
             ))}
@@ -127,9 +127,9 @@ export default function AutomationEditor({ automation, open, onClose, onSaved })
 
       <Eyebrow icon="messageSquare" style={{ marginTop: 22 }}>Recent sends</Eyebrow>
       {a.recentSends && a.recentSends.length ? (
-        <div className="kc-list" style={{ marginTop: 10 }}>
+        <div className="kp-list" style={{ marginTop: 10 }}>
           {a.recentSends.map((m) => (
-            <button key={m.id} type="button" className="kc-li km-press" onClick={() => { closeAnimated(); nav.openThread({ conversationId: m.conversationId, clientId: m.clientId }); }}>
+            <button key={m.id} type="button" className="kp-li km-press" onClick={() => { closeAnimated(); nav.openThread({ conversationId: m.conversationId, clientId: m.clientId }); }}>
               <Avatar name={m.name} seed={m.clientId} src={m.avatarUrl} size={32} />
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>

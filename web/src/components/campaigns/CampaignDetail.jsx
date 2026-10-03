@@ -67,10 +67,10 @@ function laneSummary(steps) {
 
 function Tile({ label, value, color, sub }) {
   return (
-    <div className="kc-tile">
-      <div className="kc-tile-num" style={{ color, fontSize: String(value).length > 3 ? 17 : undefined }}>{value}</div>
-      <div className="kc-tile-label">{label}</div>
-      {sub ? <div className="kc-tile-sub">{sub}</div> : null}
+    <div className="kp-tile">
+      <div className="kp-tile-num" style={{ color, fontSize: String(value).length > 3 ? 17 : undefined }}>{value}</div>
+      <div className="kp-tile-label">{label}</div>
+      {sub ? <div className="kp-tile-sub">{sub}</div> : null}
     </div>
   );
 }
@@ -79,7 +79,7 @@ function RecipientRow({ r, onMore }) {
   const [label, color] = REC_STATUS[r.status] || ['', 'var(--faint)'];
   const open = () => nav.openThread({ conversationId: r.conversationId || undefined, clientId: r.clientId, name: r.name });
   return (
-    <div className="kc-li" style={{ alignItems: 'flex-start', paddingRight: 6 }}>
+    <div className="kp-li" style={{ alignItems: 'flex-start', paddingRight: 6 }}>
       <button type="button" className="km-press" onClick={open} style={{ display: 'flex', gap: 11, flex: 1, minWidth: 0, textAlign: 'left' }}>
         <Avatar name={r.name} seed={r.clientId} src={r.avatarUrl} size={38} channel={r.channel} />
         <span style={{ flex: 1, minWidth: 0 }}>
@@ -87,7 +87,7 @@ function RecipientRow({ r, onMore }) {
             <span className="km-truncate" style={{ fontSize: 14.5, fontWeight: 600, minWidth: 0 }}>{r.name}</span>
             {r.laneLockedByAgent ? <Icon name="pin" size={11} color="var(--faint)" title="Lane set by you" /> : null}
             <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-              <span className="kc-dot" style={{ width: 5, height: 5, background: color }} />
+              <span className="kp-dot" style={{ width: 5, height: 5, background: color }} />
               <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color }}>{label}</span>
             </span>
           </span>
@@ -108,7 +108,7 @@ function RecipientRow({ r, onMore }) {
 
 function ActionRow({ icon, dot, label, onClick, danger, sub }) {
   return (
-    <button type="button" className="kc-li km-press" onClick={onClick} style={{ minHeight: 50 }}>
+    <button type="button" className="kp-li km-press" onClick={onClick} style={{ minHeight: 50 }}>
       {dot ? <span style={{ width: 20, display: 'flex', justifyContent: 'center' }}><LaneDot lane={dot} size={10} /></span> : <Icon name={icon} size={18} color={danger ? 'var(--red)' : 'var(--bright)'} />}
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: 'block', fontSize: 15.5, color: danger ? 'var(--red)' : 'var(--text)' }}>{label}</span>
@@ -262,7 +262,7 @@ export default function CampaignDetail({ id, onClose }) {
   return (
     <PushPanel onClose={onClose} title={c ? c.name : 'Campaign'} subtitle={subtitle || undefined} right={headerRight} bodyStyle={{ padding: '6px 16px 0' }}>
       <CloseBridge target={closeRef} />
-      <div className="kc-wide">
+      <div className="kp-wide">
         {gone ? (
           <EmptyState icon="send" title="This campaign is gone" sub="It was deleted. Texts that went out are still in each thread." action={<Button size="sm" variant="ghost" onClick={() => closeRef.current()}>Back</Button>} />
         ) : null}
@@ -274,8 +274,8 @@ export default function CampaignDetail({ id, onClose }) {
         {c ? (
           <>
             {/* Scoreboard */}
-            <div className="kc-card" style={{ '--kc-accent': c.accent, padding: '14px 14px 14px 18px' }}>
-              <span className="kc-card-spine" />
+            <div className="kp-card" style={{ '--kp-accent': c.accent, padding: '14px 14px 14px 18px' }}>
+              <span className="kp-card-spine" />
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
                 <StatusPill status={phase} />
                 <span className="km-truncate" style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--faint)', minWidth: 0 }}>
@@ -283,7 +283,7 @@ export default function CampaignDetail({ id, onClose }) {
                     : c.launchedAt ? `Started ${fmtWhen(c.launchedAt, { todayWord: true })}` : `Created ${relativeTime(c.createdAt)}`}
                 </span>
               </div>
-              <div className="kc-tiles" style={{ marginTop: 12 }}>
+              <div className="kp-tiles" style={{ marginTop: 12 }}>
                 <Tile label="Sent" value={s.sent || 0} />
                 <Tile label="Delivered" value={s.delivered || 0} />
                 <Tile label="Replied" value={s.replied || 0} color={s.replied ? 'var(--green)' : undefined} />
@@ -301,7 +301,7 @@ export default function CampaignDetail({ id, onClose }) {
               ) : null}
               {phase === 'sending' && s.nextSendAt ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 10 }}>
-                  <span className="kc-dot kc-pulse" style={{ width: 7, height: 7, background: 'var(--green)', boxShadow: '0 0 8px var(--green)' }} />
+                  <span className="kp-dot kp-pulse" style={{ width: 7, height: 7, background: 'var(--green)', boxShadow: '0 0 8px var(--green)' }} />
                   <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', color: 'var(--green)', textTransform: 'uppercase' }}>Live · next text {fmtIn(s.nextSendAt)}</span>
                 </div>
               ) : null}
@@ -342,14 +342,14 @@ export default function CampaignDetail({ id, onClose }) {
 
             {/* Lane columns */}
             <Eyebrow icon="users" style={{ marginTop: 22 }}>Who said what</Eyebrow>
-            <div className="kc-lanecols" style={{ marginTop: 10 }} role="tablist" aria-label="Reply lanes">
+            <div className="kp-lanecols" style={{ marginTop: 10 }} role="tablist" aria-label="Reply lanes">
               {COLS.map((k) => {
                 const m = LANE_META[k];
                 const on = activeCol === k;
                 return (
-                  <button key={k} type="button" role="tab" aria-selected={on} aria-pressed={on} className="kc-lanecol km-press" onClick={() => { setCol(k); setLimit(PAGE); }} style={{ '--kc-c': m.hex }}>
+                  <button key={k} type="button" role="tab" aria-selected={on} aria-pressed={on} className="kp-lanecol km-press" onClick={() => { setCol(k); setLimit(PAGE); }} style={{ '--kp-c': m.hex }}>
                     <span style={{ display: 'flex', justifyContent: 'center' }}><LaneDot lane={k} size={8} glow={on || counts[k] > 0} /></span>
-                    <div className="kc-lanecol-num" style={{ color: counts[k] ? 'var(--text)' : 'var(--faint)' }}>{counts[k]}</div>
+                    <div className="kp-lanecol-num" style={{ color: counts[k] ? 'var(--text)' : 'var(--faint)' }}>{counts[k]}</div>
                     <div className="km-truncate" style={{ fontSize: 10.5, fontWeight: 600, color: on ? m.color : 'var(--faint)' }}>{m.short}</div>
                   </button>
                 );
@@ -360,7 +360,7 @@ export default function CampaignDetail({ id, onClose }) {
               {activeCol === 'gray' && colRows.some((r) => r.lastReplyKind === 'off_topic') ? ' Off-topic replies stop the campaign for that person; answer them in the thread.' : ''}
             </div>
             {colRows.length ? (
-              <div className="kc-list">
+              <div className="kp-list">
                 {colRows.slice(0, limit).map((r) => <RecipientRow key={r.id} r={r} onMore={setRec} />)}
               </div>
             ) : (
@@ -376,7 +376,7 @@ export default function CampaignDetail({ id, onClose }) {
 
             {/* The message */}
             <Eyebrow icon="send" style={{ marginTop: 26 }}>The message</Eyebrow>
-            <div className="kc-section" style={{ marginTop: 10, padding: 13 }}>
+            <div className="kp-section" style={{ marginTop: 10, padding: 13 }}>
               <MonoLabel>{isAuto ? 'What your AI writes about' : 'Your brief · AI writes each text from it'}</MonoLabel>
               <div className="km-selectable" style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.45, marginTop: 6 }}>{c.brief || 'No brief yet.'}</div>
               {c.listing ? (
@@ -395,7 +395,7 @@ export default function CampaignDetail({ id, onClose }) {
             {hasEvent ? (
               <>
                 <Eyebrow icon="calendar" style={{ marginTop: 22 }}>The event</Eyebrow>
-                <div className="kc-section" style={{ marginTop: 10, padding: 13, display: 'flex', gap: 12, alignItems: 'center' }}>
+                <div className="kp-section" style={{ marginTop: 10, padding: 13, display: 'flex', gap: 12, alignItems: 'center' }}>
                   <div style={{ width: 46, borderRadius: 11, overflow: 'hidden', border: '1px solid var(--line)', textAlign: 'center', flexShrink: 0, background: 'var(--surfaceHi)' }}>
                     <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: '#fff', background: 'var(--kind-openhouse)', padding: '3px 0' }}>{fmtTz(c.event.startAt, { month: 'short' }).toUpperCase()}</div>
                     <div className="km-num" style={{ fontSize: 19, padding: '3px 0 4px' }}>{fmtTz(c.event.startAt, { day: 'numeric' })}</div>
@@ -417,7 +417,7 @@ export default function CampaignDetail({ id, onClose }) {
             ) : null}
 
             <Eyebrow icon="reply" style={{ marginTop: 22 }} right={lanesEditable ? <button type="button" onClick={openLanes} style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--bright)', letterSpacing: 0, textTransform: 'none' }}>Edit</button> : null}>After they reply</Eyebrow>
-            <button type="button" className={`kc-section ${lanesEditable ? 'km-press' : ''}`} onClick={lanesEditable ? openLanes : undefined} disabled={!lanesEditable} style={{ marginTop: 10, padding: '10px 13px', width: '100%', textAlign: 'left', display: 'block', color: 'inherit' }}>
+            <button type="button" className={`kp-section ${lanesEditable ? 'km-press' : ''}`} onClick={lanesEditable ? openLanes : undefined} disabled={!lanesEditable} style={{ marginTop: 10, padding: '10px 13px', width: '100%', textAlign: 'left', display: 'block', color: 'inherit' }}>
               {['green', 'yellow', 'red', 'gray'].map((k) => {
                 const l = (c.lanes || {})[k] || {};
                 const steps = Array.isArray(l.steps) ? l.steps : [];
@@ -448,7 +448,7 @@ export default function CampaignDetail({ id, onClose }) {
       {/* Campaign actions */}
       <Sheet open={menu} onClose={() => setMenu(false)} title={c ? c.name : ''} subtitle={c ? (STATUS_LABEL[phase] || '') : ''} left={false}>
         {({ close }) => (c ? (
-          <div className="kc-list">
+          <div className="kp-list">
             {c.status === 'paused' && !isAuto && !needsLine ? <ActionRow icon="play" label="Resume sending" onClick={() => { close(); resume(); }} /> : null}
             {live && !isAuto ? <ActionRow icon="pause" label="Pause sending" sub="Queued texts and follow-ups wait" onClick={() => { close(); pause(); }} /> : null}
             {!isAuto ? <ActionRow icon="copy" label="Duplicate as a draft" onClick={() => { close(); duplicate(); }} /> : null}
@@ -476,14 +476,14 @@ export default function CampaignDetail({ id, onClose }) {
       <Sheet open={!!rec} onClose={() => setRec(null)} title={rec ? rec.name : ''} subtitle={rec ? activityLine(rec) : ''} left={false}>
         {({ close }) => (rec ? (
           <>
-            <div className="kc-list">
+            <div className="kp-list">
               <ActionRow icon="messageSquare" label="Open thread" onClick={() => { close(); openThread(rec); }} />
               <ActionRow icon="user" label="Open client card" onClick={() => { close(); nav.openClient(rec.clientId); }} />
             </div>
             {!isAuto && !['opted_out', 'muted', 'canceled', 'failed'].includes(rec.status) && rec.lastSentAt ? (
               <>
                 <MonoLabel style={{ display: 'block', margin: '16px 4px 8px' }}>Wrong lane? Put them in</MonoLabel>
-                <div className="kc-list">
+                <div className="kp-list">
                   {['green', 'yellow', 'red'].map((k) => (
                     <ActionRow key={k} dot={k} label={LANE_META[k].title} sub={rec.lane === k ? 'Current lane' : LANE_META[k].sub}
                       onClick={() => { close(); if (rec.lane !== k) moveLane(rec, k); }} />
@@ -495,7 +495,7 @@ export default function CampaignDetail({ id, onClose }) {
               </>
             ) : null}
             {!['opted_out', 'canceled'].includes(rec.status) ? (
-              <div className="kc-list" style={{ marginTop: 14 }}>
+              <div className="kp-list" style={{ marginTop: 14 }}>
                 <ActionRow icon={rec.status === 'muted' ? 'volume' : 'bell'} label={rec.status === 'muted' ? 'Unmute' : 'Mute for this campaign'} sub={rec.status === 'muted' ? null : 'Nothing else from this campaign goes to them'}
                   danger={rec.status !== 'muted'} onClick={() => { close(); toggleMute(rec); }} />
               </div>

@@ -54,8 +54,8 @@ function AiSwitch({ needsLine = false }) {
     }
   };
   return (
-    <div className="kc-auto" style={{ '--kc-accent': paused ? '#F2A93B' : '#2E8BFF' }}>
-      <span className="kc-auto-tile"><Icon name={paused ? 'pause' : 'sparkle'} size={17} stroke={2} /></span>
+    <div className="kp-auto" style={{ '--kp-accent': paused ? '#F2A93B' : '#2E8BFF' }}>
+      <span className="kp-auto-tile"><Icon name={paused ? 'pause' : 'sparkle'} size={17} stroke={2} /></span>
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: 'block', fontSize: 14.5, fontWeight: 600 }}>AI texting</span>
         <span style={{ display: 'block', fontSize: 12, color: paused ? 'var(--amber)' : 'var(--dim)', marginTop: 1, lineHeight: 1.35 }}>
@@ -77,8 +77,8 @@ function CampaignLine({ c }) {
     ? `Starts ${fmtIn(c.launchedAt || (c.schedule && c.schedule.startAt))}`
     : `${s.sent || 0}/${s.total || 0} sent${s.sent ? ` · ${Math.round(s.replyRate || 0)}% replied` : ''}`;
   return (
-    <button type="button" className="kc-li km-press" onClick={() => nav.openCampaign(c.id)}>
-      <span className="kc-auto-tile" style={{ '--kc-accent': c.accent || '#2E8BFF', width: 34, height: 34, borderRadius: 10 }}>
+    <button type="button" className="kp-li km-press" onClick={() => nav.openCampaign(c.id)}>
+      <span className="kp-auto-tile" style={{ '--kp-accent': c.accent || '#2E8BFF', width: 34, height: 34, borderRadius: 10 }}>
         <Icon name={TEMPLATE_ICON[c.trigger] || 'send'} size={15} stroke={2} />
       </span>
       <span style={{ flex: 1, minWidth: 0 }}>
@@ -97,15 +97,15 @@ function ThreadGroups({ groups }) {
   return groups.map((g) => (
     <div key={g.source.id} style={{ marginBottom: 14 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, margin: '0 2px 7px' }}>
-        <span className="kc-dot" style={{ width: 6, height: 6, background: g.source.accent }} />
+        <span className="kp-dot" style={{ width: 6, height: 6, background: g.source.accent }} />
         <MonoLabel style={{ flex: 1, minWidth: 0 }}>{g.source.name} · {g.threads.length}</MonoLabel>
         {g.source.type === 'campaign' && g.source.id !== 'other' ? (
           <button type="button" onClick={() => nav.openCampaign(g.source.id)} style={{ fontSize: 12, fontWeight: 600, color: 'var(--bright)' }}>Open</button>
         ) : null}
       </div>
-      <div className="kc-list">
+      <div className="kp-list">
         {g.threads.map((t) => (
-          <button key={t.conversationId} type="button" className="kc-li km-press" onClick={() => nav.openThread({ conversationId: t.conversationId, clientId: t.clientId, name: t.name })}>
+          <button key={t.conversationId} type="button" className="kp-li km-press" onClick={() => nav.openThread({ conversationId: t.conversationId, clientId: t.clientId, name: t.name })}>
             <Avatar name={t.name} seed={t.clientId || t.conversationId} src={t.avatarUrl} size={38} channel={t.channel} />
             <span style={{ flex: 1, minWidth: 0 }}>
               <span style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
@@ -212,7 +212,7 @@ export default function AutomationsTab({ showThreads, padded = true, style }) {
         <>
           <SectionRule label="Campaigns" count={campaigns.length}
             action={<button type="button" onClick={() => nav.newCampaign()} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: 'var(--bright)', flexShrink: 0 }}><Icon name="plus" size={13} />New</button>} />
-          <div className="kc-list">
+          <div className="kp-list">
             {campaigns.slice(0, 5).map((c) => <CampaignLine key={c.id} c={c} />)}
           </div>
           {campaigns.length > 5 ? (

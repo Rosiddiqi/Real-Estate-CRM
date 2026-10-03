@@ -48,7 +48,7 @@ function Pills({ options, value, onToggle, limit = 14, color }) {
 function RefineCard({ title, icon, summary, children, defaultOpen }) {
   const [open, setOpen] = useState(!!defaultOpen);
   return (
-    <div className="kc-section">
+    <div className="kp-section">
       <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 11, padding: '12px 14px', textAlign: 'left' }}>
         <span style={{ width: 30, height: 30, borderRadius: 9, background: 'var(--tint)', color: 'var(--bright)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Icon name={icon} size={15} stroke={2} /></span>
         <span style={{ flex: 1, minWidth: 0 }}>
@@ -57,7 +57,7 @@ function RefineCard({ title, icon, summary, children, defaultOpen }) {
         </span>
         <Icon name="chevronDown" size={15} color="var(--faint)" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.22s var(--km-ease)' }} />
       </button>
-      {open ? <div className="kc-step-in" style={{ padding: '2px 14px 14px', display: 'flex', flexDirection: 'column', gap: 14 }}>{children}</div> : null}
+      {open ? <div className="kp-step-in" style={{ padding: '2px 14px 14px', display: 'flex', flexDirection: 'column', gap: 14 }}>{children}</div> : null}
     </div>
   );
 }
@@ -97,7 +97,7 @@ export default function AudienceBuilder({ name, onName, audience, onChange, opti
   return (
     <div>
       <Eyebrow blue>Call it something</Eyebrow>
-      <input className="kc-input" value={name} onChange={(e) => onName(e.target.value.slice(0, 120))} placeholder={'"Grove buyers, new listing", "Fall open house"…'} style={{ marginTop: 10 }} aria-label="Campaign name" />
+      <input className="kp-input" value={name} onChange={(e) => onName(e.target.value.slice(0, 120))} placeholder={'"Grove buyers, new listing", "Fall open house"…'} style={{ marginTop: 10 }} aria-label="Campaign name" />
 
       <Eyebrow blue icon="users" style={{ marginTop: 22 }}>Who should get this</Eyebrow>
       <ComposerField
@@ -125,7 +125,7 @@ export default function AudienceBuilder({ name, onName, audience, onChange, opti
       </div>
 
       {/* Live count */}
-      <div className="kc-pop-in" style={{ marginTop: 14, borderRadius: 14, padding: '13px 15px', background: 'rgba(46,139,255,0.08)', border: '1px solid rgba(46,139,255,0.25)' }}>
+      <div className="kp-pop-in" style={{ marginTop: 14, borderRadius: 14, padding: '13px 15px', background: 'rgba(46,139,255,0.08)', border: '1px solid rgba(46,139,255,0.25)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span className="km-num" style={{ fontSize: 32, lineHeight: 1 }}>{count}</span>
           <span style={{ fontSize: 13.5, color: 'var(--dim)' }}>will receive</span>
@@ -158,9 +158,9 @@ export default function AudienceBuilder({ name, onName, audience, onChange, opti
               <>
                 <Pills options={opts.searchNeighborhoods} value={buyersIn.neighborhoods} onToggle={(v) => set({ buyersIn: { ...buyersIn, enabled: true, neighborhoods: toggle(buyersIn.neighborhoods, v) } })} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
-                  <input className="kc-input" inputMode="decimal" placeholder="Min $M" defaultValue={toM(buyersIn.priceMin)} onBlur={(e) => set({ buyersIn: { ...buyersIn, enabled: true, priceMin: fromM(e.target.value) } })} aria-label="Minimum price in millions" />
+                  <input className="kp-input" inputMode="decimal" placeholder="Min $M" defaultValue={toM(buyersIn.priceMin)} onBlur={(e) => set({ buyersIn: { ...buyersIn, enabled: true, priceMin: fromM(e.target.value) } })} aria-label="Minimum price in millions" />
                   <span style={{ color: 'var(--faint)' }}>–</span>
-                  <input className="kc-input" inputMode="decimal" placeholder="Max $M" defaultValue={toM(buyersIn.priceMax)} onBlur={(e) => set({ buyersIn: { ...buyersIn, enabled: true, priceMax: fromM(e.target.value) } })} aria-label="Maximum price in millions" />
+                  <input className="kp-input" inputMode="decimal" placeholder="Max $M" defaultValue={toM(buyersIn.priceMax)} onBlur={(e) => set({ buyersIn: { ...buyersIn, enabled: true, priceMax: fromM(e.target.value) } })} aria-label="Maximum price in millions" />
                 </div>
               </>
             ) : null}
@@ -204,9 +204,9 @@ export default function AudienceBuilder({ name, onName, audience, onChange, opti
             <MonoLabel>All {count}</MonoLabel>
           </div>
           <div style={{ fontSize: 12.5, color: 'var(--faint)', margin: '0 2px 8px' }}>Tap Exclude on anyone you don’t want to text.</div>
-          <div className="kc-list">
+          <div className="kp-list">
             {visible.map((p) => (
-              <div key={p.id} className="kc-li">
+              <div key={p.id} className="kp-li">
                 <Avatar name={p.name} seed={p.id} src={p.avatarUrl} size={34} channel={p.channel} />
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span className="km-truncate" style={{ display: 'block', fontSize: 14, fontWeight: 600 }}>{p.name}</span>
@@ -228,14 +228,14 @@ export default function AudienceBuilder({ name, onName, audience, onChange, opti
 
       {excludedPeople.length ? (
         <div style={{ marginTop: 16 }}>
-          <button type="button" onClick={() => setShowExcluded((v) => !v)} className="kc-mono" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button type="button" onClick={() => setShowExcluded((v) => !v)} className="kp-mono" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             Excluded by you · {excludedPeople.length}
             <Icon name="chevronRight" size={11} style={{ transform: showExcluded ? 'rotate(90deg)' : 'none', transition: 'transform 0.18s' }} />
           </button>
           {showExcluded ? (
-            <div className="kc-list kc-step-in" style={{ marginTop: 8 }}>
+            <div className="kp-list kp-step-in" style={{ marginTop: 8 }}>
               {excludedPeople.map((p) => (
-                <div key={p.id} className="kc-li" style={{ opacity: 0.7 }}>
+                <div key={p.id} className="kp-li" style={{ opacity: 0.7 }}>
                   <Avatar name={p.name} seed={p.id} size={30} />
                   <span className="km-truncate" style={{ flex: 1, fontSize: 14, textDecoration: 'line-through', color: 'var(--dim)' }}>{p.name}</span>
                   <button type="button" className="km-pill km-press" style={{ height: 30, fontSize: 12.5, color: 'var(--green)' }} onClick={() => set({ excludedIds: (a.excludedIds || []).filter((x) => x !== p.id) })}>Add back</button>

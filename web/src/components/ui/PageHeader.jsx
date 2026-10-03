@@ -1,7 +1,7 @@
-// PageHeader — the ONE header layout (RevMatch rule #14): title 24px/600,
-// perfectly centered between the left and right clusters; controls float as
-// liquid-glass circles; the bar itself has no band — content scrolling under
-// it gets the scroll-edge effect.
+// PageHeader — the ONE header layout (Soul): a small UPPERCASE tracked title
+// centered between hairline glass circles; the bar has no band — content
+// scrolling under it gets the scroll-edge effect. `large` gives tab roots a
+// big Poppins title instead.
 import GlassButton from './GlassButton';
 
 export default function PageHeader({
@@ -31,7 +31,7 @@ export default function PageHeader({
           alignItems: 'center',
           gap: 8,
           minHeight: 48,
-          padding: '0 12px',
+          padding: '0 20px',
         }}
       >
         <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -42,15 +42,15 @@ export default function PageHeader({
             <div className="km-page-title km-truncate" style={{ lineHeight: 1.15 }}>{title}</div>
           ) : null}
           {!large && subtitle ? (
-            <div className="km-truncate" style={{ fontSize: 12.5, color: 'var(--dim)', marginTop: 1 }}>{subtitle}</div>
+            <div className="km-truncate" style={{ fontSize: 12, color: 'var(--faint)', marginTop: 3 }}>{subtitle}</div>
           ) : null}
         </div>
         <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', gap: 8 }}>{right}</div>
       </div>
       {large && title ? (
-        <div style={{ padding: '2px 16px 6px' }}>
+        <div style={{ padding: '6px 24px 8px' }}>
           <div className="km-large-title">{title}</div>
-          {subtitle ? <div style={{ fontSize: 14, color: 'var(--dim)', marginTop: 2 }}>{subtitle}</div> : null}
+          {subtitle ? <div style={{ fontSize: 13, color: 'var(--faint)', marginTop: 6 }}>{subtitle}</div> : null}
         </div>
       ) : null}
       {children}
