@@ -18,6 +18,7 @@ import { setFullWidth } from '../../lib/desktopFrame';
 import { isNative } from '../../lib/native';
 import { fullName, formatPhone, formatPhoneInput, formatDate } from '../../lib/format';
 import { BRAND } from '../../brand';
+import BrandLockup from '../../components/ui/BrandMark';
 
 const PERSONALITIES = PERSONALITY_PRESETS;
 
@@ -34,7 +35,7 @@ const NOTIFY_TYPES = [
 const TIMEZONES = ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Phoenix', 'America/Los_Angeles', 'Pacific/Honolulu', 'Europe/London'];
 
 function SectionHeading({ children }) {
-  return <div className="km-eyebrow" style={{ padding: '24px 4px 8px' }}>{children}</div>;
+  return <div className="km-eyebrow" style={{ padding: '28px 6px 10px' }}>{children}</div>;
 }
 
 export default function SettingsPage({ onClose }) {
@@ -83,21 +84,19 @@ export default function SettingsPage({ onClose }) {
   return (
     <PushPanel onClose={onClose} title="Settings" zIndex={220}>
       <div style={{ maxWidth: 640, margin: '0 auto', padding: '8px 16px 0' }}>
-        {/* Profile hero */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 4px' }}>
+        {/* Profile hero (Soul preferences: big portrait, Inter Light name) */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '20px 4px 8px' }}>
           <label style={{ position: 'relative', cursor: 'pointer' }}>
-            <Avatar name={name} seed={user?.id} src={user?.avatarUrl} size={68} />
-            <span style={{ position: 'absolute', right: -2, bottom: -2, width: 24, height: 24, borderRadius: 12, background: 'var(--blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--bg)' }}>
-              <Icon name="camera" size={12} color="#fff" stroke={2.2} />
+            <Avatar name={name} seed={user?.id} src={user?.avatarUrl} size={96} />
+            <span style={{ position: 'absolute', right: 2, bottom: 2, width: 28, height: 28, borderRadius: 14, background: 'var(--hl)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--bg)' }}>
+              <Icon name="camera" size={13} color="var(--on-hl)" stroke={1.8} />
             </span>
             <input type="file" accept="image/*" onChange={onAvatar} style={{ display: 'none' }} />
           </label>
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div className="km-truncate" style={{ fontSize: 20, fontWeight: 700 }}>{name}</div>
-            <div className="km-truncate" style={{ fontSize: 13.5, color: 'var(--dim)', marginTop: 2 }}>{user?.title || 'Luxury Real Estate Advisor'}</div>
-            <div className="km-truncate" style={{ fontSize: 12, color: 'var(--faint)', marginTop: 2 }}>{user?.email}</div>
-          </div>
-          <Button variant="ghost" size="sm" onClick={() => setSheet('profile')}>Edit</Button>
+          <div className="km-truncate" style={{ maxWidth: '100%', marginTop: 16, fontFamily: 'var(--font-num)', fontSize: 26, fontWeight: 300, letterSpacing: '-0.02em' }}>{name}</div>
+          <div className="km-truncate" style={{ maxWidth: '100%', fontSize: 13, color: 'var(--dim)', marginTop: 4 }}>{user?.title || 'Luxury Real Estate Advisor'}</div>
+          <div className="km-truncate" style={{ maxWidth: '100%', fontSize: 12.5, color: 'var(--faint)', marginTop: 2 }}>{user?.email}</div>
+          <Button variant="ghost" size="sm" onClick={() => setSheet('profile')} style={{ marginTop: 14 }}>Edit profile</Button>
         </div>
 
         <SectionHeading>Brokerage</SectionHeading>
@@ -111,8 +110,8 @@ export default function SettingsPage({ onClose }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {[['dark', 'Dark', 'moon'], ['light', 'Light', 'sun']].map(([id, label, icon]) => (
               <button key={id} type="button" onClick={() => chooseTheme(id)} className="km-press"
-                style={{ height: 64, borderRadius: 14, border: `1px solid ${theme === id ? 'var(--blue)' : 'var(--line)'}`, background: theme === id ? 'var(--tint)' : 'var(--surfaceHi)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontWeight: 600, color: theme === id ? 'var(--bright)' : 'var(--text)' }}>
-                <Icon name={icon} size={18} /> {label}
+                style={{ height: 64, borderRadius: 16, boxShadow: theme === id ? 'inset 0 0 0 1px var(--text)' : 'inset 0 0 0 var(--hairline) var(--glass-line)', background: theme === id ? 'var(--glass-fill-hi)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontWeight: 500, color: theme === id ? 'var(--text)' : 'var(--dim)' }}>
+                <Icon name={icon} size={18} stroke={1.5} /> {label}
               </button>
             ))}
           </div>
@@ -132,7 +131,7 @@ export default function SettingsPage({ onClose }) {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 {[['phone', 'iPhone view', window.self !== window.top], ['full', 'Full width', window.self === window.top]].map(([id, label, on]) => (
                   <button key={id} type="button" onClick={() => { if (!on) setFullWidth(id === 'full'); }} className="km-press"
-                    style={{ height: 44, borderRadius: 12, border: `1px solid ${on ? 'var(--blue)' : 'var(--line)'}`, background: on ? 'var(--tint)' : 'var(--surfaceHi)', fontWeight: 600, fontSize: 14, color: on ? 'var(--bright)' : 'var(--text)' }}>
+                    style={{ height: 44, borderRadius: 999, boxShadow: on ? 'inset 0 0 0 1px var(--text)' : 'inset 0 0 0 var(--hairline) var(--glass-line)', background: on ? 'var(--glass-fill-hi)' : 'transparent', fontWeight: 500, fontSize: 14, color: on ? 'var(--text)' : 'var(--dim)' }}>
                     {label}
                   </button>
                 ))}
@@ -142,13 +141,13 @@ export default function SettingsPage({ onClose }) {
         </Group>
 
         <SectionHeading>Assistant</SectionHeading>
-        <div className="km-ai-card" style={{ marginBottom: 10, fontSize: 12.5, color: 'var(--dim)', lineHeight: 1.45, borderLeftColor: 'var(--violet)', background: 'linear-gradient(135deg, rgba(154,77,255,0.10), rgba(46,139,255,0.06))', borderColor: 'rgba(154,77,255,0.25)' }}>
+        <div className="km-ai-card" style={{ marginBottom: 10, fontSize: 12.5, color: 'var(--dim)', lineHeight: 1.5 }}>
           {assistantNameOf(user)} reads your book, drafts texts in your voice and keeps your day straight. It never texts a client without your approval.
         </div>
         <Group>
-          <Row icon="sparkle" iconColor="var(--violet)" iconBg="rgba(154,77,255,0.14)" title={assistantNameOf(user)} sub={PERSONALITIES.find((p) => p.id === aiPrefs.aiPersonalityId)?.label || 'Personality & voice'} chevron onClick={() => setSheet('assistant')} />
+          <Row icon="sparkle" iconColor="var(--hl-ink)" title={assistantNameOf(user)} sub={PERSONALITIES.find((p) => p.id === aiPrefs.aiPersonalityId)?.label || 'Personality & voice'} chevron onClick={() => setSheet('assistant')} />
           <Row
-            icon="zap" iconColor={ai?.available ? 'var(--green)' : 'var(--amber)'} iconBg={ai?.available ? 'rgba(48,210,122,0.14)' : 'rgba(242,169,59,0.14)'}
+            icon="zap" iconColor={ai?.available ? 'var(--hl-ink)' : 'var(--amber)'}
             title="AI engine"
             sub={ai ? (ai.available ? `Connected · ${ai.model}` : ai.hasKey ? 'Paused — check the key or budget' : 'Not connected — smart fallbacks are on') : 'Checking…'}
             style={{ borderBottom: 0 }}
@@ -184,12 +183,18 @@ export default function SettingsPage({ onClose }) {
         <SectionHeading>Account</SectionHeading>
         <Group>
           <Row icon="lock" title="Change password" chevron onClick={() => setSheet('password')} />
-          <Row icon="logOut" title="Sign out" danger iconColor="var(--red)" iconBg="rgba(255,90,90,0.12)" onClick={signOut} />
-          <Row icon="trash" title="Delete account" sub="Permanently erase your account and data" danger iconColor="var(--red)" iconBg="rgba(255,90,90,0.12)" onClick={() => setSheet('delete')} style={{ borderBottom: 0 }} />
+          <Row icon="trash" title="Delete account" sub="Permanently erase your account and data" danger onClick={() => setSheet('delete')} style={{ borderBottom: 0 }} />
         </Group>
 
-        <div style={{ textAlign: 'center', color: 'var(--faint)', fontSize: 12, padding: '28px 0 8px' }}>
-          {BRAND.name} · {BRAND.tagline}
+        {/* Soul "END SESSION": a quiet hairline box at the end of the list */}
+        <button type="button" className="km-end-session km-press" onClick={signOut}>
+          <Icon name="logOut" size={22} stroke={1.4} />
+          <span>Sign out</span>
+        </button>
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, color: 'var(--faint)', fontSize: 12, padding: '32px 0 8px' }}>
+          <BrandLockup size={18} wordSize={10} color="var(--faint)" gap={9} />
+          <span>{BRAND.tagline}</span>
         </div>
       </div>
 
@@ -292,9 +297,9 @@ function AssistantSheet({ open, onClose, user, onSaved }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {PERSONALITIES.map((p) => (
             <button key={p.id} type="button" className="km-press" onClick={() => { setPreset(preset === p.id ? null : p.id); setText(preset === p.id ? '' : p.text); }}
-              style={{ textAlign: 'left', padding: '12px 14px', borderRadius: 12, border: `1px solid ${preset === p.id ? 'rgba(46,139,255,0.45)' : 'var(--line)'}`, background: preset === p.id ? 'var(--tint)' : 'var(--surfaceHi)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              style={{ textAlign: 'left', padding: '12px 14px', borderRadius: 12, border: `1px solid ${preset === p.id ? 'rgba(var(--accent-rgb), 0.45)' : 'var(--line)'}`, background: preset === p.id ? 'var(--tint)' : 'var(--surfaceHi)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <span style={{ flex: 1 }}>
-                <span style={{ display: 'block', fontSize: 15.5, fontWeight: 600 }}>{p.label}</span>
+                <span style={{ display: 'block', fontSize: 15.5, fontWeight: 500 }}>{p.label}</span>
                 <span style={{ display: 'block', fontSize: 13, color: 'var(--dim)', marginTop: 2 }}>{p.sub}</span>
               </span>
               {preset === p.id ? <Icon name="checkCircle" size={20} color="var(--bright)" /> : null}
@@ -406,7 +411,7 @@ function HiddenContactsRow() {
         ) : rows.map((s) => (
           <div key={s.id} className="km-row" style={{ alignItems: 'flex-start' }}>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', fontWeight: 600 }}>{s.clientName || s.signalKind || 'Hidden'}</span>
+              <span style={{ display: 'block', fontWeight: 500 }}>{s.clientName || s.signalKind || 'Hidden'}</span>
               <span style={{ display: 'block', fontSize: 12.5, color: 'var(--dim)', marginTop: 2 }}>{s.reason || 'Muted'} · until {formatDate(s.expiresAt, { month: 'short', day: 'numeric' })}</span>
             </span>
             <Button variant="ghost" size="sm" onClick={() => remove(s)}>Un-hide</Button>

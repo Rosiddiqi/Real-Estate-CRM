@@ -41,6 +41,7 @@ export default function Avatar({
         width: size,
         height: size,
         fontSize,
+        fontWeight: size >= 56 ? 300 : undefined,
         background: src ? 'var(--surfaceHi)' : bg,
         color: silent ? 'var(--faint)' : undefined,
         boxShadow: ring ? `0 0 0 2px var(--bg), 0 0 0 3.5px ${ring}` : 'inset 0 0 0 var(--hairline) var(--lineHi)',
